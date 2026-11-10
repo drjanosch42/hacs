@@ -1,7 +1,9 @@
 # SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
 # SPDX-License-Identifier: CC-BY-4.0
 cff-version: 1.2.0
-message: "If you use this software, please cite it using the metadata from this file."
+message: >-
+  If you use this software, please cite it using the metadata from this file. The DOI below is the Zenodo concept DOI,
+  which covers all versions and resolves to the latest one; each release also has its own version DOI on Zenodo.
 title: "HACS — Harder Arithmetic Cohomology System"
 abstract: >-
   Simplicial orbifold cohomology of SL(2,Z) and GL(2) with coefficients in symmetric powers of the standard
@@ -15,7 +17,16 @@ authors:
     affiliation: "Universität Paderborn"
 license: LGPL-3.0-only
 repository-code: "https://github.com/drjanosch42/hacs"
-version: "0.1.0"
+version: "0.1.1"
+date-released: "2026-11-10"
+doi: 10.5281/zenodo.24118841
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.24118841
+    description: "Concept DOI of HACS: all versions (resolves to the latest version)."
+  - type: doi
+    value: 10.5281/zenodo.24118842
+    description: "Version DOI of HACS 0.1.0."
 keywords:
   - cohomology of arithmetic groups
   - Hecke operators
@@ -29,10 +40,11 @@ references:
       - family-names: Januszewski
         given-names: Fabian
         affiliation: "Universität Paderborn"
+    doi: 10.5281/zenodo.24118877
     repository: "https://github.com/drjanosch42/hacs-data"
     url: "https://github.com/drjanosch42/hacs-data"
     license: CC-BY-4.0
-    notes: "The companion data repository: census data and the HeckeZ data set computed with HACS."
+    notes: "The companion data repository: census data and the HeckeZ data set computed with HACS. The DOI is its Zenodo concept DOI (all versions)."
 preferred-citation:
   type: software
   title: "HACS — Harder Arithmetic Cohomology System"
@@ -41,5 +53,6 @@ preferred-citation:
       given-names: Fabian
       affiliation: "Universität Paderborn"
   repository-code: "https://github.com/drjanosch42/hacs"
-  version: "0.1.0"
+  doi: 10.5281/zenodo.24118841
+  version: "0.1.1"
   year: 2026

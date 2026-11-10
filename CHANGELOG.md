@@ -5,6 +5,23 @@
 All notable user-visible changes. The format follows Keep a Changelog; versions follow SemVer (`0.x`: interfaces may still
 change).
 
+## [0.1.1] - 2026-11-10
+
+Citation metadata and title pages; no change of code behaviour or of any computed result (the golden reference, the
+validation suite and its digests are unchanged).
+
+### Citation
+- Zenodo DOIs: the concept DOI 10.5281/zenodo.24118841 (all versions) in `CITATION.cff` (`doi`, `identifiers`, together
+  with the 0.1.0 version DOI 10.5281/zenodo.24118842) and as a badge in `README.md`; `date-released` added.
+- The companion data set `hacs-data` is cited with its concept DOI 10.5281/zenodo.24118877 (`CITATION.cff`
+  `references`, `README.md`).
+
+### Documents
+- The title pages of the specification ([C]), the extensions document ([E]) and the Hida document ([U]) give only the
+  version, the date and a pointer to the revision history; the revision histories record the change. No mathematical
+  content changes.
+- [C] gl2_contract 1.26.4, [E] hecke_extensions 1.25.3, [U] hida_hecke_algebra 0.7.3, [CLI] cli_manual 1.5.13, [PG] phenomena_gallery 1.5.4
+
 ## [0.1.0] - 2026-11-10
 
 First public release.

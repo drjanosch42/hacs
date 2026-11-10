@@ -1573,11 +1573,14 @@ find_package(Git QUIET)
 # (S26 INTEG, R1 audit S1) The file is written by cmake/OcBuildInfo.cmake at configure time AND on every build (target
 # oc_buildinfo), so the commit is the one BUILT, with `-dirty` in `--version` when a tracked file differs from HEAD.
 # The binding contracts of the release, printed by `hacs --version` (metadata; bump with the signed versions).  Checked
-# below against the \date lines of the three documents.
-set(OC_CONTRACT_VERSIONS "[C] 1.26.3, [E] 1.25.2, [U] 0.7.2")
+# below against the \date lines of the three documents.  (S26 V011b, HACS 0.1.1) The title-page-only update, signed by
+# the owner 2026-11-10 as [C] 1.26.4, [E] 1.25.3, [U] 0.7.3.
+set(OC_CONTRACT_VERSIONS "[C] 1.26.4, [E] 1.25.3, [U] 0.7.3")
 # (S26 INTEG, R1 audit M1) Guard: a document whose \date line names a RELEASE version (no -pre / -rc suffix) must name
-# the version in OC_CONTRACT_VERSIONS; a pre-release of the next version is accepted (the string names the last signed
-# one).  A source tree without the documents skips the check.
+# exactly that version in OC_CONTRACT_VERSIONS; a pre-release of the next version is accepted while the string names the
+# last signed one.  (S26 V011) The entry is parsed per tag and compared whole (a FIND of "[C] 1.26.4" also matched
+# "[C] 1.26.4-pre.1"); when the string names a pre-release, the document must name exactly that pre-release.
+# A source tree without the documents skips the check.
 foreach(oc_doc "C:gl2_contract" "E:hecke_extensions" "U:hida_hecke_algebra")
     string(REPLACE ":" ";" oc_doc_l "${oc_doc}")
     list(GET oc_doc_l 0 oc_tag)
@@ -1592,9 +1595,18 @@ foreach(oc_doc "C:gl2_contract" "E:hecke_extensions" "U:hida_hecke_algebra")
         if(oc_v STREQUAL "")
             message(FATAL_ERROR "contract guard: no \\date{Version ...} line in ${oc_tex}")
         endif()
-        string(FIND "${OC_CONTRACT_VERSIONS}" "[${oc_tag}] ${oc_v}" oc_pos)
-        if(oc_suffix STREQUAL "" AND oc_pos EQUAL -1)
-            message(FATAL_ERROR "contract guard: ${oc_file}.tex is version ${oc_v} (a release) but OC_CONTRACT_VERSIONS is '${OC_CONTRACT_VERSIONS}'; update CMakeLists.txt")
+        string(REGEX MATCH "\\[${oc_tag}\\] ([0-9]+\\.[0-9]+\\.[0-9]+)(-[A-Za-z0-9.]+)?" oc_s "${OC_CONTRACT_VERSIONS}")
+        set(oc_sv "${CMAKE_MATCH_1}")
+        set(oc_ssuffix "${CMAKE_MATCH_2}")
+        if(oc_sv STREQUAL "")
+            message(FATAL_ERROR "contract guard: OC_CONTRACT_VERSIONS '${OC_CONTRACT_VERSIONS}' has no [${oc_tag}] entry")
+        endif()
+        if(oc_suffix STREQUAL "")
+            if(NOT (oc_sv STREQUAL oc_v AND oc_ssuffix STREQUAL ""))
+                message(FATAL_ERROR "contract guard: ${oc_file}.tex is version ${oc_v} (a release) but OC_CONTRACT_VERSIONS is '${OC_CONTRACT_VERSIONS}'; update CMakeLists.txt")
+            endif()
+        elseif(NOT oc_ssuffix STREQUAL "" AND NOT "${oc_sv}${oc_ssuffix}" STREQUAL "${oc_v}${oc_suffix}")
+            message(FATAL_ERROR "contract guard: OC_CONTRACT_VERSIONS names [${oc_tag}] ${oc_sv}${oc_ssuffix} (a pre-release) but ${oc_file}.tex is version ${oc_v}${oc_suffix}; update CMakeLists.txt")
         endif()
     endif()
 endforeach()

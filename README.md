@@ -2,6 +2,8 @@
 <!-- SPDX-License-Identifier: CC-BY-4.0 -->
 # HACS — Harder Arithmetic Cohomology System
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24118841.svg)](https://doi.org/10.5281/zenodo.24118841)
+
 *High-performance simplicial orbifold cohomology implementation for arithmetic groups (C++ / AVX-512 / CUDA).*
 
 **In memoriam Prof. Dr. Günter Harder (1938-2025).**
@@ -19,7 +21,7 @@ Computing the cohomology of arithmetic groups is hard. This software is Harder.
 
 ---
 
-This is release **0.1.0** (`RELEASE_INFO.txt`). The version follows SemVer; `0.x` means that interfaces (CLI tokens,
+This is release **0.1.1** (`RELEASE_INFO.txt`). The version follows SemVer; `0.x` means that interfaces (CLI tokens,
 console verbs, record schemas) may still change. Changes: `CHANGELOG.md`.
 
 ## Documentation
@@ -41,7 +43,7 @@ Five PDF documents ship with the tree, in `docs/latex/`; their LaTeX sources sit
 | `src/Cuda/` | the optional CUDA device code (and its CPU stub) |
 | `src/hacs/` | the cohomology layer, Hecke operators, Hecke extensions, the integral line over Z, number fields, the console, the campaign driver, and the validation suite |
 | `cmake/`, `CMakeLists.txt`, `CMakePresets.json` | the build |
-| `docs/latex/` | the mathematical documents and their PDFs: [C] gl2_contract 1.26.3, [E] hecke_extensions 1.25.2, [U] hida_hecke_algebra 0.7.2, [CLI] cli_manual 1.5.13, [PG] phenomena_gallery 1.5.4 |
+| `docs/latex/` | the mathematical documents and their PDFs: [C] gl2_contract 1.26.4, [E] hecke_extensions 1.25.3, [U] hida_hecke_algebra 0.7.3, [CLI] cli_manual 1.5.13, [PG] phenomena_gallery 1.5.4 |
 | `docs/console/console.md` | the generated console reference |
 | `lean/` | formal checks in Lean 4 (in progress; **not part of the binding contract**) |
 | `notebook/` | the read-only notebook gateway and page (built with `-DOC_BUILD_NOTEBOOK=ON`), and example console scripts |
@@ -83,13 +85,18 @@ not part of the binding contract.
 ## Data
 
 The census data sets (congruence census, integral census, the integral Hecke structure data set HeckeZ) are published in a
-separate companion repository, `hacs-data`, under CC-BY-4.0; this tree holds only the reference results its validations
+separate companion repository, `hacs-data`, under CC-BY-4.0 (Zenodo concept DOI
+[10.5281/zenodo.24118877](https://doi.org/10.5281/zenodo.24118877)); this tree holds only the reference results its validations
 read. What is pending or not included in this release: `CHANGELOG.md`, "Not in this release".
 
 ## Citation
 
-Please cite HACS using the metadata in `CITATION.cff`. Each release is archived on Zenodo, which assigns it a DOI; see the
-release page. The data sets carry their own `CITATION.cff` in `hacs-data`.
+Please cite HACS using the metadata in `CITATION.cff`. To cite all versions, use the Zenodo concept DOI
+[10.5281/zenodo.24118841](https://doi.org/10.5281/zenodo.24118841), which always resolves to the latest release. Each
+release also has its own version DOI on Zenodo (for example, 0.1.0 is
+[10.5281/zenodo.24118842](https://doi.org/10.5281/zenodo.24118842)); cite that one to name the exact version you used.
+The data sets carry their own `CITATION.cff` in `hacs-data` (concept DOI
+[10.5281/zenodo.24118877](https://doi.org/10.5281/zenodo.24118877)).
 
 ## Licence
 
