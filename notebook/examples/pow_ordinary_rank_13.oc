@@ -1,0 +1,13 @@
+# pow_ordinary_rank_13.oc -- the verb pow(A, e): the ordinary rank as rank(U^d), without a loop.
+# Phenomena gallery [PG] sec:pg-pow.  U = U_13 on H^1(SL_2(Z); Sym^n F_13^2); U^d (d = dim H^1) kills the non-ordinary
+# (nilpotent) part and is invertible on the ordinary part, so rank(U^d) is the ordinary rank (Hida: it stays 3 along n == 10 mod 12).
+# Read_only verbs only (notebook-safe).  Cost: ~1 s, < 0.2 GB.
+M = sl2z_model();
+for n in [10, 22, 34, 46, 58] {
+    H = cohomology(symmetric_power(M, n, 13));
+    U = hecke(H, 13).A(1);
+    d = U.rows;
+    print("n =", n, " dim H^1 =", H.dims[1], " rank U =", rank(U), " ordinary rank = rank(U^d) =", rank(pow(U, d)));
+    assert(rank(pow(U, d)) == rank(pow(U, d + 1)), "rank(U^d) is stable");
+    assert(rank(pow(U, d)) == 3, "ordinary rank 3 along n = 10 mod 12");
+}

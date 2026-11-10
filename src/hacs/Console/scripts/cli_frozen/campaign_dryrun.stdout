@@ -1,0 +1,35 @@
+campaign 'campaign_smoke': 13 shape groups
+  group n_sym=0 p=2 r=1 q=0,1,2 model=sl2z_7vertex  (3 jobs)
+    #0  n_sym=0 ell=2 p=2 r=1  [external cross-checks]
+    #1  n_sym=0 ell=5 p=2 r=1  [external cross-checks]
+    #2  n_sym=0 ell=134217757 p=2 r=1  [external cross-checks]
+  group n_sym=0 p=2 r=2 q=0,1,2 model=sl2z_7vertex  (1 jobs)
+    #3  n_sym=0 ell=2 p=2 r=2  [external cross-checks]
+  group n_sym=0 p=3 r=1 q=0,1,2 model=sl2z_7vertex  (1 jobs)
+    #4  n_sym=0 ell=2 p=3 r=1  [external cross-checks]
+  group n_sym=0 p=3 r=2 q=0,1,2 model=sl2z_7vertex  (1 jobs)
+    #5  n_sym=0 ell=2 p=3 r=2  [external cross-checks]
+  group n_sym=2 p=2 r=1 q=0,1,2 model=sl2z_7vertex  (3 jobs)
+    #6  n_sym=2 ell=2 p=2 r=1  [external cross-checks]
+    #7  n_sym=2 ell=5 p=2 r=1  [external cross-checks]
+    #8  n_sym=2 ell=134217757 p=2 r=1  [external cross-checks]
+  group n_sym=2 p=2 r=2 q=0,1,2 model=sl2z_7vertex  (1 jobs)
+    #9  n_sym=2 ell=2 p=2 r=2  [external cross-checks]
+  group n_sym=2 p=3 r=1 q=0,1,2 model=sl2z_7vertex  (1 jobs)
+    #10  n_sym=2 ell=2 p=3 r=1  [external cross-checks]
+  group n_sym=2 p=3 r=2 q=0,1,2 model=sl2z_7vertex  (1 jobs)
+    #11  n_sym=2 ell=2 p=3 r=2  [external cross-checks]
+  group n_sym=4 p=2 r=1 q=0,1,2 model=sl2z_7vertex  (2 jobs)
+    #12  n_sym=4 ell=5 p=2 r=1  [external cross-checks]
+    #13  n_sym=4 ell=134217757 p=2 r=1  [external cross-checks]
+  group n_sym=4 p=3 r=1 q=0,1,2 model=sl2z_7vertex  (1 jobs)
+    #14  n_sym=4 ell=134217757 p=3 r=1  [external cross-checks]
+  group n_sym=4 p=3 r=2 q=0,1,2 model=sl2z_7vertex  (1 jobs)
+    #15  n_sym=4 ell=134217757 p=3 r=2  [external cross-checks]
+  group n_sym=10 p=2 r=1 q=0,1,2 model=sl2z_7vertex  (2 jobs)
+    #16  n_sym=10 ell=5 p=2 r=1  [external cross-checks]
+    #17  n_sym=10 ell=134217757 p=2 r=1  [external cross-checks]
+  group n_sym=16 p=2 r=1 q=0,1,2 model=sl2z_7vertex  (2 jobs)
+    #18  n_sym=16 ell=5 p=2 r=1  [external cross-checks]
+    #19  n_sym=16 ell=134217757 p=2 r=1  [external cross-checks]
+  20 jobs total

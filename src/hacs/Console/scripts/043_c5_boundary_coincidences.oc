@@ -1,0 +1,56 @@
+# 043_c5_boundary_coincidences.oc -- [S Stage 9] case 3 (slot-9 WP-13,
+# console phase C5b): coincidences of the boundary characters at ell = 5.
+#
+# On the boundary circle T_q acts through the characters
+#   chi_0(q) = 1 + q^(n+1)   (the Eisenstein character, [M Sec. 4])
+#   chi_1(q) = q + q^n       (its partner, the Dickson character of 042)
+# and the strategy's case 3 is where they coincide or degenerate mod ell:
+#   * n = 4, 8 with (ell - 1) | n: chi_0 == chi_1 (q^n == 1 and q^(n+1) == q);
+#   * n = 6: E_8 == 1 (mod 5), and the Eisenstein character is 1 + q^(-1).
+# Both are read here from BoundaryCohomology's T_q^bd (HeckeBoundaryOperator
+# on the circle model) and, for the second, from the bulk operator on H^1.
+
+include("prelude.oc");
+
+ell = 5;
+for n in [4, 8] {
+    tag = "(" + str(n) + ", 5)";
+    assert(n % (ell - 1) == 0, tag + ": (ell - 1) | n");
+    H = cohomology(symmetric_power(MODEL, n, ell));
+    B = boundary(H);
+    assert(B.is_group_cohomology and B.model == "circle", tag + ": the circle computes group cohomology");
+    for q in [2, 3] {
+        chi0 = (1 + q^(n + 1)) % ell;
+        chi1 = (q + q^n) % ell;
+        assert(chi0 == chi1, tag + ": chi_0(" + str(q) + ") == chi_1(" + str(q) + ")");
+        for d in B.degrees {
+            A = B.A(q, d);
+            assert(A == scale(identity(ell, A.cols), chi0),
+                   tag + ": T_" + str(q) + "^bd is the scalar chi_0(q) on H^" + str(d) + "_bd");
+        }
+    }
+    print(tag, "H_bd dims", B.dims, "chi_0(2) = chi_1(2) =", (1 + 2^(n + 1)) % ell);
+}
+
+# n = 6, k = 8: E_8 == 1 mod 5, so chi_0(q) = 1 + q^7 == 1 + q^(-1).
+n = 6;
+H = cohomology(symmetric_power(MODEL, n, ell));
+B = boundary(H);
+for q in [2, 3] {
+    qinv = 0;
+    for x in range(1, ell) { if (q * x) % ell == 1 { qinv = x; } }
+    chi0 = (1 + q^(n + 1)) % ell;
+    assert(chi0 == (1 + qinv) % ell, "(6, 5): chi_0(" + str(q) + ") == 1 + q^(-1)");
+    # The Eisenstein character on the boundary ...
+    Tb = B.A(q, 0);
+    assert(rank(sub(Tb, scale(identity(ell, Tb.cols), chi0))) < Tb.cols,
+           "(6, 5): 1 + q^(-1) is an eigenvalue of T_" + str(q) + "^bd on H^0_bd");
+    # ... and in the bulk H^1.
+    T = hecke(H, q).A(1);
+    assert(rank(sub(T, scale(identity(ell, T.cols), chi0))) < T.cols,
+           "(6, 5): and of T_" + str(q) + " on H^1");
+}
+print("(6, 5) chi_0(2) =", (1 + 2^7) % ell, "= 1 + 2^(-1)");
+
+assert(fingerprint() == "0x0000000000000000", "every pin taken at the defaults");
+annotate("043_c5_boundary_coincidences: chi_0 == chi_1 at (4, 5), (8, 5); E_8 == 1 at (6, 5)");

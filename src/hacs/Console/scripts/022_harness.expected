@@ -1,0 +1,6 @@
+#! oc-format 1
+run_validation(mod_arithmetic_validation) = 0
+bench(hecke, 48, 134217757, 2).dims = [0, 7, 0]
+bench(decomp, 10, 691, 2): q = 1 blocks = 1
+golden_subset([[10, 691]]).mismatches = 0
+jordan_type(N) = [3, 1]

@@ -1,0 +1,766 @@
+% gl2_groundtruth.tex -- [GT], the formal ground truth.  Skeleton (slot 16, L16-0); Part 0 (L16-2).
+% Body only (no \begin{document}); web.tex and print.tex are the drivers.
+% Every statement carries \lean{GL2.Decl}; the census (tools/lean_census.sh) checks that the
+% name exists and prints its axioms.  A label mirrored from [C] keeps [C]'s label verbatim and
+% carries a "% mirrors [C] vX.Y" line.
+
+\chapter{Skeleton}
+
+\begin{lemma}[Skeleton]\label{inf:skeleton}
+  \lean{GL2.skeleton_two}
+  \leanok
+  $1 + 1 = 2$ in $\mathbb{N}$.  This statement exists only so that the census pipeline is not vacuous.
+\end{lemma}
+\begin{proof}
+  \leanok
+  By computation.
+\end{proof}
+
+% ======================================================================
+% Part 0: conventions (L16-2, slot 16).  Lean: lean/GL2/Conventions/.
+% ======================================================================
+\chapter{Part 0. Conventions: the symmetric power (C1)}\label{ch:symconv}
+
+\begin{definition}[$\rho_n$, the column convention]\label{conv:symconv}
+  % mirrors [C] v1.15.0 def:rhon, eq:rhondef, def:semigroup
+  \lean{GL2.linForm, GL2.subst, GL2.SymN, GL2.rho, GL2.rhoHom, GL2.u, GL2.subst_u, GL2.subst_X}
+  \leanok
+  Let $R$ be a commutative ring and $W=R^2$ with ordered basis $(x,y)=(X_0,X_1)$. The matrix
+  $A=\left(\begin{smallmatrix}a&b\\c&d\end{smallmatrix}\right)$ acts in the \emph{column convention}:
+  $A\cdot x=ax+cy$ and $A\cdot y=bx+dy$, that is $A e_j=\sum_t A_{tj}e_t$. The map $\mathrm{subst}_A$ is the
+  $R$-algebra endomorphism of $R[x,y]$ with $x\mapsto ax+cy$ and $y\mapsto bx+dy$. It preserves the degree-$n$
+  homogeneous part $\mathrm{Sym}^n(W)$, and $\rho_n(A)$ is its restriction. On the basis $u_j=x^{n-j}y^j$,
+  \[
+    \rho_n(A)\,u_j=(ax+cy)^{n-j}(bx+dy)^{j}\qquad\text{([C] \texttt{eq:rhondef})}.
+  \]
+  No transpose, inverse, determinant twist or contragredient is involved. This is the C++
+  \texttt{ComputeSymmetricPowerMatrixFM}, and it is FLT's \texttt{HeckeEis.binarySubst}.
+\end{definition}
+\begin{proof}
+  \leanok
+  Definitional. Preservation of degree is \texttt{subst\_isHomogeneous}, and the displayed formula is
+  \texttt{subst\_u}.
+\end{proof}
+
+\begin{theorem}[Multiplicativity, base change]\label{prop:symconv}
+  % mirrors [C] v1.15.0 prop:symconv (2); (1) as base change; (3) integrality is by construction over Z
+  \lean{GL2.subst_mul, GL2.subst_one, GL2.rho_mul, GL2.rho_one, GL2.map_subst, GL2.subst_smul_one_of_isHomogeneous,
+    GL2.rho_smul_one}
+  \leanok
+  \uses{conv:symconv}
+  For all $A,B\in\mathrm{Mat}_2(R)$ (singular matrices included), $\rho_n(AB)=\rho_n(A)\rho_n(B)$ and $\rho_n(I)=I$. For
+  every ring map $f\colon R\to S$, $\mathrm{subst}$ commutes with $f$: $\rho_n(A)\bmod\ell$ is $\rho_n(A\bmod\ell)$.
+  Further, $\rho_n(\lambda I)=\lambda^nI$. Over $R=\mathbb Z$, $\rho_n(A)$ is integral by construction.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $\mathrm{subst}_A\circ\mathrm{subst}_B$ and $\mathrm{subst}_{AB}$ agree on $X_j$:
+  $\sum_t B_{tj}\sum_s A_{st}X_s=\sum_s(AB)_{sj}X_s$. Scalars: expand along the monomials of a homogeneous polynomial.
+\end{proof}
+
+\begin{theorem}[Freeness; the monomial basis]\label{inf:symbasis}
+  \lean{GL2.symBasis}
+  \leanok
+  \uses{conv:symconv}
+  $\mathrm{Sym}^n(R^2)$ is free over every commutative ring $R$, with the basis of the monomials of degree $n$
+  (mathlib \texttt{basisRestrictSupport}), so it is finite of rank $n+1$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $\mathrm{Sym}^n(R^2)$ is the submodule supported on the exponent vectors of degree $n$.
+\end{proof}
+
+\begin{theorem}[The coordinate matrix of $\rho_n$]\label{inf:rhomat}
+  \lean{GL2.mono, GL2.uBasis, GL2.uBasis_repr, GL2.uBasis_coe, GL2.rhoMat, GL2.rhoMat_apply, GL2.rhoMat_mul,
+    GL2.rhoMat_one, GL2.rhoMat_map, GL2.det_rho_eq_det_rhoMat}
+  \leanok
+  \uses{conv:symconv, inf:symbasis}
+  $(u_0,\dots,u_n)$ is a basis of $\mathrm{Sym}^n(R^2)$ indexed by $\{0,\dots,n\}$, the coordinate of $v$ at $u_i$ being
+  the coefficient of $x^{n-i}y^i$. The matrix $\rho_n(A)_{ij}$ of $\rho_n(A)$ in it is the coefficient of
+  $x^{n-i}y^i$ in $(ax+cy)^{n-j}(bx+dy)^j$ (the C++ table); $A\mapsto(\rho_n(A)_{ij})$ is multiplicative,
+  unital and commutes with every ring map $R\to S$ entrywise, and $\det\rho_n(A)$ is the determinant of this matrix.
+\end{theorem}
+\begin{proof}
+  \leanok
+  Reindex the monomial basis by the exponent of $y$; the rest is \texttt{LinearMap.toMatrix} and
+  Theorem~\ref{prop:symconv}.
+\end{proof}
+
+\begin{lemma}[Determinant of the symmetric power]\label{lem:detsym}
+  % mirrors [C] v1.15.0 lem:detsym
+  \lean{GL2.det_rho, GL2.isUnit_det_rho_iff, GL2.isUnit_det_rho_charP, GL2.det_rhoMat_lowerT, GL2.det_rhoMat_upperT, GL2.det_rhoMat_diagM,
+    GL2.eq_lowerT_diagM_upperT, GL2.det_rhoMat_field, GL2.genMat, GL2.genMat_map, GL2.det_rhoMat_generic}
+  \leanok
+  \uses{inf:rhomat}
+  $\det\rho_n(A)=(\det A)^{n(n+1)/2}$ for every $A\in\mathrm{Mat}_2(R)$, over every commutative ring $R$. For $n\ge1$,
+  $\rho_n(A)$ is invertible iff $\det A\in R^\times$; so for $\det g=p$ and $R$ of characteristic $\ell$, $\rho_n(g)$ is
+  invertible iff $\ell\ne p$ or $n=0$ (over a field: \texttt{isUnit\_det\_rho\_charP}).
+\end{lemma}
+\begin{proof}
+  \leanok
+  (L16-6; [C]'s proof is by Zariski density and diagonalisation, the Lean proof avoids eigenvalues.)
+  $\rho_n\bigl(\begin{smallmatrix}1&0\\c&1\end{smallmatrix}\bigr)u_j=(x+cy)^{n-j}y^j$ has no $u_i$ with $i<j$ and
+  coefficient $1$ at $u_j$, so its matrix is lower unitriangular. The upper unitriangular matrix is its conjugate by the
+  swap $w$, and $\det\rho_n(w)^2=\det\rho_n(w^2)=1$. $\rho_n(\mathrm{diag}(x,y))$ is diagonal with entries
+  $x^{n-j}y^j$, of determinant $(xy)^{\sum_j j}=(xy)^{n(n+1)/2}$. Over a field with $a\neq0$,
+  $A=\bigl(\begin{smallmatrix}1&0\\c/a&1\end{smallmatrix}\bigr)\mathrm{diag}(a,\det A/a)
+  \bigl(\begin{smallmatrix}1&b/a\\0&1\end{smallmatrix}\bigr)$. The generic matrix $(X_{ij})$ over $\mathbb Z[a,b,c,d]$
+  has $a\ne0$ in the fraction field, which is injective; every $A$ over every $R$ is its image under
+  $X_{ij}\mapsto A_{ij}$, and both sides commute with that map (Theorem~\ref{inf:rhomat}).
+\end{proof}
+
+\begin{lemma}[The coefficient bound]\label{prop:symconv-bound}
+  % mirrors [C] v1.15.0 prop:symconv(3), the bound
+  \lean{GL2.rho_coeff_bound, GL2.l1, GL2.abs_coeff_le_l1, GL2.l1_add, GL2.l1_mul, GL2.l1_pow, GL2.l1_linForm}
+  \leanok
+  \uses{conv:symconv}
+  Over $\mathbb Z$, for $j\le n$ and $|A_{ts}|\le M$, every coefficient of $\rho_n(A)u_j$ is at most $(2M)^n$ in absolute
+  value. \textbf{Finding (L16-6):} the hypothesis $j\le n$ was missing from the L16-2 statement and is necessary there
+  (for $j>n$ the polynomial $(bx+dy)^j$ has degree $j$; $A=\bigl(\begin{smallmatrix}1&1\\1&1\end{smallmatrix}\bigr)$
+  gives $\binom{j}{\lfloor j/2\rfloor}>2^n$ once $j\ge n+5$). [C]'s statement is about the $n+1$ columns of $\rho_n(A)$,
+  so it has $j\le n$ implicitly and is unaffected.
+\end{lemma}
+\begin{proof}
+  \leanok
+  The $\ell^1$-norm of the coefficients is subadditive and submultiplicative, bounds every coefficient, and is
+  $|A_{0j}|+|A_{1j}|\le2M$ on the linear form $A_{0j}x+A_{1j}y$; so $\ell^1((ax+cy)^{n-j}(bx+dy)^j)\le(2M)^n$.
+\end{proof}
+
+\chapter{Part 0. Conventions: the contragredient and the pairing (C2)}\label{ch:contragredient}
+
+\begin{definition}[$\rho_n^\vee(g)=\rho_n(\operatorname{adj}g)^{\top}$]\label{def:contragredient}
+  % mirrors [C] v1.15.0 eq:adjrules, def:contragredient, eq:dualaction
+  \lean{GL2.DualN, GL2.rhoDual, GL2.rhoDual_apply, GL2.adj_mul_self, GL2.self_mul_adj, GL2.adj_mul, GL2.adj_adj,
+    GL2.adj_one}
+  \leanok
+  \uses{conv:symconv}
+  $D_n=\mathrm{Hom}_R(\mathrm{Sym}^n,R)$, and $(\rho_n^\vee(g)\varphi)(v)=\varphi(\rho_n(\operatorname{adj}g)v)$. The
+  adjugate satisfies $g\operatorname{adj}g=\operatorname{adj}g\,g=(\det g)I$, $\operatorname{adj}(gh)=\operatorname{adj}h\operatorname{adj}g$,
+  $\operatorname{adj}\operatorname{adj}g=g$ and $\operatorname{adj}I=I$.
+\end{definition}
+\begin{proof}
+  \leanok
+  mathlib's \texttt{adjugate\_mul}, \texttt{mul\_adjugate} and \texttt{adjugate\_mul\_distrib}; for $\operatorname{adj}\operatorname{adj}$, the explicit
+  $2\times2$ formula.
+\end{proof}
+
+\begin{theorem}[The perfect pairing; adjointness]\label{prop:pairing}
+  % mirrors [C] v1.15.0 prop:pairing (1)-(5)
+  \lean{GL2.rhoDual_mul, GL2.rhoDual_one, GL2.adj_eq_inv_of_det_one, GL2.pairing_perfect, GL2.pairing_adjoint,
+    GL2.pairing_twisted, GL2.adj_triple, GL2.adj_diag_eq_conj_S}
+  \leanok
+  \uses{def:contragredient, prop:symconv, inf:symbasis}
+  (1) $\rho_n^\vee$ is a monoid homomorphism on $\mathrm{Mat}_2(R)$, and on $\mathrm{SL}_2$ we have $\operatorname{adj}\gamma=\gamma^{-1}$.
+  (2) The evaluation pairing is perfect over every $R$.
+  (3) $\langle\rho_n(g)v,\varphi\rangle=\langle v,\rho_n^\vee(\operatorname{adj}g)\varphi\rangle$.
+  (4) $\langle\rho_n(g)v,\rho_n^\vee(g)\varphi\rangle=(\det g)^n\langle v,\varphi\rangle$.
+  (5) $\operatorname{adj}(\gamma_1g\gamma_2)=\operatorname{adj}\gamma_2\operatorname{adj}g\operatorname{adj}\gamma_1$, and
+  $\operatorname{adj}\mathrm{diag}(1,p)=S\,\mathrm{diag}(1,p)\,S^{-1}$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  (1) $\operatorname{adj}$ is an anti-homomorphism and dualisation reverses products. (2) $\mathrm{Sym}^n$ is free and
+  finite (Theorem~\ref{inf:symbasis}), so it is reflexive. (3) $\operatorname{adj}\operatorname{adj}g=g$.
+  (4) $\rho_n(\operatorname{adj}g\,g)=\rho_n((\det g)I)=(\det g)^n$.
+\end{proof}
+
+\begin{lemma}[$\mathrm{Sym}^n$ versus $D_n$: the integral invariant form]\label{lem:symdual}
+  % mirrors [C] v1.15.0 lem:symdual, eq:BnGram
+  \lean{GL2.gram, GL2.symForm, GL2.symForm_basis, GL2.rhoMat_transpose_gram, GL2.symForm_rho_adj,
+    GL2.symForm_rho_rho, GL2.symForm_intertwines, GL2.isUnit_det_gram_iff, GL2.symForm_bijective_iff}
+  \leanok
+  \uses{inf:rhomat, def:contragredient, prop:pairing}
+  Let $B_n$ be the bilinear form on $\mathrm{Sym}^n(R^2)$ with Gram matrix
+  $B_n(u_t,u_j)=(-1)^t\,t!\,(n-t)!\,\delta_{t+j,n}$ ([C] \texttt{eq:BnGram}). For every $g\in\mathrm{Mat}_2(R)$:
+  $B_n(\rho_n(g)v,w)=B_n(v,\rho_n(\operatorname{adj}g)w)$ and $B_n(\rho_n(g)v,\rho_n(g)w)=(\det g)^nB_n(v,w)$;
+  $\Phi_n(v)=B_n(v,\cdot)$ satisfies $\Phi_n\circ\rho_n(g)=\rho_n^\vee(g)\circ\Phi_n$; and $\Phi_n$ is bijective iff
+  $n!\in R^\times$.
+
+  \textbf{Scope.} [C] defines $B_n$ by the permutation sum $\sum_\pi\prod_t\det[v_t\mid w_{\pi(t)}]$ on products of
+  vectors and derives \texttt{eq:BnGram}; here $B_n$ is \emph{defined} by \texttt{eq:BnGram}, and the permutation-sum
+  formula is not formalized. Every other clause of [C] \texttt{lem:symdual} is.
+\end{lemma}
+\begin{proof}
+  \leanok
+  (L16-6.) The second equivariance is the matrix identity $\rho_n(g)^{\top}G=G\,\rho_n(\operatorname{adj}g)$, which is
+  closed under products ($\operatorname{adj}$ reverses them). It holds for $\mathrm{diag}(x,y)$ (both sides diagonal
+  against the antidiagonal $G$), for the swap ($\operatorname{adj}w=-w$, and $(-1)^{n-t}=(-1)^n(-1)^t$), and for
+  $\bigl(\begin{smallmatrix}1&0\\c&1\end{smallmatrix}\bigr)$, whose adjugate is the same matrix at $-c$: with
+  $k=n-t-j\ge0$, both entries $(t,j)$ equal $(-1)^{t+k}c^k\,(j+k)!\,(t+k)!/k!$, by
+  $\binom{j+k}{k}(t+k)!\,j!=t!\,(j+k)!\binom{t+k}{k}$. Over a field the $LDU$ factorisation of
+  Lemma~\ref{lem:detsym} gives it for $a\ne0$, the generic matrix gives it over $\mathbb Z[a,b,c,d]$, and
+  specialisation over every $R$. The first equivariance follows from
+  $\rho_n(\operatorname{adj}g)\rho_n(g)=\rho_n((\det g)I)=(\det g)^n$. For $\Phi_n$: its matrix against the dual
+  basis is $G^{\top}$, and $G$ is a row permutation of $\mathrm{diag}\bigl((-1)^{n-t}(n-t)!\,t!\bigr)$; the $t=0$ entry
+  is $\pm n!$ and every $t!(n-t)!$ divides $n!$.
+\end{proof}
+
+\chapter{Part 0. Conventions: Hecke normalisation (C3)}\label{ch:hecke}
+
+\begin{definition}[Left cosets of determinant $m$; full versus primitive]\label{conv:hecke}
+  % mirrors [C] v1.15.0 def:hecke, eq:fullop, prop:diamond
+  \lean{GL2.hnf, GL2.hnfMat, GL2.hnfPrim, GL2.card_hnf, GL2.diamond_scalar}
+  \leanok
+  \uses{prop:symconv}
+  The cosets $\Gamma\delta$ of $\{\delta\in\mathrm{Mat}_2(\mathbb Z):\det\delta=m\}$ are indexed by the Hermite forms $(m/d\ \ b;0\ \ d)$, with $d\mid m$ and
+  $0\le b<d$; there are $\sigma_1(m)$ of them. The \emph{full} $T(m)$ sums over all of them. The \emph{primitive} $T(1,m)$ sums over those with $\gcd(m/d,b,d)=1$
+  (Shimura's notation; slot-19 correction: earlier written ``the full $T(1,m)$'', inverted; notation verified in R20-L, Shimura Thm.~3.24(1), (2), p.~63). The coset $pI$ acts by $\rho_n(pI)=p^n$ ([C] \texttt{prop:diamond}).
+  That the Hermite forms represent the cosets is Shimura Prop.~3.36, p.~72, at $N=1$ (verified, R20-L); here they are the index set.
+\end{definition}
+\begin{proof}
+  \leanok
+  \texttt{Finset.card\_sigma}; for the last claim, Theorem~\ref{prop:symconv}.
+\end{proof}
+
+\begin{theorem}[E1: full $=$ primitive $+\,p^n$]\label{bridge:fullprimitive}
+  % mirrors [C] v1.15.0 thm:relations (caveat), obl:algebra (ii),(iii)
+  \lean{GL2.prim_recursion}
+  \leanok
+  \uses{conv:hecke}
+  At $m=p^2$ the only non-primitive coset is $pI$, and $\#\mathrm{prim}(p^2)=p^2+p$. For every coset-additive assembly,
+  $T_{p^2}=T_{\mathrm{prim},p^2}+\rho_n(pI)=T_{\mathrm{prim},p^2}+p^n$. Combined with the Hecke-ring identity
+  $T_p^2=T_{p^2}+p\,T(p,p)$, this gives $T_{p^2}=T_p^2-p^{n+1}$ and
+  $T_{\mathrm{prim},p^2}=T_p^2-p^{n+1}-p^{n}$: substituting either operator into the other's identity is off by exactly $p^n$.
+  \gtmodlit{The Hecke-ring identity $T(p)^2=T(p^2)+p\,T(p,p)$ (Shimura Thm.~3.24(4), verified in R20-L), taken as hypothesis \gtlithyp{hrel},
+  and the Hermite representatives (Shimura Prop.~3.36, p.~72, at $N=1$, verified in R20-L).}
+\end{theorem}
+\begin{proof}
+  \leanok
+  Take $\gcd(p^2/d,b,d)\ne1$ with $d\mid p^2$ and $b<d$. Then $d=p$ and $p\mid b<p$, so $b=0$. The rest is noncommutative ring algebra.
+\end{proof}
+
+\begin{lemma}[E1: the coset count and the additive split]\label{bridge:fullprimitive-aux}
+  % the unconditional part of bridge:fullprimitive, split off (F3-19 MINOR 5)
+  \lean{GL2.hnf_sq_partition, GL2.card_hnfPrim_sq, GL2.hnfMat_p, GL2.full_eq_prim_add}
+  \leanok
+  \uses{bridge:fullprimitive}
+  At $m=p^2$ the only non-primitive Hermite coset is $pI$, $\#\mathrm{prim}(p^2)=p^2+p$, and for every coset-additive assembly
+  $T_{p^2}=T_{\mathrm{prim},p^2}+\rho_n(pI)$. (F3-19 MINOR 5: split off from the \textsf{proved\_mod\_lit} row so that the census counts declarations, not rows: none of these carries a literature hypothesis.)
+\end{lemma}
+\begin{proof}
+  \leanok
+  The first two sentences of the proof of \ref{bridge:fullprimitive}.
+\end{proof}
+
+\chapter{Part 0. Conventions: Bernoulli numbers (C9) and \texorpdfstring{$\varepsilon_K$}{epsilon\_K} (C11)}\label{ch:bernoulli}
+
+\begin{definition}[The project's Bernoulli numbers are mathlib's \texttt{bernoulli}]\label{conv:bernoulli}
+  \lean{GL2.projBernoulli, GL2.projBernoulli_recursion, GL2.projBernoulli_zero, GL2.projBernoulli_one,
+    GL2.eq_projBernoulli_of_recursion, GL2.projBernoulli_odd_eq_zero}
+  \leanok
+  The C++ \texttt{bernoulli\_mod} runs $\sum_{j=0}^{w}\binom{w+1}{j}B_j=0$ ($w\ge1$) from $B_0=1$. This recursion
+  determines the sequence, and it is mathlib's \texttt{bernoulli}, with $B_1=-\tfrac12$. In addition, $B_k=0$ for odd $k\ge3$.
+\end{definition}
+\begin{proof}
+  \leanok
+  mathlib's \texttt{sum\_bernoulli}; uniqueness by strong induction.
+\end{proof}
+
+\begin{theorem}[\texttt{bernoulli} versus \texttt{bernoulli'}]\label{bridge:bernoulli}
+  \lean{GL2.bernoulli'_eq_proj, GL2.bernoulli'_eq_proj_of_ne_one, GL2.bernoulli'_eq_proj_of_even}
+  \leanok
+  \uses{conv:bernoulli}
+  $B'_k=(-1)^kB_k$. The two agree for every $k\ne1$, in particular at every even $k$, which are the only indices the
+  pipeline reads.
+\end{theorem}
+\begin{proof}
+  \leanok
+  mathlib.
+\end{proof}
+
+\begin{definition}[$\varepsilon_K$, one definition]\label{conv:epsK}
+  % mirrors [E] v1.16.1 sec:ring (i) (the slot-15 WP-5 M2 form); [C] v1.15.0 prop:satdefect
+  \lean{GL2.epsK, GL2.epsK_eq_sum, GL2.epsK_nonneg, GL2.epsK_eq_zero_iff}
+  \leanok
+  For $A_K\cong\bigoplus_i\mathbb Z/\ell^{e_i}$ ($1\le e_i\le K$), $\varepsilon_K:=K\dim_{\mathbb F_\ell}(A_K/\ell)-\mathrm{length}(A_K)=K\cdot\#\{i\}-\sum e_i$.
+  Then $\varepsilon_K=\sum_i(K-e_i)\ge0$, with $\varepsilon_K=0$ if and only if $A_K$ is free over $\mathbb Z/\ell^K$. The
+  pre-v1.15.1-pre.6 reading $K\,\mathrm{rank}_{\mathbb Z_\ell}(B_K)-\mathrm{length}$ is a different quantity and is not
+  defined here. The certificate's second form, $\mathrm{level}\cdot\mathrm{rank}_{\mathbb T}-\mathrm{length}$ ([E]
+  \texttt{sec:ring}(ii)(6)), coincides with this one once $\dim(A_K/\ell)=\mathrm{rank}_{\mathbb T}$, which the
+  certificate checks first.
+\end{definition}
+\begin{proof}
+  \leanok
+  Induction on the list of exponents.
+\end{proof}
+
+\chapter{Part 0. Conventions: the nebentypus (C8)}\label{ch:nebentypus}
+
+Notation. For $\delta=\left(\begin{smallmatrix}a&b\\c&d\end{smallmatrix}\right)\in\mathrm{Mat}_2(\mathbb Z)$ write
+$a_\delta,b_\delta,c_\delta,d_\delta$. $\chi$ is a Dirichlet character modulo $N$ with values in a commutative ring
+$R$: mathlib's \texttt{DirichletCharacter R N}, a multiplicative character of $\mathbb Z/N$ that is zero on
+non-units. $\rho_n$ is Definition~\ref{conv:symconv}. $\Gamma_0(N)$ and $\varsigma_N\colon\gamma\mapsto d_\gamma\bmod N$
+are mathlib's \texttt{CongruenceSubgroup.Gamma0} and \texttt{Gamma0Map}. The classical side follows the
+Diamond--Shurman / Shimura / LMFDB / FLT convention. $S_k(N,\psi)$ means $f(\gamma z)=\psi(d_\gamma)(c_\gamma z+d_\gamma)^k f(z)$
+for $\gamma\in\Gamma_0(N)$, and a normalised eigenform has $a_{p^2}=a_p^2-\psi(p)p^{k-1}$.
+
+\begin{definition}[The nebentypus convention]\label{conv:nebentypus}
+  % mirrors [C] v1.15.0 def:nebdata, lem:nebdata, prop:nebdecomp(2), prop:nebcorr(3)
+  \lean{GL2.Neb.Delta0, GL2.Neb.aHom, GL2.Neb.rhoChi, GL2.Neb.rhoChiHom, GL2.Neb.rhoChi_mul,
+    GL2.Neb.aMod_mul_dMod_Gamma0, GL2.Neb.Gamma0_mem_Delta0, GL2.Neb.dMod_eq_Gamma0Map,
+    GL2.Neb.chi_a_mul_chi_d, GL2.Neb.chi_a_eq_inv_chi_d, GL2.Neb.rhoChi_Gamma0, GL2.Neb.rhoChi_inv_Gamma0,
+    GL2.Neb.rhoChi_smul_one, GL2.Neb.rhoChi_neg_one, GL2.Neb.diamond_eigen, GL2.Neb.aMod_adjugate,
+    GL2.Neb.dMod_adjugate, GL2.Neb.rhoChi_eps_conj}
+  \leanok
+  \uses{conv:symconv, prop:symconv}
+  $\Delta_0(N)=\{\delta\in\mathrm{Mat}_2(\mathbb Z):\det\delta>0,\ N\mid c_\delta,\ a_\delta\in(\mathbb Z/N)^\times\}$ is a
+  monoid containing $\Gamma_0(N)$, and $\delta\mapsto a_\delta\bmod N$ is a monoid homomorphism on it. The coefficient
+  module $V(\chi)$ is $\mathrm{Sym}^n(R^2)$ with
+  \[
+    \rho_{n,\chi}(\delta):=\chi(a_\delta)\,\rho_n(\delta)\qquad(\delta\in\Delta_0(N)).
+  \]
+  \textbf{The character is read off the upper-left entry.} The following consequences are proved, with no
+  hypotheses:
+  \begin{enumerate}
+    \item $\rho_{n,\chi}$ is multiplicative on $\Delta_0(N)$ (indeed whenever $N\mid c_{\delta'}$).
+    \item On $\Gamma_0(N)$ we have $a_\gamma d_\gamma\equiv1\pmod N$. Hence $\chi(a_\gamma)\chi(d_\gamma)=1$ and
+      $\rho_{n,\chi}(\gamma)=\chi^{-1}(d_\gamma)\,\rho_n(\gamma)$.
+    \item \textbf{Module-level dictionary.} The DS/Shimura/FLT module ``$\gamma\mapsto\psi(d_\gamma)\rho_n(\gamma)$''
+      (FLT's \texttt{gamma0NebenRep} with $\psi=\omega^{e}$) is $V(\psi^{-1})$. Reading a literature statement about the
+      character $\psi$ into [C] therefore \emph{inverts} the character.
+    \item $T(p,p)=\rho_{n,\chi}(pI)=\chi(p)\,p^{n}$, and $-I$ acts by $\chi(-1)(-1)^n$.
+    \item \textbf{Diamond.} Suppose $F\colon\mathrm{SL}_2(\mathbb Z)\to\mathrm{Sym}^n$ satisfies
+      $F(\sigma x)=\rho_{n,\chi}(\sigma)F(x)$ for $\sigma\in\Gamma_0(N)$; this is the function picture of
+      $\mathrm{Ind}_{\Gamma_0(N)}^{\mathrm{SL}_2(\mathbb Z)}V(\chi)$. Then [C]'s
+      $R_\sigma F(x):=\rho_n(\sigma)F(\sigma^{-1}x)$ equals $\chi(d_\sigma)F(x)$. So
+      \textbf{$\langle d\rangle=\chi(d)$ on the character model}, which is the inverse of DS's diamond on the
+      holomorphic half: by Theorem~\ref{bridge:nebentypus-dictionary}(D1) that half is $S_k(N,\bar\chi)$, where
+      DS's $\langle d\rangle$ is $\bar\chi(d)$.
+    \item $a_{\operatorname{adj}\delta}=d_\delta$. For $\varepsilon=\mathrm{diag}(1,-1)$,
+      $\rho_{n,\chi}(\varepsilon\gamma\varepsilon)=\rho_n(\varepsilon)\rho_{n,\chi}(\gamma)\rho_n(\varepsilon)$.
+  \end{enumerate}
+\end{definition}
+\begin{proof}
+  \leanok
+  (1)--(4) are congruences modulo $N$ on the entries of products (\texttt{aMod\_mul}, \texttt{cMod\_mul}), together with
+  $\det\gamma=1$, $N\mid c_\gamma$ and multiplicativity of $\rho_n$ (Theorem~\ref{prop:symconv}). For (5):
+  $F(x)=F(\sigma\sigma^{-1}x)=\chi(a_\sigma)\rho_n(\sigma)F(\sigma^{-1}x)$; multiply by $\chi(d_\sigma)$.
+\end{proof}
+
+\begin{theorem}[The dictionary to $S_k(N,\chi)$ and $S_k(N,\bar\chi)$]\label{bridge:nebentypus-dictionary}
+  \lean{GL2.Neb.period_automorphy, GL2.Neb.antiperiod_automorphy, GL2.Neb.transport_rep_indep, GL2.Neb.eigen_hol,
+    GL2.Neb.eigen_antihol, GL2.Neb.pin_character}
+  \leanok
+  \uses{conv:nebentypus}
+  Let $k=n+2$, let $p\nmid N$ be prime, $R=\mathbb C$, and $\chi$ a Dirichlet character modulo $N$; write
+  $\bar\chi=\chi^{-1}$.
+  \begin{enumerate}
+    \item[(D1)] \textbf{Space, holomorphic half.} For $f\in S_k(N,\psi)$ the Eichler--Shimura integrand
+      $\omega_f=f(z)(zx+y)^n\,dz$ satisfies $\omega_f(\gamma z)\,d(\gamma z)=\rho_{n,\psi^{-1}}(\gamma)\,\omega_f(z)\,dz$
+      on $\Gamma_0(N)$. Hence the holomorphic periods in [C]'s $H^1(\Gamma_0(N);V(\chi))$ are those of
+      $S_k(N,\bar\chi)$.
+    \item[(D1')] \textbf{Space, antiholomorphic half.} For $g\in S_k(N,\chi)$ the integrand
+      $\overline{g(z)}(\bar zx+y)^n\,d\bar z$ is $V(\chi)$-automorphic. So the antiholomorphic periods in [C]'s
+      $V(\chi)$-part are the conjugates of $S_k(N,\chi)$.
+    \item[(D2)] \textbf{Operator.} Take [C]'s
+      $T_p=\operatorname{cor}\circ(\operatorname{conj}_g^{-1},\rho_{n,\chi}(g))\circ\operatorname{res}$ with
+      $g=\mathrm{diag}(1,p)$, and transport it to integrands. It becomes
+      $f\mapsto\sum_{\varepsilon}\chi(d_\varepsilon)f[\varepsilon]_k$. Here $\delta_t=r_t^{-1}g$ ($r_t$ representing
+      $(\Gamma_0(N)\cap g\Gamma_0(N)g^{-1})\backslash\Gamma_0(N)$) represents the cosets $\delta\Gamma_0(N)$ of
+      $\Gamma_0(N)g\Gamma_0(N)$, and $\varepsilon:=\operatorname{adj}\delta$ represents the cosets $\Gamma_0(N)\varepsilon$ of
+      $\Gamma_0(N)\mathrm{diag}(p,1)\Gamma_0(N)$. As a formula on arbitrary $f$ the sum depends on the representatives;
+      it is independent of the choice of $\varepsilon$ in $\Gamma_0(N)\varepsilon$ exactly on $S_k(N,\bar\chi)$
+      (\texttt{transport\_rep\_indep}), which is where (D1) puts the holomorphic half. On that space it equals $\chi(p)$ times the classical $T_p$ of
+      $S_k(N,\bar\chi)$. On the holomorphic half it is therefore DS's adjoint $T_p^{*}=\langle p\rangle^{-1}T_p$, and
+      likewise $T(p,p)=\chi(p)p^n$ is the adjoint of DS's $\bar\chi(p)p^n$ there.
+    \item[(D3)] \textbf{Eigenvalues.} Let $f\in S_k(N,\bar\chi)$ be a $T_p$-eigenform with eigenvalue $\lambda$. [C]'s $T_p$
+      has eigenvalue $\chi(p)\lambda=\bar\lambda=a_p(f^\rho)$ on it, where $f^\rho\in S_k(N,\chi)$. On $\bar g$, for
+      $g\in S_k(N,\chi)$ with eigenvalue $\mu$, it has eigenvalue $\mu$. Both halves carry the eigenvalues of
+      $S_k(N,\chi)$, each once. \textbf{The $T_p$- and $T(p,p)$-eigensystems on [C]'s
+      $H^1_{\mathrm{par}}(\Gamma_0(N);V(\chi))$ are those of $S_k(N,\chi)$ in LMFDB convention. The cuspidal
+      characteristic polynomial of $T_p$ is $\prod_{f\in S_k(N,\chi)}(X-a_p(f))^{2}$}, not $(X-a_p)(X-\bar a_p)$ (the
+      WP-9 audit ruling).
+    \item[(D4)] \textbf{Pin.} Suppose an eigensystem of [C]'s operators is that of a normalised eigenform of
+      $S_k(N,\psi)$. [C]'s system satisfies $T_{p^2}=T_p^2-\chi(p)p^{k-1}$, and the eigenform satisfies
+      $a_{p^2}=a_p^2-\psi(p)p^{k-1}$. Then $\psi(p)=\chi(p)$. This conclusion does not depend on (D1)--(D3).
+  \end{enumerate}
+  \gtmodlit{
+  \textup{(L1)} Eichler--Shimura with a character (Shimura, \emph{Introduction to the arithmetic theory of
+  automorphic functions}, Ch.~8, Thm.~8.4; FLT \texttt{HeckeEis.exists\_eichlerShimura\_coeffH1par\_binaryFormRepSL}
+  at $\chi=1$): the period map $S_k(N,\bar\chi)\oplus\overline{S_k(N,\chi)}\to H^1_{\mathrm{par}}(\Gamma_0(N);V(\chi)_{\mathbb C})$
+  is an isomorphism.
+  \textup{(L2)} The de~Rham form of $\operatorname{cor}\circ\operatorname{conj}\circ\operatorname{res}$ is
+  $T\eta=\sum_{\delta\in\Gamma g\Gamma/\Gamma}\rho'(\delta)\,(\delta^{-1})^{*}\eta$ (Brown \S9 (B)--(D), pp.~81--82, with the transfer
+  formula; Remark~\ref{rmk:nebtransport}).
+  \textup{(L3)} The coset representatives $\{(1\ j;0\ p)\}_{j<p}\cup\{(p\ 0;0\ 1)\}$ of
+  $\Gamma_0(N)\backslash\Gamma_0(N)\mathrm{diag}(p,1)\Gamma_0(N)$, and DS's formula for $T_p$ on $S_k(N,\psi)$
+  (DS Prop.~5.2.1 and \S5.3).
+  \textup{(L4)} Petersson: a $T_p$-eigenform $f\in S_k(N,\psi)$ has $\lambda=\psi(p)\bar\lambda$ (DS Thm.~5.5.3), and
+  $f^\rho(z)=\overline{f(-\bar z)}$ lies in $S_k(N,\bar\psi)$ with the conjugate eigenvalues.
+  \textup{(L5)} For (D4): [C] \texttt{thm:nebrelations}(2) (Shimura Thm.~3.35) and DS Prop.~5.3.1.
+  In Lean the literature enters only as hypotheses of the declarations (\gtlithyp{IsNeb}, \gtlithyp{heig},
+  \gtlithyp{hpet}, \gtlithyp{hC}, \gtlithyp{hF}). The definitions \texttt{classicalTp} and \texttt{transportedTp}
+  transcribe (L3) and (L2).}
+\end{theorem}
+\begin{proof}
+  \leanok
+  (D1): In the column convention $\rho_1(\gamma)(zx+y)=(cz+d)\,(\gamma z\,x+y)$ (\texttt{subst\_w}), so
+  $\rho_n(\gamma)\omega_f(z)=f(z)(cz+d)^n w(\gamma z)^n$. Combine this with $f(\gamma z)=\psi(d)(cz+d)^{k}f(z)$ and
+  $d(\gamma z)=(cz+d)^{-2}dz$: the result is $\psi(d_\gamma)\rho_n(\gamma)\omega_f$, which equals
+  $\rho_{n,\psi^{-1}}(\gamma)\omega_f$ by Definition~\ref{conv:nebentypus}(3). (D1') is the complex conjugate, using
+  $\overline{\chi(d)}=\chi^{-1}(d)$ (mathlib \texttt{MulChar.star\_apply'}).
+  (D2): Let $\delta=\operatorname{adj}\varepsilon$ with $\det\varepsilon=p$. Since $\operatorname{adj}\varepsilon\cdot\varepsilon=pI$,
+  $\rho_1(\operatorname{adj}\varepsilon)w(\varepsilon z)=\tfrac{p}{cz+d}w(z)$. So
+  $\chi(a_\delta)\rho_n(\delta)\omega_f(\delta^{-1}z)\tfrac{d(\delta^{-1}z)}{dz}$ is the integrand of
+  $\chi(d_\varepsilon)f[\varepsilon]_k$ (\texttt{transport\_single}). Now sum over (L3). Here $d=p$ on the $p$
+  representatives $(1\ j;0\ p)$ and $d=1$ on $(p\ 0;0\ 1)$, so the sum is
+  $\chi(p)\bigl(\sum_j f[\cdot]+\bar\chi(p)f[\cdot]\bigr)$ (\texttt{transported\_eq}).
+  (D3): (D2) and (L4) (\texttt{eigen\_hol}, \texttt{eigen\_antihol}). The antiholomorphic half uses the complex
+  conjugate of (D2) for $\bar\chi$; that conjugation is a \emph{hand step} (not literature, not formalized): $\rho_n$ is
+  integral, $\overline{\bar\chi(\cdot)}=\chi(\cdot)$ and $d\bar z$ pulls back by $\overline{d(\varepsilon z)/dz}$, so
+  $T_\chi(\overline{\omega_g})=\overline{T_{\bar\chi}\omega_g}$; only the scalar step is machine-checked. The squared form follows because both halves give
+  the multiset $\{a_p(f):f\in S_k(N,\chi)\}$; $f\mapsto f^\rho$ is a bijection of eigenbases
+  $S_k(N,\bar\chi)\to S_k(N,\chi)$. The WP-9 audit gives a second proof, via the involution of $\varepsilon=\mathrm{diag}(1,-1)$
+  (\texttt{rhoChi\_eps\_conj}, \texttt{eps\_conj\_diag}).
+  (D4): cancel $p^{k-1}\neq0$ (\texttt{pin\_character}).
+\end{proof}
+
+\begin{lemma}[The algebraic identities of the nebentypus dictionary]\label{bridge:nebentypus-dictionary-aux}
+  % the unconditional ingredients of bridge:nebentypus-dictionary, split off (F3-19 MINOR 5)
+  \lean{GL2.Neb.subst_w, GL2.Neb.subst_P, GL2.Neb.transport_single, GL2.Neb.transported_eq, GL2.Neb.eps_conj_diag}
+  \leanok
+  \uses{bridge:nebentypus-dictionary}
+  $\rho_1(\gamma)(zx+y)=(cz+d)(\gamma z\,x+y)$ and its polynomial form; the single-coset transport identity of (D2) and its sum over
+  (L3); the $\varepsilon=\mathrm{diag}(1,-1)$ conjugation. (F3-19 MINOR 5: split off from the \textsf{proved\_mod\_lit} row so that the census counts declarations, not rows: none of these carries a literature hypothesis.)
+\end{lemma}
+\begin{proof}
+  \leanok
+  As in the proof of \ref{bridge:nebentypus-dictionary} ((D1), (D2), the WP-9 second proof).
+\end{proof}
+
+\begin{remark}[{(L2): the de~Rham form of {[C]}'s operator}]\label{rmk:nebtransport}
+  Let $\eta$ be a $V$-valued form with $\eta(hz)\,d(hz)=\rho'(h)\eta(z)\,dz$, and $c_\eta(\gamma)=\int_{z_0}^{\gamma z_0}\eta$
+  its cocycle.
+  \begin{itemize}
+    \item The pair $(\operatorname{conj}_g^{-1},\rho'(g))$ sends $c_\eta$ to $c_{\eta'}$, where
+      $\eta'=\rho'(g)\,(g^{-1})^{*}\eta$ (substitute $u=g^{-1}w$).
+    \item Corestriction from $\Gamma''=\Gamma\cap g\Gamma g^{-1}$, along $\Gamma=\bigsqcup\Gamma''r_t$, is
+      $\eta'\mapsto\sum_t\rho'(r_t^{-1})\,r_t^{*}\eta'$.
+    \item The composite is $\sum_t\rho'(\delta_t)(\delta_t^{-1})^{*}\eta$ with $\delta_t=r_t^{-1}g$, and the
+      $\delta_t$ run over $\Gamma g\Gamma/\Gamma$.
+  \end{itemize}
+  This is a hand derivation, recorded for the Fable audit; it is not formalized.
+\end{remark}
+
+\begin{remark}[What WP-10 implements]\label{rmk:nebhandoff}
+  \begin{itemize}
+    \item The character model uses $\chi(a_\delta)$ on every block: $\chi(a_{h_j(\gamma)})$ in [C] \texttt{eq:MHchi}, and
+      $\chi(a_{\delta_{i,t}})$ in \texttt{eq:nebcorr}.
+    \item Its $\langle d\rangle$ is $\chi(d)$, and $T(p,p)=\chi(p)p^n$.
+    \item Its $T_p$-eigenvalues are those of $S_k(N,\chi)$ in LMFDB convention, each twice in $H^1_{\mathrm{par}}$.
+    \item The character must be fixed by its value at a named generator: inverting it is exactly the
+      $\chi\leftrightarrow\bar\chi$ swap.
+  \end{itemize}
+\end{remark}
+
+% ======================================================================
+% Part L3: oracles and checkers (L16-4, slot 16).  Lean: lean/GL2/Checkers/.
+% ======================================================================
+\chapter{Part L3. Differential oracles and certificate checkers}\label{ch:checkers}
+
+\begin{definition}[The executable $\rho_n$]\label{orc:rhoexec}
+  % mirrors [C] v1.15.0 def:rhon, eq:rhondef (the double-sum form)
+  \lean{GL2.Exec.rhoEntry, GL2.Exec.rhoMat, GL2.Exec.subst_u_eq_sum_rhoEntry, GL2.Exec.map_rhoEntry,
+    GL2.Exec.rhoNat_eq, GL2.Exec.cast_rhoNat, GL2.Exec.rhoMat_eq}
+  \leanok
+  \uses{conv:symconv}
+  For a commutative semiring $R$ and $a,b,c,d\in R$ put
+  \[
+    \rho_n(A)_{t,j}=\sum_{s\le n-j}\ \sum_{r\le j}[s+r=t]\binom{n-j}{s}a^{n-j-s}c^{s}\binom{j}{r}b^{j-r}d^{r},
+  \]
+  the double-sum form of [C] \texttt{eq:rhondef}. \textbf{Specification:} over every commutative ring and for $j\le n$,
+  $\mathrm{subst}_A(u_j)=\sum_{t\le n}\rho_n(A)_{t,j}\,u_t$, so the executable matrix is the coordinate matrix of
+  \texttt{GL2.rho} (\ref{conv:symconv}) in the basis $(u_t)$, i.e.\ \texttt{Exec.rhoMat} $=$ \texttt{GL2.rhoMat}
+  (\texttt{rhoMat\_eq}). It commutes with every ring map, and its $\mathbb N$-list
+  evaluation \texttt{rhoNat}, cast to $R$, is it.
+\end{definition}
+\begin{proof}
+  \leanok
+  Expand both binomials of \texttt{subst\_u} (\texttt{add\_pow}), multiply the sums, and collect the $(s,r)$ term on
+  $u_{s+r}$, using $n-(s+r)=(n-j-s)+(j-r)$ for $s\le n-j$, $r\le j$.
+\end{proof}
+
+\begin{theorem}[Soundness of the $\rho_n$ checker]\label{chk:rhoexec}
+  \lean{GL2.Exec.rhoCheck_sound}
+  \leanok
+  \uses{orc:rhoexec}
+  If \texttt{rhoCheck n m Ds} accepts, every dumped matrix $M$ with key $A$ satisfies, in $\mathbb Z/m$,
+  $M=\rho_n(A\bmod m)$, and column $j$ of $M$ expands $\mathrm{subst}_A(u_j)$ in the $u_t$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  The checker compares every entry with \texttt{rhoNat} mod $m$; cast and apply \ref{orc:rhoexec}.
+\end{proof}
+
+\begin{theorem}[The $\rho_n$ oracle at three golden cells]\label{orc:rhogolden}
+  \lean{GL2.Exec.Data.rho_n2_ell5_ok, GL2.Exec.Data.rho_n10_ell691_ok, GL2.Exec.Data.rho_n16_ell13_ok,
+    GL2.Exec.Data.rho_golden_cells, GL2.Exec.Data.rho_tampered_rejected}
+  \leanok
+  \uses{chk:rhoexec}
+  At the golden cells $(n,\ell)=(2,5),(10,691),(16,13)$ every C++ $\rho_n$ matrix dumped by
+  \texttt{HeckeTauDumpValidation} (the $p=2$ $\tau$-table's consumer pool of [C] \texttt{obl:tau}(vi), and
+  \texttt{ComputeSymmetricPowerMatrixFM} on $T,S,ST,TS,s_i,\delta_i$) equals $\rho_n(A\bmod\ell)$. A tampered entry is
+  rejected.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \texttt{decide +kernel} on the dumped data, then \ref{chk:rhoexec}.
+\end{proof}
+
+\begin{definition}[The \texttt{obl:tau} predicate and its checker]\label{chk:tau}
+  % mirrors [C] v1.15.0 def:tau (T1)-(T3), alg:tau step 0, def:primitives (P1),(P4), obl:tau (i)-(v),(vii)
+  \lean{GL2.TauChk.TauSpec, GL2.TauChk.tauCheck, GL2.TauChk.tauCheck_sound, GL2.TauChk.tauCheck_complete,
+    GL2.TauChk.instDecidableTauSpec, GL2.TauChk.chainEqB_iff}
+  \leanok
+  An oriented simplex $\gamma\cdot\iota(\sigma)$ of $K^u$ is named by its canonical key (P4): the lexicographically least
+  $\gamma t$, $t\in S(\sigma,\hat\sigma)$, with the parity of $t$'s vertex correspondence as its sign; a chain is the
+  coefficient function on keys. The (T1) helper splits $\gamma=hs_i$, $h\in\Gamma_0(N)$, by $N\mid(\gamma\,\mathrm{adj}\,s_i)_{21}$,
+  and returns $(g^{-1}hg)\cdot\tau(s_i\iota(\sigma))$. \texttt{TauSpec} is the conjunction of: the coset data
+  ($g=\mathrm{diag}(1,N)$, $m$ pairwise $\Gamma_0(N)$-inequivalent $s_i$ of determinant one, nonempty $S(\sigma,\hat\sigma)$);
+  closure of the simplex lists under faces (a missing face is a poison index, never a valid simplex); one stored chain per slot; (i) structure; (ii) $=$ (T3), $\varepsilon(\tau(s_i\iota(v)))=1$; (iii) $=$ (T2),
+  $\partial\tau(s_i\iota\sigma)=\tau(\partial(s_i\iota\sigma))$ in degrees $1,2$, the right side through the helper only;
+  (iv) $=$ (T1), every slot equals the sign-tracked translate through every transporter; (v) the int32 bound
+  $B=\max(\max\|\gamma_t\|,4N^2)\le2^{31}-1$ ([C] \texttt{obl:backend}(ii)); (vii) the
+  integral regime. \texttt{tauCheck} decides it: \texttt{tauCheck D = true} $\iff$ \texttt{TauSpec D}.
+  \emph{Trust boundary:} that canonical keys are a faithful coordinate system on $C_\bullet(K^u)$ is the C++ model
+  certificate (\texttt{SL2ZTessellationTables::validate\_closure}) and [C] \texttt{H4}; it is an input, not re-proved.
+  Clause (vi) is covered by \ref{orc:rhogolden} for the pool matrices, not for the term-to-slot pointers.
+\end{definition}
+\begin{proof}
+  \leanok
+  Field by field; the chain equalities by \texttt{chainEqB\_iff} (keywise on the keys that occur, both sides vanishing
+  elsewhere).
+\end{proof}
+
+\begin{theorem}[\texttt{obl:tau} (i)--(v), (vii) on the real $p=2$ table]\label{chk:tau-p2}
+  \lean{GL2.TauChk.Data.tauP2_check, GL2.TauChk.Data.tauP2_spec, GL2.TauChk.Data.tauP2_fnv,
+    GL2.TauChk.Data.tauP2_golden, GL2.TauChk.Data.tauP2_tampered_rejected, GL2.TauChk.Data.tauP2_tampered_off_golden}
+  \leanok
+  \uses{chk:tau}
+  The $p=2$, $\nu=1$ $\tau$-table dumped by \texttt{HECKE\_DUMP\_TAU} ($69$ slots) satisfies \texttt{TauSpec}. Its FNV-1a-64,
+  computed in Lean exactly as \texttt{HeckePairHomotopy::tau\_table\_fnv64}, equals the C++ value, and its
+  \texttt{HashScalar64} is the golden object \texttt{tau\_table\_fnv64\_p2\_r1}. A table with one coefficient negated is
+  rejected and leaves the golden hash.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \texttt{decide +kernel} on the generated data \texttt{GL2/Checkers/TauP2Data.lean}; then \ref{chk:tau}.
+\end{proof}
+
+\begin{definition}[A kernel-cheap form of the $\rho_n$ checker]\label{chk:rhofast}
+  \lean{GL2.Exec.chooseFast, GL2.Exec.chooseFast_eq, GL2.Exec.rhoNatFast, GL2.Exec.sum_range_ite_add_eq,
+    GL2.Exec.rhoNatFast_eq, GL2.Exec.rhoCheckOneFast, GL2.Exec.rhoCheckFast, GL2.Exec.rhoCheckFast_eq}
+  \leanok
+  \uses{chk:rhoexec}
+  \texttt{rhoNatFast} is \texttt{rhoNat} with the inner sum over $r$ collapsed to its one term $r=t-s$ and $\binom{k}{s}$
+  computed as $k^{\underline{s}}/s!$; \texttt{rhoCheckFast} is \texttt{rhoCheck} with \texttt{rhoNatFast}. The two checkers are
+  equal as functions, so a kernel run of the fast one proves the statement \ref{chk:rhoexec}'s soundness theorem consumes.
+  (The kernel unfolds \texttt{Nat.choose}'s recursion at a cost exponential in $n$; this is what makes $n=32$ checkable.)
+\end{definition}
+\begin{proof}
+  \leanok
+  \texttt{Nat.choose\_eq\_descFactorial\_div\_factorial}; the collapsed sum by \texttt{Finset.sum\_eq\_single}.
+\end{proof}
+
+\begin{theorem}[The $\rho_n$ oracle at every golden \texttt{ext cone\_action} cell (L17-4)]\label{orc:rhogrid}
+  \lean{GL2.Exec.RhoGrid.rho_grid_cells, GL2.Exec.RhoGrid.rho_grid_tampered_rejected}
+  \leanok
+  \uses{chk:rhoexec, chk:rhofast, orc:rhogolden}
+  At each of the $31$ points of the golden \texttt{ext cone\_action} harness, $n\in\{2,4,10,16,22,24\}\times
+  \ell\in\{5,13,691,10007,134217757\}$ and $(n,\ell)=(32,5)$, every C++ $\rho_n$ matrix dumped by \texttt{HeckeTauDumpValidation}
+  (\texttt{HECKE\_DUMP\_TAU\_RHO\_CELLS}; the $p=2$ $\tau$-table's consumer pool of [C] \texttt{obl:tau}(vi), and
+  \texttt{ComputeSymmetricPowerMatrixFM} on $T,S,ST,TS,s_i,\delta_i$) equals $\rho_n(A\bmod\ell)$; a tampered entry at the
+  largest cell is rejected. There is no golden $\rho$ object: the check is against the definition, not a hash. The golden
+  $\tau$ table itself is \ref{chk:tau-p2} (the one golden $\tau$ object \texttt{tau\_table\_fnv64\_p2\_r1}, the same at all
+  31 points); the golden \texttt{tau\_bd\_table\_fnv64\_p2\_r1} and \texttt{eta\_table\_fnv64\_p2\_r1} are \ref{chk:taubd-p2}
+  and \ref{chk:eta-p2} (slot 18).
+\end{theorem}
+\begin{proof}
+  \leanok
+  \texttt{decide +kernel} per cell (one module per cell, \texttt{GL2/Checkers/RhoGrid/}; no \texttt{native\_decide}), then
+  \ref{chk:rhoexec}.
+\end{proof}
+
+\begin{definition}[The \texttt{obl:taubdry} predicate and its checker (L18-3a)]\label{chk:taubd}
+  % mirrors [C] v1.17.0 def:taubdry (T1d)-(T3d), lem:bdrycomponent, lem:taubdryexists(2), obl:taubdry (i)-(iv)
+  \lean{GL2.TauChk.TauBdData, GL2.TauChk.TauBdData.view, GL2.TauChk.TauBdData.compOk, GL2.TauChk.TauBdData.bdryOk,
+    GL2.TauChk.TauBdSpec, GL2.TauChk.taubdCheck, GL2.TauChk.taubdCheck_sound, GL2.TauChk.taubdCheck_complete,
+    GL2.TauChk.instDecidableTauBdSpec, GL2.TauChk.TauData.sAt_det, GL2.TauChk.TauBdSpec.single_component,
+    GL2.TauChk.bdTableFnv}
+  \leanok
+  \uses{chk:tau}
+  A $\tau_\partial$ dump is a list of boundary simplices $K_{\mathrm{bd}}$ by degree and one stored chain per slot $(j,q,\sigma)$,
+  $\sigma\in K_{\mathrm{bd}}$, over the model and coset datum of a bulk $\tau$ dump: canonical keys, the (P1) split and the (T1)
+  helper are \emph{literally} those of \ref{chk:tau}, applied to the view whose slots are the $\tau_\partial$ slots. \texttt{TauBdSpec}
+  is the conjunction of the coset datum, face closure of the model and of $K_{\mathrm{bd}}$ (dimension $\le1$, (B2)), one
+  chain per slot, structure ($\sigma_t\in K_{\mathrm{bd}}$, canonical, $\det=1$), (i) (T3$\partial$) and the forced component map
+  ([C] \texttt{lem:bdrycomponent}: every term of slot $j$ lies in $g^{-1}s_j\infty=(Na_j:c_j)$, the cross product vanishing),
+  (ii) (T2$\partial$) in degree $1$ through the helper only, (iii) (T1$\partial$) over every transporter between boundary simplices,
+  (iv) coefficients $\pm1$ and regime $\mathbb{Z}$, and the int32 bound. \texttt{taubdCheck} decides it; \texttt{single\_component}
+  derives (i)'s ``supported in a single component''. Clause (v) (the Shapiro transcription) is a route, not a property of the
+  table, and is out. \emph{Trust boundary:} as \ref{chk:tau}, plus the model fact that $K_{\mathrm{bd}}$ lies on the
+  horocycle at $\infty$ (so the component of $\gamma\cdot\iota(\sigma)$ is $\gamma\cdot\infty$).
+\end{definition}
+\begin{proof}
+  \leanok
+  Field by field, the chain equalities by \texttt{chainEqB\_iff}; \texttt{single\_component} by cancelling $c_j$, or, if
+  $c_j=0$, from $a_j\ne0$ ($\det s_j=1$).
+\end{proof}
+
+\begin{theorem}[\texttt{obl:taubdry} (i)--(iv) on the real golden $p=2$ table]\label{chk:taubd-p2}
+  \lean{GL2.TauChk.Data.tauBdP2R1, GL2.TauChk.Data.tauBdP2_check, GL2.TauChk.Data.tauBdP2_spec,
+    GL2.TauChk.Data.tauBdP2_fnv, GL2.TauChk.Data.tauBdP2_fnv_golden, GL2.TauChk.Data.negFirstOfDeg,
+    GL2.TauChk.Data.tauBdP2Tampered, GL2.TauChk.Data.tauBdP2_tampered_rejected, GL2.TauChk.Data.tauBdP2_tampered_off_golden}
+  \leanok
+  \uses{chk:taubd, chk:tau-p2}
+  The $p=2$, $\nu=1$ $\tau_\partial$-table dumped by \texttt{HECKE\_DUMP\_TAU\_PAIR=2:1} ($21$ slots, over the model and coset
+  datum of \ref{chk:tau-p2}) satisfies \texttt{TauBdSpec}; its FNV-1a-64, walked as \texttt{HeckeBoundaryTauTable::table\_fnv64},
+  equals the C++ value, and its \texttt{HashScalar64} is the golden object \texttt{tau\_bd\_table\_fnv64\_p2\_r1}
+  $=\texttt{0x47cbe6f1c81c7495}$. The table with the first term of the first non-empty edge slot negated is rejected and
+  leaves the golden hash.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \texttt{decide +kernel} on \texttt{GL2/Checkers/PairData/P2R1.lean} (generated by \texttt{lean/tools/taubd\_eta\_to\_lean.py});
+  then \ref{chk:taubd}.
+\end{proof}
+
+\begin{definition}[The \texttt{obl:eta} predicate and its checker (L18-3b)]\label{chk:eta}
+  % mirrors [C] v1.17.0 def:pairhomotopy (eq:pairhomotopy, OP6), obl:eta (i)-(iv)
+  \lean{GL2.TauChk.EtaData, GL2.TauChk.EtaData.etaT1, GL2.TauChk.EtaData.etaBdry, GL2.TauChk.EtaData.defect,
+    GL2.TauChk.EtaData.homLhs, GL2.TauChk.EtaSpec, GL2.TauChk.etaCoreCheck, GL2.TauChk.etaCheck, GL2.TauChk.etaCheck_of,
+    GL2.TauChk.etaCheck_sound, GL2.TauChk.etaCheck_complete, GL2.TauChk.instDecidableEtaSpec, GL2.TauChk.etaTableFnv}
+  \leanok
+  \uses{chk:tau, chk:taubd}
+  An $\eta$ dump is one stored $(q{+}1)$-chain of $K^u$ per slot $(j,q,\sigma)$, $\sigma\in K_{\mathrm{bd}}$, $q+1\le\dim X$, over a
+  $\tau_\partial$ dump whose base is the bulk $\tau$ dump: one model, one coset datum, one (P1) split, by construction.
+  \texttt{EtaSpec} contains \texttt{TauSpec} of the base and \texttt{TauBdSpec} of the $\tau_\partial$ table ((i): ``the tables it
+  refers to are the certified $\tau$ and $\tau_\partial$ of the same $g$, $\Gamma''$, $s_j$''), one chain per slot, structure
+  ($\sigma_t$ a $(q{+}1)$-simplex, canonical, $\det=1$), (ii) the homotopy identity
+  $\partial\eta(s_j\sigma)+\eta(\partial(s_j\sigma))=(j\tau_\partial-\tau j)(s_j\sigma)$ (the middle term absent in degree $0$), $\eta$
+  on faces through $\eta$'s helper, $\tau_\partial$ through its helper, $\tau$ the stored slot, (iii) (T1) over every boundary
+  transporter and the entry bound, (iv) regime $\mathbb{Z}$. Clauses (v) (the derived $\tilde h$, a statement about cochain matrices)
+  and (vi) (diagnostics) are out. \texttt{etaCheck} $=$ \texttt{tauCheck} $\wedge$ \texttt{taubdCheck} $\wedge$
+  \texttt{etaCoreCheck} decides it.
+\end{definition}
+\begin{proof}
+  \leanok
+  Field by field, the chain equalities by \texttt{chainEqB\_iff}, the two base tables by \ref{chk:tau} and \ref{chk:taubd}.
+\end{proof}
+
+\begin{theorem}[\texttt{obl:eta} (i)--(iv) on the real golden $p=2$ table]\label{chk:eta-p2}
+  \lean{GL2.TauChk.Data.etaP2R1, GL2.TauChk.Data.etaP2_core, GL2.TauChk.Data.etaP2_check, GL2.TauChk.Data.etaP2_spec,
+    GL2.TauChk.Data.etaP2_fnv, GL2.TauChk.Data.etaP2_fnv_golden, GL2.TauChk.Data.etaP2Tampered,
+    GL2.TauChk.Data.etaP2_tampered_rejected, GL2.TauChk.Data.etaP2_tampered_off_golden}
+  \leanok
+  \uses{chk:eta, chk:taubd-p2, chk:tau-p2}
+  The $p=2$, $\nu=1$ pair homotopy dumped by \texttt{HECKE\_DUMP\_TAU\_PAIR=2:1} ($21$ slots) satisfies \texttt{EtaSpec} over the
+  tables of \ref{chk:tau-p2} and \ref{chk:taubd-p2}; its FNV-1a-64, walked as \texttt{HeckePairHomotopy::table\_fnv64}, equals the
+  C++ value, and its \texttt{HashScalar64} is the golden object \texttt{eta\_table\_fnv64\_p2\_r1} $=\texttt{0xe03a5d76f6921ca3}$.
+  The table with the first term of the first non-empty edge slot negated is rejected and leaves the golden hash.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \texttt{decide +kernel} on \texttt{GL2/Checkers/PairData/P2R1.lean} (the $\eta$-specific clauses as one declaration, the two
+  base tables by \ref{chk:tau-p2}, \ref{chk:taubd-p2}); then \ref{chk:eta}.
+\end{proof}
+
+\begin{theorem}[$\tau$, $\tau_\partial$, $\eta$ on the $p\ne2$ grid, golden-tied (L18-3)]\label{chk:pairgrid}
+  \lean{GL2.TauChk.Data.pair_grid_specs, GL2.TauChk.tauGlobalCheck, GL2.TauChk.tauSlotsCheck,
+    GL2.TauChk.tauSlotsCheck_slot, GL2.TauChk.tauCheck_of_mod}
+  \leanok
+  \uses{chk:eta, chk:taubd, chk:tau}
+  At each $(p,\nu)\in\{(2,2),(3,1),(3,2),(5,1),(7,1)\}$ of [C] \texttt{rmk:iotatausym}'s grid, the certified $\tau$, $\tau_\partial$ and
+  $\eta$ of the golden recipe (\texttt{HECKE\_DUMP\_TAU\_PAIR}) satisfy \texttt{EtaSpec} (hence \texttt{TauSpec} and
+  \texttt{TauBdSpec}), and the $\tau$ and $\tau_\partial$ tables checked are the golden objects
+  \texttt{tau\_table\_fnv64\_p<p>\_r<$\nu$>}, \texttt{tau\_bd\_table\_fnv64\_p<p>\_r<$\nu$>} of the slot-18 R1 points
+  \texttt{n=2 ell=<$\ell$> ext tau}. There is no golden $\eta$ object off $(2,1)$: each data module pins the dump's own
+  \texttt{HashScalar64} (option (a)) and the module proves the Lean hash equal to it. \texttt{tauCheck} runs in pieces
+  (\texttt{tauCheck\_of\_mod}: a global part and the per-slot part on the classes $s.i \bmod 4$), because one declaration on
+  the $(3,2)$ table peaks at $\approx 23$ GB, above the 20 GB \texttt{lake} budget.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \texttt{decide +kernel} per $(p,\nu)$ (\texttt{GL2/Checkers/PairGrid/}, one import chain; no \texttt{native\_decide}), then
+  \ref{chk:eta}.
+\end{proof}
+
+\begin{definition}[The \texttt{stable} certificate and its checker]\label{chk:stablecert}
+  % mirrors [C] v1.16.0 cor:stablecert (1) (B1 form), prop:saturation (3); the C++ ringalg::CertifyStable (slot-15 WP-5)
+  \lean{GL2.SatChk.SatCert, GL2.SatChk.satCheck, GL2.SatChk.SatSpec, GL2.SatChk.satCheck_sound,
+    GL2.SatChk.prog_mem, GL2.SatChk.realizes_of_mem_closure, GL2.SatChk.mem_kerK_iff_of_realizes,
+    GL2.SatChk.le_length_of_pivots}
+  \leanok
+  \uses{cor:stablecert, prop:saturation}
+  A certificate is a torsion-free block $e_{\mathfrak m}H^1(\Gamma;\mathrm{Sym}^n\mathbb Z/\ell^K)=(\mathbb Z/\ell^K)^f$ with the matrices
+  of the $T_q$, $q\in S$ (dumped by \texttt{HECKE\_DUMP\_SAT\_CERT}), a straight-line program of products of them, and
+  $r$ witnesses $W_i=\sum_k c_{ik}P_k$. \texttt{SatSpec}: $K\ge1$, $r=\lceil f/2\rceil$, every $W_i$ lies in the subsemiring of
+  $M_f(\mathbb Z/\ell^K)$ generated by the $T_q$ (so in $\mathsf A'_K$), $\ell W_i=0$, and the $W_i$ are in pivot form ($W_i$ at
+  the pivot of $W_j$ is $\delta_{ij}\ell^{K-1}$). \texttt{satCheck} decides it (\texttt{satCheck\_sound}).
+  \textbf{Soundness} (\texttt{stable\_of\_spec}, split off as \ref{chk:stablecert-sound} by the F3 repairs): in the setting of \ref{cor:stablecert}(1), if $e\mathbb L'/\ell^K$ is identified
+  $\mathbb Z_\ell$-semilinearly with $(\mathbb Z/\ell^K)^f$ so that elements $g_q\in T'$ act by the dumped matrices, and
+  $\mathrm{rank}\,e\mathbb L'=f$, then \texttt{SatSpec} gives $\dim\mathsf A'_K/\ell=\lceil f/2\rceil$, $\mathrm{rank}\,T'=\mathrm{rank}\,T_e$
+  and $T'/\ell\to\mathsf A'_{K'}/\ell$ injective for all $K'\ge K$.
+  \emph{Trust boundary:} that the dumped matrices are the $T_q$ on $e_{\mathfrak m}\mathbb L/\ell^K$ (the C++ module route,
+  [C] \texttt{cl:bockstein}) and $f=\mathrm{rank}$; and $\mathrm{rank}\,T_e=\lceil f/2\rceil$, the hypothesis \texttt{hrank} of
+  \ref{cor:stablecert}, i.e.\ \texttt{lem:heckerankone} (\textsf{proved\_mod\_lit} since L18-4), carried by the abstract
+  \texttt{stable\_of\_spec}, and discharged at $T_e=eT^{\mathbb L}$ on $e\mathbb L'$ by \texttt{stable\_of\_spec\_ES}
+  (\ref{chk:stablecert-sound}, L19-1), which carries Eichler--Shimura (\texttt{hES}) instead. Only torsion-free blocks are covered ($\mathrm{act}$ is $eT^{\mathbb L}$ on the free block $e\mathbb L'$); the free part of a torsion block ([C] \texttt{lem:freepart}) is not.
+\end{definition}
+\begin{proof}
+  \leanok
+  Every element of the generated subsemiring is realised by an element of $T'$ (closure induction); $t$ lies in
+  $\ker(T'\to\mathrm{End}(e\mathbb L'/\ell^K))$ iff its matrix vanishes. The witnesses give an injection
+  $(\mathbb Z_\ell/\ell)^r\hookrightarrow\mathsf A'_K[\ell]$ (the pivot entries force $\ell\mid v_j$), so
+  $r\le\mathrm{length}\,\mathsf A'_K[\ell]=\mathrm{length}\,\mathsf A'_K/\ell$; the stopping rule and \texttt{hrank} give
+  $\le\mathrm{rank}\,T'\le\mathrm{rank}\,T_e=r$; then \ref{cor:stablecert}(1).
+\end{proof}
+
+\begin{theorem}[Soundness of the \texttt{stable} checker]\label{chk:stablecert-sound}
+  % F3 repair, finding 3 (b): stable_of_spec moved out of chk:stablecert into its own row, proved_mod_lit
+  \lean{GL2.SatChk.stable_of_spec, GL2.SatChk.stable_of_spec_adjoin, GL2.SatChk.stable_of_spec_ES}
+  \leanok
+  \uses{chk:stablecert, cor:stablecert, lit:eichler-shimura-levelone}
+  In the setting of \ref{cor:stablecert}(1), with $e\mathbb L'/\ell^K$ identified $\mathbb Z_\ell$-semilinearly with
+  $(\mathbb Z/\ell^K)^f$ ($\beta$, \texttt{h$\beta$}) so that $g_q\in T'$ act by the dumped matrices (\texttt{hg}),
+  \texttt{SatSpec} gives $\dim\mathsf A'_K/\ell=\lceil f/2\rceil$, $\mathrm{rank}\,T'=\mathrm{rank}\,T_e$ and
+  $T'/\ell\to\mathsf A'_{K'}/\ell$ injective for all $K'\ge K$. \texttt{stable\_of\_spec} holds for \emph{any} $T'\hookrightarrow T_e$
+  containing realisations $g_q$ (L17-2 audit MINOR-2); \texttt{stable\_of\_spec\_adjoin} (L18-4) is the instance at [C]'s
+  $T'=\mathbb Z_\ell[T_q:q\in S]$, i.e.\ $T':=\mathbb Z_\ell[g_q]\subseteq T_e$. \texttt{stable\_of\_spec\_ES} (L19-1, M3-a) is
+  \texttt{stable\_of\_spec\_adjoin} at the actual $T_e=eT^{\mathbb L}$ on $e\mathbb L'$ (\texttt{Te}, \texttt{actTe} of
+  \ref{cor:stablecert}) with $T':=\mathbb Z_\ell[(eg_q)|_{e\mathbb L'}]$ for $g_q\in T^{\mathbb L}$, and \texttt{hrank} discharged by
+  \texttt{rk\_Te\_eq} (\ref{lem:heckerankone}).
+  \gtmodlit{the abstract \texttt{stable\_of\_spec}, \texttt{stable\_of\_spec\_adjoin} are conditional on \gtlithyp{hrank}, the rank
+  equality of \texttt{lem:heckerankone}; \texttt{stable\_of\_spec\_ES} is not, and is conditional instead on Eichler--Shimura at level
+  one, \gtlithyp{hES} (\texttt{EichlerShimuraLevelOne}); all three are conditional on
+  the checked predicate \gtlithyp{hc} (\texttt{SatSpec}, decided by \texttt{satCheck}, \ref{chk:stablecert-real});
+  the trust boundary $\beta$, \texttt{h$\beta$}, \texttt{hg} (the dumped matrices are the $T_q$ on $e\mathbb L'/\ell^K$) is
+  stated in \ref{chk:stablecert}}
+\end{theorem}
+\begin{proof}
+  \leanok
+  As in \ref{chk:stablecert}'s proof: the witnesses give $r\le\mathrm{length}\,\mathsf A'_K/\ell$, the stopping rule and
+  \texttt{hrank} the reverse inequality; then \ref{cor:stablecert}(1). For \texttt{stable\_of\_spec\_ES}, \texttt{hrank} is \texttt{rk\_Te\_eq} (\ref{cor:stablecert}, L19-1).
+\end{proof}
+
+\begin{theorem}[The \texttt{stable} certificates of three cells, checked]\label{chk:stablecert-real}
+  \lean{GL2.SatChk.Data.allCerts_check, GL2.SatChk.Data.cert_n258_ell37_b8_spec,
+    GL2.SatChk.Data.cert_n168_ell13_b4_spec, GL2.SatChk.Data.cert_n220_ell17_b3_spec,
+    GL2.SatChk.Data.tampered_rejected, GL2.SatChk.Data.tampered_K0_rejected, GL2.SatChk.Data.tampered_short_rejected,
+    GL2.SatChk.Data.tampered_gen_rejected, GL2.SatChk.Data.tampered_mul_rejected, GL2.SatChk.Data.tampered_comb_rejected,
+    GL2.SatChk.Data.tampered_tors_rejected, GL2.SatChk.Data.tampered_pivot_rejected}
+  \leanok
+  \uses{chk:stablecert}
+  Every torsion-free block with a certified \texttt{stable} verdict at $(n,\ell)=(168,13)$, $(220,17)$, $(258,37)$
+  ($\mathrm{KMAX}=2$; $19$ blocks, all at $K=2$), dumped by \texttt{HeckeSatCertDumpValidation}, satisfies \texttt{SatSpec}. Among them:
+  the $\ell=37$ Kummer block of $(258,37)$ ($f=8$, $\mathsf A_1=\mathbb F_{37}[x]/x^4$, $\dim\mathsf A'_2/37=4$), and the
+  hidden-chain blocks of $(168,13)$ and $(220,17)$ ($f=4$, $\mathsf A_1=\mathbb F_\ell$, $\dim\mathsf A'_2/\ell=2$: the witness
+  $T_q-a_q\in\ell\,\mathrm{End}$ is invisible mod $\ell$). A certificate with one witness entry changed is rejected, and (L18-4,
+  L17-2 audit MINOR-1) one tamper per check of \texttt{satCheck} is rejected: $K=0$; one witness short; a \texttt{.gen} index out of
+  range; a relabelled \texttt{.mul} step; a shifted witness coefficient; a consistent witness not killed by $\ell$; a moved pivot.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \texttt{decide +kernel} on the generated data \texttt{GL2/Algorithms/SatCertData.lean} (\texttt{lean/tools/satcert\_to\_lean.py});
+  then \ref{chk:stablecert}.
+\end{proof}

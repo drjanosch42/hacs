@@ -1,0 +1,65 @@
+# 027_dickson_theta.oc -- theta and the Dickson long exact sequence at the
+# console (hecke-extensions slot 12, WP-8; [P] v3.9 Sec. 3.6 / Phase theta,
+# built as specified; the objects are [E] sec:thetaobj, HeckeExt/HeckeDicksonTheta
+# and HeckeDicksonThetaHecke -- slot 11, WP-5 / WP-6).
+#
+#   0 -> H^0_n -theta-> H^0_up -pi-> H^0_Q -delta-> H^1_n -theta-> H^1_up -pi-> H^1_Q -> 0,
+#
+# n_up = n + ell + 1, over F_ell.  theta is SOURCE-indexed,
+# theta_n : H^q(M_n (x) det) -> H^q(M_{n+ell+1}), the same map as
+# L_map(H, H_up) (target-indexed).  One cell at ell = 5 and one at ell = 7 of
+# WP-5's grid, each with a non-zero connecting map (a Dickson class in
+# H^0(Q_n)):
+#
+#   * the sequence is exact at all six spots (as subspaces) and its
+#     alternating dimension sum is 0; ker theta^1 = im delta;
+#   * theta(H, H_up)'s degree-0 and degree-1 terms are the DicksonLES handle's
+#     theta^0 and theta^1 (the LES cell's maps in the stored bases -- a
+#     different route from the verb's DicksonInducedMaps), with the same ranks,
+#     and theta^1 kills the handle's ker theta^1 basis.  (Until slot-12 WP-11
+#     the script compared theta(H, H_up).induced with L_map(H, H_up).induced,
+#     which both call the same function -- WP-10 A13; replaced.)
+#   * the det twist: A(T_p)_{n_up} theta = p theta A(T_p)_n for
+#     p in {2, 3, 5, 7} \ {ell} (twist_check = 0), re-checked here by hand at
+#     p = 2, where the UNTWISTED identity fails; A(U_ell) theta = 0.
+#
+# No golden pin exists for theta (slot-11 decision 6 (A): no golden event);
+# every assertion is a computed identity.
+
+include("prelude.oc");
+
+for cell in [[30, 5], [16, 7]] {
+    n = cell[0];
+    ell = cell[1];
+    tag = "(" + str(n) + ", " + str(ell) + ")";
+    D = dickson_les(n, ell);
+    assert(D.n_up == n + ell + 1 and D.coefficient_ring == "F_ell", tag + ": the handle's structural members");
+    assert(D.certificate == 0, tag + ": every certificate of [E] (6a)-(6d) held");
+    assert(D.exact, tag + ": exact at all six spots, as subspaces");
+    assert(D.ker_equals_im, tag + ": ker theta^1 = im delta");
+    d = D.dims;
+    assert(d.H0_n - d.H0_up + d.H0_Q - d.H1_n + d.H1_up - d.H1_Q == 0, tag + ": the alternating sum is 0");
+    assert(D.dickson_count == d.H0_n, tag + ": H^0(Sym^n) is spanned by the Dickson monomials L^a D^b");
+    assert(D.ranks.delta == 1, tag + ": the connecting map has rank 1");
+
+    H = cohomology(symmetric_power(MODEL, n, ell));
+    Hu = cohomology(symmetric_power(MODEL, n + ell + 1, ell));
+    T = theta(H, Hu);
+    assert(T.n == n and T.n_up == n + ell + 1 and T.ell == ell, tag + ": theta's indices");
+    assert(T.induced[0] == D.maps.theta0, tag + ": the verb's theta^0 is the handle's (the LES route)");
+    assert(T.induced[1] == D.maps.theta1, tag + ": the verb's theta^1 is the handle's (the LES route)");
+    assert(T.ranks[0] == D.ranks.theta0 and T.ranks[1] == D.ranks.theta1, tag + ": the verb's theta ranks are the handle's");
+    kz = mul(T.induced[1], D.ker_theta);
+    assert(kz == scale(kz, 0), tag + ": theta^1 kills the handle's ker theta^1 basis");
+    assert(T.twist_check == 0, tag + ": A(T_p) theta = p theta A(T_p) for p in {2, 3, 5, 7} \\ {ell}");
+    assert(T.u_ell_zero, tag + ": A(U_ell) theta = 0");
+    t = T.induced[1];
+    A_n = hecke(H, 2).A(1);
+    A_up = hecke(Hu, 2).A(1);
+    assert(mul(A_up, t) == scale(mul(t, A_n), 2), tag + ": the det twist at p = 2, by hand");
+    assert(mul(A_up, t) != mul(t, A_n), tag + ": the untwisted identity fails at p = 2");
+    print(tag, "dims:", d, "ranks:", D.ranks, "theta ranks:", T.ranks, "ker theta^1:", D.ker_theta);
+}
+
+assert(fingerprint() == "0x0000000000000000", "every assertion taken at the defaults");
+annotate("027_dickson_theta: the Dickson long exact sequence and theta at (30, 5) and (16, 7)");

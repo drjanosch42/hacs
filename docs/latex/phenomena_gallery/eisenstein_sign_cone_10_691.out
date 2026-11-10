@@ -1,0 +1,9 @@
+dim H^q_+ = [0, 2, 0]  dim H^q_- = [0, 1, 0]  certificate 0
+Eisenstein line: {status: "defined", defined: true, f: 1, dim_socle: 1, socle_equals_mV: true}
+Eisenstein line in H^1_+: true   in H^1_-: false
+plus : MaximalIdeal #0 (plus): dim 2, f = 1, local [LoewyProfile on H1_plus: loewy [1, 1], socle [1, 1], cyclic]
+minus: MaximalIdeal #0 (minus): dim 1, f = 1, local [LoewyProfile on H1_minus: loewy [1], socle [1], cyclic]
+dim H^q_bd = [1, 1]  T_2 on H^0_bd: [[667]]  on H^1_bd: [[667]]
+dim H^q_c = [0, 3, 0]  rank r^1 = 1  dim H^1_! = 2  LES exact: true
+eta at p = 2: regime Z  integral true  slots 21  certify 0
+ConeActionCertificate(2) = 0

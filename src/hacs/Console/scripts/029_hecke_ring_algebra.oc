@@ -1,0 +1,56 @@
+# 029_hecke_ring_algebra.oc -- the Z/ell^K Hecke-algebra route at the console
+# (hecke-extensions slot 16, WP-6; the object is HeckeExt/HeckeRingHeckeAlgebra,
+# slot-14 WP-6 with the slot-15 WP-5 certified verdict, [C] cor:stablecert; no
+# Console/Core/ edit, the verb is bound in HeckeExt/RegisterHeckeExtensionVerbs.cpp).
+#
+#   hecke_ring_algebra(n, ell, kmax = 3) -> Record
+#     {n, ell, kmax, primes, e_max, K_cls, K_run, blocks, lines}
+#   per F_ell-rational joint system (one block):
+#     {system, D, free_rank, torsion, rank_T, A1_hilbert, AK_hilbert, K_stab, eps,
+#      verdict, stable_cert, stable, cf9, hidden}
+#
+# Two cells, both cheap (the script is rerun by ConsoleDeterminismValidation's C4
+# product): (48, 7) at kmax = 2 -- a non-reduced census algebra A_1 = (1, 1) that
+# is stable and CF9-held -- and (40, 5) at kmax = 3 -- a stable block with a
+# hidden-free reading beside a torsion block whose FREE PART is stable.  Every
+# stable-family verdict is certified (stable_cert = "certified"): the route
+# re-derives its inputs in exact arithmetic and throws on a mismatch.
+#
+# Refusals: a non-default coefficient_ring exit 5, ell < 5 exit 3, an odd n
+# exit 3 (checked through expect_error).
+
+include("prelude.oc");
+
+for cell in [[48, 7, 2], [40, 5, 3]] {
+    n = cell[0];
+    ell = cell[1];
+    kmax = cell[2];
+    tag = "(" + str(n) + ", " + str(ell) + ", " + str(kmax) + ")";
+    R = hecke_ring_algebra(n, ell, kmax);
+    if n == 48 { R48 = R; }
+    assert(R.n == n and R.ell == ell and R.kmax == kmax, tag + ": the structural members");
+    assert(R.primes == [2, 3, 5, 7] or R.primes == [2, 3, 5, 7, ell], tag + ": the Hecke primes S");
+    assert(R.K_cls == max(2, R.e_max + 1), tag + ": K_cls = max(2, e_max + 1)");
+    assert(len(R.lines) == len(R.blocks), tag + ": one LOEWY_RING line per block");
+    for b in R.blocks {
+        assert(2 * b.rank_T - b.free_rank >= 0 and 2 * b.rank_T - b.free_rank <= 1, tag + ": rank_T = ceil(f / 2)");
+        assert(b.D >= 1 and b.A1_hilbert[0] == 1, tag + ": A_1 is local-generated, h_0 = 1");
+        assert(b.stable == (b.stable_cert == "certified"), tag + ": a stable-family verdict is certified");
+        assert(b.cf9 != "FAIL", tag + ": CF9 (A_1 Loewy length <= 2) holds");
+    }
+    for l in R.lines { print(l); }
+}
+
+assert(R48.blocks[0].A1_hilbert == [1, 1] and R48.blocks[0].AK_hilbert == [1, 1] and R48.blocks[0].verdict == "stable",
+       "(48, 7): the first block is stable with the non-reduced A_1 = (1, 1)");
+
+# --- the refusals ---------------------------------------------------------------
+expect_error "ell >= 5" { hecke_ring_algebra(10, 3) }
+expect_error "n >= 1 even" { hecke_ring_algebra(11, 7) }
+expect_error "ell must be a prime" { hecke_ring_algebra(10, 9) }
+set coefficient_ring = "Z/ell^2";
+expect_error "coefficient_ring" { hecke_ring_algebra(10, 7) }
+set coefficient_ring = "F_ell";
+
+assert(fingerprint() == "0x0000000000000000", "every assertion taken at the defaults");
+annotate("029_hecke_ring_algebra: the Z/ell^K Hecke-algebra route at (48, 7) and (40, 5)");

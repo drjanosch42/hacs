@@ -1,0 +1,45 @@
+# refusals_pre_s3.tsv -- NBCONFIRM S3: the exact stdout and exit code of every call below on the PRE-S3 binary (hecke-extensions
+# a4a38bc4, cohomology_app -c '<code>'), captured once.  ConsoleCostModelValidation (E) requires every prompt-less mode of the
+# S3 binary to reproduce them byte for byte (owner ruling Q2, 2026-11-06).  Columns: code, exit code, stdout ('\n' escaped as \\n).
+# Frozen: never regenerate from a post-S3 binary.
+set coefficient_ring = "Z"; descent(1, 5000)	3	<string>:1:29: type error: descent(N, n, primes): n must satisfy 0 <= n <= 60 (the cost bound of this verb)\n  set coefficient_ring = "Z"; descent(1, 5000)\n
+set coefficient_ring = "Z"; descent(400, 0)	3	<string>:1:29: type error: descent(N, n, primes): N must satisfy 1 <= N <= 300\n  set coefficient_ring = "Z"; descent(400, 0)\n
+set coefficient_ring = "Z"; descent(7, 40)	3	<string>:1:29: type error: descent(N, n, primes): index(N) * (n + 1) must be <= 300 (the cost bound of this verb)\n  set coefficient_ring = "Z"; descent(7, 40)\n
+set coefficient_ring = "Z"; r = descent(1, 2, [101])	3	<string>:1:33: type error: descent(N, n, primes): `primes` must be primes <= 97\n  set coefficient_ring = "Z"; r = descent(1, 2, [101])\n
+set coefficient_ring = "Z"; r = descent(1, 2, [2,3,5,7,11,13,17])	3	<string>:1:33: type error: descent(N, n, primes): `primes` holds 1 .. 6 primes\n  set coefficient_ring = "Z"; r = descent(1, 2, [2,3,5,7,11,13,17])\n
+set coefficient_ring = "Z"; r = descent(1, 2, [97, 89])	3	<string>:1:33: type error: descent(N, n, primes): the sum of `primes` must be <= 100 (the cost bound of this verb: T_p costs about p)\n  set coefficient_ring = "Z"; r = descent(1, 2, [97, 89])\n
+set coefficient_ring = "Z"; r = descent(400, 70, [4])	3	<string>:1:33: type error: descent(N, n, primes): N must satisfy 1 <= N <= 300\n  set coefficient_ring = "Z"; r = descent(400, 70, [4])\n
+set coefficient_ring = "Z"; r = descent(1, 70, [3, 101])	3	<string>:1:33: type error: descent(N, n, primes): n must satisfy 0 <= n <= 60 (the cost bound of this verb)\n  set coefficient_ring = "Z"; r = descent(1, 70, [3, 101])\n
+set coefficient_ring = "Z"; hecke_structure(400, 0)	3	<string>:1:29: type error: hecke_structure(N, n, algebra): N must satisfy 1 <= N <= 300\n  set coefficient_ring = "Z"; hecke_structure(400, 0)\n
+set coefficient_ring = "Z"; hecke_structure(1, 62)	3	<string>:1:29: type error: hecke_structure(N, n, algebra): n must be even, 0 <= n <= 60 (the cost bound of this verb)\n  set coefficient_ring = "Z"; hecke_structure(1, 62)\n
+set coefficient_ring = "Z"; hecke_structure(7, 40)	3	<string>:1:29: type error: hecke_structure(N, n, algebra): index(N) * (n + 1) must be <= 300 (the cost bound of this verb)\n  set coefficient_ring = "Z"; hecke_structure(7, 40)\n
+set coefficient_ring = "Z"; hecke_structure(400, 1)	3	<string>:1:29: type error: hecke_structure(N, n, algebra): N must satisfy 1 <= N <= 300\n  set coefficient_ring = "Z"; hecke_structure(400, 1)\n
+set coefficient_ring = "Z"; hecke_structure(400, 2, "bogus")	3	<string>:1:29: type error: hecke_structure(N, n, algebra): N must satisfy 1 <= N <= 300\n  set coefficient_ring = "Z"; hecke_structure(400, 2, "bogus")\n
+level_n(101, 2, 7)	3	<string>:1:1: type error: level_n(N, n, ell, primes): N must satisfy 1 <= N <= 100\n  level_n(101, 2, 7)\n
+level_n(1, 202, 7)	3	<string>:1:1: type error: level_n(N, n, ell, primes): n must be even with 0 <= n <= 200\n  level_n(1, 202, 7)\n
+level_n(30, 40, 7)	3	<string>:1:1: type error: level_n(N, n, ell, primes): index(N) * (n + 1) must be <= 1000 (the cost bound of this verb)\n  level_n(30, 40, 7)\n
+level_n(1, 2, 7, [101])	3	<string>:1:1: type error: level_n(N, n, ell, primes): `primes` must be primes <= 97\n  level_n(1, 2, 7, [101])\n
+level_n(1, 2, 7, [2,3,5,11,13,17,19])	3	<string>:1:1: type error: level_n(N, n, ell, primes): at most 6 primes\n  level_n(1, 2, 7, [2,3,5,11,13,17,19])\n
+level_n(101, 3, 7)	3	<string>:1:1: type error: level_n(N, n, ell, primes): N must satisfy 1 <= N <= 100\n  level_n(101, 3, 7)\n
+level_n(30, 40, 7, [7])	3	<string>:1:1: type error: level_n(N, n, ell, primes): index(N) * (n + 1) must be <= 1000 (the cost bound of this verb)\n  level_n(30, 40, 7, [7])\n
+level_n(30, 40, 7, [4])	3	<string>:1:1: type error: level_n(N, n, ell, primes): index(N) * (n + 1) must be <= 1000 (the cost bound of this verb)\n  level_n(30, 40, 7, [4])\n
+nebentypus(101, 1, 2, 7)	3	<string>:1:1: type error: nebentypus(N, m, n, ell, primes): N must satisfy 1 <= N <= 100 and ell must not divide N\n  nebentypus(101, 1, 2, 7)\n
+nebentypus(1, 1, 102, 7)	3	<string>:1:1: type error: nebentypus(N, m, n, ell, primes): n must satisfy 0 <= n <= 100\n  nebentypus(1, 1, 102, 7)\n
+nebentypus(31, 1, 40, 7)	3	<string>:1:1: type error: nebentypus(N, m, n, ell, primes): index(N) * (n + 1) must be <= 1000 (the cost bound of this verb)\n  nebentypus(31, 1, 40, 7)\n
+nebentypus(31, 1, 2, 7, [17])	3	<string>:1:1: type error: nebentypus(N, m, n, ell, primes): `primes` must be primes <= 13\n  nebentypus(31, 1, 2, 7, [17])\n
+nebentypus(31, 1, 2, 7, [2,3,5,11,13])	3	<string>:1:1: type error: nebentypus(N, m, n, ell, primes): at most 4 primes\n  nebentypus(31, 1, 2, 7, [2,3,5,11,13])\n
+nebentypus(101, 2, 2, 7)	3	<string>:1:1: type error: nebentypus(N, m, n, ell, primes): N must satisfy 1 <= N <= 100 and ell must not divide N\n  nebentypus(101, 2, 2, 7)\n
+nebentypus(110, 3, 2, 7)	3	<string>:1:1: type error: nebentypus(N, m, n, ell, primes): N must satisfy 1 <= N <= 100 and ell must not divide N\n  nebentypus(110, 3, 2, 7)\n
+forms_algebra(402, 7)	3	<string>:1:1: type error: forms_algebra(k, ell, primes, terms): k must be even with 12 <= k <= 400\n  forms_algebra(402, 7)\n
+forms_algebra(12, 7, [2], 65)	3	<string>:1:1: type error: forms_algebra(k, ell, primes, terms): terms must be <= 64\n  forms_algebra(12, 7, [2], 65)\n
+forms_algebra(402, 7, [2], 65)	3	<string>:1:1: type error: forms_algebra(k, ell, primes, terms): k must be even with 12 <= k <= 400\n  forms_algebra(402, 7, [2], 65)\n
+forms_algebra(402, 7, [9])	3	<string>:1:1: type error: forms_algebra(k, ell, primes, terms): k must be even with 12 <= k <= 400\n  forms_algebra(402, 7, [9])\n
+hida_lambda(103, 12, 2)	3	<string>:1:1: type error: hida_lambda(ell, k, W, primes): ell must be a prime with 5 <= ell <= 101\n  hida_lambda(103, 12, 2)\n
+hida_lambda(5, 202, 2)	3	<string>:1:1: type error: hida_lambda(ell, k, W, primes): k must be even with 4 <= k <= 200\n  hida_lambda(5, 202, 2)\n
+hida_lambda(5, 12, 7)	3	<string>:1:1: type error: hida_lambda(ell, k, W, primes): W must satisfy 1 <= W <= 6 and W <= k - 1\n  hida_lambda(5, 12, 7)\n
+hida_lambda(103, 12, 12)	3	<string>:1:1: type error: hida_lambda(ell, k, W, primes): ell must be a prime with 5 <= ell <= 101\n  hida_lambda(103, 12, 12)\n
+hida_lambda(103, 202, 7, [101])	3	<string>:1:1: type error: hida_lambda(ell, k, W, primes): ell must be a prime with 5 <= ell <= 101\n  hida_lambda(103, 202, 7, [101])\n
+hida_tower(202, 5, 1)	3	<string>:1:1: type error: hida_tower(n, ell, m): n must be even with 2 <= n <= 200\n  hida_tower(202, 5, 1)\n
+hida_tower(202, 5, 4)	3	<string>:1:1: type error: hida_tower(n, ell, m): n must be even with 2 <= n <= 200\n  hida_tower(202, 5, 4)\n
+hida_tower(202, 4, 1)	3	<string>:1:1: type error: hida_tower(n, ell, m): ell must be a prime with 5 <= ell <= 23170\n  hida_tower(202, 4, 1)\n
+x = 1; hida_tower(204, 7, 2); print(x)	3	<string>:1:8: type error: hida_tower(n, ell, m): n must be even with 2 <= n <= 200\n  x = 1; hida_tower(204, 7, 2); print(x)\n

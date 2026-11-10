@@ -1,0 +1,265 @@
+% SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
+% SPDX-License-Identifier: CC-BY-4.0
+
+%======================================================================
+% gl2_preamble.tex --- shared preamble and macro file
+%
+%   The SINGLE source of macros for the unified contract (gl2_contract.tex)
+%   and for every companion document that cites it.  Documents \input this
+%   file; they do NOT copy it.  (The pre-2026-09 corpus copied macros between
+%   hecke_action.tex, hecke_extensions.tex and monodromy_v5.tex; that is what
+%   let three incompatible meanings of \De, \tau and \iota coexist.)
+%
+%   Usage, after \documentclass and before \begin{document}:
+%       \input{gl2_preamble}
+%
+%   Every macro below is normative: the notation chapter of the contract
+%   (gl2_notation.tex) is the prose form of this file, and the two must agree.
+%   A symbol that is not declared here is not part of the fixed notation.
+%
+%   RETIRED MACROS.  Symbols retired by the notation chapter are redefined
+%   here to raise a LaTeX error rather than silently typeset, so that text
+%   re-homed from the old documents cannot carry an old meaning in unnoticed.
+%   See the block "Retired symbols" at the end.
+%======================================================================
+
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{mathtools}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{tikz-cd}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\setlist{nosep}
+\emergencystretch=3em
+
+%----------------------------------------------------------------------
+% Theorem environments.  One counter, sectioned, so every statement has a
+% unique number of the form <section>.<n> that can be cited from code.
+%----------------------------------------------------------------------
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{claim}[theorem]{Claim}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{algorithm}[theorem]{Algorithm}
+\newtheorem{obligation}[theorem]{Obligation}
+\newtheorem{certificate}[theorem]{Certificate}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{prediction}[theorem]{Prediction}
+\newtheorem{openitem}[theorem]{Open construction item}
+
+%----------------------------------------------------------------------
+% Normative boxes.
+%----------------------------------------------------------------------
+\newenvironment{contractbox}
+  {\par\medskip\noindent\begin{quote}\textbf{CONTRACT.}\ }
+  {\end{quote}\medskip}
+\newenvironment{decisionbox}
+  {\par\medskip\noindent\begin{quote}\textbf{OWNER DECISION.}\ }
+  {\end{quote}\medskip}
+\newenvironment{erratumbox}
+  {\par\medskip\noindent\begin{quote}\textbf{ERRATUM.}\ }
+  {\end{quote}\medskip}
+
+%----------------------------------------------------------------------
+% STATUS tags.  Every non-definitional assertion carries exactly one.
+%----------------------------------------------------------------------
+\newcommand{\PROVED}{\textsf{[proved here]}}
+\newcommand{\STD}[1]{\textsf{[standard: #1]}}   % MUST carry a precise citation
+\newcommand{\CONJ}{\textsf{[conjectural]}}
+\newcommand{\COMP}{\textsf{[verified computationally]}}
+\newcommand{\OPENSTAT}{\textsf{[open]}}
+
+%----------------------------------------------------------------------
+% Number systems, rings, groups
+%----------------------------------------------------------------------
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Rl}{\mathbb{R}}              % the real numbers (NOT \R: see below)
+\newcommand{\Cx}{\mathbb{C}}              % the complex numbers (NOT \C)
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\Fl}{\F_\ell}
+\newcommand{\Flf}{\F_{\ell^{f}}}          % residue field, residue degree f
+\newcommand{\Hyp}{\mathcal{H}}            % the upper half plane
+\newcommand{\GL}{\mathrm{GL}}
+\newcommand{\SL}{\mathrm{SL}}
+\newcommand{\Mat}{\mathrm{M}}             % matrix algebra: \Mat_2(\Z)
+\newcommand{\Ga}{\Gamma}
+\newcommand{\Gbdry}{\Ga_\infty}           % the boundary group <T> x <-I>
+\newcommand{\De}{\Delta}                  % the monoid {g in M_2(Z) : det g > 0}
+\newcommand{\Deprim}{\De^{\mathrm{prim}}}
+\newcommand{\cring}{R}                    % the coefficient ring: F_ell, Z/ell^e, Z/m
+\newcommand{\Rel}{\mathcal{R}}            % the relation set of the model (K,\Rel)
+
+%----------------------------------------------------------------------
+% Operators
+%----------------------------------------------------------------------
+\newcommand{\Hom}{\mathrm{Hom}}
+\newcommand{\End}{\mathrm{End}}
+\newcommand{\Ind}{\mathrm{Ind}}
+\newcommand{\Sym}{\mathrm{Sym}}
+\newcommand{\id}{\mathrm{id}}
+\DeclareMathOperator{\res}{res}
+\DeclareMathOperator{\cor}{cor}
+\DeclareMathOperator{\conj}{conj}
+\DeclareMathOperator{\adjg}{adj}
+\DeclareMathOperator{\tr}{tr}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\sgn}{sign}
+\DeclareMathOperator{\fl}{fl}
+\DeclareMathOperator{\im}{im}
+\DeclareMathOperator{\coker}{coker}
+\DeclareMathOperator{\soc}{soc}
+\DeclareMathOperator{\rad}{rad}
+\DeclareMathOperator{\Ext}{Ext}
+\DeclareMathOperator{\Ann}{Ann}
+\DeclareMathOperator{\MaxSpec}{MaxSpec}
+\DeclareMathOperator{\Frob}{Frob}
+\DeclareMathOperator{\supp}{supp}
+\newcommand{\aug}{\varepsilon}            % augmentation C_0 -> Z
+
+%----------------------------------------------------------------------
+% The simplicial framework
+%----------------------------------------------------------------------
+\newcommand{\Ku}{K^{u}}                   % universal cover complex
+\newcommand{\KR}{K/\Rel}                  % quotient complex
+\newcommand{\prR}{\mathrm{pr}_{\Rel}}     % projection K -> K/\Rel
+\newcommand{\pru}{\mathrm{pr}^{u}}        % projection K^u -> K/\Rel
+\newcommand{\piOne}{\pi_1}
+\newcommand{\LCS}{\mathbf{LCS}}
+\newcommand{\Rep}{\mathbf{Rep}}
+\newcommand{\LS}{\mathbf{LS}}
+\newcommand{\cat}[1]{\mathbf{#1}}
+\newcommand{\orient}[1]{o_{#1}}           % oriented q-simplices: \orient{q}(K)
+% The distinguished lift of a simplex of K into the universal cover K^u, for the
+% strict fundamental domain K \subseteq K^u of (H4)(iii).  The code spells this
+% i(sigma); the document cannot, because i is sqrt(-1) (notation chapter, C15/C16).
+\newcommand{\lift}[1]{\widetilde{#1}}
+\newcommand{\Ceq}{C^{\bullet}_{\mathrm{eq}}}
+\newcommand{\Cq}[1]{C^{#1}_{\mathrm{eq}}}
+\newcommand{\Zq}[1]{Z^{#1}_{\mathrm{eq}}}
+\newcommand{\Bq}[1]{B^{#1}_{\mathrm{eq}}}
+\newcommand{\Heq}[1]{H^{#1}_{\mathrm{eq}}}
+
+%----------------------------------------------------------------------
+% Coefficients
+%----------------------------------------------------------------------
+\newcommand{\rhon}{\rho_n}                % the symmetric power representation
+\newcommand{\rhodual}{\rho_n^{\vee}}      % the contragredient
+\newcommand{\Vcoef}{V}                    % V := Sym^n(Z^2)
+\newcommand{\VR}{V_{\cring}}              % V \otimes \cring
+\newcommand{\Mn}{M_n}                     % Sym^n of F_ell^2 (synonym of \VR at R = F_ell)
+\newcommand{\Dn}{D_n}                     % the divided-power / contragredient module
+\newcommand{\cf}{f_{12}}                  % the normalised weight-12 cusp form (Ramanujan's Delta)
+
+%----------------------------------------------------------------------
+% The Hecke datum
+%----------------------------------------------------------------------
+\newcommand{\Th}{\Theta}                  % the fused cochain map Theta_g
+\newcommand{\Thb}{\Theta^{\partial}}      % the boundary cochain map
+\newcommand{\Xig}{\Xi_g}
+\newcommand{\taub}{\tau_{\partial}}       % the boundary g-twisted chain datum
+\newcommand{\Phig}{\Phi_g}                % the cone cochain map
+\newcommand{\Amat}[1]{A^{(#1)}}           % cohomology-level Hecke matrix
+\newcommand{\Acone}[1]{A_c^{(#1)}}
+\newcommand{\Abdry}[1]{A_{\partial}^{(#1)}}
+\newcommand{\Tdc}[1]{T_{\Ga #1 \Ga}}      % T_{Gamma g Gamma}
+\newcommand{\diam}{T(p,p)}                % the diamond operator
+
+%----------------------------------------------------------------------
+% The pair, the cone, compact supports
+%----------------------------------------------------------------------
+\newcommand{\Xbulk}{X}                    % the Gamma-tessellation of the truncated half plane
+\newcommand{\Xbdry}{\partial X}
+\newcommand{\Kbdry}{K_{\partial}}         % the circle model 0-1-2-3
+\newcommand{\rres}{r}                     % the restriction cochain map r = j^*
+\newcommand{\Cone}[1]{C(#1)}              % the mapping cone
+\newcommand{\Dcone}{D}                    % the cone differential
+\newcommand{\coneinc}{\mathrm{inc}_c}     % C_eq(K_bdry) -> C(r)
+\newcommand{\coneproj}{\mathrm{pr}_c}     % C(r) -> C_eq(K)[1]
+\newcommand{\Hcpt}[1]{H^{#1}_{c}}
+\newcommand{\etapair}{\eta}               % the pair homotopy
+\newcommand{\hder}{h}                     % the derived cochain homotopy h = \tilde\eta
+\newcommand{\Lam}{\Lambda}                % the unique C_0(bdry X) -> C_2(X) of eta-uniqueness
+
+%----------------------------------------------------------------------
+% The integral line (sec:integral, since [C] v1.8.0; notation
+% sec:notation-integral)
+%----------------------------------------------------------------------
+\newcommand{\Iso}{\mathcal{I}}            % the isotropy-resolution model on X
+\newcommand{\Isob}{\mathcal{I}^{\partial}} % its boundary subcomplex
+\newcommand{\cmpI}{\mathrm{cmp}}          % the comparison map I_* -> C_*(X)
+\newcommand{\CI}{C^{\bullet}_{\Iso}}      % Hom_{Z[Gamma]}(I_*, V_R)
+\newcommand{\Hfr}[1]{H^{#1}_{\mathrm{fr}}} % H^q(Gamma;V) modulo torsion
+\newcommand{\Zsix}{\widehat{\Z}_{6}}      % Z_2 x Z_3
+\newcommand{\Qsix}{\widehat{\Q}_{6}}      % Q_2 x Q_3
+
+%----------------------------------------------------------------------
+% The Dickson line and the ordinary projector (sec:dicksontheta,
+% sec:ordinary, since [C] v1.11.0-pre.1; notation sec:notation-dickson).
+% Sans-serif L, D: the plain letters are taken (L the local system, D_n the
+% contragredient module), rule A5.
+%----------------------------------------------------------------------
+\newcommand{\DkL}{\mathsf{L}}             % the first Dickson invariant x^ell y - x y^ell (the code's L)
+\newcommand{\DkD}{\mathsf{D}}             % the second Dickson invariant, degree ell^2 - ell
+\newcommand{\thL}{\theta_{\DkL}}          % multiplication by L on cochains and cohomology
+\newcommand{\nplus}{n^{+}}               % n + ell + 1 (N is the Hecke level only)
+\newcommand{\Qn}{Q_{n}}                   % the quotient Sym^{n+ell+1} / L Sym^n
+\newcommand{\eord}{e_{\mathrm{ord}}}      % the ordinary projector of def:ordinary (e alone is lem:bulkperiodic's class)
+
+%----------------------------------------------------------------------
+% The involution
+%----------------------------------------------------------------------
+\newcommand{\inv}{\iota}                  % the involution diag(-1,1) / z -> -zbar
+\newcommand{\invK}{\iota_K}               % its simplicial realisation on the 7-vertex model
+
+%----------------------------------------------------------------------
+% The Hecke algebra and its local pieces
+%----------------------------------------------------------------------
+\newcommand{\Talg}{\mathbb{T}}
+\newcommand{\midl}{\mathfrak{m}}
+\newcommand{\Htot}{H_{\mathrm{tot}}}
+
+%----------------------------------------------------------------------
+% Misc
+%----------------------------------------------------------------------
+\newcommand{\abs}[1]{\left| #1 \right|}
+\newcommand{\smat}[4]{\begin{pmatrix} #1 & #2 \\ #3 & #4 \end{pmatrix}}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\file}[1]{\texttt{#1}}
+
+%----------------------------------------------------------------------
+% Cross-document citation.  \HA{} survives for documents that still cite the
+% OLD hecke_action.tex; inside the unified contract, use \ref{} instead.
+%----------------------------------------------------------------------
+\newcommand{\HA}[1]{[C,~\texttt{#1}]}
+\newcommand{\vfive}[1]{[v5,~\texttt{#1}]}
+\newcommand{\Espec}[1]{[E,~\texttt{#1}]}
+
+%----------------------------------------------------------------------
+% RETIRED SYMBOLS.  These macros existed in the pre-consolidation corpus with
+% a meaning the notation chapter has retired.  Using one is an error, not a
+% typographic choice.  (\K, \R, \C, \pR, \pu, \image were in the copied macro
+% blocks of hecke_action.tex and monodromy_v5.tex.)
+%----------------------------------------------------------------------
+\newcommand{\gltwoRETIRED}[2]{%
+  \PackageError{gl2_preamble}{Retired macro \string#1 -- #2}{%
+    See the notation chapter (sec:notation) for the replacement.}}
+\newcommand{\K}{\gltwoRETIRED{K}{ambiguous complex name; write K directly}}
+\newcommand{\R}{\gltwoRETIRED{R}{R is the coefficient ring; write \string\Rl\space for the reals}}
+\newcommand{\C}{\gltwoRETIRED{C}{write \string\Cx\space for the complex numbers}}
+\newcommand{\pR}{\gltwoRETIRED{pR}{write \string\prR}}
+\newcommand{\pu}{\gltwoRETIRED{pu}{write \string\pru}}
+\newcommand{\image}{\gltwoRETIRED{image}{write \string\im}}
+\newcommand{\M}{\gltwoRETIRED{M}{write \string\Mat\space for the matrix algebra}}

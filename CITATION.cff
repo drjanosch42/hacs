@@ -1,0 +1,45 @@
+# SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
+# SPDX-License-Identifier: CC-BY-4.0
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata from this file."
+title: "HACS — Harder Arithmetic Cohomology System"
+abstract: >-
+  Simplicial orbifold cohomology of SL(2,Z) and GL(2) with coefficients in symmetric powers of the standard
+  representation over F_p, Z/l^k and Z, with Hecke operators, Hecke extensions, Hida theory and the integral line.
+  Code LGPL-3.0-only with the NVIDIA CUDA Toolkit exception; lean/ Apache-2.0; docs/ CC-BY-4.0 (COPYRIGHT.md).
+type: software
+authors:
+  - family-names: Januszewski
+    given-names: Fabian
+    email: fabian.januszewski@math.uni-paderborn.de
+    affiliation: "Universität Paderborn"
+license: LGPL-3.0-only
+repository-code: "https://github.com/drjanosch42/hacs"
+version: "0.1.0"
+keywords:
+  - cohomology of arithmetic groups
+  - Hecke operators
+  - orbifold cohomology
+  - modular forms
+  - congruences
+references:
+  - type: data
+    title: "HACS census of Hecke algebras and modules in the cohomology of SL_2(Z)"
+    authors:
+      - family-names: Januszewski
+        given-names: Fabian
+        affiliation: "Universität Paderborn"
+    repository: "https://github.com/drjanosch42/hacs-data"
+    url: "https://github.com/drjanosch42/hacs-data"
+    license: CC-BY-4.0
+    notes: "The companion data repository: census data and the HeckeZ data set computed with HACS."
+preferred-citation:
+  type: software
+  title: "HACS — Harder Arithmetic Cohomology System"
+  authors:
+    - family-names: Januszewski
+      given-names: Fabian
+      affiliation: "Universität Paderborn"
+  repository-code: "https://github.com/drjanosch42/hacs"
+  version: "0.1.0"
+  year: 2026

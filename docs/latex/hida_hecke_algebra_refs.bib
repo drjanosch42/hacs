@@ -1,0 +1,187 @@
+% SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
+% SPDX-License-Identifier: CC-BY-4.0
+
+% hida_hecke_algebra_refs.bib --- bibliography entries used by [U] (hida_hecke_algebra.tex) beyond gl2_refs.bib.
+% Kept in a separate file so that [U] does not edit the shared gl2_refs.bib while [C] (WP-4) owns it.
+% Every entry here is NOT verified against the text (rule A2) unless its note says otherwise: no copy is in the
+% project's library (docs/literature/ or the read-only Hida directory).  Added at [U] v0.1.0-pre.1 (slot-14 WP-8).
+% v0.1.1-pre.1 (slot-14 references edit, 2026-09-28): emerton_eis and ohta_cong VERIFIED against the owner's library
+% (papers/{e/Emerton,o/Ohta}/ of the local library, read in place, not copied); mazur_wiles is in the library
+% (papers/m/Mazur/); citro_ghitza and fam_ghitza added (papers/g/Ghitza/).  Those PDFs are read-only and are not copied here.
+% v0.1.1-pre.3 (slot-14 WP-U1 audit repairs, 2026-09-28): hida_aif2 and washington1st (the FIRST edition; gl2_refs.bib's
+% washington is the second) added, their locators VERIFIED on the page (read in place, not copied).
+
+@article{mazur_wiles,
+  author  = {Mazur, Barry and Wiles, Andrew},
+  title   = {Class fields of abelian extensions of {$\mathbf{Q}$}},
+  journal = {Invent. Math.}, volume = {76}, pages = {179--330}, year = {1984},
+  note    = {The main conjecture; the Eisenstein ideal and $p$-adic zeta functions. In the owner's library
+             (pages read by slot-14 WP-Q2); the statement as cited in [U] NOT verified here (rule A2).}}
+
+@article{emerton_eis,
+  author  = {Emerton, Matthew},
+  title   = {The {E}isenstein ideal in {H}ida's ordinary {H}ecke algebra},
+  journal = {Internat. Math. Res. Notices}, number = {15}, pages = {793--802}, year = {1999},
+  note    = {Thm.~5, p.~6 of the library copy (= the Theorem of the introduction, p.~2), VERIFIED: for $p\ge5$ and
+             $i\not\equiv0\pmod{p-1}$, $\Lambda_{(i)}/L_p(\omega^{i},1-s)\to\mathbf T^{\mathrm{ord}}_{\mathrm{par},(i)}/I^{0}_{\mathrm{Eis}}$
+             is an isomorphism, at tame level~$1$. The library copy is an 8-page preprint without journal header, so the
+             journal data (IMRN 1999, no.~15) are NOT checked against it. Also used at [U] v0.1.1-pre.2 (lem:u-emerton):
+             pp.~2--3 (the set-up, $\langle\gamma\rangle$ acting as $\gamma^{k}$ on $M_k$, $\mathbf T_{\mathrm{par}}$ = Hida's $h$), p.~5
+             (ord = Hida's superscript $0$), p.~7 (the shift by $2$ against Mazur--Wiles).}}
+
+@article{ohta_cong,
+  author  = {Ohta, Masami},
+  title   = {Congruence modules related to {E}isenstein series},
+  journal = {Ann. Sci. \'Ecole Norm. Sup. (4)}, volume = {36}, number = {2}, pages = {225--269}, year = {2003},
+  note    = {Thm.~(1.5.5), p.~238, VERIFIED (journal data from the library copy): under (1.5.2) the congruence modules of
+             the four $\Lambda$-adic Eisenstein sequences (I)--(IV) of tame level $N$ are all $\Lambda_{\mathfrak r}/(A(T;\theta,\psi))$,
+             $A$ of (1.5.4), $G(T,\theta\omega^{2})$ normalised by (1.4.5). Also used at [U] v0.1.1-pre.2 (rmk:u-ohta,
+             rmk:u-classzero): (1.1.4), (1.1.6) pp.~229--230; (3.2.2)--(3.2.3) pp.~253--254; the $\psi=\mathbf1$ case of (II) via
+             Appendix~A (from p.~263, the vanishing case p.~265).}}
+
+@article{citro_ghitza,
+  author  = {Citro, Craig and Ghitza, Alexandru},
+  title   = {Computing level one {H}ecke eigensystems (mod $p$)},
+  journal = {LMS J. Comput. Math.}, volume = {16}, pages = {246--270}, year = {2013},
+  note    = {arXiv:1102.3321v2 (the library copy, read). Cor.~13: $(p-1)^{2}/4$ Eisenstein eigensystems mod $p$; Prop.~14;
+             the appendix table: the number of non-Eisenstein level-one eigensystems mod $p$ for $p<2000$, with the weights
+             of the Eisenstein--cuspidal congruences. Journal data NOT checked against the copy (an arXiv version).}}
+
+@misc{fam_ghitza,
+  author  = {Fam, Yiannis and Ghitza, Alexandru},
+  title   = {Hecke structure of quaternionic modular forms mod $p$},
+  howpublished = {arXiv:2609.15495v1 [math.NT]}, year = {2026},
+  note    = {Preprint, 14 Sep 2026 (the library copy, read). Thm.~5.6: the mod-$p$ Hecke eigensystems of the Shimura curve
+             of an indefinite quaternion algebra of discriminant $\delta>1$ (all weights, fixed level $N\ge4$) are those of the
+             mod-$p$ algebraic modular forms of the definite algebra of discriminant $p\delta$ --- Serre's letter to Tate
+             beyond $\delta=1$.}}
+
+@incollection{deligne_formes,
+  author    = {Deligne, Pierre},
+  title     = {Formes modulaires et repr\'esentations $\ell$-adiques},
+  booktitle = {S\'eminaire Bourbaki, vol.\ 1968/69, expos\'e 355},
+  series    = {Lecture Notes in Math.}, volume = {179}, publisher = {Springer}, pages = {139--172}, year = {1971},
+  note      = {The Galois representations of eigenforms of weight $k\ge2$; used as recalled in
+               \cite[(2.1a,b), p.~556]{hida_invent} (that page verified).}}
+
+@article{wiles_ordinary,
+  author  = {Wiles, Andrew},
+  title   = {On ordinary $\lambda$-adic representations associated to modular forms},
+  journal = {Invent. Math.}, volume = {94}, pages = {529--573}, year = {1988},
+  note    = {Thm.~2.1.4, p.~561: the local shape at $p$ of the representation of an ordinary form. VERIFIED (page image) by slot-16 L16-3,
+             docs/implementation/slot16/locators.tsv ([U] v0.2.0-pre.2, WP-14 referee U-4).}}
+
+@incollection{ribet_nebentypus,
+  author    = {Ribet, Kenneth A.},
+  title     = {Galois representations attached to eigenforms with {N}ebentypus},
+  booktitle = {Modular Functions of One Variable V (Bonn 1976)},
+  series    = {Lecture Notes in Math.}, volume = {601}, publisher = {Springer}, pages = {17--51}, year = {1977},
+  note      = {\S3: forms with complex multiplication. Locator NOT verified (rule A2).}}
+
+@article{mazur_tilouine,
+  author  = {Mazur, Barry and Tilouine, Jacques},
+  title   = {Repr\'esentations galoisiennes, diff\'erentielles de {K}\"ahler et ``conjectures principales''},
+  journal = {Publ. Math. IH\'ES}, volume = {71}, pages = {65--103}, year = {1990},
+  note    = {Gorenstein property of ordinary Hecke algebras; also cited ([U] v0.2.0-pre.2, Remark rmk:u-cmgl2) for the anticyclotomic main
+             conjecture, the converse of Hida--Tilouine's divisibility for the congruence module of a CM component. NOT verified (rule A2).}}
+
+@article{wiles_flt,
+  author  = {Wiles, Andrew},
+  title   = {Modular elliptic curves and {F}ermat's {L}ast {T}heorem},
+  journal = {Ann. of Math. (2)}, volume = {141}, pages = {443--551}, year = {1995},
+  note    = {Ch.~2: Gorenstein and freeness of ordinary Hecke modules. NOT verified (rule A2).}}
+
+@incollection{serre_bourbaki416,
+  author    = {Serre, Jean-Pierre},
+  title     = {Congruences et formes modulaires [d'apr\`es {H}. {P}. {F}. {S}winnerton-{D}yer]},
+  booktitle = {S\'eminaire Bourbaki, vol.\ 1971/72, expos\'e 416},
+  series    = {Lecture Notes in Math.}, volume = {317}, publisher = {Springer}, pages = {319--338}, year = {1973},
+  note      = {The weight congruence of mod-$\ell$ modular forms. NOT verified (rule A2).}}
+
+@article{hida_aif2,
+  author  = {Hida, Haruzo},
+  title   = {A $p$-adic measure attached to the zeta functions associated with two elliptic modular forms. {II}},
+  journal = {Ann. Inst. Fourier (Grenoble)}, volume = {38}, number = {3}, pages = {1--83}, year = {1988},
+  note    = {Added at [U] v0.1.1-pre.3 (slot-14 WP-U1 audit, R1). VERIFIED against the owner's library copy (numdam scan,
+             papers/h/Hida/, read in place, not copied): (1.2), p.~9 and (1.3), p.~10 (Katz: the $p$-power level does not matter);
+             Thm.~1.3, p.~17 (the duality $h(N;\mathcal O)\cong\mathrm{Hom}(S(N;\mathcal O),\mathcal O)$ and back); Thm.~2.2, p.~20 (the exact
+             sequence $0\to S(N;\mathcal O)\to M(N;\mathcal O)\to C(S\times\mathbf Z_p^\times;\mathcal O)\to0$, $\delta(f)(s,z)=a(0,f|z)$). Ohta's
+             reference~[7]; Ohta cites its Thm.~2.2 as his (3.3.2). The scan's running head reads ``38, 1''; numdam lists no.~3.}}
+
+@book{washington1st,
+  author    = {Washington, Lawrence C.},
+  title     = {Introduction to Cyclotomic Fields},
+  series    = {Graduate Texts in Mathematics}, volume = {83},
+  publisher = {Springer}, edition = {1}, year = {1982},
+  note      = {The first edition (gl2\_refs.bib's \texttt{washington} is the second). Added at [U] v0.1.1-pre.3 (slot-14 WP-U1 audit,
+               R3, R5). VERIFIED on rendered pages of the owner's library scan (books/Zahlentheorie/, read in place, not copied; PDF page
+               = book page $+\,10$): Prop.~6.16, p.~102 ($A_0=A_1=0$); Prop.~13.22, p.~284 ($A_n\cong X/((1+T)^{p^n}-1)X$ for a
+               $\mathbf Z_p$-extension with exactly one ramified prime, totally ramified); Thm.~7.10, p.~123, with the power series
+               $f(T,\theta)\in\mathcal O_\theta[[T]]$ of p.~122 ($L_p(s,\chi)=f(\zeta_\psi(1+q_0)^s-1,\theta)$).}}
+
+@article{harder_pink,
+  author  = {Harder, G{\"u}nter and Pink, Richard},
+  title   = {Modular konstruierte unverzweigte abelsche $p$-{E}rweiterungen von {$\mathbf{Q}(\zeta_p)$} und die {S}truktur ihrer
+             {G}aloisgruppen},
+  journal = {Math. Nachr.}, volume = {159}, pages = {83--99}, year = {1992},
+  note    = {Added at [U] v0.1.1-pre.5 (proposal P23 of [D1], slot-14 WP-Q2). Read in place in the owner's library
+             (papers/h/Harder/Harder\_Pink.pdf, 17 pages, not copied) by slot-14 WP-Q2: Satz~5, p.~92, and \S4.2, pp.~92--93, VERIFIED;
+             its Satz~3 (iv), (v) (cited there to Faltings, Fontaine--Messing and Ribet) are inputs NOT verified here (rule A2).}}
+
+@article{hida_tilouine,
+  author  = {Hida, Haruzo and Tilouine, Jacques},
+  title   = {Anti-cyclotomic {K}atz $p$-adic {L}-functions and congruence modules},
+  journal = {Ann. Sci. \'Ecole Norm. Sup. (4)}, volume = {26}, number = {2}, pages = {189--259}, year = {1993},
+  note    = {Cited for the congruence module of a CM component (added at [U] 0.2.0-pre.1, slot-16 WP-12). Bibliographic data and
+             content NOT verified (rule A2).}}
+
+@article{hho,
+  author  = {Hart, William and Harvey, David and Ong, Wilson},
+  title   = {Irregular primes to two billion},
+  journal = {Math. Comp.}, volume = {86}, number = {308}, pages = {3031--3049}, year = {2017},
+  note    = {Added at [U] 0.3.0-pre.1 (slot-19 WP-2) for the cyclotomic lambda-invariants of the irregular pairs; bibliographic data as in
+             loewy\_and\_galois\_refs.bib; the statement about lambda NOT read in the text (rule A2, VERIFY). [U] does not use it: the four
+             lambda-readings of prop:u-eistrunc are computed in-house.}}
+
+@article{greenberg_stevens,
+  author  = {Greenberg, Ralph and Stevens, Glenn},
+  title   = {$p$-adic {L}-functions and $p$-adic periods of modular forms},
+  journal = {Invent. Math.}, volume = {111}, number = {2}, pages = {407--447}, year = {1993},
+  note    = {Added at [U] 0.5.0-pre.1 (slot-21 P8) as the expected source of the Lambda-adic modular-symbol
+             measure behind (U16). The library copy (papers/g/Greenberg/, 43 pp.) is image-only; NO statement or
+             locator of it was read for [U] (rule A2): every use is marked VERIFY / to be confirmed. Kitagawa's
+             construction (missing\_literature.md LIT-08) is not held at all.}}
+
+@book{miyake,
+  author    = {Miyake, Toshitsune},
+  title     = {Modular Forms},
+  publisher = {Springer-Verlag}, address = {Berlin}, year = {1989},
+  note      = {Reprinted in Springer Monographs in Mathematics, 2006. Added at [U] 0.6.0-pre.1 (slot-22 P10-C; the key added by the Fable
+               referee F-U5 at text v0.2) for Thm.~4.6.17: a newform of level $\ell^{r}$, $r\ge2$, whose character has conductor dividing
+               $\ell^{r-1}$ has $a_\ell=0$. Locator NOT verified (rule A2, VERIFY).}}
+
+% --- added at [U] 0.7.0-pre.1 (slot-25 U6, part 6, rmk:u-classzero; owner-signed P-K1 / P-K2 of 2026-11-05) ---
+@article{kurihara1993,
+  author  = {Kurihara, Masato},
+  title   = {Ideal class groups of cyclotomic fields and modular forms of level~1},
+  journal = {J. Number Theory}, volume = {45}, number = {3}, pages = {281--294}, year = {1993},
+  doi     = {10.1006/jnth.1993.1078},
+  note    = {Read on the page images (image-only scan, printed = PDF + 280), slot-24 LIT \S3a, 2026-11-04; [GT] row lit:hz-kurihara-gor.
+             \S3 (Lemma~3.3, Thm.~3.4): the ideals $I_B$, $I_C$, the construction credited to Harder--Pink in footnote~1; Thm.~0.3 (p.~283):
+             $T^E$ Gorenstein $\Rightarrow$ Conj.~0.1; Thm.~0.4 (p.~283): given $A^{\omega^{2-k}}=0$, $\mathfrak I$ principal $\Leftrightarrow$ $T^E$
+             Gorenstein $\Leftrightarrow$ Conj.~0.1; Rmk.~4.5(3) (p.~294): at most two lifts of $G_k$ mod $p$ $\Rightarrow$ $T^E$ monogenic. Range:
+             level one, $p\ge5$, $0<k<p-1$; $T^E$ the finite-level cuspidal algebra.}}
+
+@article{calegari_eisdef,
+  author  = {Calegari, Frank},
+  title   = {Eisenstein deformation rings},
+  journal = {Compositio Math.}, volume = {142}, number = {1}, pages = {63--83}, year = {2006},
+  note    = {p.~68, page image verified (slot-24 LIT \S3): at $p=547$, $k=486$, ``$\mathbf T_{\mathfrak I}/p\simeq\mathbf F_p[x]/x^2$''. The first
+             printed source naming the pair.}}
+
+@article{bellaiche_pollack,
+  author  = {Bella{\"\i}che, Jo{\"e}l and Pollack, Robert},
+  title   = {Congruences with {E}isenstein series and $\mu$-invariants},
+  journal = {Compositio Math.}, volume = {155}, number = {5}, pages = {863--901}, year = {2019},
+  note    = {arXiv:1806.04240v1. \S1.1, p.~2, page image verified (slot-24 LIT \S3): (Cuspidal rank one) holds for every irregular pair
+             $(p,k)$ with $p<10^5$ except $(547,486)$, where $\dim_{\mathbf Z_p}\mathbb T^c_{\mathfrak m^c}=2$; \S3.9, p.~21.}}

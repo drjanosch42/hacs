@@ -1,0 +1,19 @@
+% SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
+% SPDX-License-Identifier: CC-BY-4.0
+% [GT] front matter: the abstract.  print.tex sets it as a starred chapter; web.tex as an abstract environment on the
+% index page (a starred chapter there would take sect0001.html and shift every auto-numbered page name).
+% Driver material only: neither lean_census.py nor LeanCensusFileValidation reads this file.
+This blueprint is the formal ground truth of the project: statements of the mathematics of the contract [C] that have
+been, or are planned to be, verified in Lean~4 with mathlib, and the certificate checkers that tie the C++ computations
+to them. Each statement names its Lean declarations and its status: proved, proved modulo a named literature input,
+stated, or planned; a register lists the literature inputs. A statement mirroring one of [C] keeps [C]'s label verbatim.
+It covers the conventions (symmetric power, pairing, Hecke normalisation, Bernoulli numbers, nebentypus); the
+correspondence datum and the boundary cosets; the bulk complex on the seven-vertex model; double cosets and Hecke
+operators on resolutions; the Hecke ring and level $N$; the pair, the cone and its Hecke action; the projective
+reduction; saturation and the Hecke algebra modulo powers of $\ell$; the Moerdijk--Pronk model; and the integral Hecke
+structure, beginning with Ramanujan's $691$.
+
+The blueprint is \emph{not yet binding}: [C] remains the contract. For a clause of [C] marked as formally verified, its
+row here is the statement of record, and a discrepancy is an erratum of [C]. For a clause resting on a literature input
+this holds only while its locators stand verified, the recorded repair of \texttt{thm:classical} stays in place, and
+the gates are green at every close.

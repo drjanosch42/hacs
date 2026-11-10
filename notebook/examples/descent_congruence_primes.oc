@@ -1,0 +1,38 @@
+# descent_congruence_primes.oc -- Eisenstein congruence primes read from the integral Hecke operators, and the boundary pair over Z.
+# Phenomena gallery [PG] sec:pg-descent-congruence.  The integral descent ([C] sec:descent, sec:descenthecke, sec:descentpair).
+#   (1) level 1, n = 10 (weight 12): char_Z(T_2 | H^1/tors) = (x - (1 + 2^11)) (x - tau(2))^2, and 1 + 2^11 - tau(2) = 3 * 691;
+#   (2) level 11, n = 0 (weight 2): char_Z(T_2) = (x - 3) (x - a_2(11a))^2 with a_2 = -2, and 3 - (-2) = 5 = numerator of (11 - 1)/12;
+#   (3) the same congruence mod 5 on the mod-5 cohomology of Gamma_0(11) (level_n), and the boundary pair over Z.
+# The expansions on the "expected" lines are computed here from the Eisenstein eigenvalue 1 + p^(k-1) and the cusp eigenvalue a_2.
+# Read_only verbs only (notebook-safe).  Cost: about 1 s, < 0.2 GB.
+set coefficient_ring = "Z";
+
+# (1) Ramanujan's 691 over Z
+d = descent(1, 10);
+print("level 1, n = 10:  H^1 =", d.groups[1]);
+print("  char_Z(T_2) coefficients (high -> low):", d.charpoly[0].coefficients);
+a = 1;
+for i in range(0, 11) { a = a * 2; }
+a = a + 1;
+t = -24;
+print("  expected (x - a)(x - t)^2 with a = 1 + 2^11 =", a, " t = tau(2) =", t, ":", [1, -(a + 2 * t), 2 * a * t + t * t, -(a * t * t)]);
+print("  a - t =", a - t, " = 3 * 691:", a - t == 3 * 691);
+
+# (2) Mazur's Eisenstein ideal at N = 11, weight 2
+e = descent(11, 0);
+print("level 11, n = 0:  H^q =", e.groups);
+print("  char_Z(T_2) coefficients (high -> low):", e.charpoly[0].coefficients);
+a = 3;
+t = -2;
+print("  expected (x - a)(x - t)^2 with a = 1 + 2 =", a, " t = a_2(11a) =", t, ":", [1, -(a + 2 * t), 2 * a * t + t * t, -(a * t * t)]);
+print("  a - t =", a - t, " = numerator of (11 - 1)/12 = 5/6");
+
+# (3) The same congruence mod 5, and the boundary pair
+set coefficient_ring = "F_ell";
+L = level_n(11, 0, 5);
+print("mod 5, level 11: h1 =", L.h1, " T_2 charpoly (low -> high)", L.ops[0].charpoly, " = (x - 3)^3 mod 5");
+set coefficient_ring = "Z";
+P = e.pair;
+print("pair at (11, 0): bulk     H^q =", P.bulk.groups);
+print("                 boundary H^q =", P.boundary.groups);
+print("                 compact  H^q =", P.compact.groups);

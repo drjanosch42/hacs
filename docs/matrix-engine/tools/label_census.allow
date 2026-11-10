@@ -1,0 +1,36 @@
+# docs/matrix-engine/tools/label_census.allow
+# ---------------------------------------------------------------------------
+# Allow-list for label_census.sh / label_census.py: citation sites where the
+# TOKEN "label" looks like a real label (it survives normalisation as a valid
+# identifier: /^[A-Za-z][A-Za-z0-9_:]*$/) but is not one.
+#
+# VERIFIED: docs/latex/gl2_contract.tex defines no `\label{label}` (429 labels
+# total at the WP-10 close). Every site below is prose EXPLAINING the
+# `[C, label]` citation syntax itself, using the literal word "label" as the
+# generic placeholder -- not a citation of an actual contract statement. (Every
+# OTHER placeholder spelling found in the tree -- `[C, <label>]`, `[C, \ldots]`,
+# `[C, …]`, the macro body `[C,~\texttt{#1}]`, `\HA{$\cdot$}` -- already fails
+# the identifier check on its own, via the `<`/`>`/backslash/ellipsis/`$`
+# characters, and needs no allow-list entry; see label_census.py's module
+# docstring for the tokeniser.)
+#
+# FORMAT (content-keyed, hecke-extensions slot 4 WP-6): one
+# `relpath|<verbatim fragment of the site's source line>` entry per line
+# (relpath relative to the repository root), preceded by a `#` reason. An
+# entry matches every UNRESOLVED citation whose full source line contains the
+# fragment -- so it survives lines being inserted or deleted above the cited
+# passage, unlike the retired `relpath:line` form (WP-10's original format,
+# which this migration replaces; label_census.py now REJECTS a `relpath:line`
+# entry with a named error rather than silently reinterpreting or skipping
+# it). An entry that matches zero sites is STALE and fails the census.
+#
+# THE UNIT OF PROGRESS is removing an entry -- e.g. if a document's prose is
+# rewritten to use `<label>` or `\ldots` instead of the bare word "label",
+# its allow-list line is deleted along with the fix (and would otherwise be
+# reported STALE, since it would then match nothing).
+#
+# A planted BAD citation (a real-looking but undefined label, e.g.
+# `[C, no_such_label]`) is NOT covered by any entry here and must still fail
+# label_census.sh -- that is ContractCensusValidation's negative-control arm.
+# ---------------------------------------------------------------------------
+

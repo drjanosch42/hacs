@@ -1,0 +1,15 @@
+/.lake/
+/blueprint/web/
+/blueprint/print/
+/blueprint/src/*.aux
+/blueprint/src/*.log
+/blueprint/src/*.out
+/blueprint/src/*.toc
+/blueprint/src/*.fls
+/blueprint/src/*.fdb_latexmk
+/blueprint/src/*.xdv
+/blueprint/src/*.synctex.gz
+/blueprint/src/*.pdf
+/blueprint/lean_decls
+/blueprint/src/*.paux
+/blueprint/*.log

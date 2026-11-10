@@ -1,0 +1,38 @@
+# 058_s25_descent_module.oc -- the module export: DescentRecord.module(ell, K) = H^1(Gamma_0(N); Sym^n Z^2) (x) Z/ell^K with its
+# Hecke operators T_p by cochain-level lifts ([C] prop:torsionhecke, prop:strictliftN; slot-25 EXPORT).
+#
+# The descent record reports H^1 by invariants only (its groups, char_Z(T_p | H^1/tors), the torsion modules' invariants).  The
+# method module(ell, K) makes the local read an object: generators (torsion cocycles first, then free ones), their exponents, and
+# the matrix of every T_p on them.  One run at the route's ring width serves every K <= K_max.
+set coefficient_ring = "Z";
+#
+# (1) Level 1, n = 10 (weight 12), ell = 691: H^1 = Z^3 has no 691-torsion; T_2 on L / 691^2.  Its characteristic polynomial is
+#     char_Z(T_2) mod 691^2: (X - (1 + 2^11)) (X + 24)^2 -- Ramanujan's tau(2) = -24 and the Eisenstein value 2049.
+D = descent(1, 10, [2, 3]);
+M = D.module(691, 2);
+print("module(691, 2):", M.status, " route:", M.route, " K_max:", M.K_max, " invariant factors:", M.invariant_factors);
+print("  T_2 charpoly on the free part (mod 691^2):", M.ops[0].charpoly_free);
+assert(M.free_rank == 3 and len(M.torsion) == 0, "H^1 (x) Z/691^2 = (Z/691^2)^3");
+#
+# (2) The same cell at ell = 2 (the 2-adic tree model): H^1 = Z^3 + Z/2 + Z/4 (+ odd torsion).  Torsion generators come first.
+T = D.module(2, 3);
+print("module(2, 3):", T.status, " route:", T.route, " torsion:", T.torsion, " invariant factors:", T.invariant_factors);
+for g in T.generators {
+    print("  generator:", g.kind, " exponent", g.exponent, " cochain length", len(g.cocycle));
+}
+print("  T_2 on the generators (column convention):", T.ops[0].matrix);
+#
+# (3) Level 11, n = 0 (weight 2), ell = 5: L = Z^3; T_2 + 2 has a unit entry mod 25 (the Eisenstein congruence is glued:
+#     eta_L = Z/5).
+E = descent(11, 0, [2]);
+F = E.module(5, 2);
+print("module(5, 2) at level 11:", F.invariant_factors, " T_2:", F.ops[0].matrix, " charpoly:", F.ops[0].charpoly_free);
+#
+# (4) Refusals: a width beyond the export's K_max reads "refused" (not an error); a non-prime ell is a type error (exit 3).
+R = D.module(691, 9);
+print("module(691, 9):", R.status, "--", R.refusal);
+expect_error "ell must be a prime" { D.module(4, 1) }
+print("refusals: ok");
+# Every script leaves the mathematical settings at their defaults (ConsoleScriptValidation).
+set coefficient_ring = "F_ell";
+assert(fingerprint() == "0x0000000000000000", "back at the defaults");

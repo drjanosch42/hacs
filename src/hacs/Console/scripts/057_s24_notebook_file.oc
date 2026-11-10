@@ -1,0 +1,31 @@
+# 057_s24_notebook_file.oc -- the notebook file format: a plain script with `# %%` cell separators ([P] Sec. 18.18;
+# notebook/page/ocfile.js; slot-24 NB-FILE). A `# %%` line is an ordinary comment, so the whole file is a valid script
+# and `cohomology_app --script nb.oc` runs every cell in order. The notebook's Open / Insert / Save use exactly this file.
+# This script is a small notebook in that format: its transcript is what the cells print when run in order.
+
+# %% [md] The format
+# A line `# %% title` starts a cell; `# %% [md] title` starts a text cell whose body lines all start with `#`.
+# Nothing here is executed, and `# %%% not a separator` or `#%% neither` are plain comments.
+# A text before the first separator (this block) is the notebook's header, kept but not a cell.
+
+# %% Setting and model
+set coefficient_ring = "F_ell";
+M = sl2z_model();
+print("cell 1: model", M.vertices);
+
+# %% A computed cell
+H = cohomology(symmetric_power(M, 10, 691));
+display(H.dims);
+
+# %%
+# an untitled cell, and a comment that looks like a separator but is not one:
+# %%% not a separator
+#%% neither
+print("cell 3: untitled");
+
+# %% [md] Text cells are skipped
+# print("this line is inside a text cell and never runs");
+
+# %% Last cell
+assert(H.dims[1] == 3, "dim H^1 = 3 at (10, 691)");
+print("cell 5: done");

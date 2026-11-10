@@ -1,0 +1,56 @@
+# 061_s25_module_z_exact.oc -- H^1 over Z as a presented Hecke module with the free block EXACT: DescentRecord.module_Z()
+# (slot-25 EXPORT-Z step 2, EXZ2-P3).
+#
+# A = H^1(Gamma_0(N); Sym^n Z^2) = T (+) Z^r.  In generators "torsion first, then a basis B of the free quotient" every T_p is the
+# block matrix [[tau, M], [0, F]].  Step 2 picks B by the named rule iso_dixon/v3 (Dixon pairs on the free tree model, lattice sums,
+# saturation) and CERTIFIES it: det(Phi_cert^T B) = +-1 proves B is a Z-basis of A / T at every prime at once.  F_p is then computed
+# by residue lanes at word primes and a proven Chinese remainder bound, and printed as exact integers (decimal strings); M is given
+# against the classes [b_j] of B themselves: T_p b_j = sum_i F_ij b_i + sum_a M_aj g_a (row a mod d_a), i.e. M = M_local C_ell -
+# pi_B F + tau pi_B, with C_ell = B in the export's local free generators and pi_B = the torsion coordinates of B (printed per torsion
+# prime in `retractions`; EXZ2-P3 fix round 1).  module_Z("local") is step 1 (script 059).
+set coefficient_ring = "Z";
+#
+# (1) Level 1, n = 10 (weight 12): T = Z/2 + Z/4 + Z/3, r = 3; char_Z(T_2) = (X - 2049)(X + 24)^2.
+D = descent(1, 10, [2, 3]);
+Z = D.module_Z();
+print("module_Z:", Z.status, " free_block:", Z.free_block, " M_basis:", Z.M_basis, " entry_encoding:", Z.entry_encoding);
+print("  basis:", Z.basis.rule, " saturation:", Z.basis.saturation, " basis_fnv:", Z.basis.basis_fnv, " phi_fnv:", Z.basis.phi_fnv);
+print("  invariant factors d_i:", Z.invariant_factors, " free rank:", Z.free_rank);
+print("  T_2: F =", Z.ops[0].F);
+print("  T_2: proof", Z.ops[0].F_proof, " F_fnv", Z.ops[0].F_fnv, " char_Z:", Z.ops[0].charpoly_Z);
+print("  T_2: tau =", Z.ops[0].tau);
+for b in Z.ops[0].M {
+    print("  T_2: M at ell", b.ell, "(K =", b.K, "):", b.matrix);
+}
+for c in Z.ops[0].C {
+    print("  C at ell", c.ell, "mod", c.modulus, ":", c.matrix);
+}
+for x in Z.retractions {
+    print("  pi_B at ell", x.ell, ":", x.pi_B, " fnv", x.pi_B_fnv);
+}
+print("  T_2: M_fnv", Z.ops[0].M_fnv);
+assert(Z.free_block == "exact" and Z.M_basis == "global" and Z.basis.saturation == "det_pm1", "F over Z, certified basis");
+L = D.module_Z("local");
+assert(L.free_block == "pending(step 2)" and L.ops[0].tau == Z.ops[0].tau, "step 1 is kept: the same tau");
+#
+# (2) Level 1, n = 30 (weight 32): torsion at 2, 3, 5 and 29; the entries of F leave the 64-bit word (T_3: 89 bits).
+E = descent(1, 30, [2, 3]);
+Y = E.module_Z();
+print("level 1, n = 30:", Y.status, " d_i:", Y.invariant_factors, " free rank:", Y.free_rank, " largest torsion prime:", Y.largest_torsion_prime);
+print("  T_3: F[0] =", Y.ops[1].F[0]);
+print("  T_3: proof", Y.ops[1].F_proof, " lanes", Y.ops[1].F_primes, " char_Z:", Y.ops[1].charpoly_Z);
+for b in Y.ops[1].M {
+    print("  T_3: M at ell", b.ell, "(K =", b.K, "):", b.matrix);
+}
+for x in Y.retractions {
+    print("  pi_B at ell", x.ell, ":", x.pi_B);
+}
+print("  T_3: M_fnv", Y.ops[1].M_fnv);
+#
+# (3) Level 11, n = 0: no torsion; F is T_2 on H^1(Gamma_0(11); Z) = Z^3 with char (x - 3)(x + 2)^2.
+G = descent(11, 0, [2]);
+W = G.module_Z();
+print("level 11, n = 0:", W.status, " d_i:", W.invariant_factors, " F(T_2) =", W.ops[0].F, " char_Z:", W.ops[0].charpoly_Z);
+# Every script leaves the mathematical settings at their defaults (ConsoleScriptValidation).
+set coefficient_ring = "F_ell";
+assert(fingerprint() == "0x0000000000000000", "back at the defaults");

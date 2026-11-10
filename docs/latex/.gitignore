@@ -1,0 +1,11 @@
+# LaTeX build artifacts (keep .tex and .pdf)
+*.aux
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.bbl
+*.blg
+# [PG] transcripts are sources, not build artifacts (slot-20 WP-18: they were silently ignored by *.out above)
+!phenomena_gallery/*.out

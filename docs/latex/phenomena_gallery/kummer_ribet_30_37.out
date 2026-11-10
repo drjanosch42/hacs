@@ -1,0 +1,12 @@
+ell = 37  irregular indices k:  32
+ell = 59  irregular indices k:  44
+ell = 67  irregular indices k:  58
+ell = 101  irregular indices k:  68
+ell = 103  irregular indices k:  24
+ell = 691  irregular indices k:  12 200
+(n, ell) = (10, 37), k = 12  B_k mod 37 = 17  Eisenstein a_2 = 1 + 2^(k-1) = 14
+   ideal: dim 1  a_2 = 14 (mod 37)  Loewy [1]  T_m Hilbert [1]   <- Eisenstein ideal
+   ideal: dim 2  a_2 = 13 (mod 37)  Loewy [2]  T_m Hilbert [1] 
+(n, ell) = (30, 37), k = 32  B_k mod 37 = 0  Eisenstein a_2 = 1 + 2^(k-1) = 23
+   ideal: dim 3  a_2 = 23 (mod 37)  Loewy [2, 1]  T_m Hilbert [1, 1]   <- Eisenstein ideal
+   ideal: dim 2  a_2 = 14 (mod 37)  Loewy [2]  T_m Hilbert [1] 

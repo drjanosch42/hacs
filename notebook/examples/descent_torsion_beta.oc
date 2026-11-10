@@ -1,0 +1,45 @@
+# descent_torsion_beta.oc -- the torsion of H^1(SL_2(Z); Sym^n Z^2) over Z, and its exponent law beta(n, ell).
+# Phenomena gallery [PG] sec:pg-descent-torsion.  The integral descent ([C] sec:descent, thm:descentcert) at level 1, n = 4 .. 60.
+# For each n the snippet prints H^1 as an abelian group, the torsion primes, and two predictions made here from n alone:
+#   * the primes ell >= 5 at which n is a Dickson degree (n in (ell+1) Z_{>=0} + ell(ell-1) Z_{>=0}): the ell >= 5 torsion primes;
+#   * beta(n, ell) = max{ j + 1 : n = ell^j m, m a Dickson degree } for ell = 2, 3: the largest exponent of ell in the torsion
+#     (Callegaro--Cohen--Salvetti, Thm 4.5).
+# Read_only verbs only (notebook-safe; descent needs coefficient_ring = "Z").  Cost: a few seconds, < 0.2 GB.
+set coefficient_ring = "Z";
+for n in [4, 10, 12, 16, 18, 54, 60] {
+    d = descent(1, n);
+    print("n =", n);
+    print("  H^1 =", d.groups[1]);
+    print("  torsion primes", d.torsion_primes, " bad primes (ell >= 5, with count)", d.bad_primes);
+    # (a) the primes 5 <= ell <= n + 1 at which n is a Dickson degree
+    for ell in range(5, n + 2) {
+        isprime = true;
+        for t in range(2, ell) { if (ell % t == 0) { isprime = false; } }
+        if (isprime) {
+            hit = false;
+            for b in range(0, n + 1) {
+                r = n - b * ell * (ell - 1);
+                if (r >= 0 and r % (ell + 1) == 0) { hit = true; }
+            }
+            if (hit) { print("  predicted: n is a Dickson degree at ell =", ell, " so ell is a torsion prime"); }
+        }
+    }
+    # (b) beta(n, ell) for ell = 2, 3
+    for ell in [2, 3] {
+        beta = 0;
+        q = 1;
+        for j in range(0, 7) {
+            if (n % q == 0) {
+                m = n / q;
+                dick = false;
+                for b in range(0, m + 1) {
+                    r = m - b * ell * (ell - 1);
+                    if (r >= 0 and r % (ell + 1) == 0) { dick = true; }
+                }
+                if (dick) { beta = j + 1; }
+            }
+            q = q * ell;
+        }
+        print("  beta(n, ell) for ell =", ell, ":", beta, " (the largest ell-primary summand should be Z/ell^beta)");
+    }
+}

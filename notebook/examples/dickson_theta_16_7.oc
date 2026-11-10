@@ -1,0 +1,30 @@
+# dickson_theta_16_7.oc -- the theta operator q d/dq on cohomology: the Dickson map L_* and its long exact sequence.
+# Phenomena gallery [PG] sec:pg-theta.  Cell (n, ell) = (16, 7) -> n + ell + 1 = 24.  Read_only verbs only (notebook-safe).
+# Cost: < 1 s, < 0.1 GB.
+#
+#   0 -> Sym^n (x) det -> Sym^(n+ell+1) -> Q_n -> 0   (over F_ell; L = X^ell Y - X Y^ell, the Dickson invariant)
+M = sl2z_model();
+n = 16;
+ell = 7;
+D = dickson_les(n, ell);
+print("dims", D.dims);
+print("ranks", D.ranks, " exact:", D.exact, " ker theta^1 = im delta:", D.ker_equals_im, " certificate", D.certificate);
+H = cohomology(symmetric_power(M, n, ell));
+Hu = cohomology(symmetric_power(M, n + ell + 1, ell));
+T = theta(H, Hu);
+t = T.induced[1];
+print("theta^1 : H^1(Sym^16 (x) det) -> H^1(Sym^24), rank", T.ranks[1], " twist check", T.twist_check, " U_7 theta = 0:", T.u_ell_zero);
+
+# The twist: A(T_p) theta = p theta A(T_p).  So theta multiplies the eigenvalue a_p by p (the det twist).
+for p in [2, 3, 5] {
+    A = hecke(H, p).A(1);
+    Au = hecke(Hu, p).A(1);
+    print("p =", p, " A_up theta == p theta A:", mul(Au, t) == scale(mul(t, A), p), "   A_up theta == theta A:", mul(Au, t) == mul(t, A));
+    ev = "";
+    evu = "";
+    for x in range(0, ell) {
+        if eval(charpoly(A), x) == 0 { ev = ev + " " + str(x); }
+        if eval(charpoly(Au), x) == 0 { evu = evu + " " + str(x); }
+    }
+    print("   eigenvalues of T_p on H^1(Sym^16):" + ev + "   on H^1(Sym^24):" + evu);
+}

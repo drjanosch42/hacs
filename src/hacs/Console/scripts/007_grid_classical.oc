@@ -1,0 +1,42 @@
+# 007_grid_classical.oc -- golden-grid cell class 1: the CLASSICAL regime,
+# ell > n + 1, where Eichler-Shimura applies verbatim and H^2 = 0.
+#
+# One script per cell class (plan Sec. 10, Phase C1b).  Each cell pins, through
+# `golden(...)` alone: the degree count, dim H^q in every degree, the hash of
+# A^{(q)}(T_2), and -- in every degree the harness itself decomposes, i.e.
+# wherever dim H^q > 0 -- the decomposition's invariants hash, its certificate
+# and its change of basis.
+
+include("prelude.oc");
+
+for cell in [[10, 691], [16, 13], [22, 691]] {
+    n = cell[0];
+    ell = cell[1];
+    pt = "n=" + str(n) + " ell=" + str(ell);
+    ptp = pt + " p=2 r=1";
+
+    H = cohomology(symmetric_power(MODEL, n, ell));
+    assert(len(H.dims) == golden(pt, "num_degrees").value, "num_degrees at " + pt);
+    T = hecke(H, 2);
+
+    for q in H.degrees {
+        assert(H.dims[q] == golden(pt, "dim_H^" + str(q)).value, "dim H^" + str(q) + " at " + pt);
+        assert(hash(T.A(q)) == golden(ptp, "A(T_p)^" + str(q)).hash,
+               "A(T_p)^" + str(q) + " at " + ptp);
+        if H.dims[q] > 0 {
+            D = decompose(T, q);
+            obj = "decomp_A(T_p)^" + str(q);
+            assert(D.certify() == golden(ptp, obj + "_certify").value,
+                   obj + "_certify at " + ptp);
+            assert(hash(D) == golden(ptp, obj + "_invariants").hash,
+                   obj + "_invariants at " + ptp);
+            assert(hash(D.U) == golden(ptp, obj + "_U").hash, obj + "_U at " + ptp);
+            assert(D.witness_hash == golden(ptp, obj + "_witness").hash,
+                   obj + "_witness at " + ptp);
+        }
+    }
+    # The classical regime: H^2 = 0 and dim H^0 <= 1.
+    assert(H.dims[2] == 0, "H^2 = 0 in the classical regime at " + pt);
+    print(pt, H.dims);
+}
+annotate("007_grid_classical: 3 cells");

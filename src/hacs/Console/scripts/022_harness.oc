@@ -1,0 +1,97 @@
+# 022_harness.oc -- console phase C2b: the harness verbs
+# (hecke-extensions slot 7, WP-8; [P] v3.4 Sec. 5, Sec. 2 C5, Sec. 10 C2b).
+#
+# The harness verbs drive the SAME code paths as the command line: the
+# validation registry, the `--bench` runner (bench::RunMode, gap G4) and the
+# golden harness.  What this transcript pins is what they return that is a
+# FUNCTION OF THE MATHEMATICS -- dimensions, return codes, golden-grid pins --
+# never a timing: every time and every RSS figure lives in a `#~` annotation
+# (`bench_line`), which no `.expected` comparison reads.
+#
+# Nothing below prints a list a sibling package extends ([S4A] F4): the
+# validation roster is SEARCHED, never printed, and no count of it appears.
+# ConsoleDeterminismValidation carries the heavier arms (GoldenRegression-
+# Validation from inside a script, the campaign, the threads / backend arms).
+
+include("prelude.oc");
+
+# ---------------------------------------------------------------------------
+# validations() / run_validation(): the roster, and one fast validation run in
+# process.  Its own [PASS] chatter is captured, so only our lines print.
+# ---------------------------------------------------------------------------
+found = false;
+for v in validations("fast") {
+    if v[0] == "mod_arithmetic_validation" {
+        found = true;
+        assert(v[1] == "fast", "the roster carries the tier");
+    }
+}
+assert(found, "validations(\"fast\") lists mod_arithmetic_validation");
+print("run_validation(mod_arithmetic_validation) =", run_validation("mod_arithmetic_validation"));
+expect_error "no validation is registered" { run_validation("NoSuchValidation") }
+expect_error "owner-gated emitter" { run_validation("GoldenEmit") }
+
+# ---------------------------------------------------------------------------
+# (e) bench(): the record's dims are the cohomology's dims.
+# ---------------------------------------------------------------------------
+B = bench("hecke", n = 48, ell = 134217757, p = 2);
+bench_line(B);
+H48 = cohomology(symmetric_power(MODEL, 48, 134217757));
+assert(B.dims == H48.dims, "bench(\"hecke\", 48, 134217757, 2).dims == cohomology(...).dims");
+assert(B.mode == "hecke", "the record names its mode");
+assert(B.params == "n=48 ell=134217757 p=2", "the record carries the BENCH line's params");
+assert(B.extra.xcheck_rc == "skipped", "cross-checks are off by default, as on the CLI");
+print("bench(hecke, 48, 134217757, 2).dims =", B.dims);
+
+# The golden cell through the bench runner: dims are golden pins.
+BC = bench("cohom", N_SYM, ELL);
+bench_line(BC);
+assert(BC.dims == [golden(POINT_COH, "dim_H^0").value, golden(POINT_COH, "dim_H^1").value,
+                   golden(POINT_COH, "dim_H^2").value],
+       "bench(cohom, 10, 691).dims are the golden dimensions");
+BD = bench("decomp", N_SYM, ELL, p = P_HECKE);
+bench_line(BD);
+assert(BD.extra.certify == "0", "the decomposition certifies");
+print("bench(decomp, 10, 691, 2): q =", BD.extra.q, "blocks =", BD.extra.blocks);
+expect_error "the micro-benchmarks are micro" { bench("micro", 1, 5) }
+expect_error "needs p" { bench("hecke", 4, 5) }
+
+# micro(): the checksum is a bit-identity statement between backends.  (S24 CL-L2) The engine-vs-legacy pair
+# needs an OC_ENABLE_LEGACY=ON build and moved to ConsoleSettingsValidation's arm (f) backend-legacy; here two
+# engine runs pin the checksum's determinism.
+ME = micro("gemm", 64, backend = "engine");
+ME2 = micro("gemm", 64, backend = "engine");
+bench_line(ME);
+bench_line(ME2);
+assert(ME.checksum == ME2.checksum, "micro gemm 64: two engine runs give the same checksum");
+expect_error "unknown op" { micro("nosuchop", 3) }
+
+# ---------------------------------------------------------------------------
+# golden_subset(): one cell, both tiers gating.
+# ---------------------------------------------------------------------------
+G = golden_subset([[N_SYM, ELL]]);
+assert(G.mismatches == 0, "golden_subset([[10, 691]]) matches the reference, both tiers");
+print("golden_subset([[10, 691]]).mismatches =", G.mismatches);
+
+# ---------------------------------------------------------------------------
+# timed() / rss(): measured, never printed except as `#~`.
+# ---------------------------------------------------------------------------
+TH = timed(cohomology(symmetric_power(MODEL, 16, 13)));
+bench_line(TH, "timed");
+assert(TH.value.dims == [golden("n=16 ell=13", "dim_H^0").value,
+                         golden("n=16 ell=13", "dim_H^1").value,
+                         golden("n=16 ell=13", "dim_H^2").value],
+       "timed() forces the handle and hands it back");
+assert(TH.wall_us >= 0, "a wall time is measured");
+R = rss();
+assert(R.scope == "process", "rss() is the PROCESS high-water mark");
+assert(R.peak_rss_kb >= R.rss_kb, "the peak is at least the current resident set");
+
+# ---------------------------------------------------------------------------
+# G9 / G14: the Dickson predicate and the Jordan partition are the pipeline's.
+# ---------------------------------------------------------------------------
+assert(dickson_exceptional(20, 5), "n = 20 = ell (ell - 1) is on the Dickson locus at ell = 5");
+assert(dickson_exceptional(18, 5), "n = 18 = 3 (ell + 1) is on it too");
+assert(not dickson_exceptional(10, 5), "n = 10 is not");
+N = matrix(5, [[0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 0], [0, 0, 0, 0]]);
+print("jordan_type(N) =", jordan_type(N));

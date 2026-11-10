@@ -1,0 +1,779 @@
+# WP-9 (NB5)/(NB6) predictions, transcribed 2026-10-01 for [C] v1.15.0 rmk:nebcheckable. Columns: cell, kind, key, value, ell, source, retrieved, note.
+# SOURCE: LMFDB (www.lmfdb.org) API tables mf_newforms and mf_newspaces, queries level=N&weight=k, retrieved 2026-10-01 through a browser session (curl was reCAPTCHA-blocked after 6 requests); rows kind=newform carry the raw traces n<=60.
+# CHARACTER CONVENTION OF THE SOURCE: LMFDB labels chi by its Conrey label N.m (mf_newspaces conrey_index m) and the nebentypus is f|_k(a b;c d)=chi(d)f on Gamma_0(N), so a_{p^2}=a_p^2-chi(p)p^{k-1} (verified on the transcribed traces, rows check_hecke_rel). All five (NB5) characters are quadratic, so chibar=chi: the chi->chibar image of every Conrey label is itself, and these cells cannot discriminate chi from chibar (L16-2's dictionary needs a non-real cell).
+# kind=eis, charpoly_Z, charpoly_mod_ell, nb6_mod_ell are DERIVED from the LMFDB rows (Eisenstein eigenvalues from Diamond-Shurman 4.5/4.6, not an LMFDB datum); kinds newform, dim, conv, nb6_ap quote LMFDB. nb6_ap: LMFDB a_p equals pi^(k-1)+pibar^(k-1) for every split p<=50 and 0 for every inert p<=50 (checked by script; an independent theta-series check of the n<=60 traces also agrees).
+# NOTE: T_2 at N=4 and T_3 at N=3 are U_p (p|N). (5,chi_5,4) has S_4=0 (LMFDB 5.4.b: dim 0, eis_dim 2): Eisenstein only; its LMFDB orbit label is b (c is the odd order-4 orbit).
+cell	kind	key	value	ell	source	retrieved	note
+(5,chi_5,4)	conv	lmfdb_conrey_label	5.4		https://www.lmfdb.org/api/mf_newspaces/?level=5&weight=4&_format=json	2026-10-01	LMFDB newspace 5.4.b: conrey_index=4 char_order=2
+(5,chi_5,4)	conv	conj_conrey_label(chi->chibar)	5.4		https://www.lmfdb.org/api/mf_newspaces/?level=5&weight=4&_format=json	2026-10-01	chi real (order 2): chibar = chi, same label; the dictionary chi<->chibar is the identity on these five cells
+(5,chi_5,4)	conv	chi_values	chi(2)=-1 chi(3)=-1		https://www.lmfdb.org/api/mf_newspaces/?level=5&weight=4&_format=json	2026-10-01	Kronecker/Legendre symbol (5/.); consistent with LMFDB char_values generator data and with the Hecke relation a_{p^2}=a_p^2-chi(p)p^{k-1} on the transcribed traces (rows 'check_hecke_rel')
+(5,chi_5,4)	conv	chi_parity	even		https://www.lmfdb.org/api/mf_newspaces/?level=5&weight=4&_format=json	2026-10-01	k=4
+(5,chi_5,4)	conv	nebentypus_convention	f|_k gamma = chi(d) f for gamma=(a b;c d) in Gamma_0(N); T_p relation a_{p^2}=a_p^2-chi(p)p^{k-1}		LMFDB help (mf.elliptic.nebentypus / conrey label); checked on data	2026-10-01	chi enters as chi(p), not chibar(p), in the Hecke relation; for real chi chi=chibar so these cells cannot discriminate the two conventions
+(5,chi_5,4)	dim	cusp_dim_S_k(Gamma_0(N),chi)	0		https://www.lmfdb.org/api/mf_newspaces/?level=5&weight=4&_format=json	2026-10-01	newspace 5.4.b dim; chi primitive of conductor N => space = newspace (no oldforms)
+(5,chi_5,4)	dim	eis_dim_E_k(Gamma_0(N),chi)	2		https://www.lmfdb.org/api/mf_newspaces/?level=5&weight=4&_format=json	2026-10-01	eis_dim of 5.4.b
+(5,chi_5,4)	dim	dim_H1_predicted_(NB1)	2		derived	2026-10-01	2 dim S + dim E
+(5,chi_5,4)	eis	a_2(E_k(1,chi)),a_2(E_k(chi,1))	-7,7		derived: Diamond-Shurman Thm 4.5.1/4.6.2, a_p(E_k^{psi,phi})=psi(p)+phi(p)p^{k-1}	2026-10-01	LMFDB does not publish Eisenstein series; both pairs (psi,phi)=(1,chi),(chi,1) are the whole Eisenstein space (eis_dim 2). For p|N the value is the U_p-eigenvalue of the level-N (chi primitive) Eisenstein series. Real chi: chi=chibar so no ambiguity of the pair order
+(5,chi_5,4)	eis	a_3(E_k(1,chi)),a_3(E_k(chi,1))	-26,26		derived: Diamond-Shurman Thm 4.5.1/4.6.2, a_p(E_k^{psi,phi})=psi(p)+phi(p)p^{k-1}	2026-10-01	LMFDB does not publish Eisenstein series; both pairs (psi,phi)=(1,chi),(chi,1) are the whole Eisenstein space (eis_dim 2). For p|N the value is the U_p-eigenvalue of the level-N (chi primitive) Eisenstein series. Real chi: chi=chibar so no ambiguity of the pair order
+(5,chi_5,4)	charpoly_Z	T_2|H^1	coeffs_low_to_high=-49,0,1		derived from the rows above	2026-10-01	X^2 - 49 ; = (cusp: 1)(Eis: X^2 - 49) ; degree 2 = dim H^1 ; real chi => chi^{+1}=chi^{-1} so the prediction is the same for both readings of (NB1)
+(5,chi_5,4)	charpoly_mod_ell	T_2|H^1 mod 7	coeffs_low_to_high=0,0,1	7	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(5,chi_5,4)	charpoly_mod_ell	T_2|H^1 mod 11	coeffs_low_to_high=6,0,1	11	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(5,chi_5,4)	charpoly_mod_ell	T_2|H^1 mod 13	coeffs_low_to_high=3,0,1	13	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(5,chi_5,4)	charpoly_mod_ell	T_2|H^1 mod 17	coeffs_low_to_high=2,0,1	17	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(5,chi_5,4)	charpoly_mod_ell	T_2|H^1 mod 19	coeffs_low_to_high=8,0,1	19	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(5,chi_5,4)	charpoly_mod_ell	T_2|H^1 mod 23	coeffs_low_to_high=20,0,1	23	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(5,chi_5,4)	charpoly_mod_ell	T_2|H^1 mod 29	coeffs_low_to_high=9,0,1	29	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(5,chi_5,4)	charpoly_mod_ell	T_2|H^1 mod 31	coeffs_low_to_high=13,0,1	31	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(5,chi_5,4)	charpoly_mod_ell	T_2|H^1 mod 37	coeffs_low_to_high=25,0,1	37	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(5,chi_5,4)	charpoly_Z	T_3|H^1	coeffs_low_to_high=-676,0,1		derived from the rows above	2026-10-01	X^2 - 676 ; = (cusp: 1)(Eis: X^2 - 676) ; degree 2 = dim H^1 ; real chi => chi^{+1}=chi^{-1} so the prediction is the same for both readings of (NB1)
+(5,chi_5,4)	charpoly_mod_ell	T_3|H^1 mod 7	coeffs_low_to_high=3,0,1	7	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(5,chi_5,4)	charpoly_mod_ell	T_3|H^1 mod 11	coeffs_low_to_high=6,0,1	11	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(5,chi_5,4)	charpoly_mod_ell	T_3|H^1 mod 13	coeffs_low_to_high=0,0,1	13	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(5,chi_5,4)	charpoly_mod_ell	T_3|H^1 mod 17	coeffs_low_to_high=4,0,1	17	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(5,chi_5,4)	charpoly_mod_ell	T_3|H^1 mod 19	coeffs_low_to_high=8,0,1	19	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(5,chi_5,4)	charpoly_mod_ell	T_3|H^1 mod 23	coeffs_low_to_high=14,0,1	23	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(5,chi_5,4)	charpoly_mod_ell	T_3|H^1 mod 29	coeffs_low_to_high=20,0,1	29	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(5,chi_5,4)	charpoly_mod_ell	T_3|H^1 mod 31	coeffs_low_to_high=6,0,1	31	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(5,chi_5,4)	charpoly_mod_ell	T_3|H^1 mod 37	coeffs_low_to_high=27,0,1	37	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(13,chi_13,4)	conv	lmfdb_conrey_label	13.12		https://www.lmfdb.org/api/mf_newspaces/?level=13&weight=4&_format=json	2026-10-01	LMFDB newspace 13.4.b: conrey_index=12 char_order=2
+(13,chi_13,4)	conv	conj_conrey_label(chi->chibar)	13.12		https://www.lmfdb.org/api/mf_newspaces/?level=13&weight=4&_format=json	2026-10-01	chi real (order 2): chibar = chi, same label; the dictionary chi<->chibar is the identity on these five cells
+(13,chi_13,4)	conv	chi_values	chi(2)=-1 chi(3)=1		https://www.lmfdb.org/api/mf_newspaces/?level=13&weight=4&_format=json	2026-10-01	Kronecker/Legendre symbol (13/.); consistent with LMFDB char_values generator data and with the Hecke relation a_{p^2}=a_p^2-chi(p)p^{k-1} on the transcribed traces (rows 'check_hecke_rel')
+(13,chi_13,4)	conv	chi_parity	even		https://www.lmfdb.org/api/mf_newspaces/?level=13&weight=4&_format=json	2026-10-01	k=4
+(13,chi_13,4)	conv	nebentypus_convention	f|_k gamma = chi(d) f for gamma=(a b;c d) in Gamma_0(N); T_p relation a_{p^2}=a_p^2-chi(p)p^{k-1}		LMFDB help (mf.elliptic.nebentypus / conrey label); checked on data	2026-10-01	chi enters as chi(p), not chibar(p), in the Hecke relation; for real chi chi=chibar so these cells cannot discriminate the two conventions
+(13,chi_13,4)	dim	cusp_dim_S_k(Gamma_0(N),chi)	2		https://www.lmfdb.org/api/mf_newspaces/?level=13&weight=4&_format=json	2026-10-01	newspace 13.4.b dim; chi primitive of conductor N => space = newspace (no oldforms)
+(13,chi_13,4)	dim	eis_dim_E_k(Gamma_0(N),chi)	2		https://www.lmfdb.org/api/mf_newspaces/?level=13&weight=4&_format=json	2026-10-01	eis_dim of 13.4.b
+(13,chi_13,4)	dim	dim_H1_predicted_(NB1)	6		derived	2026-10-01	2 dim S + dim E
+(13,chi_13,4)	newform	label	13.4.b.a		https://www.lmfdb.org/api/mf_newforms/?level=13&weight=4&_format=json  (page https://www.lmfdb.org/ModularForm/GL2/Q/holomorphic/13/4/b/a/)	2026-10-01	dim=2 nf_label=2.0.4.1 hecke_orbit_code=68786585613 cm_discs=[]
+(13,chi_13,4)	newform	traces_n<=60	2,0,-2,-2,0,0,0,0,-52,54,0,2,52,90,0,-142,-90,0,0,0,0,-288,324,0,88,234,106,0,-288,-54,0,0,0,0,-270,52,0,-36,-52,378,0,-90,-194,0,0,0,0,142,236,0,90,-52,-828,0,864,630,0,0,0,0		https://www.lmfdb.org/api/mf_newforms/?level=13&weight=4&_format=json	2026-10-01	Tr_{K/Q} a_n as published, n=1..60
+(13,chi_13,4)	newform	charpoly_Q(a_2)	X^2 + 9		https://www.lmfdb.org/api/mf_newforms/?level=13&weight=4&_format=json	2026-10-01	dim 2 over Q(i); from Tr a_p, Tr a_{p^2} (traces) and the Hecke relation; roots a_p, conj(a_p)
+(13,chi_13,4)	newform	charpoly_Q(a_3)	X^2 + 2X + 1		https://www.lmfdb.org/api/mf_newforms/?level=13&weight=4&_format=json	2026-10-01	dim 2 over Q(i); from Tr a_p, Tr a_{p^2} (traces) and the Hecke relation; roots a_p, conj(a_p)
+(13,chi_13,4)	newform	a_2_exact	+-3*sqrt(-1)  (root of X^2+9)		https://www.lmfdb.org/api/mf_newforms/?level=13&weight=4&_format=json	2026-10-01	LMFDB's q-expansion basis element beta is NOT a root of the field_poly X^2+1 here (it is 3i or a Hecke-order generator); a_2^2 = a_4 + chi(2)2^3 from traces => X^2+9. Sign of a_2 = choice of embedding, invisible in the charpoly
+(13,chi_13,4)	newform	a_3_exact	-1		https://www.lmfdb.org/api/mf_newforms/?level=13&weight=4&_format=json qexp_display 'q+beta q^2-q^3-q^4-3beta q^5...'	2026-10-01	Tr a_3=-2 and Tr a_9=-52 = Tr(a_3^2)-54 force a_3=-1
+(13,chi_13,4)	eis	a_2(E_k(1,chi)),a_2(E_k(chi,1))	-7,7		derived: Diamond-Shurman Thm 4.5.1/4.6.2, a_p(E_k^{psi,phi})=psi(p)+phi(p)p^{k-1}	2026-10-01	LMFDB does not publish Eisenstein series; both pairs (psi,phi)=(1,chi),(chi,1) are the whole Eisenstein space (eis_dim 2). For p|N the value is the U_p-eigenvalue of the level-N (chi primitive) Eisenstein series. Real chi: chi=chibar so no ambiguity of the pair order
+(13,chi_13,4)	eis	a_3(E_k(1,chi)),a_3(E_k(chi,1))	28,28		derived: Diamond-Shurman Thm 4.5.1/4.6.2, a_p(E_k^{psi,phi})=psi(p)+phi(p)p^{k-1}	2026-10-01	LMFDB does not publish Eisenstein series; both pairs (psi,phi)=(1,chi),(chi,1) are the whole Eisenstein space (eis_dim 2). For p|N the value is the U_p-eigenvalue of the level-N (chi primitive) Eisenstein series. Real chi: chi=chibar so no ambiguity of the pair order
+(13,chi_13,4)	charpoly_Z	T_2|H^1	coeffs_low_to_high=-3969,0,-801,0,-31,0,1		derived from the rows above	2026-10-01	X^6 - 31X^4 - 801X^2 - 3969 ; = (cusp: X^4 + 18X^2 + 81)(Eis: X^2 - 49) ; degree 6 = dim H^1 ; real chi => chi^{+1}=chi^{-1} so the prediction is the same for both readings of (NB1)
+(13,chi_13,4)	charpoly_mod_ell	T_2|H^1 mod 5	coeffs_low_to_high=1,0,4,0,4,0,1	5	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(13,chi_13,4)	charpoly_mod_ell	T_2|H^1 mod 7	coeffs_low_to_high=0,0,4,0,4,0,1	7	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 2
+(13,chi_13,4)	charpoly_mod_ell	T_2|H^1 mod 11	coeffs_low_to_high=2,0,2,0,2,0,1	11	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 2
+(13,chi_13,4)	charpoly_mod_ell	T_2|H^1 mod 17	coeffs_low_to_high=9,0,15,0,3,0,1	17	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(13,chi_13,4)	charpoly_mod_ell	T_2|H^1 mod 19	coeffs_low_to_high=2,0,16,0,7,0,1	19	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 2
+(13,chi_13,4)	charpoly_mod_ell	T_2|H^1 mod 23	coeffs_low_to_high=10,0,4,0,15,0,1	23	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 2
+(13,chi_13,4)	charpoly_mod_ell	T_2|H^1 mod 29	coeffs_low_to_high=4,0,11,0,27,0,1	29	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(13,chi_13,4)	charpoly_mod_ell	T_2|H^1 mod 31	coeffs_low_to_high=30,0,5,0,0,0,1	31	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 2
+(13,chi_13,4)	charpoly_mod_ell	T_2|H^1 mod 37	coeffs_low_to_high=27,0,13,0,6,0,1	37	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(13,chi_13,4)	charpoly_Z	T_3|H^1	coeffs_low_to_high=784,3080,4481,2804,566,-52,1		derived from the rows above	2026-10-01	X^6 - 52X^5 + 566X^4 + 2804X^3 + 4481X^2 + 3080X + 784 ; = (cusp: X^4 + 4X^3 + 6X^2 + 4X + 1)(Eis: X^2 - 56X + 784) ; degree 6 = dim H^1 ; real chi => chi^{+1}=chi^{-1} so the prediction is the same for both readings of (NB1)
+(13,chi_13,4)	charpoly_mod_ell	T_3|H^1 mod 5	coeffs_low_to_high=4,0,1,4,1,3,1	5	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(13,chi_13,4)	charpoly_mod_ell	T_3|H^1 mod 7	coeffs_low_to_high=0,0,1,4,6,4,1	7	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(13,chi_13,4)	charpoly_mod_ell	T_3|H^1 mod 11	coeffs_low_to_high=3,0,4,10,5,3,1	11	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(13,chi_13,4)	charpoly_mod_ell	T_3|H^1 mod 17	coeffs_low_to_high=2,3,10,16,5,16,1	17	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(13,chi_13,4)	charpoly_mod_ell	T_3|H^1 mod 19	coeffs_low_to_high=5,2,16,11,15,5,1	19	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(13,chi_13,4)	charpoly_mod_ell	T_3|H^1 mod 23	coeffs_low_to_high=2,21,19,21,14,17,1	23	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(13,chi_13,4)	charpoly_mod_ell	T_3|H^1 mod 29	coeffs_low_to_high=1,6,15,20,15,6,1	29	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(13,chi_13,4)	charpoly_mod_ell	T_3|H^1 mod 31	coeffs_low_to_high=9,11,17,14,8,10,1	31	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(13,chi_13,4)	charpoly_mod_ell	T_3|H^1 mod 37	coeffs_low_to_high=7,9,4,29,11,22,1	37	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(7,chi_-7,3)	conv	lmfdb_conrey_label	7.6		https://www.lmfdb.org/api/mf_newspaces/?level=7&weight=3&_format=json	2026-10-01	LMFDB newspace 7.3.b: conrey_index=6 char_order=2
+(7,chi_-7,3)	conv	conj_conrey_label(chi->chibar)	7.6		https://www.lmfdb.org/api/mf_newspaces/?level=7&weight=3&_format=json	2026-10-01	chi real (order 2): chibar = chi, same label; the dictionary chi<->chibar is the identity on these five cells
+(7,chi_-7,3)	conv	chi_values	chi(2)=1 chi(3)=-1		https://www.lmfdb.org/api/mf_newspaces/?level=7&weight=3&_format=json	2026-10-01	Kronecker/Legendre symbol (-7/.); consistent with LMFDB char_values generator data and with the Hecke relation a_{p^2}=a_p^2-chi(p)p^{k-1} on the transcribed traces (rows 'check_hecke_rel')
+(7,chi_-7,3)	conv	chi_parity	odd		https://www.lmfdb.org/api/mf_newspaces/?level=7&weight=3&_format=json	2026-10-01	k=3
+(7,chi_-7,3)	conv	nebentypus_convention	f|_k gamma = chi(d) f for gamma=(a b;c d) in Gamma_0(N); T_p relation a_{p^2}=a_p^2-chi(p)p^{k-1}		LMFDB help (mf.elliptic.nebentypus / conrey label); checked on data	2026-10-01	chi enters as chi(p), not chibar(p), in the Hecke relation; for real chi chi=chibar so these cells cannot discriminate the two conventions
+(7,chi_-7,3)	dim	cusp_dim_S_k(Gamma_0(N),chi)	1		https://www.lmfdb.org/api/mf_newspaces/?level=7&weight=3&_format=json	2026-10-01	newspace 7.3.b dim; chi primitive of conductor N => space = newspace (no oldforms)
+(7,chi_-7,3)	dim	eis_dim_E_k(Gamma_0(N),chi)	2		https://www.lmfdb.org/api/mf_newspaces/?level=7&weight=3&_format=json	2026-10-01	eis_dim of 7.3.b
+(7,chi_-7,3)	dim	dim_H1_predicted_(NB1)	4		derived	2026-10-01	2 dim S + dim E
+(7,chi_-7,3)	newform	label	7.3.b.a		https://www.lmfdb.org/api/mf_newforms/?level=7&weight=3&_format=json  (page https://www.lmfdb.org/ModularForm/GL2/Q/holomorphic/7/3/b/a/)	2026-10-01	dim=1 nf_label=1.1.1.1 hecke_orbit_code=68769808391 cm_discs=[-7]
+(7,chi_-7,3)	newform	traces_n<=60	1,-3,0,5,0,0,-7,-3,9,0,-6,0,0,21,0,-11,0,-27,0,0,0,18,18,0,25,0,0,-35,-54,0,0,45,0,0,0,45,-38,0,0,0,0,0,58,-30,0,-54,0,0,49,-75,0,0,-6,0,0,21,0,162,0,0		https://www.lmfdb.org/api/mf_newforms/?level=7&weight=3&_format=json	2026-10-01	Tr_{K/Q} a_n as published, n=1..60
+(7,chi_-7,3)	newform	charpoly_Q(a_2)	X + 3		https://www.lmfdb.org/api/mf_newforms/?level=7&weight=3&_format=json	2026-10-01	a_2 = -3 (rational)
+(7,chi_-7,3)	newform	charpoly_Q(a_3)	X		https://www.lmfdb.org/api/mf_newforms/?level=7&weight=3&_format=json	2026-10-01	a_3 = 0 (rational)
+(7,chi_-7,3)	check_hecke_rel	a_4=a_2^2-chi(2)2^2	OK		derived from traces	2026-10-01	LMFDB values: a_2=-3 a_4=5 chi(2)=1
+(7,chi_-7,3)	check_hecke_rel	a_9=a_3^2-chi(3)3^2	OK		derived from traces	2026-10-01	LMFDB values: a_3=0 a_9=9 chi(3)=-1
+(7,chi_-7,3)	eis	a_2(E_k(1,chi)),a_2(E_k(chi,1))	5,5		derived: Diamond-Shurman Thm 4.5.1/4.6.2, a_p(E_k^{psi,phi})=psi(p)+phi(p)p^{k-1}	2026-10-01	LMFDB does not publish Eisenstein series; both pairs (psi,phi)=(1,chi),(chi,1) are the whole Eisenstein space (eis_dim 2). For p|N the value is the U_p-eigenvalue of the level-N (chi primitive) Eisenstein series. Real chi: chi=chibar so no ambiguity of the pair order
+(7,chi_-7,3)	eis	a_3(E_k(1,chi)),a_3(E_k(chi,1))	-8,8		derived: Diamond-Shurman Thm 4.5.1/4.6.2, a_p(E_k^{psi,phi})=psi(p)+phi(p)p^{k-1}	2026-10-01	LMFDB does not publish Eisenstein series; both pairs (psi,phi)=(1,chi),(chi,1) are the whole Eisenstein space (eis_dim 2). For p|N the value is the U_p-eigenvalue of the level-N (chi primitive) Eisenstein series. Real chi: chi=chibar so no ambiguity of the pair order
+(7,chi_-7,3)	charpoly_Z	T_2|H^1	coeffs_low_to_high=225,60,-26,-4,1		derived from the rows above	2026-10-01	X^4 - 4X^3 - 26X^2 + 60X + 225 ; = (cusp: X^2 + 6X + 9)(Eis: X^2 - 10X + 25) ; degree 4 = dim H^1 ; real chi => chi^{+1}=chi^{-1} so the prediction is the same for both readings of (NB1)
+(7,chi_-7,3)	charpoly_mod_ell	T_2|H^1 mod 5	coeffs_low_to_high=0,0,4,1,1	5	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(7,chi_-7,3)	charpoly_mod_ell	T_2|H^1 mod 11	coeffs_low_to_high=5,5,7,7,1	11	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(7,chi_-7,3)	charpoly_mod_ell	T_2|H^1 mod 13	coeffs_low_to_high=4,8,0,9,1	13	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(7,chi_-7,3)	charpoly_mod_ell	T_2|H^1 mod 17	coeffs_low_to_high=4,9,8,13,1	17	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(7,chi_-7,3)	charpoly_mod_ell	T_2|H^1 mod 19	coeffs_low_to_high=16,3,12,15,1	19	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(7,chi_-7,3)	charpoly_mod_ell	T_2|H^1 mod 23	coeffs_low_to_high=18,14,20,19,1	23	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(7,chi_-7,3)	charpoly_mod_ell	T_2|H^1 mod 29	coeffs_low_to_high=22,2,3,25,1	29	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(7,chi_-7,3)	charpoly_mod_ell	T_2|H^1 mod 31	coeffs_low_to_high=8,29,5,27,1	31	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(7,chi_-7,3)	charpoly_mod_ell	T_2|H^1 mod 37	coeffs_low_to_high=3,23,11,33,1	37	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(7,chi_-7,3)	charpoly_Z	T_3|H^1	coeffs_low_to_high=0,0,-64,0,1		derived from the rows above	2026-10-01	X^4 - 64X^2 ; = (cusp: X^2)(Eis: X^2 - 64) ; degree 4 = dim H^1 ; real chi => chi^{+1}=chi^{-1} so the prediction is the same for both readings of (NB1)
+(7,chi_-7,3)	charpoly_mod_ell	T_3|H^1 mod 5	coeffs_low_to_high=0,0,1,0,1	5	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(7,chi_-7,3)	charpoly_mod_ell	T_3|H^1 mod 11	coeffs_low_to_high=0,0,2,0,1	11	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(7,chi_-7,3)	charpoly_mod_ell	T_3|H^1 mod 13	coeffs_low_to_high=0,0,1,0,1	13	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(7,chi_-7,3)	charpoly_mod_ell	T_3|H^1 mod 17	coeffs_low_to_high=0,0,4,0,1	17	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(7,chi_-7,3)	charpoly_mod_ell	T_3|H^1 mod 19	coeffs_low_to_high=0,0,12,0,1	19	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(7,chi_-7,3)	charpoly_mod_ell	T_3|H^1 mod 23	coeffs_low_to_high=0,0,5,0,1	23	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(7,chi_-7,3)	charpoly_mod_ell	T_3|H^1 mod 29	coeffs_low_to_high=0,0,23,0,1	29	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(7,chi_-7,3)	charpoly_mod_ell	T_3|H^1 mod 31	coeffs_low_to_high=0,0,29,0,1	31	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(7,chi_-7,3)	charpoly_mod_ell	T_3|H^1 mod 37	coeffs_low_to_high=0,0,10,0,1	37	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(4,chi_-4,5)	conv	lmfdb_conrey_label	4.3		https://www.lmfdb.org/api/mf_newspaces/?level=4&weight=5&_format=json	2026-10-01	LMFDB newspace 4.5.b: conrey_index=3 char_order=2
+(4,chi_-4,5)	conv	conj_conrey_label(chi->chibar)	4.3		https://www.lmfdb.org/api/mf_newspaces/?level=4&weight=5&_format=json	2026-10-01	chi real (order 2): chibar = chi, same label; the dictionary chi<->chibar is the identity on these five cells
+(4,chi_-4,5)	conv	chi_values	chi(2)=0 chi(3)=-1		https://www.lmfdb.org/api/mf_newspaces/?level=4&weight=5&_format=json	2026-10-01	Kronecker/Legendre symbol (-4/.); consistent with LMFDB char_values generator data and with the Hecke relation a_{p^2}=a_p^2-chi(p)p^{k-1} on the transcribed traces (rows 'check_hecke_rel')
+(4,chi_-4,5)	conv	chi_parity	odd		https://www.lmfdb.org/api/mf_newspaces/?level=4&weight=5&_format=json	2026-10-01	k=5
+(4,chi_-4,5)	conv	nebentypus_convention	f|_k gamma = chi(d) f for gamma=(a b;c d) in Gamma_0(N); T_p relation a_{p^2}=a_p^2-chi(p)p^{k-1}		LMFDB help (mf.elliptic.nebentypus / conrey label); checked on data	2026-10-01	chi enters as chi(p), not chibar(p), in the Hecke relation; for real chi chi=chibar so these cells cannot discriminate the two conventions
+(4,chi_-4,5)	dim	cusp_dim_S_k(Gamma_0(N),chi)	1		https://www.lmfdb.org/api/mf_newspaces/?level=4&weight=5&_format=json	2026-10-01	newspace 4.5.b dim; chi primitive of conductor N => space = newspace (no oldforms)
+(4,chi_-4,5)	dim	eis_dim_E_k(Gamma_0(N),chi)	2		https://www.lmfdb.org/api/mf_newspaces/?level=4&weight=5&_format=json	2026-10-01	eis_dim of 4.5.b
+(4,chi_-4,5)	dim	dim_H1_predicted_(NB1)	4		derived	2026-10-01	2 dim S + dim E
+(4,chi_-4,5)	newform	label	4.5.b.a		https://www.lmfdb.org/api/mf_newforms/?level=4&weight=5&_format=json  (page https://www.lmfdb.org/ModularForm/GL2/Q/holomorphic/4/5/b/a/)	2026-10-01	dim=1 nf_label=1.1.1.1 hecke_orbit_code=68803362820 cm_discs=[-4]
+(4,chi_-4,5)	newform	traces_n<=60	1,-4,0,16,-14,0,0,-64,81,56,0,0,-238,0,0,256,322,-324,0,-224,0,0,0,0,-429,952,0,0,82,0,0,-1024,0,-1288,0,1296,2162,0,0,896,-3038,0,0,0,-1134,0,0,0,2401,1716,0,-3808,2482,0,0,0,0,-328,0,0		https://www.lmfdb.org/api/mf_newforms/?level=4&weight=5&_format=json	2026-10-01	Tr_{K/Q} a_n as published, n=1..60
+(4,chi_-4,5)	newform	charpoly_Q(a_2)	X + 4		https://www.lmfdb.org/api/mf_newforms/?level=4&weight=5&_format=json	2026-10-01	a_2 = -4 (rational)
+(4,chi_-4,5)	newform	charpoly_Q(a_3)	X		https://www.lmfdb.org/api/mf_newforms/?level=4&weight=5&_format=json	2026-10-01	a_3 = 0 (rational)
+(4,chi_-4,5)	check_hecke_rel	a_4=a_2^2-chi(2)2^4	OK		derived from traces	2026-10-01	LMFDB values: a_2=-4 a_4=16 chi(2)=0
+(4,chi_-4,5)	check_hecke_rel	a_9=a_3^2-chi(3)3^4	OK		derived from traces	2026-10-01	LMFDB values: a_3=0 a_9=81 chi(3)=-1
+(4,chi_-4,5)	eis	a_2(E_k(1,chi)),a_2(E_k(chi,1))	1,16		derived: Diamond-Shurman Thm 4.5.1/4.6.2, a_p(E_k^{psi,phi})=psi(p)+phi(p)p^{k-1}	2026-10-01	LMFDB does not publish Eisenstein series; both pairs (psi,phi)=(1,chi),(chi,1) are the whole Eisenstein space (eis_dim 2). For p|N the value is the U_p-eigenvalue of the level-N (chi primitive) Eisenstein series. Real chi: chi=chibar so no ambiguity of the pair order
+(4,chi_-4,5)	eis	a_3(E_k(1,chi)),a_3(E_k(chi,1))	-80,80		derived: Diamond-Shurman Thm 4.5.1/4.6.2, a_p(E_k^{psi,phi})=psi(p)+phi(p)p^{k-1}	2026-10-01	LMFDB does not publish Eisenstein series; both pairs (psi,phi)=(1,chi),(chi,1) are the whole Eisenstein space (eis_dim 2). For p|N the value is the U_p-eigenvalue of the level-N (chi primitive) Eisenstein series. Real chi: chi=chibar so no ambiguity of the pair order
+(4,chi_-4,5)	charpoly_Z	T_2|H^1	coeffs_low_to_high=256,-144,-104,-9,1		derived from the rows above	2026-10-01	X^4 - 9X^3 - 104X^2 - 144X + 256 ; = (cusp: X^2 + 8X + 16)(Eis: X^2 - 17X + 16) ; degree 4 = dim H^1 ; real chi => chi^{+1}=chi^{-1} so the prediction is the same for both readings of (NB1)
+(4,chi_-4,5)	charpoly_Z	T_2_is_U_2	yes		derived	2026-10-01	p | N: T_p of the level-N model is U_p
+(4,chi_-4,5)	charpoly_mod_ell	T_2|H^1 mod 5	coeffs_low_to_high=1,1,1,1,1	5	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(4,chi_-4,5)	charpoly_mod_ell	T_2|H^1 mod 7	coeffs_low_to_high=4,3,1,5,1	7	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(4,chi_-4,5)	charpoly_mod_ell	T_2|H^1 mod 11	coeffs_low_to_high=3,10,6,2,1	11	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(4,chi_-4,5)	charpoly_mod_ell	T_2|H^1 mod 13	coeffs_low_to_high=9,12,0,4,1	13	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(4,chi_-4,5)	charpoly_mod_ell	T_2|H^1 mod 17	coeffs_low_to_high=1,9,15,8,1	17	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(4,chi_-4,5)	charpoly_mod_ell	T_2|H^1 mod 19	coeffs_low_to_high=9,8,10,10,1	19	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(4,chi_-4,5)	charpoly_mod_ell	T_2|H^1 mod 23	coeffs_low_to_high=3,17,11,14,1	23	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(4,chi_-4,5)	charpoly_mod_ell	T_2|H^1 mod 29	coeffs_low_to_high=24,1,12,20,1	29	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(4,chi_-4,5)	charpoly_mod_ell	T_2|H^1 mod 31	coeffs_low_to_high=8,11,20,22,1	31	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(4,chi_-4,5)	charpoly_mod_ell	T_2|H^1 mod 37	coeffs_low_to_high=34,4,7,28,1	37	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(4,chi_-4,5)	charpoly_Z	T_3|H^1	coeffs_low_to_high=0,0,-6400,0,1		derived from the rows above	2026-10-01	X^4 - 6400X^2 ; = (cusp: X^2)(Eis: X^2 - 6400) ; degree 4 = dim H^1 ; real chi => chi^{+1}=chi^{-1} so the prediction is the same for both readings of (NB1)
+(4,chi_-4,5)	charpoly_mod_ell	T_3|H^1 mod 5	coeffs_low_to_high=0,0,0,0,1	5	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(4,chi_-4,5)	charpoly_mod_ell	T_3|H^1 mod 7	coeffs_low_to_high=0,0,5,0,1	7	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(4,chi_-4,5)	charpoly_mod_ell	T_3|H^1 mod 11	coeffs_low_to_high=0,0,2,0,1	11	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(4,chi_-4,5)	charpoly_mod_ell	T_3|H^1 mod 13	coeffs_low_to_high=0,0,9,0,1	13	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(4,chi_-4,5)	charpoly_mod_ell	T_3|H^1 mod 17	coeffs_low_to_high=0,0,9,0,1	17	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(4,chi_-4,5)	charpoly_mod_ell	T_3|H^1 mod 19	coeffs_low_to_high=0,0,3,0,1	19	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(4,chi_-4,5)	charpoly_mod_ell	T_3|H^1 mod 23	coeffs_low_to_high=0,0,17,0,1	23	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(4,chi_-4,5)	charpoly_mod_ell	T_3|H^1 mod 29	coeffs_low_to_high=0,0,9,0,1	29	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(4,chi_-4,5)	charpoly_mod_ell	T_3|H^1 mod 31	coeffs_low_to_high=0,0,17,0,1	31	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(4,chi_-4,5)	charpoly_mod_ell	T_3|H^1 mod 37	coeffs_low_to_high=0,0,1,0,1	37	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(3,chi_-3,7)	conv	lmfdb_conrey_label	3.2		https://www.lmfdb.org/api/mf_newspaces/?level=3&weight=7&_format=json	2026-10-01	LMFDB newspace 3.7.b: conrey_index=2 char_order=2
+(3,chi_-3,7)	conv	conj_conrey_label(chi->chibar)	3.2		https://www.lmfdb.org/api/mf_newspaces/?level=3&weight=7&_format=json	2026-10-01	chi real (order 2): chibar = chi, same label; the dictionary chi<->chibar is the identity on these five cells
+(3,chi_-3,7)	conv	chi_values	chi(2)=-1 chi(3)=0		https://www.lmfdb.org/api/mf_newspaces/?level=3&weight=7&_format=json	2026-10-01	Kronecker/Legendre symbol (-3/.); consistent with LMFDB char_values generator data and with the Hecke relation a_{p^2}=a_p^2-chi(p)p^{k-1} on the transcribed traces (rows 'check_hecke_rel')
+(3,chi_-3,7)	conv	chi_parity	odd		https://www.lmfdb.org/api/mf_newspaces/?level=3&weight=7&_format=json	2026-10-01	k=7
+(3,chi_-3,7)	conv	nebentypus_convention	f|_k gamma = chi(d) f for gamma=(a b;c d) in Gamma_0(N); T_p relation a_{p^2}=a_p^2-chi(p)p^{k-1}		LMFDB help (mf.elliptic.nebentypus / conrey label); checked on data	2026-10-01	chi enters as chi(p), not chibar(p), in the Hecke relation; for real chi chi=chibar so these cells cannot discriminate the two conventions
+(3,chi_-3,7)	dim	cusp_dim_S_k(Gamma_0(N),chi)	1		https://www.lmfdb.org/api/mf_newspaces/?level=3&weight=7&_format=json	2026-10-01	newspace 3.7.b dim; chi primitive of conductor N => space = newspace (no oldforms)
+(3,chi_-3,7)	dim	eis_dim_E_k(Gamma_0(N),chi)	2		https://www.lmfdb.org/api/mf_newspaces/?level=3&weight=7&_format=json	2026-10-01	eis_dim of 3.7.b
+(3,chi_-3,7)	dim	dim_H1_predicted_(NB1)	4		derived	2026-10-01	2 dim S + dim E
+(3,chi_-3,7)	newform	label	3.7.b.a		https://www.lmfdb.org/api/mf_newforms/?level=3&weight=7&_format=json  (page https://www.lmfdb.org/ModularForm/GL2/Q/holomorphic/3/7/b/a/)	2026-10-01	dim=1 nf_label=1.1.1.1 hecke_orbit_code=68836917251 cm_discs=[-3]
+(3,chi_-3,7)	newform	traces_n<=60	1,0,-27,64,0,0,-286,0,729,0,0,-1728,506,0,0,4096,0,0,-10582,0,7722,0,0,0,15625,0,-19683,-18304,0,0,35282,0,0,0,0,46656,-89206,0,-13662,0,0,0,111386,0,0,0,0,-110592,-35853,0,0,32384,0,0,0,0,285714,0,0,0		https://www.lmfdb.org/api/mf_newforms/?level=3&weight=7&_format=json	2026-10-01	Tr_{K/Q} a_n as published, n=1..60
+(3,chi_-3,7)	newform	charpoly_Q(a_2)	X		https://www.lmfdb.org/api/mf_newforms/?level=3&weight=7&_format=json	2026-10-01	a_2 = 0 (rational)
+(3,chi_-3,7)	newform	charpoly_Q(a_3)	X + 27		https://www.lmfdb.org/api/mf_newforms/?level=3&weight=7&_format=json	2026-10-01	a_3 = -27 (rational)
+(3,chi_-3,7)	check_hecke_rel	a_4=a_2^2-chi(2)2^6	OK		derived from traces	2026-10-01	LMFDB values: a_2=0 a_4=64 chi(2)=-1
+(3,chi_-3,7)	check_hecke_rel	a_9=a_3^2-chi(3)3^6	OK		derived from traces	2026-10-01	LMFDB values: a_3=-27 a_9=729 chi(3)=0
+(3,chi_-3,7)	eis	a_2(E_k(1,chi)),a_2(E_k(chi,1))	-63,63		derived: Diamond-Shurman Thm 4.5.1/4.6.2, a_p(E_k^{psi,phi})=psi(p)+phi(p)p^{k-1}	2026-10-01	LMFDB does not publish Eisenstein series; both pairs (psi,phi)=(1,chi),(chi,1) are the whole Eisenstein space (eis_dim 2). For p|N the value is the U_p-eigenvalue of the level-N (chi primitive) Eisenstein series. Real chi: chi=chibar so no ambiguity of the pair order
+(3,chi_-3,7)	eis	a_3(E_k(1,chi)),a_3(E_k(chi,1))	1,729		derived: Diamond-Shurman Thm 4.5.1/4.6.2, a_p(E_k^{psi,phi})=psi(p)+phi(p)p^{k-1}	2026-10-01	LMFDB does not publish Eisenstein series; both pairs (psi,phi)=(1,chi),(chi,1) are the whole Eisenstein space (eis_dim 2). For p|N the value is the U_p-eigenvalue of the level-N (chi primitive) Eisenstein series. Real chi: chi=chibar so no ambiguity of the pair order
+(3,chi_-3,7)	charpoly_Z	T_2|H^1	coeffs_low_to_high=0,0,-3969,0,1		derived from the rows above	2026-10-01	X^4 - 3969X^2 ; = (cusp: X^2)(Eis: X^2 - 3969) ; degree 4 = dim H^1 ; real chi => chi^{+1}=chi^{-1} so the prediction is the same for both readings of (NB1)
+(3,chi_-3,7)	charpoly_mod_ell	T_2|H^1 mod 5	coeffs_low_to_high=0,0,1,0,1	5	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(3,chi_-3,7)	charpoly_mod_ell	T_2|H^1 mod 7	coeffs_low_to_high=0,0,0,0,1	7	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(3,chi_-3,7)	charpoly_mod_ell	T_2|H^1 mod 11	coeffs_low_to_high=0,0,2,0,1	11	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(3,chi_-3,7)	charpoly_mod_ell	T_2|H^1 mod 13	coeffs_low_to_high=0,0,9,0,1	13	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(3,chi_-3,7)	charpoly_mod_ell	T_2|H^1 mod 17	coeffs_low_to_high=0,0,9,0,1	17	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(3,chi_-3,7)	charpoly_mod_ell	T_2|H^1 mod 19	coeffs_low_to_high=0,0,2,0,1	19	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(3,chi_-3,7)	charpoly_mod_ell	T_2|H^1 mod 23	coeffs_low_to_high=0,0,10,0,1	23	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(3,chi_-3,7)	charpoly_mod_ell	T_2|H^1 mod 29	coeffs_low_to_high=0,0,4,0,1	29	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(3,chi_-3,7)	charpoly_mod_ell	T_2|H^1 mod 31	coeffs_low_to_high=0,0,30,0,1	31	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(3,chi_-3,7)	charpoly_mod_ell	T_2|H^1 mod 37	coeffs_low_to_high=0,0,27,0,1	37	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(3,chi_-3,7)	charpoly_Z	T_3|H^1	coeffs_low_to_high=531441,-492804,-37962,-676,1		derived from the rows above	2026-10-01	X^4 - 676X^3 - 37962X^2 - 492804X + 531441 ; = (cusp: X^2 + 54X + 729)(Eis: X^2 - 730X + 729) ; degree 4 = dim H^1 ; real chi => chi^{+1}=chi^{-1} so the prediction is the same for both readings of (NB1)
+(3,chi_-3,7)	charpoly_Z	T_3_is_U_3	yes		derived	2026-10-01	p | N: T_p of the level-N model is U_p
+(3,chi_-3,7)	charpoly_mod_ell	T_3|H^1 mod 5	coeffs_low_to_high=1,1,3,4,1	5	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(3,chi_-3,7)	charpoly_mod_ell	T_3|H^1 mod 7	coeffs_low_to_high=1,3,6,3,1	7	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(3,chi_-3,7)	charpoly_mod_ell	T_3|H^1 mod 11	coeffs_low_to_high=9,7,10,6,1	11	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(3,chi_-3,7)	charpoly_mod_ell	T_3|H^1 mod 13	coeffs_low_to_high=1,0,11,0,1	13	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(3,chi_-3,7)	charpoly_mod_ell	T_3|H^1 mod 17	coeffs_low_to_high=4,9,16,4,1	17	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(3,chi_-3,7)	charpoly_mod_ell	T_3|H^1 mod 19	coeffs_low_to_high=11,18,0,8,1	19	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(3,chi_-3,7)	charpoly_mod_ell	T_3|H^1 mod 23	coeffs_low_to_high=3,17,11,14,1	23	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(3,chi_-3,7)	charpoly_mod_ell	T_3|H^1 mod 29	coeffs_low_to_high=16,22,28,20,1	29	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(3,chi_-3,7)	charpoly_mod_ell	T_3|H^1 mod 31	coeffs_low_to_high=8,3,13,6,1	31	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(3,chi_-3,7)	charpoly_mod_ell	T_3|H^1 mod 37	coeffs_low_to_high=10,36,0,27,1	37	derived (reduction of charpoly_Z)	2026-10-01	chi order 2 | ell-1 so chi takes values +-1 in F_ell (d=1); splitting degree of the reduced polynomial over F_ell = 1
+(7,chi_-7,3)	nb6	cm_field	Q(sqrt-7) disc -7		https://www.lmfdb.org/api/mf_newforms/?level=7&weight=3&_format=json	2026-10-01	LMFDB cm_discs=[-7] self_twist_discs=[-7] is_cm=true dim=1 => cusp space is one CM newform
+(7,chi_-7,3)	nb6_ap	p=2	type=split a_p(LMFDB)=-3 pi^(k-1)+pibar^(k-1)=-3 pi=0+-1*t (t^2=1*t-2) check=OK		https://www.lmfdb.org/api/mf_newforms/?level=7&weight=3&_format=json traces[p]	2026-10-01	; T_p cusp eigenvalues (x2, f and conj f): -3
+(7,chi_-7,3)	nb6_mod_ell	p=2 mod 5	a_p mod ell = 2	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 2)^2
+(7,chi_-7,3)	nb6_mod_ell	p=2 mod 11	a_p mod ell = 8	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 8)^2
+(7,chi_-7,3)	nb6_mod_ell	p=2 mod 13	a_p mod ell = 10	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 10)^2
+(7,chi_-7,3)	nb6_mod_ell	p=2 mod 17	a_p mod ell = 14	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 14)^2
+(7,chi_-7,3)	nb6_mod_ell	p=2 mod 19	a_p mod ell = 16	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 16)^2
+(7,chi_-7,3)	nb6_mod_ell	p=2 mod 23	a_p mod ell = 20	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 20)^2
+(7,chi_-7,3)	nb6_mod_ell	p=2 mod 29	a_p mod ell = 26	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 26)^2
+(7,chi_-7,3)	nb6_mod_ell	p=2 mod 31	a_p mod ell = 28	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 28)^2
+(7,chi_-7,3)	nb6_mod_ell	p=2 mod 37	a_p mod ell = 34	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 34)^2
+(7,chi_-7,3)	nb6_ap	p=3	type=inert a_p(LMFDB)=0 pi^(k-1)+pibar^(k-1)=0 pi= check=OK		https://www.lmfdb.org/api/mf_newforms/?level=7&weight=3&_format=json traces[p]	2026-10-01	T_p on cuspidal part of H^1: charpoly X^2
+(7,chi_-7,3)	nb6_mod_ell	p=3 mod 5	a_p mod ell = 0	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=3 mod 11	a_p mod ell = 0	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=3 mod 13	a_p mod ell = 0	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=3 mod 17	a_p mod ell = 0	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=3 mod 19	a_p mod ell = 0	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=3 mod 23	a_p mod ell = 0	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=3 mod 29	a_p mod ell = 0	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=3 mod 31	a_p mod ell = 0	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=3 mod 37	a_p mod ell = 0	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_ap	p=5	type=inert a_p(LMFDB)=0 pi^(k-1)+pibar^(k-1)=0 pi= check=OK		https://www.lmfdb.org/api/mf_newforms/?level=7&weight=3&_format=json traces[p]	2026-10-01	T_p on cuspidal part of H^1: charpoly X^2
+(7,chi_-7,3)	nb6_mod_ell	p=5 mod 11	a_p mod ell = 0	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=5 mod 13	a_p mod ell = 0	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=5 mod 17	a_p mod ell = 0	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=5 mod 19	a_p mod ell = 0	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=5 mod 23	a_p mod ell = 0	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=5 mod 29	a_p mod ell = 0	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=5 mod 31	a_p mod ell = 0	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=5 mod 37	a_p mod ell = 0	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_ap	p=7	type=ramified_or_p|N a_p(LMFDB)=-7 pi^(k-1)+pibar^(k-1)=n/a pi= check=excluded(p|N)		https://www.lmfdb.org/api/mf_newforms/?level=7&weight=3&_format=json traces[p]	2026-10-01	
+(7,chi_-7,3)	nb6_ap	p=11	type=split a_p(LMFDB)=-6 pi^(k-1)+pibar^(k-1)=-6 pi=-1+-2*t (t^2=1*t-2) check=OK		https://www.lmfdb.org/api/mf_newforms/?level=7&weight=3&_format=json traces[p]	2026-10-01	; T_p cusp eigenvalues (x2, f and conj f): -6
+(7,chi_-7,3)	nb6_mod_ell	p=11 mod 5	a_p mod ell = 4	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 4)^2
+(7,chi_-7,3)	nb6_mod_ell	p=11 mod 13	a_p mod ell = 7	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 7)^2
+(7,chi_-7,3)	nb6_mod_ell	p=11 mod 17	a_p mod ell = 11	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 11)^2
+(7,chi_-7,3)	nb6_mod_ell	p=11 mod 19	a_p mod ell = 13	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 13)^2
+(7,chi_-7,3)	nb6_mod_ell	p=11 mod 23	a_p mod ell = 17	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 17)^2
+(7,chi_-7,3)	nb6_mod_ell	p=11 mod 29	a_p mod ell = 23	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 23)^2
+(7,chi_-7,3)	nb6_mod_ell	p=11 mod 31	a_p mod ell = 25	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 25)^2
+(7,chi_-7,3)	nb6_mod_ell	p=11 mod 37	a_p mod ell = 31	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 31)^2
+(7,chi_-7,3)	nb6_ap	p=13	type=inert a_p(LMFDB)=0 pi^(k-1)+pibar^(k-1)=0 pi= check=OK		https://www.lmfdb.org/api/mf_newforms/?level=7&weight=3&_format=json traces[p]	2026-10-01	T_p on cuspidal part of H^1: charpoly X^2
+(7,chi_-7,3)	nb6_mod_ell	p=13 mod 5	a_p mod ell = 0	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=13 mod 11	a_p mod ell = 0	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=13 mod 17	a_p mod ell = 0	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=13 mod 19	a_p mod ell = 0	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=13 mod 23	a_p mod ell = 0	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=13 mod 29	a_p mod ell = 0	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=13 mod 31	a_p mod ell = 0	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=13 mod 37	a_p mod ell = 0	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_ap	p=17	type=inert a_p(LMFDB)=0 pi^(k-1)+pibar^(k-1)=0 pi= check=OK		https://www.lmfdb.org/api/mf_newforms/?level=7&weight=3&_format=json traces[p]	2026-10-01	T_p on cuspidal part of H^1: charpoly X^2
+(7,chi_-7,3)	nb6_mod_ell	p=17 mod 5	a_p mod ell = 0	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=17 mod 11	a_p mod ell = 0	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=17 mod 13	a_p mod ell = 0	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=17 mod 19	a_p mod ell = 0	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=17 mod 23	a_p mod ell = 0	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=17 mod 29	a_p mod ell = 0	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=17 mod 31	a_p mod ell = 0	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=17 mod 37	a_p mod ell = 0	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_ap	p=19	type=inert a_p(LMFDB)=0 pi^(k-1)+pibar^(k-1)=0 pi= check=OK		https://www.lmfdb.org/api/mf_newforms/?level=7&weight=3&_format=json traces[p]	2026-10-01	T_p on cuspidal part of H^1: charpoly X^2
+(7,chi_-7,3)	nb6_mod_ell	p=19 mod 5	a_p mod ell = 0	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=19 mod 11	a_p mod ell = 0	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=19 mod 13	a_p mod ell = 0	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=19 mod 17	a_p mod ell = 0	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=19 mod 23	a_p mod ell = 0	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=19 mod 29	a_p mod ell = 0	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=19 mod 31	a_p mod ell = 0	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=19 mod 37	a_p mod ell = 0	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_ap	p=23	type=split a_p(LMFDB)=18 pi^(k-1)+pibar^(k-1)=18 pi=-3+-2*t (t^2=1*t-2) check=OK		https://www.lmfdb.org/api/mf_newforms/?level=7&weight=3&_format=json traces[p]	2026-10-01	; T_p cusp eigenvalues (x2, f and conj f): 18
+(7,chi_-7,3)	nb6_mod_ell	p=23 mod 5	a_p mod ell = 3	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 3)^2
+(7,chi_-7,3)	nb6_mod_ell	p=23 mod 11	a_p mod ell = 7	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 7)^2
+(7,chi_-7,3)	nb6_mod_ell	p=23 mod 13	a_p mod ell = 5	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 5)^2
+(7,chi_-7,3)	nb6_mod_ell	p=23 mod 17	a_p mod ell = 1	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 1)^2
+(7,chi_-7,3)	nb6_mod_ell	p=23 mod 19	a_p mod ell = 18	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 18)^2
+(7,chi_-7,3)	nb6_mod_ell	p=23 mod 29	a_p mod ell = 18	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 18)^2
+(7,chi_-7,3)	nb6_mod_ell	p=23 mod 31	a_p mod ell = 18	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 18)^2
+(7,chi_-7,3)	nb6_mod_ell	p=23 mod 37	a_p mod ell = 18	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 18)^2
+(7,chi_-7,3)	nb6_ap	p=29	type=split a_p(LMFDB)=-54 pi^(k-1)+pibar^(k-1)=-54 pi=1+-4*t (t^2=1*t-2) check=OK		https://www.lmfdb.org/api/mf_newforms/?level=7&weight=3&_format=json traces[p]	2026-10-01	; T_p cusp eigenvalues (x2, f and conj f): -54
+(7,chi_-7,3)	nb6_mod_ell	p=29 mod 5	a_p mod ell = 1	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 1)^2
+(7,chi_-7,3)	nb6_mod_ell	p=29 mod 11	a_p mod ell = 1	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 1)^2
+(7,chi_-7,3)	nb6_mod_ell	p=29 mod 13	a_p mod ell = 11	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 11)^2
+(7,chi_-7,3)	nb6_mod_ell	p=29 mod 17	a_p mod ell = 14	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 14)^2
+(7,chi_-7,3)	nb6_mod_ell	p=29 mod 19	a_p mod ell = 3	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 3)^2
+(7,chi_-7,3)	nb6_mod_ell	p=29 mod 23	a_p mod ell = 15	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 15)^2
+(7,chi_-7,3)	nb6_mod_ell	p=29 mod 31	a_p mod ell = 8	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 8)^2
+(7,chi_-7,3)	nb6_mod_ell	p=29 mod 37	a_p mod ell = 20	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 20)^2
+(7,chi_-7,3)	nb6_ap	p=31	type=inert a_p(LMFDB)=0 pi^(k-1)+pibar^(k-1)=0 pi= check=OK		https://www.lmfdb.org/api/mf_newforms/?level=7&weight=3&_format=json traces[p]	2026-10-01	T_p on cuspidal part of H^1: charpoly X^2
+(7,chi_-7,3)	nb6_mod_ell	p=31 mod 5	a_p mod ell = 0	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=31 mod 11	a_p mod ell = 0	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=31 mod 13	a_p mod ell = 0	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=31 mod 17	a_p mod ell = 0	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=31 mod 19	a_p mod ell = 0	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=31 mod 23	a_p mod ell = 0	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=31 mod 29	a_p mod ell = 0	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=31 mod 37	a_p mod ell = 0	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_ap	p=37	type=split a_p(LMFDB)=-38 pi^(k-1)+pibar^(k-1)=-38 pi=-1+-4*t (t^2=1*t-2) check=OK		https://www.lmfdb.org/api/mf_newforms/?level=7&weight=3&_format=json traces[p]	2026-10-01	; T_p cusp eigenvalues (x2, f and conj f): -38
+(7,chi_-7,3)	nb6_mod_ell	p=37 mod 5	a_p mod ell = 2	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 2)^2
+(7,chi_-7,3)	nb6_mod_ell	p=37 mod 11	a_p mod ell = 6	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 6)^2
+(7,chi_-7,3)	nb6_mod_ell	p=37 mod 13	a_p mod ell = 1	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 1)^2
+(7,chi_-7,3)	nb6_mod_ell	p=37 mod 17	a_p mod ell = 13	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 13)^2
+(7,chi_-7,3)	nb6_mod_ell	p=37 mod 19	a_p mod ell = 0	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=37 mod 23	a_p mod ell = 8	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 8)^2
+(7,chi_-7,3)	nb6_mod_ell	p=37 mod 29	a_p mod ell = 20	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 20)^2
+(7,chi_-7,3)	nb6_mod_ell	p=37 mod 31	a_p mod ell = 24	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 24)^2
+(7,chi_-7,3)	nb6_ap	p=41	type=inert a_p(LMFDB)=0 pi^(k-1)+pibar^(k-1)=0 pi= check=OK		https://www.lmfdb.org/api/mf_newforms/?level=7&weight=3&_format=json traces[p]	2026-10-01	T_p on cuspidal part of H^1: charpoly X^2
+(7,chi_-7,3)	nb6_mod_ell	p=41 mod 5	a_p mod ell = 0	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=41 mod 11	a_p mod ell = 0	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=41 mod 13	a_p mod ell = 0	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=41 mod 17	a_p mod ell = 0	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=41 mod 19	a_p mod ell = 0	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=41 mod 23	a_p mod ell = 0	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=41 mod 29	a_p mod ell = 0	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=41 mod 31	a_p mod ell = 0	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=41 mod 37	a_p mod ell = 0	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_ap	p=43	type=split a_p(LMFDB)=58 pi^(k-1)+pibar^(k-1)=58 pi=-5+-2*t (t^2=1*t-2) check=OK		https://www.lmfdb.org/api/mf_newforms/?level=7&weight=3&_format=json traces[p]	2026-10-01	; T_p cusp eigenvalues (x2, f and conj f): 58
+(7,chi_-7,3)	nb6_mod_ell	p=43 mod 5	a_p mod ell = 3	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 3)^2
+(7,chi_-7,3)	nb6_mod_ell	p=43 mod 11	a_p mod ell = 3	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 3)^2
+(7,chi_-7,3)	nb6_mod_ell	p=43 mod 13	a_p mod ell = 6	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 6)^2
+(7,chi_-7,3)	nb6_mod_ell	p=43 mod 17	a_p mod ell = 7	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 7)^2
+(7,chi_-7,3)	nb6_mod_ell	p=43 mod 19	a_p mod ell = 1	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 1)^2
+(7,chi_-7,3)	nb6_mod_ell	p=43 mod 23	a_p mod ell = 12	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 12)^2
+(7,chi_-7,3)	nb6_mod_ell	p=43 mod 29	a_p mod ell = 0	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=43 mod 31	a_p mod ell = 27	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 27)^2
+(7,chi_-7,3)	nb6_mod_ell	p=43 mod 37	a_p mod ell = 21	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 21)^2
+(7,chi_-7,3)	nb6_ap	p=47	type=inert a_p(LMFDB)=0 pi^(k-1)+pibar^(k-1)=0 pi= check=OK		https://www.lmfdb.org/api/mf_newforms/?level=7&weight=3&_format=json traces[p]	2026-10-01	T_p on cuspidal part of H^1: charpoly X^2
+(7,chi_-7,3)	nb6_mod_ell	p=47 mod 5	a_p mod ell = 0	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=47 mod 11	a_p mod ell = 0	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=47 mod 13	a_p mod ell = 0	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=47 mod 17	a_p mod ell = 0	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=47 mod 19	a_p mod ell = 0	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=47 mod 23	a_p mod ell = 0	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=47 mod 29	a_p mod ell = 0	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=47 mod 31	a_p mod ell = 0	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(7,chi_-7,3)	nb6_mod_ell	p=47 mod 37	a_p mod ell = 0	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6	cm_field	Q(i) disc -4		https://www.lmfdb.org/api/mf_newforms/?level=4&weight=5&_format=json	2026-10-01	LMFDB cm_discs=[-4] self_twist_discs=[-4] is_cm=true dim=1 => cusp space is one CM newform
+(4,chi_-4,5)	nb6_ap	p=2	type=ramified_or_p|N a_p(LMFDB)=-4 pi^(k-1)+pibar^(k-1)=n/a pi= check=excluded(p|N)		https://www.lmfdb.org/api/mf_newforms/?level=4&weight=5&_format=json traces[p]	2026-10-01	
+(4,chi_-4,5)	nb6_ap	p=3	type=inert a_p(LMFDB)=0 pi^(k-1)+pibar^(k-1)=0 pi= check=OK		https://www.lmfdb.org/api/mf_newforms/?level=4&weight=5&_format=json traces[p]	2026-10-01	T_p on cuspidal part of H^1: charpoly X^2
+(4,chi_-4,5)	nb6_mod_ell	p=3 mod 5	a_p mod ell = 0	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=3 mod 7	a_p mod ell = 0	7	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=3 mod 11	a_p mod ell = 0	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=3 mod 13	a_p mod ell = 0	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=3 mod 17	a_p mod ell = 0	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=3 mod 19	a_p mod ell = 0	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=3 mod 23	a_p mod ell = 0	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=3 mod 29	a_p mod ell = 0	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=3 mod 31	a_p mod ell = 0	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=3 mod 37	a_p mod ell = 0	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_ap	p=5	type=split a_p(LMFDB)=-14 pi^(k-1)+pibar^(k-1)=-14 pi=-1+-2*t (t^2=0*t-1) check=OK		https://www.lmfdb.org/api/mf_newforms/?level=4&weight=5&_format=json traces[p]	2026-10-01	; T_p cusp eigenvalues (x2, f and conj f): -14
+(4,chi_-4,5)	nb6_mod_ell	p=5 mod 7	a_p mod ell = 0	7	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=5 mod 11	a_p mod ell = 8	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 8)^2
+(4,chi_-4,5)	nb6_mod_ell	p=5 mod 13	a_p mod ell = 12	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 12)^2
+(4,chi_-4,5)	nb6_mod_ell	p=5 mod 17	a_p mod ell = 3	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 3)^2
+(4,chi_-4,5)	nb6_mod_ell	p=5 mod 19	a_p mod ell = 5	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 5)^2
+(4,chi_-4,5)	nb6_mod_ell	p=5 mod 23	a_p mod ell = 9	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 9)^2
+(4,chi_-4,5)	nb6_mod_ell	p=5 mod 29	a_p mod ell = 15	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 15)^2
+(4,chi_-4,5)	nb6_mod_ell	p=5 mod 31	a_p mod ell = 17	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 17)^2
+(4,chi_-4,5)	nb6_mod_ell	p=5 mod 37	a_p mod ell = 23	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 23)^2
+(4,chi_-4,5)	nb6_ap	p=7	type=inert a_p(LMFDB)=0 pi^(k-1)+pibar^(k-1)=0 pi= check=OK		https://www.lmfdb.org/api/mf_newforms/?level=4&weight=5&_format=json traces[p]	2026-10-01	T_p on cuspidal part of H^1: charpoly X^2
+(4,chi_-4,5)	nb6_mod_ell	p=7 mod 5	a_p mod ell = 0	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=7 mod 11	a_p mod ell = 0	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=7 mod 13	a_p mod ell = 0	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=7 mod 17	a_p mod ell = 0	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=7 mod 19	a_p mod ell = 0	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=7 mod 23	a_p mod ell = 0	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=7 mod 29	a_p mod ell = 0	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=7 mod 31	a_p mod ell = 0	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=7 mod 37	a_p mod ell = 0	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_ap	p=11	type=inert a_p(LMFDB)=0 pi^(k-1)+pibar^(k-1)=0 pi= check=OK		https://www.lmfdb.org/api/mf_newforms/?level=4&weight=5&_format=json traces[p]	2026-10-01	T_p on cuspidal part of H^1: charpoly X^2
+(4,chi_-4,5)	nb6_mod_ell	p=11 mod 5	a_p mod ell = 0	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=11 mod 7	a_p mod ell = 0	7	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=11 mod 13	a_p mod ell = 0	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=11 mod 17	a_p mod ell = 0	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=11 mod 19	a_p mod ell = 0	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=11 mod 23	a_p mod ell = 0	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=11 mod 29	a_p mod ell = 0	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=11 mod 31	a_p mod ell = 0	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=11 mod 37	a_p mod ell = 0	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_ap	p=13	type=split a_p(LMFDB)=-238 pi^(k-1)+pibar^(k-1)=-238 pi=-2+-3*t (t^2=0*t-1) check=OK		https://www.lmfdb.org/api/mf_newforms/?level=4&weight=5&_format=json traces[p]	2026-10-01	; T_p cusp eigenvalues (x2, f and conj f): -238
+(4,chi_-4,5)	nb6_mod_ell	p=13 mod 5	a_p mod ell = 2	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 2)^2
+(4,chi_-4,5)	nb6_mod_ell	p=13 mod 7	a_p mod ell = 0	7	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=13 mod 11	a_p mod ell = 4	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 4)^2
+(4,chi_-4,5)	nb6_mod_ell	p=13 mod 17	a_p mod ell = 0	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=13 mod 19	a_p mod ell = 9	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 9)^2
+(4,chi_-4,5)	nb6_mod_ell	p=13 mod 23	a_p mod ell = 15	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 15)^2
+(4,chi_-4,5)	nb6_mod_ell	p=13 mod 29	a_p mod ell = 23	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 23)^2
+(4,chi_-4,5)	nb6_mod_ell	p=13 mod 31	a_p mod ell = 10	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 10)^2
+(4,chi_-4,5)	nb6_mod_ell	p=13 mod 37	a_p mod ell = 21	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 21)^2
+(4,chi_-4,5)	nb6_ap	p=17	type=split a_p(LMFDB)=322 pi^(k-1)+pibar^(k-1)=322 pi=-1+-4*t (t^2=0*t-1) check=OK		https://www.lmfdb.org/api/mf_newforms/?level=4&weight=5&_format=json traces[p]	2026-10-01	; T_p cusp eigenvalues (x2, f and conj f): 322
+(4,chi_-4,5)	nb6_mod_ell	p=17 mod 5	a_p mod ell = 2	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 2)^2
+(4,chi_-4,5)	nb6_mod_ell	p=17 mod 7	a_p mod ell = 0	7	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=17 mod 11	a_p mod ell = 3	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 3)^2
+(4,chi_-4,5)	nb6_mod_ell	p=17 mod 13	a_p mod ell = 10	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 10)^2
+(4,chi_-4,5)	nb6_mod_ell	p=17 mod 19	a_p mod ell = 18	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 18)^2
+(4,chi_-4,5)	nb6_mod_ell	p=17 mod 23	a_p mod ell = 0	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=17 mod 29	a_p mod ell = 3	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 3)^2
+(4,chi_-4,5)	nb6_mod_ell	p=17 mod 31	a_p mod ell = 12	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 12)^2
+(4,chi_-4,5)	nb6_mod_ell	p=17 mod 37	a_p mod ell = 26	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 26)^2
+(4,chi_-4,5)	nb6_ap	p=19	type=inert a_p(LMFDB)=0 pi^(k-1)+pibar^(k-1)=0 pi= check=OK		https://www.lmfdb.org/api/mf_newforms/?level=4&weight=5&_format=json traces[p]	2026-10-01	T_p on cuspidal part of H^1: charpoly X^2
+(4,chi_-4,5)	nb6_mod_ell	p=19 mod 5	a_p mod ell = 0	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=19 mod 7	a_p mod ell = 0	7	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=19 mod 11	a_p mod ell = 0	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=19 mod 13	a_p mod ell = 0	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=19 mod 17	a_p mod ell = 0	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=19 mod 23	a_p mod ell = 0	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=19 mod 29	a_p mod ell = 0	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=19 mod 31	a_p mod ell = 0	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=19 mod 37	a_p mod ell = 0	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_ap	p=23	type=inert a_p(LMFDB)=0 pi^(k-1)+pibar^(k-1)=0 pi= check=OK		https://www.lmfdb.org/api/mf_newforms/?level=4&weight=5&_format=json traces[p]	2026-10-01	T_p on cuspidal part of H^1: charpoly X^2
+(4,chi_-4,5)	nb6_mod_ell	p=23 mod 5	a_p mod ell = 0	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=23 mod 7	a_p mod ell = 0	7	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=23 mod 11	a_p mod ell = 0	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=23 mod 13	a_p mod ell = 0	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=23 mod 17	a_p mod ell = 0	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=23 mod 19	a_p mod ell = 0	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=23 mod 29	a_p mod ell = 0	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=23 mod 31	a_p mod ell = 0	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=23 mod 37	a_p mod ell = 0	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_ap	p=29	type=split a_p(LMFDB)=82 pi^(k-1)+pibar^(k-1)=82 pi=-2+-5*t (t^2=0*t-1) check=OK		https://www.lmfdb.org/api/mf_newforms/?level=4&weight=5&_format=json traces[p]	2026-10-01	; T_p cusp eigenvalues (x2, f and conj f): 82
+(4,chi_-4,5)	nb6_mod_ell	p=29 mod 5	a_p mod ell = 2	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 2)^2
+(4,chi_-4,5)	nb6_mod_ell	p=29 mod 7	a_p mod ell = 5	7	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 5)^2
+(4,chi_-4,5)	nb6_mod_ell	p=29 mod 11	a_p mod ell = 5	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 5)^2
+(4,chi_-4,5)	nb6_mod_ell	p=29 mod 13	a_p mod ell = 4	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 4)^2
+(4,chi_-4,5)	nb6_mod_ell	p=29 mod 17	a_p mod ell = 14	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 14)^2
+(4,chi_-4,5)	nb6_mod_ell	p=29 mod 19	a_p mod ell = 6	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 6)^2
+(4,chi_-4,5)	nb6_mod_ell	p=29 mod 23	a_p mod ell = 13	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 13)^2
+(4,chi_-4,5)	nb6_mod_ell	p=29 mod 31	a_p mod ell = 20	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 20)^2
+(4,chi_-4,5)	nb6_mod_ell	p=29 mod 37	a_p mod ell = 8	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 8)^2
+(4,chi_-4,5)	nb6_ap	p=31	type=inert a_p(LMFDB)=0 pi^(k-1)+pibar^(k-1)=0 pi= check=OK		https://www.lmfdb.org/api/mf_newforms/?level=4&weight=5&_format=json traces[p]	2026-10-01	T_p on cuspidal part of H^1: charpoly X^2
+(4,chi_-4,5)	nb6_mod_ell	p=31 mod 5	a_p mod ell = 0	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=31 mod 7	a_p mod ell = 0	7	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=31 mod 11	a_p mod ell = 0	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=31 mod 13	a_p mod ell = 0	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=31 mod 17	a_p mod ell = 0	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=31 mod 19	a_p mod ell = 0	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=31 mod 23	a_p mod ell = 0	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=31 mod 29	a_p mod ell = 0	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=31 mod 37	a_p mod ell = 0	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_ap	p=37	type=split a_p(LMFDB)=2162 pi^(k-1)+pibar^(k-1)=2162 pi=-1+-6*t (t^2=0*t-1) check=OK		https://www.lmfdb.org/api/mf_newforms/?level=4&weight=5&_format=json traces[p]	2026-10-01	; T_p cusp eigenvalues (x2, f and conj f): 2162
+(4,chi_-4,5)	nb6_mod_ell	p=37 mod 5	a_p mod ell = 2	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 2)^2
+(4,chi_-4,5)	nb6_mod_ell	p=37 mod 7	a_p mod ell = 6	7	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 6)^2
+(4,chi_-4,5)	nb6_mod_ell	p=37 mod 11	a_p mod ell = 6	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 6)^2
+(4,chi_-4,5)	nb6_mod_ell	p=37 mod 13	a_p mod ell = 4	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 4)^2
+(4,chi_-4,5)	nb6_mod_ell	p=37 mod 17	a_p mod ell = 3	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 3)^2
+(4,chi_-4,5)	nb6_mod_ell	p=37 mod 19	a_p mod ell = 15	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 15)^2
+(4,chi_-4,5)	nb6_mod_ell	p=37 mod 23	a_p mod ell = 0	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=37 mod 29	a_p mod ell = 16	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 16)^2
+(4,chi_-4,5)	nb6_mod_ell	p=37 mod 31	a_p mod ell = 23	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 23)^2
+(4,chi_-4,5)	nb6_ap	p=41	type=split a_p(LMFDB)=-3038 pi^(k-1)+pibar^(k-1)=-3038 pi=-4+-5*t (t^2=0*t-1) check=OK		https://www.lmfdb.org/api/mf_newforms/?level=4&weight=5&_format=json traces[p]	2026-10-01	; T_p cusp eigenvalues (x2, f and conj f): -3038
+(4,chi_-4,5)	nb6_mod_ell	p=41 mod 5	a_p mod ell = 2	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 2)^2
+(4,chi_-4,5)	nb6_mod_ell	p=41 mod 7	a_p mod ell = 0	7	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=41 mod 11	a_p mod ell = 9	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 9)^2
+(4,chi_-4,5)	nb6_mod_ell	p=41 mod 13	a_p mod ell = 4	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 4)^2
+(4,chi_-4,5)	nb6_mod_ell	p=41 mod 17	a_p mod ell = 5	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 5)^2
+(4,chi_-4,5)	nb6_mod_ell	p=41 mod 19	a_p mod ell = 2	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 2)^2
+(4,chi_-4,5)	nb6_mod_ell	p=41 mod 23	a_p mod ell = 21	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 21)^2
+(4,chi_-4,5)	nb6_mod_ell	p=41 mod 29	a_p mod ell = 7	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 7)^2
+(4,chi_-4,5)	nb6_mod_ell	p=41 mod 31	a_p mod ell = 0	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=41 mod 37	a_p mod ell = 33	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 33)^2
+(4,chi_-4,5)	nb6_ap	p=43	type=inert a_p(LMFDB)=0 pi^(k-1)+pibar^(k-1)=0 pi= check=OK		https://www.lmfdb.org/api/mf_newforms/?level=4&weight=5&_format=json traces[p]	2026-10-01	T_p on cuspidal part of H^1: charpoly X^2
+(4,chi_-4,5)	nb6_mod_ell	p=43 mod 5	a_p mod ell = 0	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=43 mod 7	a_p mod ell = 0	7	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=43 mod 11	a_p mod ell = 0	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=43 mod 13	a_p mod ell = 0	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=43 mod 17	a_p mod ell = 0	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=43 mod 19	a_p mod ell = 0	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=43 mod 23	a_p mod ell = 0	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=43 mod 29	a_p mod ell = 0	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=43 mod 31	a_p mod ell = 0	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=43 mod 37	a_p mod ell = 0	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_ap	p=47	type=inert a_p(LMFDB)=0 pi^(k-1)+pibar^(k-1)=0 pi= check=OK		https://www.lmfdb.org/api/mf_newforms/?level=4&weight=5&_format=json traces[p]	2026-10-01	T_p on cuspidal part of H^1: charpoly X^2
+(4,chi_-4,5)	nb6_mod_ell	p=47 mod 5	a_p mod ell = 0	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=47 mod 7	a_p mod ell = 0	7	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=47 mod 11	a_p mod ell = 0	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=47 mod 13	a_p mod ell = 0	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=47 mod 17	a_p mod ell = 0	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=47 mod 19	a_p mod ell = 0	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=47 mod 23	a_p mod ell = 0	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=47 mod 29	a_p mod ell = 0	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=47 mod 31	a_p mod ell = 0	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(4,chi_-4,5)	nb6_mod_ell	p=47 mod 37	a_p mod ell = 0	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6	cm_field	Q(sqrt-3) disc -3		https://www.lmfdb.org/api/mf_newforms/?level=3&weight=7&_format=json	2026-10-01	LMFDB cm_discs=[-3] self_twist_discs=[-3] is_cm=true dim=1 => cusp space is one CM newform
+(3,chi_-3,7)	nb6_ap	p=2	type=inert a_p(LMFDB)=0 pi^(k-1)+pibar^(k-1)=0 pi= check=OK		https://www.lmfdb.org/api/mf_newforms/?level=3&weight=7&_format=json traces[p]	2026-10-01	T_p on cuspidal part of H^1: charpoly X^2
+(3,chi_-3,7)	nb6_mod_ell	p=2 mod 5	a_p mod ell = 0	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=2 mod 7	a_p mod ell = 0	7	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=2 mod 11	a_p mod ell = 0	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=2 mod 13	a_p mod ell = 0	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=2 mod 17	a_p mod ell = 0	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=2 mod 19	a_p mod ell = 0	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=2 mod 23	a_p mod ell = 0	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=2 mod 29	a_p mod ell = 0	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=2 mod 31	a_p mod ell = 0	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=2 mod 37	a_p mod ell = 0	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_ap	p=3	type=ramified_or_p|N a_p(LMFDB)=-27 pi^(k-1)+pibar^(k-1)=n/a pi= check=excluded(p|N)		https://www.lmfdb.org/api/mf_newforms/?level=3&weight=7&_format=json traces[p]	2026-10-01	
+(3,chi_-3,7)	nb6_ap	p=5	type=inert a_p(LMFDB)=0 pi^(k-1)+pibar^(k-1)=0 pi= check=OK		https://www.lmfdb.org/api/mf_newforms/?level=3&weight=7&_format=json traces[p]	2026-10-01	T_p on cuspidal part of H^1: charpoly X^2
+(3,chi_-3,7)	nb6_mod_ell	p=5 mod 7	a_p mod ell = 0	7	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=5 mod 11	a_p mod ell = 0	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=5 mod 13	a_p mod ell = 0	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=5 mod 17	a_p mod ell = 0	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=5 mod 19	a_p mod ell = 0	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=5 mod 23	a_p mod ell = 0	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=5 mod 29	a_p mod ell = 0	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=5 mod 31	a_p mod ell = 0	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=5 mod 37	a_p mod ell = 0	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_ap	p=7	type=split a_p(LMFDB)=-286 pi^(k-1)+pibar^(k-1)=-286 pi=-2+-3*t (t^2=-1*t-1) check=OK		https://www.lmfdb.org/api/mf_newforms/?level=3&weight=7&_format=json traces[p]	2026-10-01	; T_p cusp eigenvalues (x2, f and conj f): -286
+(3,chi_-3,7)	nb6_mod_ell	p=7 mod 5	a_p mod ell = 4	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 4)^2
+(3,chi_-3,7)	nb6_mod_ell	p=7 mod 11	a_p mod ell = 0	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=7 mod 13	a_p mod ell = 0	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=7 mod 17	a_p mod ell = 3	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 3)^2
+(3,chi_-3,7)	nb6_mod_ell	p=7 mod 19	a_p mod ell = 18	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 18)^2
+(3,chi_-3,7)	nb6_mod_ell	p=7 mod 23	a_p mod ell = 13	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 13)^2
+(3,chi_-3,7)	nb6_mod_ell	p=7 mod 29	a_p mod ell = 4	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 4)^2
+(3,chi_-3,7)	nb6_mod_ell	p=7 mod 31	a_p mod ell = 24	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 24)^2
+(3,chi_-3,7)	nb6_mod_ell	p=7 mod 37	a_p mod ell = 10	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 10)^2
+(3,chi_-3,7)	nb6_ap	p=11	type=inert a_p(LMFDB)=0 pi^(k-1)+pibar^(k-1)=0 pi= check=OK		https://www.lmfdb.org/api/mf_newforms/?level=3&weight=7&_format=json traces[p]	2026-10-01	T_p on cuspidal part of H^1: charpoly X^2
+(3,chi_-3,7)	nb6_mod_ell	p=11 mod 5	a_p mod ell = 0	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=11 mod 7	a_p mod ell = 0	7	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=11 mod 13	a_p mod ell = 0	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=11 mod 17	a_p mod ell = 0	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=11 mod 19	a_p mod ell = 0	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=11 mod 23	a_p mod ell = 0	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=11 mod 29	a_p mod ell = 0	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=11 mod 31	a_p mod ell = 0	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=11 mod 37	a_p mod ell = 0	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_ap	p=13	type=split a_p(LMFDB)=506 pi^(k-1)+pibar^(k-1)=506 pi=-3+-4*t (t^2=-1*t-1) check=OK		https://www.lmfdb.org/api/mf_newforms/?level=3&weight=7&_format=json traces[p]	2026-10-01	; T_p cusp eigenvalues (x2, f and conj f): 506
+(3,chi_-3,7)	nb6_mod_ell	p=13 mod 5	a_p mod ell = 1	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 1)^2
+(3,chi_-3,7)	nb6_mod_ell	p=13 mod 7	a_p mod ell = 2	7	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 2)^2
+(3,chi_-3,7)	nb6_mod_ell	p=13 mod 11	a_p mod ell = 0	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=13 mod 17	a_p mod ell = 13	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 13)^2
+(3,chi_-3,7)	nb6_mod_ell	p=13 mod 19	a_p mod ell = 12	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 12)^2
+(3,chi_-3,7)	nb6_mod_ell	p=13 mod 23	a_p mod ell = 0	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=13 mod 29	a_p mod ell = 13	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 13)^2
+(3,chi_-3,7)	nb6_mod_ell	p=13 mod 31	a_p mod ell = 10	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 10)^2
+(3,chi_-3,7)	nb6_mod_ell	p=13 mod 37	a_p mod ell = 25	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 25)^2
+(3,chi_-3,7)	nb6_ap	p=17	type=inert a_p(LMFDB)=0 pi^(k-1)+pibar^(k-1)=0 pi= check=OK		https://www.lmfdb.org/api/mf_newforms/?level=3&weight=7&_format=json traces[p]	2026-10-01	T_p on cuspidal part of H^1: charpoly X^2
+(3,chi_-3,7)	nb6_mod_ell	p=17 mod 5	a_p mod ell = 0	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=17 mod 7	a_p mod ell = 0	7	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=17 mod 11	a_p mod ell = 0	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=17 mod 13	a_p mod ell = 0	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=17 mod 19	a_p mod ell = 0	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=17 mod 23	a_p mod ell = 0	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=17 mod 29	a_p mod ell = 0	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=17 mod 31	a_p mod ell = 0	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=17 mod 37	a_p mod ell = 0	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_ap	p=19	type=split a_p(LMFDB)=-10582 pi^(k-1)+pibar^(k-1)=-10582 pi=-3+-5*t (t^2=-1*t-1) check=OK		https://www.lmfdb.org/api/mf_newforms/?level=3&weight=7&_format=json traces[p]	2026-10-01	; T_p cusp eigenvalues (x2, f and conj f): -10582
+(3,chi_-3,7)	nb6_mod_ell	p=19 mod 5	a_p mod ell = 3	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 3)^2
+(3,chi_-3,7)	nb6_mod_ell	p=19 mod 7	a_p mod ell = 2	7	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 2)^2
+(3,chi_-3,7)	nb6_mod_ell	p=19 mod 11	a_p mod ell = 0	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=19 mod 13	a_p mod ell = 0	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=19 mod 17	a_p mod ell = 9	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 9)^2
+(3,chi_-3,7)	nb6_mod_ell	p=19 mod 23	a_p mod ell = 21	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 21)^2
+(3,chi_-3,7)	nb6_mod_ell	p=19 mod 29	a_p mod ell = 3	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 3)^2
+(3,chi_-3,7)	nb6_mod_ell	p=19 mod 31	a_p mod ell = 20	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 20)^2
+(3,chi_-3,7)	nb6_mod_ell	p=19 mod 37	a_p mod ell = 0	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_ap	p=23	type=inert a_p(LMFDB)=0 pi^(k-1)+pibar^(k-1)=0 pi= check=OK		https://www.lmfdb.org/api/mf_newforms/?level=3&weight=7&_format=json traces[p]	2026-10-01	T_p on cuspidal part of H^1: charpoly X^2
+(3,chi_-3,7)	nb6_mod_ell	p=23 mod 5	a_p mod ell = 0	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=23 mod 7	a_p mod ell = 0	7	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=23 mod 11	a_p mod ell = 0	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=23 mod 13	a_p mod ell = 0	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=23 mod 17	a_p mod ell = 0	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=23 mod 19	a_p mod ell = 0	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=23 mod 29	a_p mod ell = 0	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=23 mod 31	a_p mod ell = 0	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=23 mod 37	a_p mod ell = 0	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_ap	p=29	type=inert a_p(LMFDB)=0 pi^(k-1)+pibar^(k-1)=0 pi= check=OK		https://www.lmfdb.org/api/mf_newforms/?level=3&weight=7&_format=json traces[p]	2026-10-01	T_p on cuspidal part of H^1: charpoly X^2
+(3,chi_-3,7)	nb6_mod_ell	p=29 mod 5	a_p mod ell = 0	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=29 mod 7	a_p mod ell = 0	7	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=29 mod 11	a_p mod ell = 0	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=29 mod 13	a_p mod ell = 0	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=29 mod 17	a_p mod ell = 0	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=29 mod 19	a_p mod ell = 0	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=29 mod 23	a_p mod ell = 0	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=29 mod 31	a_p mod ell = 0	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=29 mod 37	a_p mod ell = 0	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_ap	p=31	type=split a_p(LMFDB)=35282 pi^(k-1)+pibar^(k-1)=35282 pi=-5+-6*t (t^2=-1*t-1) check=OK		https://www.lmfdb.org/api/mf_newforms/?level=3&weight=7&_format=json traces[p]	2026-10-01	; T_p cusp eigenvalues (x2, f and conj f): 35282
+(3,chi_-3,7)	nb6_mod_ell	p=31 mod 5	a_p mod ell = 2	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 2)^2
+(3,chi_-3,7)	nb6_mod_ell	p=31 mod 7	a_p mod ell = 2	7	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 2)^2
+(3,chi_-3,7)	nb6_mod_ell	p=31 mod 11	a_p mod ell = 5	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 5)^2
+(3,chi_-3,7)	nb6_mod_ell	p=31 mod 13	a_p mod ell = 0	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=31 mod 17	a_p mod ell = 7	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 7)^2
+(3,chi_-3,7)	nb6_mod_ell	p=31 mod 19	a_p mod ell = 18	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 18)^2
+(3,chi_-3,7)	nb6_mod_ell	p=31 mod 23	a_p mod ell = 0	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=31 mod 29	a_p mod ell = 18	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 18)^2
+(3,chi_-3,7)	nb6_mod_ell	p=31 mod 37	a_p mod ell = 21	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 21)^2
+(3,chi_-3,7)	nb6_ap	p=37	type=split a_p(LMFDB)=-89206 pi^(k-1)+pibar^(k-1)=-89206 pi=-4+-7*t (t^2=-1*t-1) check=OK		https://www.lmfdb.org/api/mf_newforms/?level=3&weight=7&_format=json traces[p]	2026-10-01	; T_p cusp eigenvalues (x2, f and conj f): -89206
+(3,chi_-3,7)	nb6_mod_ell	p=37 mod 5	a_p mod ell = 4	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 4)^2
+(3,chi_-3,7)	nb6_mod_ell	p=37 mod 7	a_p mod ell = 2	7	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 2)^2
+(3,chi_-3,7)	nb6_mod_ell	p=37 mod 11	a_p mod ell = 4	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 4)^2
+(3,chi_-3,7)	nb6_mod_ell	p=37 mod 13	a_p mod ell = 0	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=37 mod 17	a_p mod ell = 10	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 10)^2
+(3,chi_-3,7)	nb6_mod_ell	p=37 mod 19	a_p mod ell = 18	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 18)^2
+(3,chi_-3,7)	nb6_mod_ell	p=37 mod 23	a_p mod ell = 11	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 11)^2
+(3,chi_-3,7)	nb6_mod_ell	p=37 mod 29	a_p mod ell = 27	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 27)^2
+(3,chi_-3,7)	nb6_mod_ell	p=37 mod 31	a_p mod ell = 12	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 12)^2
+(3,chi_-3,7)	nb6_ap	p=41	type=inert a_p(LMFDB)=0 pi^(k-1)+pibar^(k-1)=0 pi= check=OK		https://www.lmfdb.org/api/mf_newforms/?level=3&weight=7&_format=json traces[p]	2026-10-01	T_p on cuspidal part of H^1: charpoly X^2
+(3,chi_-3,7)	nb6_mod_ell	p=41 mod 5	a_p mod ell = 0	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=41 mod 7	a_p mod ell = 0	7	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=41 mod 11	a_p mod ell = 0	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=41 mod 13	a_p mod ell = 0	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=41 mod 17	a_p mod ell = 0	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=41 mod 19	a_p mod ell = 0	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=41 mod 23	a_p mod ell = 0	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=41 mod 29	a_p mod ell = 0	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=41 mod 31	a_p mod ell = 0	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=41 mod 37	a_p mod ell = 0	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_ap	p=43	type=split a_p(LMFDB)=111386 pi^(k-1)+pibar^(k-1)=111386 pi=-6+-7*t (t^2=-1*t-1) check=OK		https://www.lmfdb.org/api/mf_newforms/?level=3&weight=7&_format=json traces[p]	2026-10-01	; T_p cusp eigenvalues (x2, f and conj f): 111386
+(3,chi_-3,7)	nb6_mod_ell	p=43 mod 5	a_p mod ell = 1	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 1)^2
+(3,chi_-3,7)	nb6_mod_ell	p=43 mod 7	a_p mod ell = 2	7	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 2)^2
+(3,chi_-3,7)	nb6_mod_ell	p=43 mod 11	a_p mod ell = 0	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=43 mod 13	a_p mod ell = 2	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 2)^2
+(3,chi_-3,7)	nb6_mod_ell	p=43 mod 17	a_p mod ell = 2	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 2)^2
+(3,chi_-3,7)	nb6_mod_ell	p=43 mod 19	a_p mod ell = 8	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 8)^2
+(3,chi_-3,7)	nb6_mod_ell	p=43 mod 23	a_p mod ell = 20	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 20)^2
+(3,chi_-3,7)	nb6_mod_ell	p=43 mod 29	a_p mod ell = 26	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 26)^2
+(3,chi_-3,7)	nb6_mod_ell	p=43 mod 31	a_p mod ell = 3	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 3)^2
+(3,chi_-3,7)	nb6_mod_ell	p=43 mod 37	a_p mod ell = 16	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 16)^2
+(3,chi_-3,7)	nb6_ap	p=47	type=inert a_p(LMFDB)=0 pi^(k-1)+pibar^(k-1)=0 pi= check=OK		https://www.lmfdb.org/api/mf_newforms/?level=3&weight=7&_format=json traces[p]	2026-10-01	T_p on cuspidal part of H^1: charpoly X^2
+(3,chi_-3,7)	nb6_mod_ell	p=47 mod 5	a_p mod ell = 0	5	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=47 mod 7	a_p mod ell = 0	7	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=47 mod 11	a_p mod ell = 0	11	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=47 mod 13	a_p mod ell = 0	13	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=47 mod 17	a_p mod ell = 0	17	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=47 mod 19	a_p mod ell = 0	19	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=47 mod 23	a_p mod ell = 0	23	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=47 mod 29	a_p mod ell = 0	29	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=47 mod 31	a_p mod ell = 0	31	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+(3,chi_-3,7)	nb6_mod_ell	p=47 mod 37	a_p mod ell = 0	37	derived	2026-10-01	cusp charpoly of T_p mod ell: (X - 0)^2
+# ===== WP-9b block (2026-10-01): non-real characters, same columns. Cells (7,chi_7.2,4) order 3, (9,chi_9.2,3) order 6, (13,chi_13.8,3) order 4. Source: LMFDB API mf_newspaces, mf_newforms, mf_hecke_nf, mf_hecke_cc (URLs per row), retrieved 2026-10-01 in a browser session. kinds newform/dim/conv quote LMFDB; eis, charpoly_Z, charpoly_mod_ell, check_*, dict_test are DERIVED. z:=chi(g) is the primitive root of unity in the Hecke ring (see conv hecke_ring_and_embeddings); charpoly_Z coefficients are in Z[z].
+# WP-9b CONVENTION: for ell = 1 mod ord(chi), psi := chi mod ell sends z to the LEAST primitive ord(chi)-th root of 1 in {2..ell-1}; psibar sends z to its inverse. Rows [psi] and [psibar] give the predicted T_p charpoly on H^1 for the twist by psi, resp. psibar, under the LMFDB convention (chi(p) in a_{p^2}=a_p^2-chi(p)p^{k-1}); rows whose note says 'does NOT distinguish' are uninformative. The Hecke relation holds with chi and fails with chibar on every non-real prime power checked except where chi(p)=1 (check_hecke_rel).
+(7,chi_7.2,4)	conv	lmfdb_conrey_label	7.2		https://www.lmfdb.org/api/mf_newspaces/?level=7&weight=4&_format=json	2026-10-01	LMFDB newspace 7.4.c (char_order 3) holds Conrey 7.2 and 7.4; this cell's chi := the one with z:=chi(3) the primitive 3-th root of unity e(1/3) in the Hecke ring convention below (Conrey 7.2)
+(7,chi_7.2,4)	conv	conj_conrey_label(chi->chibar)	7.4		https://www.lmfdb.org/api/mf_newspaces/?level=7&weight=4&_format=json	2026-10-01	chibar != chi (order 3): Conrey 7.2 * 7.4 = 1 mod 7. First non-real cell: chi->chibar is a genuine swap of labels and of newform embeddings
+(7,chi_7.2,4)	conv	hecke_ring_and_embeddings	Z-basis 1,beta, beta^2-beta+1=0 (power basis); chi(3)=beta-1=:z=zeta3 (hecke_ring_character_values [[3,[-1,1]]]); mf_hecke_cc: embedding label 7.4.c.a.2.1 has beta=e^{i pi/3} (so z=e(1/3), chi(3)=e(1/3), Conrey 7.2) and 7.4.c.a.4.1 has the conjugate (Conrey 7.4)		https://www.lmfdb.org/api/mf_newforms/?label=7.4.c.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=137506062343&_format=json ; https://www.lmfdb.org/api/mf_hecke_cc/?hecke_orbit_code=137506062343&_format=json	2026-10-01	z satisfies z^2 +1 z +1 = 0
+(7,chi_7.2,4)	conv	chi_values_in_z	chi(2)=-1-z,chi(3)=z,chi(5)=-1-z		https://www.lmfdb.org/api/mf_hecke_cc/?hecke_orbit_code=137506062343&_format=json	2026-10-01	discrete log in (Z/7)^* base 3, chi(3)=z; chibar(n)=chi(n)^-1 (z->z^-1); chi(-1)=1
+(7,chi_7.2,4)	conv	chi_parity	even		https://www.lmfdb.org/api/mf_newspaces/?level=7&weight=4&_format=json	2026-10-01	k=4; chi(-1)=1 => parity consistent
+(7,chi_7.2,4)	conv	nebentypus_convention	f|_k gamma = chi(d) f, gamma=(a b;c d) in Gamma_0(N); a_{p^2}=a_p^2-chi(p)p^{k-1}		LMFDB help mf.elliptic.nebentypus; verified here by check_hecke_rel	2026-10-01	chi enters as chi(p) not chibar(p); rows check_hecke_rel test the chibar alternative and it FAILS where chi!=chibar, so unlike WP-9 this data discriminates the convention
+(7,chi_7.2,4)	dim	cusp_dim_S_k(Gamma_0(N),chi)	1		https://www.lmfdb.org/api/mf_newspaces/?level=7&weight=4&_format=json	2026-10-01	LMFDB newspace 7.4.c total dim 2 over a character orbit of size 2 => 1 per character; chi primitive of conductor 7 => space = newspace
+(7,chi_7.2,4)	dim	eis_dim_E_k(Gamma_0(N),chi)	2		https://www.lmfdb.org/api/mf_newspaces/?level=7&weight=4&_format=json	2026-10-01	eis_dim of 7.4.c is 4 over the orbit of size 2 => 2 per character
+(7,chi_7.2,4)	dim	dim_H1_predicted_(NB1)	4		https://www.lmfdb.org/api/mf_newspaces/?level=7&weight=4&_format=json	2026-10-01	2 dim S + dim E (WP-9 convention)
+(7,chi_7.2,4)	newform	label	7.4.c.a		https://www.lmfdb.org/api/mf_newforms/?label=7.4.c.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=137506062343&_format=json	2026-10-01	orbit dim 2, coefficient field Q(zeta3) = 2.0.3.1. The orbit contains the form of chi (embeddings 7.2.*) AND the Galois-conjugate form of chibar (7.4.*): different objects, coefficients conjugate
+(7,chi_7.2,4)	newform	traces_n<=60	2,-2,-7,4,-7,28,28,-48,-22,-14,5,28,-28,14,98,16,21,-44,-49,-56,-245,-20,159,168,76,28,-70,140,116,-98,-147,-160,35,-84,49,-176,-219,-98,98,168,700,392,-248,-20,-154,318,-525,-224,98,-304,147,-56,-303,70,-70,-672,686,-116,105,196		https://www.lmfdb.org/ModularForm/GL2/Q/holomorphic/7/4/c/a/ ; https://www.lmfdb.org/api/mf_newforms/?label=7.4.c.a&_format=json	2026-10-01	Tr_{K/Q} a_n as published, n=1..60
+(7,chi_7.2,4)	newform	a_2_exact	2*z		https://www.lmfdb.org/api/mf_newforms/?label=7.4.c.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=137506062343&_format=json	2026-10-01	LMFDB hecke-ring coordinates [-2, 2]; a_p of the form of chi (Conrey 7.2); the form of chibar (Conrey 7.4) has the z->z^-1 conjugate coefficient
+(7,chi_7.2,4)	newform	a_3_exact	-7-7*z		https://www.lmfdb.org/api/mf_newforms/?label=7.4.c.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=137506062343&_format=json	2026-10-01	LMFDB hecke-ring coordinates [0, -7]; a_p of the form of chi (Conrey 7.2); the form of chibar (Conrey 7.4) has the z->z^-1 conjugate coefficient
+(7,chi_7.2,4)	newform	a_5_exact	7*z		https://www.lmfdb.org/api/mf_newforms/?label=7.4.c.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=137506062343&_format=json	2026-10-01	LMFDB hecke-ring coordinates [-7, 7]; a_p of the form of chi (Conrey 7.2); the form of chibar (Conrey 7.4) has the z->z^-1 conjugate coefficient
+(7,chi_7.2,4)	newform	a_7_exact	7-14*z		https://www.lmfdb.org/api/mf_newforms/?label=7.4.c.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=137506062343&_format=json	2026-10-01	LMFDB hecke-ring coordinates [21, -14]; a_p of the form of chi (Conrey 7.2); the form of chibar (Conrey 7.4) has the z->z^-1 conjugate coefficient
+(7,chi_7.2,4)	newform	a_11_exact	5+5*z		https://www.lmfdb.org/api/mf_newforms/?label=7.4.c.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=137506062343&_format=json	2026-10-01	LMFDB hecke-ring coordinates [0, 5]; a_p of the form of chi (Conrey 7.2); the form of chibar (Conrey 7.4) has the z->z^-1 conjugate coefficient
+(7,chi_7.2,4)	newform	a_13_exact	-14		https://www.lmfdb.org/api/mf_newforms/?label=7.4.c.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=137506062343&_format=json	2026-10-01	LMFDB hecke-ring coordinates [-14, 0]; a_p of the form of chi (Conrey 7.2); the form of chibar (Conrey 7.4) has the z->z^-1 conjugate coefficient
+(7,chi_7.2,4)	newform	a_17_exact	21+21*z		https://www.lmfdb.org/api/mf_newforms/?label=7.4.c.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=137506062343&_format=json	2026-10-01	LMFDB hecke-ring coordinates [0, 21]; a_p of the form of chi (Conrey 7.2); the form of chibar (Conrey 7.4) has the z->z^-1 conjugate coefficient
+(7,chi_7.2,4)	newform	a_19_exact	49*z		https://www.lmfdb.org/api/mf_newforms/?label=7.4.c.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=137506062343&_format=json	2026-10-01	LMFDB hecke-ring coordinates [-49, 49]; a_p of the form of chi (Conrey 7.2); the form of chibar (Conrey 7.4) has the z->z^-1 conjugate coefficient
+(7,chi_7.2,4)	newform	a_23_exact	-159*z		https://www.lmfdb.org/api/mf_newforms/?label=7.4.c.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=137506062343&_format=json	2026-10-01	LMFDB hecke-ring coordinates [159, -159]; a_p of the form of chi (Conrey 7.2); the form of chibar (Conrey 7.4) has the z->z^-1 conjugate coefficient
+(7,chi_7.2,4)	newform	a_29_exact	58		https://www.lmfdb.org/api/mf_newforms/?label=7.4.c.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=137506062343&_format=json	2026-10-01	LMFDB hecke-ring coordinates [58, 0]; a_p of the form of chi (Conrey 7.2); the form of chibar (Conrey 7.4) has the z->z^-1 conjugate coefficient
+(7,chi_7.2,4)	newform	a_31_exact	-147-147*z		https://www.lmfdb.org/api/mf_newforms/?label=7.4.c.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=137506062343&_format=json	2026-10-01	LMFDB hecke-ring coordinates [0, -147]; a_p of the form of chi (Conrey 7.2); the form of chibar (Conrey 7.4) has the z->z^-1 conjugate coefficient
+(7,chi_7.2,4)	newform	a_37_exact	219*z		https://www.lmfdb.org/api/mf_newforms/?label=7.4.c.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=137506062343&_format=json	2026-10-01	LMFDB hecke-ring coordinates [-219, 219]; a_p of the form of chi (Conrey 7.2); the form of chibar (Conrey 7.4) has the z->z^-1 conjugate coefficient
+(7,chi_7.2,4)	newform	a_41_exact	350		https://www.lmfdb.org/api/mf_newforms/?label=7.4.c.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=137506062343&_format=json	2026-10-01	LMFDB hecke-ring coordinates [350, 0]; a_p of the form of chi (Conrey 7.2); the form of chibar (Conrey 7.4) has the z->z^-1 conjugate coefficient
+(7,chi_7.2,4)	newform	a_43_exact	-124		https://www.lmfdb.org/api/mf_newforms/?label=7.4.c.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=137506062343&_format=json	2026-10-01	LMFDB hecke-ring coordinates [-124, 0]; a_p of the form of chi (Conrey 7.2); the form of chibar (Conrey 7.4) has the z->z^-1 conjugate coefficient
+(7,chi_7.2,4)	newform	a_47_exact	525*z		https://www.lmfdb.org/api/mf_newforms/?label=7.4.c.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=137506062343&_format=json	2026-10-01	LMFDB hecke-ring coordinates [-525, 525]; a_p of the form of chi (Conrey 7.2); the form of chibar (Conrey 7.4) has the z->z^-1 conjugate coefficient
+(7,chi_7.2,4)	check_hecke_rel	a_4 = a_2^2 - chi(2)*2^3	HELD		https://www.lmfdb.org/api/mf_newforms/?label=7.4.c.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=137506062343&_format=json	2026-10-01	alternative with chibar(2) instead: FAILS (discriminates)
+(7,chi_7.2,4)	check_hecke_rel	a_9 = a_3^2 - chi(3)*3^3	HELD		https://www.lmfdb.org/api/mf_newforms/?label=7.4.c.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=137506062343&_format=json	2026-10-01	alternative with chibar(3) instead: FAILS (discriminates)
+(7,chi_7.2,4)	check_hecke_rel	a_25 = a_5^2 - chi(5)*5^3	HELD		https://www.lmfdb.org/api/mf_newforms/?label=7.4.c.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=137506062343&_format=json	2026-10-01	alternative with chibar(5) instead: FAILS (discriminates)
+(7,chi_7.2,4)	check_trace	Tr a_2	HELD		https://www.lmfdb.org/api/mf_newforms/?label=7.4.c.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=137506062343&_format=json	2026-10-01	Tr_{K/Q} of the exact a_p against the published trace
+(7,chi_7.2,4)	check_trace	Tr a_3	HELD		https://www.lmfdb.org/api/mf_newforms/?label=7.4.c.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=137506062343&_format=json	2026-10-01	Tr_{K/Q} of the exact a_p against the published trace
+(7,chi_7.2,4)	check_trace	Tr a_5	HELD		https://www.lmfdb.org/api/mf_newforms/?label=7.4.c.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=137506062343&_format=json	2026-10-01	Tr_{K/Q} of the exact a_p against the published trace
+(7,chi_7.2,4)	eis	a_2(E_k(1,chi)),a_2(E_k(chi,1))	-7-8*z , 7-z		derived	2026-10-01	derived: Diamond-Shurman 4.5/4.6, a_p(E_k^{psi,phi})=psi(p)+phi(p)p^{k-1}, (psi,phi)=(1,chi),(chi,1); chibar-space: 1+8*z , 8+z
+(7,chi_7.2,4)	eis	a_3(E_k(1,chi)),a_3(E_k(chi,1))	1+27*z , 27+z		derived	2026-10-01	derived: Diamond-Shurman 4.5/4.6, a_p(E_k^{psi,phi})=psi(p)+phi(p)p^{k-1}, (psi,phi)=(1,chi),(chi,1); chibar-space: -26-27*z , 26-z
+(7,chi_7.2,4)	charpoly_Z	T_2|H^1[chi]	coeffs_low_to_high_in_Z[z]=228*z;-192;-25-25*z;5*z;1		derived from the rows above	2026-10-01	= (cusp charpoly over Z[z] of T_2 on S_k(chi), coeffs low->high -2*z;1)^2 * (X-e1)(X-e2); degree 4 = dim H^1; the square is the holomorphic part plus the conjugate of S_k(chibar) (same eigenvalues); z^2+1z+1=0
+(7,chi_7.2,4)	charpoly_Z	T_2|H^1[chibar]	coeffs_low_to_high_in_Z[z]=-228-228*z;-192;25*z;-5-5*z;1		derived: Galois conjugate z->z^-1 of the row above	2026-10-01	prediction for the chibar-twisted H^1 under the same convention (chi enters as chi(p))
+(7,chi_7.2,4)	charpoly_mod_ell	T_2|H^1[psi] l=13	coeffs_low_to_high=8,3,4,2,1	13	derived (reduction of charpoly_Z)	2026-10-01	psi:=chi mod l, z=chi(3)->3 = least primitive 3-th root of 1 in {2..l-1}; l=1 mod 3 so psi lands in F_l^* (psi(2,3,5)=9,3,9); psibar (z->9, psibar(2,3,5)=3,9,3) predicts 11,3,10,6,1; DISTINGUISHES psi from psibar
+(7,chi_7.2,4)	charpoly_mod_ell	T_2|H^1[psibar] l=13	coeffs_low_to_high=11,3,10,6,1	13	derived (reduction of charpoly_Z chibar row)	2026-10-01	psibar:=chibar mod l, z->9 = 3^-1 mod 13; psibar(2,3,5)=3,9,3
+(7,chi_7.2,4)	charpoly_mod_ell	T_2|H^1[psi] l=19	coeffs_low_to_high=0,17,9,16,1	19	derived (reduction of charpoly_Z)	2026-10-01	psi:=chi mod l, z=chi(3)->7 = least primitive 3-th root of 1 in {2..l-1}; l=1 mod 3 so psi lands in F_l^* (psi(2,3,5)=11,7,11); psibar (z->11, psibar(2,3,5)=7,11,7) predicts 0,17,4,17,1; DISTINGUISHES psi from psibar
+(7,chi_7.2,4)	charpoly_mod_ell	T_2|H^1[psibar] l=19	coeffs_low_to_high=0,17,4,17,1	19	derived (reduction of charpoly_Z chibar row)	2026-10-01	psibar:=chibar mod l, z->11 = 7^-1 mod 19; psibar(2,3,5)=7,11,7
+(7,chi_7.2,4)	charpoly_mod_ell	T_2|H^1[psi] l=31	coeffs_low_to_high=24,25,5,25,1	31	derived (reduction of charpoly_Z)	2026-10-01	psi:=chi mod l, z=chi(3)->5 = least primitive 3-th root of 1 in {2..l-1}; l=1 mod 3 so psi lands in F_l^* (psi(2,3,5)=25,5,25); psibar (z->25, psibar(2,3,5)=5,25,5) predicts 27,25,1,1,1; DISTINGUISHES psi from psibar
+(7,chi_7.2,4)	charpoly_mod_ell	T_2|H^1[psibar] l=31	coeffs_low_to_high=27,25,1,1,1	31	derived (reduction of charpoly_Z chibar row)	2026-10-01	psibar:=chibar mod l, z->25 = 5^-1 mod 31; psibar(2,3,5)=5,25,5
+(7,chi_7.2,4)	charpoly_mod_ell	T_2|H^1[psi] l=37	coeffs_low_to_high=23,30,21,13,1	37	derived (reduction of charpoly_Z)	2026-10-01	psi:=chi mod l, z=chi(3)->10 = least primitive 3-th root of 1 in {2..l-1}; l=1 mod 3 so psi lands in F_l^* (psi(2,3,5)=26,10,26); psibar (z->26, psibar(2,3,5)=10,26,10) predicts 8,30,28,19,1; DISTINGUISHES psi from psibar
+(7,chi_7.2,4)	charpoly_mod_ell	T_2|H^1[psibar] l=37	coeffs_low_to_high=8,30,28,19,1	37	derived (reduction of charpoly_Z chibar row)	2026-10-01	psibar:=chibar mod l, z->26 = 10^-1 mod 37; psibar(2,3,5)=10,26,10
+(7,chi_7.2,4)	charpoly_Z	T_3|H^1[chi]	coeffs_low_to_high_in_Z[z]=-34447-34447*z;-8470;360*z;-14-14*z;1		derived from the rows above	2026-10-01	= (cusp charpoly over Z[z] of T_3 on S_k(chi), coeffs low->high 7+7*z;1)^2 * (X-e1)(X-e2); degree 4 = dim H^1; the square is the holomorphic part plus the conjugate of S_k(chibar) (same eigenvalues); z^2+1z+1=0
+(7,chi_7.2,4)	charpoly_Z	T_3|H^1[chibar]	coeffs_low_to_high_in_Z[z]=34447*z;-8470;-360-360*z;14*z;1		derived: Galois conjugate z->z^-1 of the row above	2026-10-01	prediction for the chibar-twisted H^1 under the same convention (chi enters as chi(p))
+(7,chi_7.2,4)	charpoly_mod_ell	T_3|H^1[psi] l=13	coeffs_low_to_high=12,6,1,9,1	13	derived (reduction of charpoly_Z)	2026-10-01	psi:=chi mod l, z=chi(3)->3 = least primitive 3-th root of 1 in {2..l-1}; l=1 mod 3 so psi lands in F_l^* (psi(2,3,5)=9,3,9); psibar (z->9, psibar(2,3,5)=3,9,3) predicts 4,6,3,3,1; DISTINGUISHES psi from psibar
+(7,chi_7.2,4)	charpoly_mod_ell	T_3|H^1[psibar] l=13	coeffs_low_to_high=4,6,3,3,1	13	derived (reduction of charpoly_Z chibar row)	2026-10-01	psibar:=chibar mod l, z->9 = 3^-1 mod 13; psibar(2,3,5)=3,9,3
+(7,chi_7.2,4)	charpoly_mod_ell	T_3|H^1[psi] l=19	coeffs_low_to_high=0,4,12,2,1	19	derived (reduction of charpoly_Z)	2026-10-01	psi:=chi mod l, z=chi(3)->7 = least primitive 3-th root of 1 in {2..l-1}; l=1 mod 3 so psi lands in F_l^* (psi(2,3,5)=11,7,11); psibar (z->11, psibar(2,3,5)=7,11,7) predicts 0,4,8,3,1; DISTINGUISHES psi from psibar
+(7,chi_7.2,4)	charpoly_mod_ell	T_3|H^1[psibar] l=19	coeffs_low_to_high=0,4,8,3,1	19	derived (reduction of charpoly_Z chibar row)	2026-10-01	psibar:=chibar mod l, z->11 = 7^-1 mod 19; psibar(2,3,5)=7,11,7
+(7,chi_7.2,4)	charpoly_mod_ell	T_3|H^1[psi] l=31	coeffs_low_to_high=26,24,2,9,1	31	derived (reduction of charpoly_Z)	2026-10-01	psi:=chi mod l, z=chi(3)->5 = least primitive 3-th root of 1 in {2..l-1}; l=1 mod 3 so psi lands in F_l^* (psi(2,3,5)=25,5,25); psibar (z->25, psibar(2,3,5)=5,25,5) predicts 30,24,10,8,1; DISTINGUISHES psi from psibar
+(7,chi_7.2,4)	charpoly_mod_ell	T_3|H^1[psibar] l=31	coeffs_low_to_high=30,24,10,8,1	31	derived (reduction of charpoly_Z chibar row)	2026-10-01	psibar:=chibar mod l, z->25 = 5^-1 mod 31; psibar(2,3,5)=5,25,5
+(7,chi_7.2,4)	charpoly_mod_ell	T_3|H^1[psi] l=37	coeffs_low_to_high=0,3,11,31,1	37	derived (reduction of charpoly_Z)	2026-10-01	psi:=chi mod l, z=chi(3)->10 = least primitive 3-th root of 1 in {2..l-1}; l=1 mod 3 so psi lands in F_l^* (psi(2,3,5)=26,10,26); psibar (z->26, psibar(2,3,5)=10,26,10) predicts 0,3,36,29,1; DISTINGUISHES psi from psibar
+(7,chi_7.2,4)	charpoly_mod_ell	T_3|H^1[psibar] l=37	coeffs_low_to_high=0,3,36,29,1	37	derived (reduction of charpoly_Z chibar row)	2026-10-01	psibar:=chibar mod l, z->26 = 10^-1 mod 37; psibar(2,3,5)=10,26,10
+(7,chi_7.2,4)	dict_test	what_this_cell_tests	order 3, dim S=1: the single cuspidal eigenvalue of T_2 on H^1 mod l is a_2(f)=2z (see a_2_exact) at z->w if the code's twist is chi (Conrey 7.2) and at z->w^-1 if it is chibar (7.4); also the Eisenstein pair (1+chi(2)2^3, chi(2)+2^3). WP-10 reads which charpoly line appears.		derived	2026-10-01	WP-10: compute T_p on H^1(Gamma_0(7), Sym^2 (x) psi_l) for psi_l with psi(3)=s, compare with the psi line and the psibar line of charpoly_mod_ell; the matching line fixes whether the code's character is chi (Conrey 7.2) or chibar (Conrey 7.4); only (l,p) rows marked DISTINGUISHES are informative
+(9,chi_9.2,3)	conv	lmfdb_conrey_label	9.2		https://www.lmfdb.org/api/mf_newspaces/?level=9&weight=3&_format=json	2026-10-01	LMFDB newspace 9.3.d (char_order 6) holds Conrey 9.2 and 9.5; this cell's chi := the one with z:=chi(2) the primitive 6-th root of unity e(1/6) in the Hecke ring convention below (Conrey 9.2)
+(9,chi_9.2,3)	conv	conj_conrey_label(chi->chibar)	9.5		https://www.lmfdb.org/api/mf_newspaces/?level=9&weight=3&_format=json	2026-10-01	chibar != chi (order 6): Conrey 9.2 * 9.5 = 1 mod 9. First non-real cell: chi->chibar is a genuine swap of labels and of newform embeddings
+(9,chi_9.2,3)	conv	hecke_ring_and_embeddings	Z-basis 1,beta, beta^2-beta+1=0 (power basis); chi(2)=beta=:z=zeta6 ([[2,[0,1]]]); mf_hecke_cc: 9.3.d.a.2.1 has beta=e^{i pi/3} (z=e(1/6), Conrey 9.2), 9.3.d.a.5.1 the conjugate (Conrey 9.5)		https://www.lmfdb.org/api/mf_newforms/?label=9.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761865&_format=json ; https://www.lmfdb.org/api/mf_hecke_cc/?hecke_orbit_code=206208761865&_format=json	2026-10-01	z satisfies z^2 -1 z +1 = 0
+(9,chi_9.2,3)	conv	chi_values_in_z	chi(2)=z,chi(5)=1-z,chi(7)=-z		https://www.lmfdb.org/api/mf_hecke_cc/?hecke_orbit_code=206208761865&_format=json	2026-10-01	discrete log in (Z/9)^* base 2, chi(2)=z; chibar(n)=chi(n)^-1 (z->z^-1); chi(-1)=-1
+(9,chi_9.2,3)	conv	chi_parity	odd		https://www.lmfdb.org/api/mf_newspaces/?level=9&weight=3&_format=json	2026-10-01	k=3; chi(-1)=-1 => parity consistent
+(9,chi_9.2,3)	conv	nebentypus_convention	f|_k gamma = chi(d) f, gamma=(a b;c d) in Gamma_0(N); a_{p^2}=a_p^2-chi(p)p^{k-1}		LMFDB help mf.elliptic.nebentypus; verified here by check_hecke_rel	2026-10-01	chi enters as chi(p) not chibar(p); rows check_hecke_rel test the chibar alternative and it FAILS where chi!=chibar, so unlike WP-9 this data discriminates the convention
+(9,chi_9.2,3)	dim	cusp_dim_S_k(Gamma_0(N),chi)	1		https://www.lmfdb.org/api/mf_newspaces/?level=9&weight=3&_format=json	2026-10-01	LMFDB newspace 9.3.d total dim 2 over a character orbit of size 2 => 1 per character; chi primitive of conductor 9 => space = newspace
+(9,chi_9.2,3)	dim	eis_dim_E_k(Gamma_0(N),chi)	2		https://www.lmfdb.org/api/mf_newspaces/?level=9&weight=3&_format=json	2026-10-01	eis_dim of 9.3.d is 4 over the orbit of size 2 => 2 per character
+(9,chi_9.2,3)	dim	dim_H1_predicted_(NB1)	4		https://www.lmfdb.org/api/mf_newspaces/?level=9&weight=3&_format=json	2026-10-01	2 dim S + dim E (WP-9 convention)
+(9,chi_9.2,3)	newform	label	9.3.d.a		https://www.lmfdb.org/api/mf_newforms/?label=9.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761865&_format=json	2026-10-01	orbit dim 2, coefficient field Q(zeta3) = 2.0.3.1 (contains zeta6). The orbit contains the form of chi (embeddings 9.2.*) AND the Galois-conjugate form of chibar (9.5.*): different objects, coefficients conjugate
+(9,chi_9.2,3)	newform	traces_n<=60	2,-3,-3,-1,6,9,-2,0,-9,-12,-3,6,4,6,0,11,0,0,22,-6,-6,3,-48,-45,-13,0,54,4,78,18,-32,27,9,-27,0,-9,-68,-33,-24,30,-21,0,61,0,-54,96,-84,33,45,39,81,4,0,-81,-12,-30,-33,-78,87,18		https://www.lmfdb.org/ModularForm/GL2/Q/holomorphic/9/3/d/a/ ; https://www.lmfdb.org/api/mf_newforms/?label=9.3.d.a&_format=json	2026-10-01	Tr_{K/Q} a_n as published, n=1..60
+(9,chi_9.2,3)	newform	a_2_exact	-1-z		https://www.lmfdb.org/api/mf_newforms/?label=9.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761865&_format=json	2026-10-01	LMFDB hecke-ring coordinates [-1, -1]; a_p of the form of chi (Conrey 9.2); the form of chibar (Conrey 9.5) has the z->z^-1 conjugate coefficient
+(9,chi_9.2,3)	newform	a_3_exact	-3+3*z		https://www.lmfdb.org/api/mf_newforms/?label=9.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761865&_format=json	2026-10-01	LMFDB hecke-ring coordinates [-3, 3]; a_p of the form of chi (Conrey 9.2); the form of chibar (Conrey 9.5) has the z->z^-1 conjugate coefficient
+(9,chi_9.2,3)	newform	a_5_exact	4-2*z		https://www.lmfdb.org/api/mf_newforms/?label=9.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761865&_format=json	2026-10-01	LMFDB hecke-ring coordinates [4, -2]; a_p of the form of chi (Conrey 9.2); the form of chibar (Conrey 9.5) has the z->z^-1 conjugate coefficient
+(9,chi_9.2,3)	newform	a_7_exact	-2+2*z		https://www.lmfdb.org/api/mf_newforms/?label=9.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761865&_format=json	2026-10-01	LMFDB hecke-ring coordinates [-2, 2]; a_p of the form of chi (Conrey 9.2); the form of chibar (Conrey 9.5) has the z->z^-1 conjugate coefficient
+(9,chi_9.2,3)	newform	a_11_exact	-1-z		https://www.lmfdb.org/api/mf_newforms/?label=9.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761865&_format=json	2026-10-01	LMFDB hecke-ring coordinates [-1, -1]; a_p of the form of chi (Conrey 9.2); the form of chibar (Conrey 9.5) has the z->z^-1 conjugate coefficient
+(9,chi_9.2,3)	newform	a_13_exact	4*z		https://www.lmfdb.org/api/mf_newforms/?label=9.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761865&_format=json	2026-10-01	LMFDB hecke-ring coordinates [0, 4]; a_p of the form of chi (Conrey 9.2); the form of chibar (Conrey 9.5) has the z->z^-1 conjugate coefficient
+(9,chi_9.2,3)	newform	a_17_exact	9-18*z		https://www.lmfdb.org/api/mf_newforms/?label=9.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761865&_format=json	2026-10-01	LMFDB hecke-ring coordinates [9, -18]; a_p of the form of chi (Conrey 9.2); the form of chibar (Conrey 9.5) has the z->z^-1 conjugate coefficient
+(9,chi_9.2,3)	newform	a_19_exact	11		https://www.lmfdb.org/api/mf_newforms/?label=9.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761865&_format=json	2026-10-01	LMFDB hecke-ring coordinates [11, 0]; a_p of the form of chi (Conrey 9.2); the form of chibar (Conrey 9.5) has the z->z^-1 conjugate coefficient
+(9,chi_9.2,3)	newform	a_23_exact	-32+16*z		https://www.lmfdb.org/api/mf_newforms/?label=9.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761865&_format=json	2026-10-01	LMFDB hecke-ring coordinates [-32, 16]; a_p of the form of chi (Conrey 9.2); the form of chibar (Conrey 9.5) has the z->z^-1 conjugate coefficient
+(9,chi_9.2,3)	newform	a_29_exact	26+26*z		https://www.lmfdb.org/api/mf_newforms/?label=9.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761865&_format=json	2026-10-01	LMFDB hecke-ring coordinates [26, 26]; a_p of the form of chi (Conrey 9.2); the form of chibar (Conrey 9.5) has the z->z^-1 conjugate coefficient
+(9,chi_9.2,3)	newform	a_31_exact	-32*z		https://www.lmfdb.org/api/mf_newforms/?label=9.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761865&_format=json	2026-10-01	LMFDB hecke-ring coordinates [0, -32]; a_p of the form of chi (Conrey 9.2); the form of chibar (Conrey 9.5) has the z->z^-1 conjugate coefficient
+(9,chi_9.2,3)	newform	a_37_exact	-34		https://www.lmfdb.org/api/mf_newforms/?label=9.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761865&_format=json	2026-10-01	LMFDB hecke-ring coordinates [-34, 0]; a_p of the form of chi (Conrey 9.2); the form of chibar (Conrey 9.5) has the z->z^-1 conjugate coefficient
+(9,chi_9.2,3)	newform	a_41_exact	-14+7*z		https://www.lmfdb.org/api/mf_newforms/?label=9.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761865&_format=json	2026-10-01	LMFDB hecke-ring coordinates [-14, 7]; a_p of the form of chi (Conrey 9.2); the form of chibar (Conrey 9.5) has the z->z^-1 conjugate coefficient
+(9,chi_9.2,3)	newform	a_43_exact	61-61*z		https://www.lmfdb.org/api/mf_newforms/?label=9.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761865&_format=json	2026-10-01	LMFDB hecke-ring coordinates [61, -61]; a_p of the form of chi (Conrey 9.2); the form of chibar (Conrey 9.5) has the z->z^-1 conjugate coefficient
+(9,chi_9.2,3)	newform	a_47_exact	-28-28*z		https://www.lmfdb.org/api/mf_newforms/?label=9.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761865&_format=json	2026-10-01	LMFDB hecke-ring coordinates [-28, -28]; a_p of the form of chi (Conrey 9.2); the form of chibar (Conrey 9.5) has the z->z^-1 conjugate coefficient
+(9,chi_9.2,3)	check_hecke_rel	a_4 = a_2^2 - chi(2)*2^2	HELD		https://www.lmfdb.org/api/mf_newforms/?label=9.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761865&_format=json	2026-10-01	alternative with chibar(2) instead: FAILS (discriminates)
+(9,chi_9.2,3)	check_hecke_rel	a_25 = a_5^2 - chi(5)*5^2	HELD		https://www.lmfdb.org/api/mf_newforms/?label=9.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761865&_format=json	2026-10-01	alternative with chibar(5) instead: FAILS (discriminates)
+(9,chi_9.2,3)	check_hecke_rel	a_49 = a_7^2 - chi(7)*7^2	HELD		https://www.lmfdb.org/api/mf_newforms/?label=9.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761865&_format=json	2026-10-01	alternative with chibar(7) instead: FAILS (discriminates)
+(9,chi_9.2,3)	check_trace	Tr a_2	HELD		https://www.lmfdb.org/api/mf_newforms/?label=9.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761865&_format=json	2026-10-01	Tr_{K/Q} of the exact a_p against the published trace
+(9,chi_9.2,3)	check_trace	Tr a_3	HELD		https://www.lmfdb.org/api/mf_newforms/?label=9.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761865&_format=json	2026-10-01	Tr_{K/Q} of the exact a_p against the published trace
+(9,chi_9.2,3)	check_trace	Tr a_5	HELD		https://www.lmfdb.org/api/mf_newforms/?label=9.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761865&_format=json	2026-10-01	Tr_{K/Q} of the exact a_p against the published trace
+(9,chi_9.2,3)	eis	a_2(E_k(1,chi)),a_2(E_k(chi,1))	1+4*z , 4+z		derived	2026-10-01	derived: Diamond-Shurman 4.5/4.6, a_p(E_k^{psi,phi})=psi(p)+phi(p)p^{k-1}, (psi,phi)=(1,chi),(chi,1); chibar-space: 5-4*z , 5-z
+(9,chi_9.2,3)	eis	a_3(E_k(1,chi)),a_3(E_k(chi,1))	1 , 9		derived	2026-10-01	derived: Diamond-Shurman 4.5/4.6, a_p(E_k^{psi,phi})=psi(p)+phi(p)p^{k-1}, (psi,phi)=(1,chi),(chi,1); chibar-space: 1 , 9; p|N: U_p eigenvalue of the primitive-chi Eisenstein series
+(9,chi_9.2,3)	charpoly_Z	T_2|H^1[chi]	coeffs_low_to_high_in_Z[z]=-63+63*z;-27+54*z;-6*z;-3-3*z;1		derived from the rows above	2026-10-01	= (cusp charpoly over Z[z] of T_2 on S_k(chi), coeffs low->high 1+z;1)^2 * (X-e1)(X-e2); degree 4 = dim H^1; the square is the holomorphic part plus the conjugate of S_k(chibar) (same eigenvalues); z^2-1z+1=0
+(9,chi_9.2,3)	charpoly_Z	T_2|H^1[chibar]	coeffs_low_to_high_in_Z[z]=-63*z;27-54*z;-6+6*z;-6+3*z;1		derived: Galois conjugate z->z^-1 of the row above	2026-10-01	prediction for the chibar-twisted H^1 under the same convention (chi enters as chi(p))
+(9,chi_9.2,3)	charpoly_mod_ell	T_2|H^1[psi] l=7	coeffs_low_to_high=0,2,3,2,1	7	derived (reduction of charpoly_Z)	2026-10-01	psi:=chi mod l, z=chi(2)->3 = least primitive 6-th root of 1 in {2..l-1}; l=1 mod 6 so psi lands in F_l^* (psi(2,5)=3,5); psibar (z->5, psibar(2,5)=5,3) predicts 0,5,5,3,1; DISTINGUISHES psi from psibar
+(9,chi_9.2,3)	charpoly_mod_ell	T_2|H^1[psibar] l=7	coeffs_low_to_high=0,5,5,3,1	7	derived (reduction of charpoly_Z chibar row)	2026-10-01	psibar:=chibar mod l, z->5 = 3^-1 mod 7; psibar(2,5)=5,3
+(9,chi_9.2,3)	charpoly_mod_ell	T_2|H^1[psi] l=13	coeffs_low_to_high=7,7,2,11,1	13	derived (reduction of charpoly_Z)	2026-10-01	psi:=chi mod l, z=chi(2)->4 = least primitive 6-th root of 1 in {2..l-1}; l=1 mod 6 so psi lands in F_l^* (psi(2,5,7)=4,10,9); psibar (z->10, psibar(2,5,7)=10,4,3) predicts 8,6,5,6,1; DISTINGUISHES psi from psibar
+(9,chi_9.2,3)	charpoly_mod_ell	T_2|H^1[psibar] l=13	coeffs_low_to_high=8,6,5,6,1	13	derived (reduction of charpoly_Z chibar row)	2026-10-01	psibar:=chibar mod l, z->10 = 4^-1 mod 13; psibar(2,5,7)=10,4,3
+(9,chi_9.2,3)	charpoly_mod_ell	T_2|H^1[psi] l=19	coeffs_low_to_high=4,6,9,11,1	19	derived (reduction of charpoly_Z)	2026-10-01	psi:=chi mod l, z=chi(2)->8 = least primitive 6-th root of 1 in {2..l-1}; l=1 mod 6 so psi lands in F_l^* (psi(2,5,7)=8,12,11); psibar (z->12, psibar(2,5,7)=12,8,7) predicts 9,13,4,18,1; DISTINGUISHES psi from psibar
+(9,chi_9.2,3)	charpoly_mod_ell	T_2|H^1[psibar] l=19	coeffs_low_to_high=9,13,4,18,1	19	derived (reduction of charpoly_Z chibar row)	2026-10-01	psibar:=chibar mod l, z->12 = 8^-1 mod 19; psibar(2,5,7)=12,8,7
+(9,chi_9.2,3)	charpoly_mod_ell	T_2|H^1[psi] l=31	coeffs_low_to_high=5,18,26,10,1	31	derived (reduction of charpoly_Z)	2026-10-01	psi:=chi mod l, z=chi(2)->6 = least primitive 6-th root of 1 in {2..l-1}; l=1 mod 6 so psi lands in F_l^* (psi(2,5,7)=6,26,25); psibar (z->26, psibar(2,5,7)=26,6,5) predicts 25,13,30,12,1; DISTINGUISHES psi from psibar
+(9,chi_9.2,3)	charpoly_mod_ell	T_2|H^1[psibar] l=31	coeffs_low_to_high=25,13,30,12,1	31	derived (reduction of charpoly_Z chibar row)	2026-10-01	psibar:=chibar mod l, z->26 = 6^-1 mod 31; psibar(2,5,7)=26,6,5
+(9,chi_9.2,3)	charpoly_Z	T_3|H^1[chi]	coeffs_low_to_high_in_Z[z]=-81*z;54+36*z;-51+51*z;-4-6*z;1		derived from the rows above	2026-10-01	= (cusp charpoly over Z[z] of T_3 on S_k(chi), coeffs low->high 3-3*z;1)^2 * (X-e1)(X-e2); degree 4 = dim H^1; the square is the holomorphic part plus the conjugate of S_k(chibar) (same eigenvalues); z^2-1z+1=0; T_3 is U_3
+(9,chi_9.2,3)	charpoly_Z	T_3|H^1[chibar]	coeffs_low_to_high_in_Z[z]=-81+81*z;90-36*z;-51*z;-10+6*z;1		derived: Galois conjugate z->z^-1 of the row above	2026-10-01	prediction for the chibar-twisted H^1 under the same convention (chi enters as chi(p))
+(9,chi_9.2,3)	charpoly_mod_ell	T_3|H^1[psi] l=7	coeffs_low_to_high=2,1,4,6,1	7	derived (reduction of charpoly_Z)	2026-10-01	psi:=chi mod l, z=chi(2)->3 = least primitive 6-th root of 1 in {2..l-1}; l=1 mod 6 so psi lands in F_l^* (psi(2,5)=3,5); psibar (z->5, psibar(2,5)=5,3) predicts 1,3,1,1,1; DISTINGUISHES psi from psibar
+(9,chi_9.2,3)	charpoly_mod_ell	T_3|H^1[psibar] l=7	coeffs_low_to_high=1,3,1,1,1	7	derived (reduction of charpoly_Z chibar row)	2026-10-01	psibar:=chibar mod l, z->5 = 3^-1 mod 7; psibar(2,5)=5,3
+(9,chi_9.2,3)	charpoly_mod_ell	T_3|H^1[psi] l=13	coeffs_low_to_high=1,3,10,11,1	13	derived (reduction of charpoly_Z)	2026-10-01	psi:=chi mod l, z=chi(2)->4 = least primitive 6-th root of 1 in {2..l-1}; l=1 mod 6 so psi lands in F_l^* (psi(2,5,7)=4,10,9); psibar (z->10, psibar(2,5,7)=10,4,3) predicts 9,11,4,1,1; DISTINGUISHES psi from psibar
+(9,chi_9.2,3)	charpoly_mod_ell	T_3|H^1[psibar] l=13	coeffs_low_to_high=9,11,4,1,1	13	derived (reduction of charpoly_Z chibar row)	2026-10-01	psibar:=chibar mod l, z->10 = 4^-1 mod 13; psibar(2,5,7)=10,4,3
+(9,chi_9.2,3)	charpoly_mod_ell	T_3|H^1[psi] l=19	coeffs_low_to_high=17,0,15,5,1	19	derived (reduction of charpoly_Z)	2026-10-01	psi:=chi mod l, z=chi(2)->8 = least primitive 6-th root of 1 in {2..l-1}; l=1 mod 6 so psi lands in F_l^* (psi(2,5,7)=8,12,11); psibar (z->12, psibar(2,5,7)=12,8,7) predicts 16,11,10,0,1; DISTINGUISHES psi from psibar
+(9,chi_9.2,3)	charpoly_mod_ell	T_3|H^1[psibar] l=19	coeffs_low_to_high=16,11,10,0,1	19	derived (reduction of charpoly_Z chibar row)	2026-10-01	psibar:=chibar mod l, z->12 = 8^-1 mod 19; psibar(2,5,7)=12,8,7
+(9,chi_9.2,3)	charpoly_mod_ell	T_3|H^1[psi] l=31	coeffs_low_to_high=10,22,7,22,1	31	derived (reduction of charpoly_Z)	2026-10-01	psi:=chi mod l, z=chi(2)->6 = least primitive 6-th root of 1 in {2..l-1}; l=1 mod 6 so psi lands in F_l^* (psi(2,5,7)=6,26,25); psibar (z->26, psibar(2,5,7)=26,6,5) predicts 2,29,4,26,1; DISTINGUISHES psi from psibar
+(9,chi_9.2,3)	charpoly_mod_ell	T_3|H^1[psibar] l=31	coeffs_low_to_high=2,29,4,26,1	31	derived (reduction of charpoly_Z chibar row)	2026-10-01	psibar:=chibar mod l, z->26 = 6^-1 mod 31; psibar(2,5,7)=26,6,5
+(9,chi_9.2,3)	dict_test	what_this_cell_tests	order 6, dim S=1, k=3, U_3 at 3|N: T_2 and U_3 cusp eigenvalues and the Eisenstein pairs all swap under z->z^-1; the character is odd (chi(-1)=-1) with chi != chibar, so only the label swap (9.2 <-> 9.5) separates the two readings.		derived	2026-10-01	WP-10: compute T_p on H^1(Gamma_0(9), Sym^1 (x) psi_l) for psi_l with psi(2)=s, compare with the psi line and the psibar line of charpoly_mod_ell; the matching line fixes whether the code's character is chi (Conrey 9.2) or chibar (Conrey 9.5); only (l,p) rows marked DISTINGUISHES are informative
+(13,chi_13.8,3)	conv	lmfdb_conrey_label	13.8		https://www.lmfdb.org/api/mf_newspaces/?level=13&weight=3&_format=json	2026-10-01	LMFDB newspace 13.3.d (char_order 4) holds Conrey 13.8 and 13.5; this cell's chi := the one with z:=chi(2) the primitive 4-th root of unity e(1/4) in the Hecke ring convention below (Conrey 13.8)
+(13,chi_13.8,3)	conv	conj_conrey_label(chi->chibar)	13.5		https://www.lmfdb.org/api/mf_newspaces/?level=13&weight=3&_format=json	2026-10-01	chibar != chi (order 4): Conrey 13.8 * 13.5 = 1 mod 13. First non-real cell: chi->chibar is a genuine swap of labels and of newform embeddings
+(13,chi_13.8,3)	conv	hecke_ring_and_embeddings	Z-basis e0=1,e1=nu,e2=nu^2/5,e3=nu^3/5 (hecke_ring_numerators [1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1] over denominators [1,1,5,5]); nu^4+25=0; chi(2)=e2=:z, z^2=-1 ([[2,[0,0,1,0]]]); a = (c0+c2 z) + (c1+c3 z) nu; mf_hecke_cc: 13.3.d.a.5.1 has nu=(-1+i)*sqrt(5/2) so z=nu^2/5=-i (Conrey 13.5, chi(2)=e(3/4)); 13.3.d.a.8.2 has nu=(1+i)sqrt(5/2) so z=+i (Conrey 13.8, chi(2)=e(1/4)); two embeddings of nu per Conrey label		https://www.lmfdb.org/api/mf_newforms/?label=13.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761869&_format=json ; https://www.lmfdb.org/api/mf_hecke_cc/?hecke_orbit_code=206208761869&_format=json	2026-10-01	z satisfies z^2 +0 z +1 = 0
+(13,chi_13.8,3)	conv	chi_values_in_z	chi(2)=z,chi(3)=1,chi(5)=z,chi(7)=-z		https://www.lmfdb.org/api/mf_hecke_cc/?hecke_orbit_code=206208761869&_format=json	2026-10-01	discrete log in (Z/13)^* base 2, chi(2)=z; chibar(n)=chi(n)^-1 (z->z^-1); chi(-1)=-1
+(13,chi_13.8,3)	conv	chi_parity	odd		https://www.lmfdb.org/api/mf_newspaces/?level=13&weight=3&_format=json	2026-10-01	k=3; chi(-1)=-1 => parity consistent
+(13,chi_13.8,3)	conv	nebentypus_convention	f|_k gamma = chi(d) f, gamma=(a b;c d) in Gamma_0(N); a_{p^2}=a_p^2-chi(p)p^{k-1}		LMFDB help mf.elliptic.nebentypus; verified here by check_hecke_rel	2026-10-01	chi enters as chi(p) not chibar(p); rows check_hecke_rel test the chibar alternative and it FAILS where chi!=chibar, so unlike WP-9 this data discriminates the convention
+(13,chi_13.8,3)	dim	cusp_dim_S_k(Gamma_0(N),chi)	2		https://www.lmfdb.org/api/mf_newspaces/?level=13&weight=3&_format=json	2026-10-01	LMFDB newspace 13.3.d total dim 4 over a character orbit of size 2 => 2 per character; chi primitive of conductor 13 => space = newspace
+(13,chi_13.8,3)	dim	eis_dim_E_k(Gamma_0(N),chi)	2		https://www.lmfdb.org/api/mf_newspaces/?level=13&weight=3&_format=json	2026-10-01	eis_dim of 13.3.d is 4 over the orbit of size 2 => 2 per character
+(13,chi_13.8,3)	dim	dim_H1_predicted_(NB1)	6		https://www.lmfdb.org/api/mf_newspaces/?level=13&weight=3&_format=json	2026-10-01	2 dim S + dim E (WP-9 convention)
+(13,chi_13.8,3)	newform	label	13.3.d.a		https://www.lmfdb.org/api/mf_newforms/?label=13.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761869&_format=json	2026-10-01	orbit dim 4, coefficient field 4.0.6400.3 = Q(nu), nu^4 = -25, containing Q(i). The orbit contains the form of chi (embeddings 13.8.*) AND the Galois-conjugate form of chibar (13.5.*): different objects, coefficients conjugate
+(13,chi_13.8,3)	newform	traces_n<=60	4,-4,-4,0,8,-16,-12,36,8,0,-4,0,8,4,-28,-84,0,32,0,16,32,88,0,24,0,-88,-52,4,40,0,40,20,-76,-108,-68,0,40,0,92,84,32,76,0,-172,56,132,-4,-76,0,-128,0,80,-80,152,64,0,-40,-140,56,-116		https://www.lmfdb.org/ModularForm/GL2/Q/holomorphic/13/3/d/a/ ; https://www.lmfdb.org/api/mf_newforms/?label=13.3.d.a&_format=json	2026-10-01	Tr_{K/Q} a_n as published, n=1..60
+(13,chi_13.8,3)	newform	a_2_exact	(-1-z)+(1)*nu		https://www.lmfdb.org/api/mf_newforms/?label=13.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761869&_format=json	2026-10-01	LMFDB hecke-ring coordinates [-1, 1, -1, 0]; a_p of the form of chi (Conrey 13.8); the form of chibar (Conrey 13.5) has the z->z^-1 conjugate coefficient
+(13,chi_13.8,3)	newform	a_3_exact	(-1)+(-1+z)*nu		https://www.lmfdb.org/api/mf_newforms/?label=13.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761869&_format=json	2026-10-01	LMFDB hecke-ring coordinates [-1, -1, 0, 1]; a_p of the form of chi (Conrey 13.8); the form of chibar (Conrey 13.5) has the z->z^-1 conjugate coefficient
+(13,chi_13.8,3)	newform	a_5_exact	(2+2*z)+(1)*nu		https://www.lmfdb.org/api/mf_newforms/?label=13.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761869&_format=json	2026-10-01	LMFDB hecke-ring coordinates [2, 1, 2, 0]; a_p of the form of chi (Conrey 13.8); the form of chibar (Conrey 13.5) has the z->z^-1 conjugate coefficient
+(13,chi_13.8,3)	newform	a_7_exact	(-3+3*z)+(z)*nu		https://www.lmfdb.org/api/mf_newforms/?label=13.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761869&_format=json	2026-10-01	LMFDB hecke-ring coordinates [-3, 0, 3, 1]; a_p of the form of chi (Conrey 13.8); the form of chibar (Conrey 13.5) has the z->z^-1 conjugate coefficient
+(13,chi_13.8,3)	newform	a_11_exact	(-1+z)+(-4*z)*nu		https://www.lmfdb.org/api/mf_newforms/?label=13.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761869&_format=json	2026-10-01	LMFDB hecke-ring coordinates [-1, 0, 1, -4]; a_p of the form of chi (Conrey 13.8); the form of chibar (Conrey 13.5) has the z->z^-1 conjugate coefficient
+(13,chi_13.8,3)	newform	a_13_exact	(2-10*z)+(-3+2*z)*nu		https://www.lmfdb.org/api/mf_newforms/?label=13.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761869&_format=json	2026-10-01	LMFDB hecke-ring coordinates [2, -3, -10, 2]; a_p of the form of chi (Conrey 13.8); the form of chibar (Conrey 13.5) has the z->z^-1 conjugate coefficient
+(13,chi_13.8,3)	newform	a_17_exact	(3*z)+(6+6*z)*nu		https://www.lmfdb.org/api/mf_newforms/?label=13.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761869&_format=json	2026-10-01	LMFDB hecke-ring coordinates [0, 6, 3, 6]; a_p of the form of chi (Conrey 13.8); the form of chibar (Conrey 13.5) has the z->z^-1 conjugate coefficient
+(13,chi_13.8,3)	newform	a_19_exact	(0)+(2)*nu		https://www.lmfdb.org/api/mf_newforms/?label=13.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761869&_format=json	2026-10-01	LMFDB hecke-ring coordinates [0, 2, 0, 0]; a_p of the form of chi (Conrey 13.8); the form of chibar (Conrey 13.5) has the z->z^-1 conjugate coefficient
+(13,chi_13.8,3)	newform	a_23_exact	(18*z)+(-3-3*z)*nu		https://www.lmfdb.org/api/mf_newforms/?label=13.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761869&_format=json	2026-10-01	LMFDB hecke-ring coordinates [0, -3, 18, -3]; a_p of the form of chi (Conrey 13.8); the form of chibar (Conrey 13.5) has the z->z^-1 conjugate coefficient
+(13,chi_13.8,3)	newform	a_29_exact	(10)+(-5+5*z)*nu		https://www.lmfdb.org/api/mf_newforms/?label=13.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761869&_format=json	2026-10-01	LMFDB hecke-ring coordinates [10, -5, 0, 5]; a_p of the form of chi (Conrey 13.8); the form of chibar (Conrey 13.5) has the z->z^-1 conjugate coefficient
+(13,chi_13.8,3)	newform	a_31_exact	(10+10*z)+(-6)*nu		https://www.lmfdb.org/api/mf_newforms/?label=13.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761869&_format=json	2026-10-01	LMFDB hecke-ring coordinates [10, -6, 10, 0]; a_p of the form of chi (Conrey 13.8); the form of chibar (Conrey 13.5) has the z->z^-1 conjugate coefficient
+(13,chi_13.8,3)	newform	a_37_exact	(10-10*z)+(-9*z)*nu		https://www.lmfdb.org/api/mf_newforms/?label=13.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761869&_format=json	2026-10-01	LMFDB hecke-ring coordinates [10, 0, -10, -9]; a_p of the form of chi (Conrey 13.8); the form of chibar (Conrey 13.5) has the z->z^-1 conjugate coefficient
+(13,chi_13.8,3)	newform	a_41_exact	(8+8*z)+(-2)*nu		https://www.lmfdb.org/api/mf_newforms/?label=13.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761869&_format=json	2026-10-01	LMFDB hecke-ring coordinates [8, -2, 8, 0]; a_p of the form of chi (Conrey 13.8); the form of chibar (Conrey 13.5) has the z->z^-1 conjugate coefficient
+(13,chi_13.8,3)	newform	a_43_exact	(-21*z)+(-3-3*z)*nu		https://www.lmfdb.org/api/mf_newforms/?label=13.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761869&_format=json	2026-10-01	LMFDB hecke-ring coordinates [0, -3, -21, -3]; a_p of the form of chi (Conrey 13.8); the form of chibar (Conrey 13.5) has the z->z^-1 conjugate coefficient
+(13,chi_13.8,3)	newform	a_47_exact	(-1+z)+(23*z)*nu		https://www.lmfdb.org/api/mf_newforms/?label=13.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761869&_format=json	2026-10-01	LMFDB hecke-ring coordinates [-1, 0, 1, 23]; a_p of the form of chi (Conrey 13.8); the form of chibar (Conrey 13.5) has the z->z^-1 conjugate coefficient
+(13,chi_13.8,3)	check_hecke_rel	a_4 = a_2^2 - chi(2)*2^2	HELD		https://www.lmfdb.org/api/mf_newforms/?label=13.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761869&_format=json	2026-10-01	alternative with chibar(2) instead: FAILS (discriminates)
+(13,chi_13.8,3)	check_hecke_rel	a_9 = a_3^2 - chi(3)*3^2	HELD		https://www.lmfdb.org/api/mf_newforms/?label=13.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761869&_format=json	2026-10-01	alternative with chibar(3) instead: HOLDS (not discriminating at this p)
+(13,chi_13.8,3)	check_hecke_rel	a_25 = a_5^2 - chi(5)*5^2	HELD		https://www.lmfdb.org/api/mf_newforms/?label=13.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761869&_format=json	2026-10-01	alternative with chibar(5) instead: FAILS (discriminates)
+(13,chi_13.8,3)	check_hecke_rel	a_49 = a_7^2 - chi(7)*7^2	HELD		https://www.lmfdb.org/api/mf_newforms/?label=13.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761869&_format=json	2026-10-01	alternative with chibar(7) instead: FAILS (discriminates)
+(13,chi_13.8,3)	check_trace	Tr a_2	HELD		https://www.lmfdb.org/api/mf_newforms/?label=13.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761869&_format=json	2026-10-01	Tr_{K/Q} of the exact a_p against the published trace
+(13,chi_13.8,3)	check_trace	Tr a_3	HELD		https://www.lmfdb.org/api/mf_newforms/?label=13.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761869&_format=json	2026-10-01	Tr_{K/Q} of the exact a_p against the published trace
+(13,chi_13.8,3)	check_trace	Tr a_5	HELD		https://www.lmfdb.org/api/mf_newforms/?label=13.3.d.a&_format=json ; https://www.lmfdb.org/api/mf_hecke_nf/?hecke_orbit_code=206208761869&_format=json	2026-10-01	Tr_{K/Q} of the exact a_p against the published trace
+(13,chi_13.8,3)	eis	a_2(E_k(1,chi)),a_2(E_k(chi,1))	1+4*z , 4+z		derived	2026-10-01	derived: Diamond-Shurman 4.5/4.6, a_p(E_k^{psi,phi})=psi(p)+phi(p)p^{k-1}, (psi,phi)=(1,chi),(chi,1); chibar-space: 1-4*z , 4-z
+(13,chi_13.8,3)	eis	a_3(E_k(1,chi)),a_3(E_k(chi,1))	10 , 10		derived	2026-10-01	derived: Diamond-Shurman 4.5/4.6, a_p(E_k^{psi,phi})=psi(p)+phi(p)p^{k-1}, (psi,phi)=(1,chi),(chi,1); chibar-space: 10 , 10
+(13,chi_13.8,3)	charpoly_Z	T_2|H^1[chi]	coeffs_low_to_high_in_Z[z]=-153*z;249+249*z;-163;-46+46*z;-21*z;-1-z;1		derived from the rows above	2026-10-01	= (cusp charpoly over Z[z] of T_2 on S_k(chi), coeffs low->high -3*z;2+2*z;1)^2 * (X-e1)(X-e2); degree 6 = dim H^1; the square is the holomorphic part plus the conjugate of S_k(chibar) (same eigenvalues); z^2+0z+1=0
+(13,chi_13.8,3)	charpoly_Z	T_2|H^1[chibar]	coeffs_low_to_high_in_Z[z]=153*z;249-249*z;-163;-46-46*z;21*z;-1+z;1		derived: Galois conjugate z->z^-1 of the row above	2026-10-01	prediction for the chibar-twisted H^1 under the same convention (chi enters as chi(p))
+(13,chi_13.8,3)	charpoly_mod_ell	T_2|H^1[psi] l=17	coeffs_low_to_high=0,4,7,2,1,12,1	17	derived (reduction of charpoly_Z)	2026-10-01	psi:=chi mod l, z=chi(2)->4 = least primitive 4-th root of 1 in {2..l-1}; l=1 mod 4 so psi lands in F_l^* (psi(2,3,5,7)=4,1,4,13); psibar (z->13, psibar(2,3,5,7)=13,1,13,4) predicts 0,1,7,8,16,3,1; DISTINGUISHES psi from psibar
+(13,chi_13.8,3)	charpoly_mod_ell	T_2|H^1[psibar] l=17	coeffs_low_to_high=0,1,7,8,16,3,1	17	derived (reduction of charpoly_Z chibar row)	2026-10-01	psibar:=chibar mod l, z->13 = 4^-1 mod 17; psibar(2,3,5,7)=13,1,13,4
+(13,chi_13.8,3)	charpoly_mod_ell	T_2|H^1[psi] l=29	coeffs_low_to_high=20,18,11,13,9,16,1	29	derived (reduction of charpoly_Z)	2026-10-01	psi:=chi mod l, z=chi(2)->12 = least primitive 4-th root of 1 in {2..l-1}; l=1 mod 4 so psi lands in F_l^* (psi(2,3,5,7)=12,1,12,17); psibar (z->17, psibar(2,3,5,7)=17,1,17,12) predicts 9,16,11,11,20,11,1; DISTINGUISHES psi from psibar
+(13,chi_13.8,3)	charpoly_mod_ell	T_2|H^1[psibar] l=29	coeffs_low_to_high=9,16,11,11,20,11,1	29	derived (reduction of charpoly_Z chibar row)	2026-10-01	psibar:=chibar mod l, z->17 = 12^-1 mod 29; psibar(2,3,5,7)=17,1,17,12
+(13,chi_13.8,3)	charpoly_mod_ell	T_2|H^1[psi] l=37	coeffs_low_to_high=7,4,22,8,22,30,1	37	derived (reduction of charpoly_Z)	2026-10-01	psi:=chi mod l, z=chi(2)->6 = least primitive 4-th root of 1 in {2..l-1}; l=1 mod 4 so psi lands in F_l^* (psi(2,3,5,7)=6,1,6,31); psibar (z->31, psibar(2,3,5,7)=31,1,31,6) predicts 30,13,22,11,15,5,1; DISTINGUISHES psi from psibar
+(13,chi_13.8,3)	charpoly_mod_ell	T_2|H^1[psibar] l=37	coeffs_low_to_high=30,13,22,11,15,5,1	37	derived (reduction of charpoly_Z chibar row)	2026-10-01	psibar:=chibar mod l, z->31 = 6^-1 mod 37; psibar(2,3,5,7)=31,1,31,6
+(13,chi_13.8,3)	charpoly_mod_ell	T_2|H^1[psi] l=41	coeffs_low_to_high=17,30,1,40,16,31,1	41	derived (reduction of charpoly_Z)	2026-10-01	psi:=chi mod l, z=chi(2)->9 = least primitive 4-th root of 1 in {2..l-1}; l=1 mod 4 so psi lands in F_l^* (psi(2,3,5,7)=9,1,9,32); psibar (z->32, psibar(2,3,5,7)=32,1,32,9) predicts 24,17,1,32,25,8,1; DISTINGUISHES psi from psibar
+(13,chi_13.8,3)	charpoly_mod_ell	T_2|H^1[psibar] l=41	coeffs_low_to_high=24,17,1,32,25,8,1	41	derived (reduction of charpoly_Z chibar row)	2026-10-01	psibar:=chibar mod l, z->32 = 9^-1 mod 41; psibar(2,3,5,7)=32,1,32,9
+(13,chi_13.8,3)	charpoly_Z	T_3|H^1[chi]	coeffs_low_to_high_in_Z[z]=8100;-5220;-599;644;6;-16;1		derived from the rows above	2026-10-01	= (cusp charpoly over Z[z] of T_3 on S_k(chi), coeffs low->high -9;2;1)^2 * (X-e1)(X-e2); degree 6 = dim H^1; the square is the holomorphic part plus the conjugate of S_k(chibar) (same eigenvalues); z^2+0z+1=0
+(13,chi_13.8,3)	charpoly_Z	T_3|H^1[chibar]	coeffs_low_to_high_in_Z[z]=8100;-5220;-599;644;6;-16;1		derived: Galois conjugate z->z^-1 of the row above	2026-10-01	prediction for the chibar-twisted H^1 under the same convention (chi enters as chi(p))
+(13,chi_13.8,3)	charpoly_mod_ell	T_3|H^1[psi] l=17	coeffs_low_to_high=8,16,13,15,6,1,1	17	derived (reduction of charpoly_Z)	2026-10-01	psi:=chi mod l, z=chi(2)->4 = least primitive 4-th root of 1 in {2..l-1}; l=1 mod 4 so psi lands in F_l^* (psi(2,3,5,7)=4,1,4,13); psibar (z->13, psibar(2,3,5,7)=13,1,13,4) predicts 8,16,13,15,6,1,1; does NOT distinguish (the two reductions coincide)
+(13,chi_13.8,3)	charpoly_mod_ell	T_3|H^1[psibar] l=17	coeffs_low_to_high=8,16,13,15,6,1,1	17	derived (reduction of charpoly_Z chibar row)	2026-10-01	psibar:=chibar mod l, z->13 = 4^-1 mod 17; psibar(2,3,5,7)=13,1,13,4
+(13,chi_13.8,3)	charpoly_mod_ell	T_3|H^1[psi] l=29	coeffs_low_to_high=9,0,10,6,6,13,1	29	derived (reduction of charpoly_Z)	2026-10-01	psi:=chi mod l, z=chi(2)->12 = least primitive 4-th root of 1 in {2..l-1}; l=1 mod 4 so psi lands in F_l^* (psi(2,3,5,7)=12,1,12,17); psibar (z->17, psibar(2,3,5,7)=17,1,17,12) predicts 9,0,10,6,6,13,1; does NOT distinguish (the two reductions coincide)
+(13,chi_13.8,3)	charpoly_mod_ell	T_3|H^1[psibar] l=29	coeffs_low_to_high=9,0,10,6,6,13,1	29	derived (reduction of charpoly_Z chibar row)	2026-10-01	psibar:=chibar mod l, z->17 = 12^-1 mod 29; psibar(2,3,5,7)=17,1,17,12
+(13,chi_13.8,3)	charpoly_mod_ell	T_3|H^1[psi] l=37	coeffs_low_to_high=34,34,30,15,6,21,1	37	derived (reduction of charpoly_Z)	2026-10-01	psi:=chi mod l, z=chi(2)->6 = least primitive 4-th root of 1 in {2..l-1}; l=1 mod 4 so psi lands in F_l^* (psi(2,3,5,7)=6,1,6,31); psibar (z->31, psibar(2,3,5,7)=31,1,31,6) predicts 34,34,30,15,6,21,1; does NOT distinguish (the two reductions coincide)
+(13,chi_13.8,3)	charpoly_mod_ell	T_3|H^1[psibar] l=37	coeffs_low_to_high=34,34,30,15,6,21,1	37	derived (reduction of charpoly_Z chibar row)	2026-10-01	psibar:=chibar mod l, z->31 = 6^-1 mod 37; psibar(2,3,5,7)=31,1,31,6
+(13,chi_13.8,3)	charpoly_mod_ell	T_3|H^1[psi] l=41	coeffs_low_to_high=23,28,16,29,6,25,1	41	derived (reduction of charpoly_Z)	2026-10-01	psi:=chi mod l, z=chi(2)->9 = least primitive 4-th root of 1 in {2..l-1}; l=1 mod 4 so psi lands in F_l^* (psi(2,3,5,7)=9,1,9,32); psibar (z->32, psibar(2,3,5,7)=32,1,32,9) predicts 23,28,16,29,6,25,1; does NOT distinguish (the two reductions coincide)
+(13,chi_13.8,3)	charpoly_mod_ell	T_3|H^1[psibar] l=41	coeffs_low_to_high=23,28,16,29,6,25,1	41	derived (reduction of charpoly_Z chibar row)	2026-10-01	psibar:=chibar mod l, z->32 = 9^-1 mod 41; psibar(2,3,5,7)=32,1,32,9
+(13,chi_13.8,3)	dict_test	what_this_cell_tests	order 4, dim S=2 (relative degree 2 over Z[i]): the relative charpoly X^2-2AX+A^2-5zB^2 reduces to DIFFERENT quadratics over F_l for z->s and z->-s (s^2=-1), so the two lines differ as polynomials, tests the swap on a 2-dimensional cusp block; chi(3)=1 so T_3 Eisenstein part is swap-invariant while the cusp part is not.		derived	2026-10-01	WP-10: compute T_p on H^1(Gamma_0(13), Sym^1 (x) psi_l) for psi_l with psi(2)=s, compare with the psi line and the psibar line of charpoly_mod_ell; the matching line fixes whether the code's character is chi (Conrey 13.8) or chibar (Conrey 13.5); only (l,p) rows marked DISTINGUISHES are informative

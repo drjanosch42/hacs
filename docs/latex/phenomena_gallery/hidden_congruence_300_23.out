@@ -1,0 +1,10 @@
+BLOCKS 14 primes [2, 3, 5, 7, 23] K_cls 2 K_run [2]
+BLOCK system=[19, 14, 0, 0, 0] D=4 verdict=stable
+  A1_hilbert (mod 23)     = [1]      -> one eigensystem mod 23
+  AK_hilbert (mod 23^2)/ell = [1, 1]   -> F_23[x]/x^2 over Z/23^2
+  hidden = true  (A_1 smaller than A_K/ell)
+DIHEDRAL p=2 (-23|p)=+1 split a_p=19
+DIHEDRAL p=3 (-23|p)=+1 split a_p=14
+DIHEDRAL p=5 (-23|p)=-1 inert a_p=0
+DIHEDRAL p=7 (-23|p)=-1 inert a_p=0
+OTHER BLOCKS hidden: 1 of 14 ; D=4 with A1=[1,1]: 8

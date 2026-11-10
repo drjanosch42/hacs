@@ -1,0 +1,49 @@
+# 046_c5_identities.oc -- [P] Sec. 10 C5 acceptance (c): `identities.oc`
+# (slot-9 WP-13, console phase C5b).
+#
+# "Every identity item that hecke_ext::HeckeIdentityCertificate defines at the
+# tree under test is a script that the engine's own validation runs; an item
+# the certificate reports unavailable is run and must print unavailable."
+#
+# The item COUNT is read from the certificate (`check_identities(...).k_max`,
+# the length of the certificate's own verify() order), never written here: the
+# loops below run over `.items`.  Each item prints `passed`, `failed` or
+# `not_applicable` exactly as the certificate reports it, or `unavailable`
+# where check_identities did not assemble the item's inputs (items 6 and 7 are
+# assembled only on request -- the residue atlas needs the weight cells
+# m < ell, run in process at 5 <= ell <= 13).
+#
+# (12, 5): every item assembled -- none may be unavailable, none may fail.
+# (10, 691): the default request -- 6 and 7 print `unavailable`.
+# HeckeExtAlgebraInvariantsValidation arm (D) runs the same assembly at
+# (12, 5) engine-side; HeckeIdentityValidation / HeckeExtEndToEndValidation
+# are the certificate's own validations.
+
+include("prelude.oc");
+
+H = cohomology(symmetric_power(MODEL, 12, 5));
+X = check_identities(H, [2, 3], range(1, 8));
+print("(12, 5): k_max =", X.k_max, " code =", X.code);
+for it in X.items {
+    print("  item", it.item, it.name, it.status);
+    assert(it.status != "failed", "(12, 5): item " + str(it.item) + " does not fail");
+    assert(it.status != "unavailable", "(12, 5): item " + str(it.item) + " was assembled");
+}
+assert(len(X.items) == X.k_max, "one entry per item the certificate defines");
+assert(X.code == 0 and X.failed == 0 and X.unavailable == 0, "(12, 5): the certificate verifies");
+assert(X.items[5].status == "passed" and X.items[6].status == "passed", "(12, 5): items 6 and 7 pass");
+
+H691 = cohomology(symmetric_power(MODEL, N_SYM, ELL));
+Y = check_identities(H691);
+print("(10, 691): k_max =", Y.k_max, " code =", Y.code);
+for it in Y.items {
+    print("  item", it.item, it.name, it.status);
+    assert(it.status != "failed", "(10, 691): item " + str(it.item) + " does not fail");
+}
+assert(Y.items[5].status == "unavailable" and Y.items[6].status == "unavailable",
+       "(10, 691): items 6 and 7 not requested -> unavailable");
+assert(Y.items[4].status == "not_applicable", "(10, 691): L_* needs n >= ell + 1");
+assert(Y.passed == 4 and Y.code == 0, "(10, 691): items 1-4 pass");
+
+assert(fingerprint() == "0x0000000000000000", "every pin taken at the defaults");
+annotate("046_c5_identities: every certificate item at (12, 5), the default request at (10, 691)");

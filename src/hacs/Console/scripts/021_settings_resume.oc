@@ -1,0 +1,73 @@
+# 021_settings_resume.oc -- console phase C2a: settings and resume
+# (hecke-extensions slot 6, WP-13; [P] v3.4 Sec. 2 C4, Sec. 2 C5 "Resumed
+# handles", Sec. 10 C2 (f), (g), (h)).
+#
+# The three settings families through ONE verb, `set`, and the R3 verbs on a
+# shipped resumable handle.  Nothing below prints a settings value that depends
+# on the machine (the engine knobs' defaults are the environment's), and
+# nothing prints a list a sibling package extends ([S4A] F4): the script reads
+# single keys of `settings()`, never the whole record.
+# ConsoleSettingsValidation carries the exhaustive arms; this is the transcript.
+
+include("prelude.oc");
+
+# ---------------------------------------------------------------------------
+# (f) An ENGINE knob changes no value: it is set, read back, and reset.
+# ---------------------------------------------------------------------------
+T0 = settings().threads.value;
+set threads = 1;
+assert(settings().threads.value == 1, "threads = 1 is in force");
+assert(settings().threads.family == "engine", "threads is an engine knob");
+H1 = cohomology(symmetric_power(MODEL, N_SYM, ELL));
+reset_settings();
+assert(settings().threads.value == T0, "reset_settings() restores the env default");
+assert(H1.dims == [golden(POINT_COH, "dim_H^0").value, golden(POINT_COH, "dim_H^1").value,
+                   golden(POINT_COH, "dim_H^2").value],
+       "a handle computed under threads = 1 has the golden dimensions");
+print("threads = 1:", H1.dims);
+
+# A knob the engine reads once into a static is env-only: `set` names the
+# variable instead of pretending.
+expect_error "ENGINE_TILE_MULT" { set tile_mult = "2" }
+
+# ---------------------------------------------------------------------------
+# (g) A MATHEMATICAL setting is recorded with its family and moves the
+# fingerprint; its rules are HeckeSettings', never the console's.
+# ---------------------------------------------------------------------------
+set locality = "budget=8";
+assert(fingerprint() != "0x0000000000000000", "a non-default key moves the fingerprint");
+print(settings().locality.value, settings().locality.family);
+set locality = "budget=64";
+assert(fingerprint() == "0x0000000000000000", "back at the default, the fingerprint is 0");
+expect_error "budget=0" { set locality = "budget=0" }
+
+# The exit-5 arm: `conway` is a LEGAL value this build cannot execute.  The
+# setting is accepted; a use that reaches its consumer raises
+# NotImplementedInThisBuild (exit code 5 outside `expect_error`), never a
+# bad-value error and never a silent fall-back to `least`.
+set field_polynomial = "conway";
+assert(fingerprint() != "0x0000000000000000", "conway is accepted and recorded");
+expect_error "not_implemented_in_this_build" { canonical_field_polynomial(691, 2) }
+set field_polynomial = "least";
+print("C_{691,2} =", canonical_field_polynomial(691, 2));
+
+# ---------------------------------------------------------------------------
+# (h) Resume: the new handle continues the OLD state under exactly one changed
+# key, the budget.
+# ---------------------------------------------------------------------------
+CUT = sturm_bound(24, 5, 3);
+assert(CUT.found == false, "a cap of 3 does not reach the closure at (24, 5)");
+set final_mode = "sturm_heuristic";
+expect_error "resume under a different setting" { resume(CUT, 36) }
+set final_mode = "closure";
+expect_error "budget below reached state" { resume(CUT, 2) }
+CONT = resume(CUT, 36);
+FRESH = sturm_bound(24, 5, 36);
+assert(CONT.B_prime == FRESH.B_prime, "resumed == fresh");
+assert(CONT.primes_done == FRESH.primes_done, "the same primes were processed");
+expect_error "is complete" { resume(CONT, 100) }
+print(CONT.B_prime, state(CONT).resumable.progress.budget_history,
+      state(FRESH).resumable.progress.budget_history);
+
+assert(fingerprint() == "0x0000000000000000", "the defaults are restored");
+annotate("021_settings_resume: the three settings families and resume");

@@ -1,0 +1,5 @@
+#! oc-format 1
+h = 3  e_max = 0  K = 2  exps = [2, 2, 2]
+e = 1  ord_rank = 3  readings agree: true  charpoly T_2 = [10, 3, 1, 1]
+e = 2  ord_rank = 3  readings agree: true  charpoly T_2 = [10, 113, 56, 1]
+HIDA_TOWER ell=11 class=0 m=1 n=10 ord_rank=3 charpoly_T2=[10,3,1,1] charpoly_T3=[7,4,9,1]

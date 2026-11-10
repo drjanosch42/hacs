@@ -1,0 +1,16 @@
+# nebentypus_7_13.oc -- the verb nebentypus(N, m, n, ell): cohomology of Gamma_0(N) with a Dirichlet character.
+# Phenomena gallery [PG] sec:pg-nebentypus.  chi = Conrey character 7.m reduced into F_13 ([C] sec:nebentypus): m = 1 is trivial and reproduces level_n;
+# m = 2 has order 3 (even), so Sym^2 is allowed; m = 3 has order 6 and is odd, so n = 2 vanishes (parity chi(-1) = (-1)^n).
+# Read_only verbs only (notebook-safe).  Cost: < 1 s, < 0.2 GB.
+L = level_n(7, 2, 13);
+T = nebentypus(7, 1, 2, 13);
+print("trivial character: h1 =", T.h1, " level_n h1 =", L.h1, " same charpoly T_2:", T.ops[0].charpoly == L.ops[0].charpoly);
+assert(T.h1 == L.h1);
+assert(T.ops[0].charpoly == L.ops[0].charpoly);
+C = nebentypus(7, 2, 2, 13);
+print("7.2: order =", C.order, " parity_ok =", C.parity_ok, " h0 =", C.h0, " h1 =", C.h1, " charpoly T_2 =", C.ops[0].charpoly);
+assert(C.order == 3);
+D = nebentypus(7, 3, 2, 13);
+print("7.3: order =", D.order, " parity_ok =", D.parity_ok, " h1 =", D.h1);
+assert(D.parity_ok == false);
+assert(D.h1 == 0);

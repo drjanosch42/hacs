@@ -1,0 +1,185 @@
+# read_only_verbs.tsv -- the reviewed read_only fixture of [P] v3.10 Sec. 18.8 / 18.11 (A)
+# (hecke-extensions slot 19, NB-2). One row per registered verb OVERLOAD, in
+# registration order:  name<TAB>signature<TAB>read_only<TAB>audit
+# `signature` is Signature::to_string(name) exactly; `audit` is the one-line
+# justification of the tag. ConsoleReadOnlyTagValidation requires the registry
+# tags (Console/Bindings/ReadOnlyTags.cpp) to equal this file in both
+# directions: a new verb fails until its row is added here AND there.
+print	print(value: any, ...)	true	writes to the session output only
+show	show(value: any)	true	pure: in-memory values and session state, no I/O
+describe	describe(value: any)	true	pure: in-memory values and session state, no I/O
+str	str(value: any)	true	pure: in-memory values and session state, no I/O
+repr	repr(value: any)	true	pure: in-memory values and session state, no I/O
+json	json(value: any)	true	pure: in-memory values and session state, no I/O
+annotate	annotate(text: String)	true	writes a #~ line to the session output only
+len	len(value: any)	true	pure: in-memory values and session state, no I/O
+keys	keys(record: Record)	true	pure: in-memory values and session state, no I/O
+range	range(from: Int, to: Int)	true	pure: in-memory values and session state, no I/O
+range	range(from: Int, to: Int, step: Int)	true	pure: in-memory values and session state, no I/O
+abs	abs(value: Int)	true	pure: in-memory values and session state, no I/O
+min	min(a: Int, b: Int)	true	pure: in-memory values and session state, no I/O
+max	max(a: Int, b: Int)	true	pure: in-memory values and session state, no I/O
+type	type(value: any)	true	pure: in-memory values and session state, no I/O
+assert	assert(condition: Bool)	true	pure: in-memory values and session state, no I/O
+assert	assert(condition: Bool, message: String)	true	pure: in-memory values and session state, no I/O
+exit	exit()	false	ends the process; a served session ends by `close`
+exit	exit(code: Int)	false	ends the process; a served session ends by `close`
+vars	vars()	true	pure: in-memory values and session state, no I/O
+verbs	verbs()	true	pure: in-memory values and session state, no I/O
+types	types()	true	pure: in-memory values and session state, no I/O
+settings	settings()	true	reads the session settings
+reset_settings	reset_settings()	true	the session settings back to the baseline
+script_args	script_args()	true	reads the cell args
+compute	compute(object: Object)	true	pure: in-memory values and session state, no I/O
+state	state(object: Object)	true	pure: in-memory values and session state, no I/O
+resume	resume(object: Object)	true	continues a handle in process
+resume	resume(object: Object, budget: any = nil)	true	continues a handle in process
+display	display(value: any, ...)	true	forces declared handles (as compute does) and writes to the session output / sends value frames only
+Fp	Fp(p: Int, a: Int)	true	pure arithmetic / linear algebra in memory, no I/O
+poly	poly(p: Int, coeffs: List)	true	pure arithmetic / linear algebra in memory, no I/O
+X	X(p: Int)	true	pure arithmetic / linear algebra in memory, no I/O
+coeffs	coeffs(f: Poly)	true	pure arithmetic / linear algebra in memory, no I/O
+degree	degree(f: Poly)	true	pure arithmetic / linear algebra in memory, no I/O
+factor	factor(f: Poly)	true	pure arithmetic / linear algebra in memory, no I/O
+gcd	gcd(f: Poly, g: Poly)	true	pure arithmetic / linear algebra in memory, no I/O
+powmod	powmod(g: Poly, e: Int, f: Poly)	true	pure arithmetic / linear algebra in memory, no I/O
+eval	eval(f: Poly, x: Int)	true	pure arithmetic / linear algebra in memory, no I/O
+matrix	matrix(p: Int, rows: List)	true	pure arithmetic / linear algebra in memory, no I/O
+identity	identity(p: Int, n: Int)	true	pure arithmetic / linear algebra in memory, no I/O
+zero	zero(p: Int, rows: Int, cols: Int)	true	pure arithmetic / linear algebra in memory, no I/O
+mul	mul(a: any, b: any)	true	pure arithmetic / linear algebra in memory, no I/O
+add	add(a: any, b: any)	true	pure arithmetic / linear algebra in memory, no I/O
+sub	sub(a: any, b: any)	true	pure arithmetic / linear algebra in memory, no I/O
+scale	scale(A: Matrix, c: Int)	true	pure arithmetic / linear algebra in memory, no I/O
+rank	rank(A: Matrix)	true	pure arithmetic / linear algebra in memory, no I/O
+nullity	nullity(A: Matrix)	true	pure arithmetic / linear algebra in memory, no I/O
+rref	rref(A: Matrix)	true	pure arithmetic / linear algebra in memory, no I/O
+kernel	kernel(A: Matrix)	true	pure arithmetic / linear algebra in memory, no I/O
+image	image(A: Matrix)	true	pure arithmetic / linear algebra in memory, no I/O
+column_space	column_space(A: Matrix)	true	pure arithmetic / linear algebra in memory, no I/O
+inverse	inverse(A: Matrix)	true	pure arithmetic / linear algebra in memory, no I/O
+transpose	transpose(A: Matrix)	true	pure arithmetic / linear algebra in memory, no I/O
+pow	pow(A: Matrix, e: Int)	true	pure arithmetic / linear algebra in memory, no I/O
+solve	solve(A: Matrix, B: Matrix)	true	pure arithmetic / linear algebra in memory, no I/O
+hstack	hstack(parts: List)	true	pure arithmetic / linear algebra in memory, no I/O
+vstack	vstack(parts: List)	true	pure arithmetic / linear algebra in memory, no I/O
+submatrix	submatrix(A: Matrix, r0: Int, r1: Int, c0: Int, c1: Int)	true	pure arithmetic / linear algebra in memory, no I/O
+columns	columns(A: Matrix, idx: List)	true	pure arithmetic / linear algebra in memory, no I/O
+vec	vec(A: Matrix)	true	pure arithmetic / linear algebra in memory, no I/O
+unvec	unvec(v: Matrix, rows: Int, cols: Int)	true	pure arithmetic / linear algebra in memory, no I/O
+sum_spaces	sum_spaces(U: Matrix, V: Matrix)	true	pure arithmetic / linear algebra in memory, no I/O
+intersect	intersect(U: Matrix, V: Matrix)	true	pure arithmetic / linear algebra in memory, no I/O
+contains	contains(U: Matrix, v: Matrix)	true	pure arithmetic / linear algebra in memory, no I/O
+in_span	in_span(list: List, A: Matrix)	true	pure arithmetic / linear algebra in memory, no I/O
+restrict	restrict(A: Matrix, basis: Matrix)	true	pure arithmetic / linear algebra in memory, no I/O
+algebra	algebra(ops: List)	true	pure arithmetic / linear algebra in memory, no I/O
+commutant	commutant(ops: List)	true	pure arithmetic / linear algebra in memory, no I/O
+is_cyclic	is_cyclic(ops: List, v: Matrix)	true	pure arithmetic / linear algebra in memory, no I/O
+cyclic_vector	cyclic_vector(ops: List, seed: Int)	true	pure arithmetic / linear algebra in memory, no I/O
+random_vector	random_vector(p: Int, n: Int, seed: Int)	true	pure arithmetic / linear algebra in memory, no I/O
+random_matrix	random_matrix(p: Int, rows: Int, cols: Int, seed: Int)	true	pure arithmetic / linear algebra in memory, no I/O
+jordan_type	jordan_type(A: Matrix)	true	pure arithmetic / linear algebra in memory, no I/O
+charpoly	charpoly(A: Matrix)	true	pure arithmetic / linear algebra in memory, no I/O
+minpoly	minpoly(A: Matrix)	true	pure arithmetic / linear algebra in memory, no I/O
+trace	trace(A: Matrix)	true	pure arithmetic / linear algebra in memory, no I/O
+eval_at	eval_at(f: Poly, A: Matrix)	true	pure arithmetic / linear algebra in memory, no I/O
+sl2z_model	sl2z_model()	true	an in-process pipeline object, no I/O
+sl2z_model	sl2z_model(name: String)	true	an in-process pipeline object, no I/O
+models	models()	true	an in-process pipeline object, no I/O
+sphere	sphere(n: Int)	true	an in-process pipeline object, no I/O
+cylinder	cylinder()	true	an in-process pipeline object, no I/O
+moebius	moebius()	true	an in-process pipeline object, no I/O
+projective_plane	projective_plane()	true	an in-process pipeline object, no I/O
+complex	complex(simplices: List, name: String)	true	an in-process pipeline object, no I/O
+symmetric_power	symmetric_power(model: Model, n: Int, ell: Int)	true	an in-process pipeline object, no I/O
+cohomology	cohomology(L: LocalSystem)	true	an in-process pipeline object, no I/O
+dickson_exceptional	dickson_exceptional(n: Int, ell: Int)	true	an in-process pipeline object, no I/O
+dickson_count	dickson_count(n: Int, ell: Int)	true	an in-process pipeline object, no I/O
+hecke	hecke(H: Cohomology, p: Int)	true	an in-process pipeline object, no I/O
+hecke	hecke(H: Cohomology, p: Int, r: Int = 1)	true	an in-process pipeline object, no I/O
+family	family(H: Cohomology)	true	an in-process pipeline object, no I/O
+dual	dual(L: LocalSystem)	true	an in-process pipeline object, no I/O
+pairing	pairing(L: LocalSystem, D: ContragredientLocalSystem)	true	an in-process pipeline object, no I/O
+s1_scalar	s1_scalar(scalar: Int, ell: Int)	true	an in-process pipeline object, no I/O
+s1_unipotent	s1_unipotent(ell: Int)	true	an in-process pipeline object, no I/O
+cylinder_scalar	cylinder_scalar(scalar: Int, ell: Int)	true	an in-process pipeline object, no I/O
+cylinder_unipotent	cylinder_unipotent(ell: Int)	true	an in-process pipeline object, no I/O
+moebius_scalar	moebius_scalar(scalar: Int, ell: Int)	true	an in-process pipeline object, no I/O
+moebius_unipotent	moebius_unipotent(ell: Int)	true	an in-process pipeline object, no I/O
+decompose	decompose(ops: any, q: Int)	true	an in-process pipeline object, no I/O
+report	report(D: Decomposition, level_a: Bool = false)	true	pure: computes the hecke_report/v2 record in memory (no path; Report.write is disabled in a served session)
+report	report(D: Decomposition, level_a: Bool = false, path: String = "")	false	its `path` argument names a file it writes (the pathless overload is the served one)
+crosschecks	crosschecks(T: HeckeOperator)	true	an in-process pipeline object, no I/O
+hash	hash(x: any)	true	compiled-in golden table / in-memory state, no I/O
+hash_int	hash_int(x: any)	true	compiled-in golden table / in-memory state, no I/O
+golden	golden(point: String, object: String)	true	the compiled-in GoldenReference.inc table, no I/O
+golden_has	golden_has(point: String, object: String)	true	the compiled-in GoldenReference.inc table, no I/O
+golden_size	golden_size()	true	the compiled-in GoldenReference.inc table, no I/O
+fingerprint	fingerprint()	true	compiled-in golden table / in-memory state, no I/O
+math_settings	math_settings()	true	compiled-in golden table / in-memory state, no I/O
+save_state	save_state(x: any)	true	returns the state as a String; no path, writes nothing
+save_state	save_state(x: any, path: String)	false	writes the state file (and a sidecar)
+validations	validations()	true	lists registered names, runs nothing
+validations	validations(tier: String)	true	lists registered names, runs nothing
+run_validation	run_validation(name: String, inherit_settings: Bool = false)	false	runs the suite's emitter-capable code in process
+bench	bench(mode: String, n: Int, ell: Int, p: Int = 0, r: Int = 1, family: List = List, repeat: Int = 1, lean: Bool = false, cross_checks: Bool = false, count_allocs: Bool = false, inherit_settings: Bool = false)	false	a timing run on process-global state
+micro	micro(op: String, a: any = nil, b: any = nil, c: any = nil, d: any = nil, backend: String = "", repeat: Int = 1, inherit_settings: Bool = false)	false	a timing run on process-global state
+campaign_spec	campaign_spec(path: String)	false	reads a file named by the request
+campaign_spec_text	campaign_spec_text(text: String)	true	parses request text; no file
+campaign_plan	campaign_plan(spec: CampaignSpec)	true	plans the job groups; runs and writes nothing
+run_campaign	run_campaign(spec: CampaignSpec, output: String = "", inherit_settings: Bool = false)	false	writes the campaign output directory
+golden_subset	golden_subset(cells: List, inherit_settings: Bool = false)	true	the in-process golden harness over the cells, quiet, writes nothing
+timed	timed(x: any)	true	forces the handle in process; reads /proc/self, writes nothing
+bench_line	bench_line(record: Record)	true	formats a record, no I/O
+bench_line	bench_line(record: Record, mode: String)	true	formats a record, no I/O
+rss	rss()	true	reads /proc/self of this process (not request-named), writes nothing
+help_markdown	help_markdown()	true	pure text from the registry
+sturm_bound	sturm_bound(k: Int, ell: Int)	true	in-process objects only, no I/O
+sturm_bound	sturm_bound(k: Int, ell: Int, cap: Int = 0)	true	in-process objects only, no I/O
+u_ell_decision	u_ell_decision(n: Int, ell: Int)	true	in-process objects only, no I/O
+u_ell_decision	u_ell_decision(n: Int, ell: Int, budget_mb: Int)	true	in-process objects only, no I/O
+bernoulli_mod	bernoulli_mod(w: Int, ell: Int)	true	in-process objects only, no I/O
+glover_factors	glover_factors(n: Int, ell: Int)	true	in-process objects only, no I/O
+canonical_field_polynomial	canonical_field_polynomial(ell: Int, r: Int)	true	in-process objects only, no I/O
+nilpotent_part	nilpotent_part(A: Matrix)	true	in-process objects only, no I/O
+nilpotent_part	nilpotent_part(ops: List)	true	in-process objects only, no I/O
+radical	radical(alg: any)	true	in-process objects only, no I/O
+tangent_space	tangent_space(alg: any)	true	in-process objects only, no I/O
+socle	socle(alg: any)	true	in-process objects only, no I/O
+nilpotency_index	nilpotency_index(alg: any)	true	in-process objects only, no I/O
+is_local	is_local(alg: any)	true	in-process objects only, no I/O
+algebra_invariants	algebra_invariants(alg: any)	true	in-process objects only, no I/O
+loewy	loewy(alg: any, V: Matrix = nil)	true	in-process objects only, no I/O
+socle_series	socle_series(alg: any, V: Matrix = nil)	true	in-process objects only, no I/O
+check_identities	check_identities(H: Cohomology, primes: List = nil, items: List = nil)	true	in-process objects only, no I/O
+L_map	L_map(H_lower: Cohomology, H: Cohomology)	true	in-process objects only, no I/O
+ext_record	ext_record(n: Int, ell: Int, cone: Bool = false, sign_split: Bool = false, presentation: Bool = false, sturm: Bool = true, commutant: Bool = true)	true	in-process objects only, no I/O
+local_algebra	local_algebra(m: MaximalIdeal)	true	in-process objects only, no I/O
+module_structure	module_structure(m: MaximalIdeal, group: String = nil)	true	in-process objects only, no I/O
+presentation	presentation(m: MaximalIdeal)	true	in-process objects only, no I/O
+atlas	atlas(ell: Int)	true	the in-process ell in {5,7,11,13} build, not the Sigma(691) store
+GF	GF(ell: Int, r: Int)	true	in-process objects only, no I/O
+canonical_field	canonical_field(ell: Int, r: Int)	true	in-process objects only, no I/O
+gf_add	gf_add(x: GFElt, y: GFElt)	true	in-process objects only, no I/O
+gf_sub	gf_sub(x: GFElt, y: GFElt)	true	in-process objects only, no I/O
+gf_mul	gf_mul(x: GFElt, y: GFElt)	true	in-process objects only, no I/O
+gf_inv	gf_inv(x: GFElt)	true	in-process objects only, no I/O
+gf_pow	gf_pow(x: GFElt, e: Int)	true	in-process objects only, no I/O
+gf_frobenius	gf_frobenius(x: GFElt)	true	in-process objects only, no I/O
+gf_eval	gf_eval(f: Poly, x: GFElt)	true	in-process objects only, no I/O
+settings_snapshot	settings_snapshot()	true	in-process objects only, no I/O
+iota	iota(H: Cohomology)	true	in-process objects only, no I/O
+boundary	boundary(H: Cohomology)	true	in-process objects only, no I/O
+cone	cone(H: Cohomology)	true	in-process objects only, no I/O
+dickson_les	dickson_les(n: Int, ell: Int)	true	in-process objects only, no I/O
+hecke_ring_algebra	hecke_ring_algebra(n: Int, ell: Int, kmax: Int = 3)	true	in-process objects only, no I/O
+theta	theta(H: Cohomology, H_up: Cohomology)	true	in-process objects only, no I/O
+lfunction	lfunction(n: Int, ell: Int, a: Int, M: Int = 2, R: Int = 4, sign: String = "minus", sep: List = nil)	true	pure in-memory arithmetic (the symbol cell and the MTT measure), no I/O; ell^M <= 4*10^6 balls
+kummer_unit	kummer_unit(ell: Int, i: Int)	true	pure in-memory arithmetic (exact cyclotomic unit and the Kummer test), no I/O; ell <= 65521
+hida_tower	hida_tower(n: Int, ell: Int, m: Int)	true	in-process module run (n <= 200, m <= 3), no I/O
+level_n	level_n(N: Int, n: Int, ell: Int, primes: List = nil)	true	in-process module run (N <= 100, index(N)*(n+1) <= 1000), no I/O
+nebentypus	nebentypus(N: Int, m: Int, n: Int, ell: Int, primes: List = nil)	true	in-process module run (N <= 100, index(N)*(n+1) <= 1000), no I/O
+forms_algebra	forms_algebra(k: Int, ell: Int, primes: List = nil, terms: Int = 8)	true	in-process q-expansion arithmetic mod ell (k <= 400), no I/O
+hida_lambda	hida_lambda(ell: Int, k: Int, W: Int, primes: List = nil)	true	in-process forms arithmetic mod ell^W (ell <= 101, k <= 200, W <= 6), no I/O
+descent	descent(N: Int, n: Int, primes: List = nil)	true	in-process descent record over Z (coefficient_ring = Z; N <= 300, n <= 60, index(N)*(n+1) <= 300, sum of primes <= 100), lazy handle, no I/O
+hecke_structure	hecke_structure(N: Int, n: Int, algebra: String = "full")	true	in-process record integral_hecke_structure/v1 over Z (coefficient_ring = Z; N <= 300, n even <= 60, index(N)*(n+1) <= 300), no I/O

@@ -1,0 +1,14 @@
+$ hacs --campaign descent_small.spec --output descent_small_out --quiet
+EFFECTIVE campaign arm=descent cells=6 ran=6 resumed=0 refused=0 failed=0
+[exit 0]
+$ head -40 descent_small_out/summary.tsv
+id	N	n	primes	status	H0	H1	H2	H3	record_fnv1a64	seconds
+desc_N1_n0_s098a1abfd656372a	1	0	2,3,5	ok	Z	0	Z/2^2 + Z/3	0	0x0a716318aeeaa7fe	0.077
+desc_N1_n2_s098a1abfd656372a	1	2	2,3,5	ok	0	Z + Z/2	0	Z/2 + Z/2	0xd747891c23237467	0.051
+desc_N1_n4_s098a1abfd656372a	1	4	2,3,5	ok	0	Z + Z/2^2 + Z/3	Z/2^2	Z/2 + Z/2 + Z/3	0x4ee10c1f0eada2a3	0.056
+desc_N11_n0_s098a1abfd656372a	11	0	2,3,5	ok	Z	Z^3	Z/2	Z/2 + Z/2 + Z/2	0xfaa3569ebd8f4514	0.051
+desc_N11_n2_s098a1abfd656372a	11	2	2,3,5	ok	0	Z^6 + Z/2	Z/2	Z/2 + Z/2 + Z/2 + Z/2 + Z/2 + Z/2 + Z/2	0xa77d93e005bf411d	0.077
+desc_N11_n4_s098a1abfd656372a	11	4	2,3,5	ok	0	Z^10 + Z/2^2 + Z/3	Z/2	Z/2 + Z/2 + Z/2 + Z/2 + Z/2 + Z/2 + Z/2 + Z/2 + Z/2 + Z/2 + Z/2	0xc75fa300ff13caaa	0.148
+$ cut -c1-400 descent_small_out/cells/desc_N11_n2_s*.json
+{"schema":"integral_descent_cell/v1","id":"desc_N11_n2_s098a1abfd656372a","campaign":"descent_small","record":{"schema":"integral_descent_record/v1","N":11,"n":2,"primes":[2,3,5],"coefficient_ring":"Z","object":"group","q_max":3,"truncated":true,"q_max_source":"derived","degrees":[0,1,2,3],"periodic_from":2,"groups":["0","Z^6 + Z/2","Z/2","Z/2 + Z/2 + Z/2 + Z/2 + Z/2 + Z/2 + Z/2"],"bad_primes":[],
+

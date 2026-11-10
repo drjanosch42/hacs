@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
+# SPDX-License-Identifier: LGPL-3.0-only WITH LicenseRef-CUDA-exception
+
+# %% [md] 08 -- over Z: the integral cohomology as abelian groups.
+# With coefficient_ring = "Z" the descent computes H^q(Gamma_0(N); Sym^n Z^2) as abelian groups
+# Z^r (+) (+) Z/p^k, and char_Z(T_p), the characteristic polynomial of T_p on the free part, over Z.
+# At level 1 and n = 10: H^1 = Z^3 (+) Z/2 (+) Z/4 (+) Z/3 -- the torsion primes 2 and 3 are the small
+# primes. charpoly_factored shows char_Z(T_p) factored over Z (exact, the product checked against char_Z):
+# char_Z(T_2) = (X + 24)^2 (X - 2049), the roots tau(2) = -24 (twice: Delta, both signs) and 1 + 2^11 (Eisenstein).
+
+# %% Descent at level 1, n = 10
+set coefficient_ring = "Z";
+D = descent(1, 10);
+display(D);
+
+# %% The integral groups
+display(D.groups_inv);
+
+# %% char_Z(T_p), factored over Z
+display(D.charpoly_factored);

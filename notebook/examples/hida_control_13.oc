@@ -1,0 +1,38 @@
+# hida_control_13.oc -- Hida's control theorem, seen on H^1(SL_2(Z); Sym^n): the ordinary part does not grow with the
+# weight, and ordinary eigenvalues are congruent mod ell^m when the weights are congruent mod (ell - 1) ell^(m-1).
+# Phenomena gallery [PG] sec:pg-hida.  ell = 13; the family of Delta (tau(13) = -577738 is a 13-adic unit).
+# Read_only verbs and `set` of a mathematical setting only (notebook-safe).  Cost: ~10 s, < 0.2 GB.
+M = sl2z_model();
+ell = 13;
+
+# (1) Over F_13: the ordinary rank (rank of U_13^d) along n == 10 (mod 12), against dim H^1.
+for n in range(10, 167, 12) {
+    H = cohomology(symmetric_power(M, n, ell));
+    U = hecke(H, ell).A(1);
+    P = U;
+    for i in range(1, U.rows) { P = mul(P, U); }
+    O = image(P);
+    print("n =", n, " dim H^1 =", H.dims[1], " ordinary rank =", rank(P), " charpoly T_2 | ord =", charpoly(restrict(hecke(H, 2).A(1), O)));
+}
+
+# (2) Over Z/169: the ordinary idempotent e = lim U^(N!) and the characteristic polynomial of T_2 e.
+#     n = 10 and n = 166 differ by 156 = 12 * 13: the ordinary charpolys agree mod 13^2.
+#     n = 22 differs from n = 10 by 12 only: they agree mod 13 but not mod 13^2.
+set coefficient_ring = "Z/ell^2";
+q = ell * ell;
+for n in [10, 22, 166] {
+    H = cohomology(symmetric_power(M, n, ell));
+    for e in H.invariant_factors(1) { assert(e == 2, "H^1 is free over Z/169"); }
+    T = matrix(q, hecke(H, 2).A(1));
+    U = matrix(q, hecke(H, ell).A(1));
+    # P = U^(13^8) kills the non-ordinary part and the pro-13 part of the units ...
+    P = U;
+    for j in range(0, 8) { P2 = mul(P, P); P4 = mul(P2, P2); P8 = mul(P4, P4); P = mul(mul(P8, P4), P); }
+    # ... and E = P^(13^12 - 1) is the ordinary idempotent.
+    e = 13^12 - 1;
+    E = identity(q, U.rows);
+    Bm = P;
+    for i in range(0, 45) { if e % 2 == 1 { E = mul(E, Bm); } Bm = mul(Bm, Bm); e = (e - e % 2) / 2; }
+    assert(E == mul(E, E), "E is idempotent");
+    print("n =", n, " H^1 = (Z/169)^" + str(U.rows), " charpoly(T_2 e) =", charpoly(mul(T, E)));
+}

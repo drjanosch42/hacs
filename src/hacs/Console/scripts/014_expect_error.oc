@@ -1,0 +1,70 @@
+# 014_expect_error.oc -- one `expect_error` per documented throw of the C1b
+# surface (plan Sec. 10, Phase C1b).
+#
+# `expect_error "sub" { ... }` runs the block, requires it to fail, and
+# requires the message to CONTAIN "sub"; it prints nothing, so this script's
+# transcript is one line.  Every substring below is chosen to be the part of
+# the message that is a promise -- never a list this slot's other packages
+# extend (audit finding F4): the "unknown setting" message, for instance, ends
+# in the whole settings registry, and the substring matched here stops before
+# it.
+#
+# The plan's list carries two throws this surface cannot reach, recorded rather
+# than faked:
+#   * "a 64-bit object handed to `family`" -- every C1a/C1b binding is 32-bit
+#     ([P] Sec. 3.6, "Family ... 32-bit only"), so no 64-bit handle exists to
+#     hand over.  C2/C5.
+#   * "`.Z(q)` under `retain_intermediates = false`" -- that is an ENGINE knob
+#     (EquivariantCohomologyOptions), and C2 is the phase that registers the
+#     engine knobs; C1b registers only the MATHEMATICAL settings.
+# The model mismatch of HeckeModelDescriptor.h:76-80 IS reached, in its console
+# form: a preset local system carries no SL(2,Z) tessellation model.
+
+include("prelude.oc");
+
+H = cohomology(symmetric_power(MODEL, N_SYM, ELL));
+T2 = hecke(H, P_HECKE);
+
+# --- the decomposition surface --------------------------------------------
+expect_error "is not a degree of this complex" { decompose(T2, 5) }
+expect_error "two operators with the same prime" { decompose([T2, T2], 1) }
+expect_error "the operator family is empty" { decompose([], 1) }
+expect_error "expected a HeckeOperator" { decompose(matrix(691, [[1]]), 1) }
+expect_error "must live on the SAME cohomology" {
+    decompose([T2, hecke(cohomology(symmetric_power(MODEL, 2, ELL)), 3)], 1)
+}
+expect_error "is not in this block's operator family" {
+    decompose(T2, 1).blocks[0].min_poly(7)
+}
+expect_error "is not in this block's operator family" {
+    decompose(T2, 1).blocks[0].jordan(7)
+}
+
+# --- the report ------------------------------------------------------------
+expect_error "failed to open" {
+    report(decompose(T2, 1), false, "/nonexistent-directory-for-014/report.json").json
+}
+expect_error "argument 'path' expects String" { report(decompose(T2, 1), false, 7) }
+
+# --- the model mismatch ([C]: the Hecke action lives on the 7-vertex model) --
+expect_error "no SL(2,Z) tessellation model" { hecke(cohomology(s1_scalar(1, 5)), 2).dims }
+expect_error "no SL(2,Z) tessellation model" { family(cohomology(s1_unipotent(5))).T(2) }
+
+# --- the mathematical settings (the ENGINE owns the validation) ------------
+expect_error "unknown locality value" { set locality = "nonsense" }
+expect_error "unknown setting 'no_such_key'" { set no_such_key = 1 }
+expect_error "unknown u_ell value" { set u_ell = "maybe" }
+
+# --- the extension verbs ---------------------------------------------------
+expect_error "must be even and at least 4" { sturm_bound(3, 5).outcome }
+expect_error "this Sturm is complete" { resume(sturm_bound(12, 691), 100) }
+
+# --- rule R19: a pin is only legal at the DEFAULT configuration ------------
+set locality = "strict";
+expect_error "the mathematical settings are not at their defaults" {
+    golden(POINT_COH, "dim_H^1")
+}
+set locality = "budget=64";
+assert(fingerprint() == "0x0000000000000000", "the defaults are restored");
+
+print("014_expect_error: every documented throw of the C1b surface");

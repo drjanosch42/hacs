@@ -1,0 +1,28 @@
+#! oc-format 1
+descent(1, 12): ok
+  H^0 = 0
+  H^1 = Z + Z/2 + Z/2^2 + Z/2^3 + Z/3 + Z/3^2 + Z/5 + Z/11
+  H^2 = Z/2 + Z/2 + Z/2^2 + Z/3
+  H^3 = Z/2 + Z/2 + Z/2 + Z/2
+  bad primes [ell, count]: [[5, 1], [11, 1]]  torsion primes: [2, 3, 5, 11]
+  ell = 2  route = tree  K = 30  certified = true
+  ell = 3  route = tree  K = 19  certified = true
+  ell = 5  route = sparse  K = 13  certified = true
+  ell = 11  route = sparse  K = 8  certified = true
+  char_Z(T_2 | H^1/tors) coefficients (high -> low): ["1", "-8193"]
+  char_Z(T_3 | H^1/tors) coefficients (high -> low): ["1", "-1594324"]
+  char_Z(T_5 | H^1/tors) coefficients (high -> low): ["1", "-1220703126"]
+  tors H^1 at ell = 2 : exponents [1, 2, 3]  module certified: true
+  T_2: a=1.2.3;P=1:1,0|2:1,0|3:1,0;B=1:1:1,0|2:1:1,0|3:1:1,0;ker=0:1.3|1:-|2:1.3|3:-|4:1.3|5:-|6:1.3|7:-;cok=0:1.1.2|1:-|2:1.1.2|3:-|4:1.1.2|5:-|6:1.1.2|7:-;fit=0:1.2.3|1:-
+  record digest: 0x6c841fb033fbd3d1
+descent(11, 0): ["Z", "Z^3", "Z/2", "Z/2 + Z/2 + Z/2"]
+  bulk    : ["Z", "Z^3", "Z/2", "Z/2 + Z/2 + Z/2", "Z/2"]
+  boundary: ["Z^2", "Z^2", "Z/2 + Z/2", "Z/2 + Z/2", "Z/2 + Z/2"]
+  compact : ["0", "Z^3", "Z", "Z/2 + Z/2 + Z/2", "Z/2"]
+  char_Z(T_2): ["1", "1", "-8", "-12"]
+  char_Z(T_3): ["1", "-2", "-7", "-4"]
+  char_Z(T_5): ["1", "-8", "13", "-6"]
+descent(11, 2, [2, 3]): ["0", "Z^6 + Z/2", "Z/2", "Z/2 + Z/2 + Z/2 + Z/2 + Z/2 + Z/2 + Z/2"]
+  char_Z(T_2): ["1", "-22", "153", "-316", "-140", "576", "324"]
+  char_Z(T_3): ["1", "-52", "470", "7988", "-57823", "-271096", "1731856"]
+refusals: ok

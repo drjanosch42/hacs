@@ -1,0 +1,5 @@
+#! oc-format 1
+threads = 1: [0, 3, 0]
+budget=8 mathematical
+C_{691,2} = X^2 + 1 (mod 691)
+5 [3, 36] [36]

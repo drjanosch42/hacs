@@ -1,0 +1,16 @@
+# nonsplit_torsion_16_2.oc -- a torsion-by-free extension in H^1 that does not split, at (N, n) = (16, 2).
+# Phenomena gallery [PG] sec:pg-nonsplit.  H^1(Gamma_0(16); Sym^2 Z^2) = Z^12 (+) Z/2 (+) Z/8 ([C] thm:descentcert), and T_p = [[tau, M], [0, F]]
+# on tors (+) free ([C] prop:torsionhecke).  G6 of the record is the verdict of the split test ([C] prop:heckeZglue(2)(b)): non_split at 2.
+# Read_only verbs only (notebook-safe; descent needs coefficient_ring = "Z").  Cost: under two seconds, 0.2 GB.
+set coefficient_ring = "Z";
+R = hecke_structure(16, 2);
+print("status:", R.status);
+print("signature:", R.signature);
+D = descent(16, 2, [3, 5, 7]);
+print("H^1 =", D.groups[1]);
+Z = D.module_Z();
+print("torsion generators:", Z.torsion_generators);
+for o in Z.ops {
+    print("T_" + str(o.p) + " on the torsion (row i mod d_i), 1 + p =", 1 + o.p, ":", o.tau);
+    print("  M (the 2-part of tors against the free basis):", o.M[0].matrix);
+}

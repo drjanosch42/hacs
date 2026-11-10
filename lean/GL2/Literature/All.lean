@@ -1,0 +1,12 @@
+import GL2.Literature.Basic
+import GL2.Literature.ModLForms
+import GL2.Literature.Cyclotomic
+import GL2.Literature.Hida
+import GL2.Literature.EisensteinIdeal
+import GL2.Literature.SerreCours
+import GL2.Literature.DiamondIm
+import GL2.Literature.EichlerShimuraLevelOne
+import GL2.Literature.SturmCusp
+import GL2.Literature.MazurEis
+import GL2.Literature.HidaControl
+import GL2.Literature.AnemicRank

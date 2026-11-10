@@ -1,0 +1,42 @@
+# 010_grid_edge_n.oc -- golden-grid cell class 4: the two EDGE cases in n.
+#
+#   n = 0   trivial coefficients: H^*(SL(2,Z)\H; F_ell) with the Hecke action
+#           acting by the degree, so A^{(q)} is a scalar.
+#   n odd   the central -I relation kills everything: H^* = 0 in every degree
+#           ([C] rmk:negI, the -I / odd-n gap).  The harness records the
+#           dimensions but NO decomposition, because A^{(q)} has no rows --
+#           which is exactly the `if H.dims[q] > 0` guard the other grid
+#           scripts carry, exercised here in its false branch.
+
+include("prelude.oc");
+
+for cell in [[0, 134217757], [1, 691]] {
+    n = cell[0];
+    ell = cell[1];
+    pt = "n=" + str(n) + " ell=" + str(ell);
+    ptp = pt + " p=2 r=1";
+
+    H = cohomology(symmetric_power(MODEL, n, ell));
+    assert(len(H.dims) == golden(pt, "num_degrees").value, "num_degrees at " + pt);
+    T = hecke(H, 2);
+    total = 0;
+    for q in H.degrees {
+        assert(H.dims[q] == golden(pt, "dim_H^" + str(q)).value, "dim H^" + str(q) + " at " + pt);
+        assert(hash(T.A(q)) == golden(ptp, "A(T_p)^" + str(q)).hash,
+               "A(T_p)^" + str(q) + " at " + ptp);
+        total = total + H.dims[q];
+        if H.dims[q] > 0 {
+            D = decompose(T, q);
+            obj = "decomp_A(T_p)^" + str(q);
+            assert(D.certify() == golden(ptp, obj + "_certify").value,
+                   obj + "_certify at " + ptp);
+            assert(hash(D) == golden(ptp, obj + "_invariants").hash,
+                   obj + "_invariants at " + ptp);
+        }
+    }
+    if n % 2 == 1 {
+        assert(total == 0, "odd n: H^* = 0 in every degree at " + pt);
+    }
+    print(pt, H.dims, total);
+}
+annotate("010_grid_edge_n: 2 cells");

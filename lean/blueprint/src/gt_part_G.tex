@@ -1,0 +1,668 @@
+% gt_part_G.tex -- [GT] Part G: statement skeletons for G10 (saturation) and G3 (the cone).  Slot 16, package L16-6.
+% Read by lean_census.py (gt_part_*.tex).  Lean: lean/GL2/Saturation/, lean/GL2/Cone/, lean/GL2/Literature/EichlerShimuraLevelOne.lean.
+% "stated" = the Lean statement compiles with `sorry` (no authority over [C], [LP] Q5); "proved" = sorry-free.
+% Labels mirror [C] v1.16.0-pre.3 verbatim; a clause split off a [C] label gets a suffix (-2, -realise, ...).
+
+\chapter{Part G10. Saturation and the Hecke algebra modulo powers of ell}\label{ch:saturation}
+
+\paragraph{Version} (F3 finding 12). The statements of this chapter were compared by the F3 audit with [C] 1.17.0-pre.4 and are
+unchanged from [C] v1.16.0(-pre.3), which the \verb|% mirrors| comments cite (only \texttt{lem:heckerankone}'s citations moved).
+
+\paragraph{Setting.} $\mathcal O=\mathbb Z_\ell$, $L$ free of finite rank, and $T$ a commutative $\mathcal O$-algebra acting
+faithfully on $L$ through an injective algebra map $\mathrm{act}\colon T\to\mathrm{End}_{\mathcal O}(L)$ (Lean cannot make a
+subalgebra of the non-commutative $\mathrm{End}(L)$ a commutative ring, so [C]'s ``commutative subalgebra'' is an abstract
+algebra with a faithful action). $T^{\mathrm{sat}}=\{x\in\mathrm{End}(L):\exists k,\ \ell^kx\in T\}$ (every non-zero element of
+$\mathbb Z_\ell$ is a unit times a power of $\ell$, so this is $(T\otimes\mathbb Q)\cap\mathrm{End}(L)$). Lengths are
+\texttt{Module.length} (values in $\mathbb N_\infty$); ``$\dim_{\mathbb F_\ell}$'' of an $\ell$-torsion module is its length.
+
+\paragraph{Faithfulness of the encoding (L16-6 auditor brief, answered in L17-1).} (i) An injective $\mathrm{act}$ identifies $T$
+with the commutative subalgebra $\mathrm{act}(T)\subseteq\mathrm{End}(L)$, and every statement below is transported along it;
+$T$ need not be assumed finite or free: both are proved (\texttt{finite\_T}: a submodule of the noetherian $\mathrm{End}(L)$;
+\texttt{free\_T}: finite and torsion-free over the PID $\mathbb Z_\ell$), so $r=\mathrm{finrank}\,T$ is the rank. (ii)
+$T^{\mathrm{sat}}=\{x:\exists k,\ \ell^kx\in T\}$ equals $(T\otimes\mathbb Q)\cap\mathrm{End}(L)$ because every non-zero element of
+$\mathbb Z_\ell$ is a unit times $\ell^k$. (iii) \texttt{kerK} is $\{t:\mathrm{act}\,t(L)\subseteq\ell^KL\}$ by the lemma
+\texttt{mem\_kerK}. (iv) \texttt{saturated\_tfae}(a), $\ker(T\to\mathsf A_1)\subseteq\ell T$, is exactly the injectivity of the
+(well-defined, since $\ell T\subseteq\ker(T\to\mathsf A_1)$) map $T/\ell T\to\mathsf A_1$. No statement had to be changed.
+
+\begin{definition}[Saturation data]\label{def:satdata}
+  % mirrors [C] v1.16.0-pre.3 def:satdata
+  \lean{GL2.Sat.pI, GL2.Sat.tsat, GL2.Sat.tInSat, GL2.Sat.SatQuot, GL2.Sat.Saturated, GL2.Sat.deltaSat, GL2.Sat.cSat,
+    GL2.Sat.rk, GL2.Sat.kerK, GL2.Sat.AK, GL2.Sat.epsSat, GL2.Sat.redMap}
+  \leanok
+  $T^{\mathrm{sat}}$, $\mathsf A_K=T/\ker(T\to\mathrm{End}(L/\ell^KL))$, $\delta^{\mathrm{sat}}=\mathrm{length}(T^{\mathrm{sat}}/T)$,
+  $c^{\mathrm{sat}}$ the least $c$ with $\ell^cT^{\mathrm{sat}}\subseteq T$, $r=\mathrm{rank}\,T$,
+  $\varepsilon^{\mathrm{sat}}_K=Kr-\mathrm{length}(\mathsf A_K)$, and the canonical map $T/\ell T\to\mathsf A_K/\ell\mathsf A_K$.
+\end{definition}
+\begin{proof}
+  \leanok
+  Definitions; $T^{\mathrm{sat}}$ is a submodule since $\ell^{k+l}(x+y)=\ell^l(\ell^kx)+\ell^k(\ell^ly)$.
+\end{proof}
+
+\begin{proposition}[Saturation: what reducing the module loses (P15)]\label{prop:saturation}
+  % mirrors [C] v1.16.0-pre.3 prop:saturation (1)-(5)
+  \lean{GL2.Sat.kerK_iff, GL2.Sat.saturated_tfae, GL2.Sat.saturated_of_free_rank_one, GL2.Sat.stopping_rule,
+    GL2.Sat.stopping_rule_mono, GL2.Sat.length_AK_of_ge, GL2.Sat.maximal_ideal_contains_p}
+  \leanok
+  \uses{def:satdata}
+  (1) $\ker(T\to\mathrm{End}(L/\ell^K))=T\cap\ell^K\mathrm{End}(L)=T\cap\ell^KT^{\mathrm{sat}}$. (2) TFAE: $\ker(T\to\mathsf A_1)\subseteq\ell T$;
+  $L/\ell L$ faithful over $T/\ell T$; $T$ saturated; and they hold if $L\supseteq N=Tv\cong T$ with $L/N$ torsion-free.
+  (3) $\dim\mathsf A_K/\ell\le r$, and TFAE: $=r$; $T/\ell T\to\mathsf A_K/\ell\mathsf A_K$ injective; $T\cap\ell^KT^{\mathrm{sat}}\subseteq\ell T$;
+  monotone in $K$, true for $K\ge c^{\mathrm{sat}}+1$. (4) For $K\ge c^{\mathrm{sat}}$: $\ell^KT^{\mathrm{sat}}\subseteq T$ and
+  $\mathrm{length}(\mathsf A_K)+\delta^{\mathrm{sat}}=Kr$. (5) Every maximal ideal of $T$ contains $\ell$.
+  Not in Lean: the algebra-level reading of (3)(b) (stated at module level), and (5)'s second
+  sentence (filtrations, localisation). The hypotheses \texttt{hact} of \texttt{saturated\_of\_free\_rank\_one} and \texttt{hK}
+  of \texttt{stopping\_rule} are not used by the proofs (the statements hold without them).
+\end{proposition}
+\begin{proof}
+  \leanok
+  Proved in L17-1 (Lean, sorry-free). (1) A basis of $L$ divides $\mathrm{act}\,t$ by $\ell^K$ entrywise
+  (\texttt{exists\_eq\_pow\_smul}). (2) (b)$\Rightarrow$(c) by induction on $k$ in $\ell^kx=\mathrm{act}\,t$, cancelling $\ell$ in the
+  torsion-free $\mathrm{End}(L)$; (c)$\Rightarrow$(b) by (1) at $K=1$; the sufficient condition evaluates at $v$ and uses that
+  $L/Tv$ is torsion-free. $c^{\mathrm{sat}}$ is attained since $T^{\mathrm{sat}}$ is finitely generated (\texttt{cSat\_spec}).
+  (3) $\mathsf A_K/\ell\cong T/(\ker_K+\ell T)$ and $\mathrm{length}(T/\ell T)=r$ (\texttt{length\_free\_quot}: a basis and
+  $\mathrm{length}(\mathbb Z_\ell/\ell^K)=K$, the DVR), so $r=\mathrm{length}((\ker_K+\ell T)/\ell T)+\dim\mathsf A_K/\ell$;
+  monotonicity since $\ell^{K'}L\subseteq\ell^KL$, and for $K\ge c^{\mathrm{sat}}+1$ write $\mathrm{act}\,t=\ell^Ke$,
+  $\ell^{K-1}e\in T$. (4) is (P17)(1) with $(T^{\mathrm{sat}}/T)[\ell^K]=T^{\mathrm{sat}}/T$. (5) $T$ is finite, hence integral, over
+  $\mathbb Z_\ell$, so a maximal ideal contracts to the maximal ideal $(\ell)$.
+\end{proof}
+
+\begin{proposition}[The defect (P17)]\label{prop:satdefect}
+  % mirrors [C] v1.16.0-pre.3 prop:satdefect (1)-(3)
+  \lean{GL2.Sat.satdefect_eq, GL2.Sat.satdefect_mono, GL2.Sat.satdefect_zero_iff}
+  \leanok
+  \uses{def:satdata, prop:saturation}
+  (1) $\mathrm{length}(\mathsf A_K)+\mathrm{length}\bigl((T^{\mathrm{sat}}/T)[\ell^K]\bigr)=Kr$, i.e.\ $\varepsilon^{\mathrm{sat}}_K=\mathrm{length}((T^{\mathrm{sat}}/T)[\ell^K])$.
+  (2) $\varepsilon_K\le\varepsilon_{K+1}\le\delta^{\mathrm{sat}}$, $=\delta^{\mathrm{sat}}$ for $K\ge c^{\mathrm{sat}}$, a plateau is final.
+  (3) $\delta^{\mathrm{sat}}=0\iff T$ saturated $\iff\varepsilon^{\mathrm{sat}}_1=0$. [C]'s last sentence
+  ($K\dim(\mathsf A_K/\ell)-\mathrm{length}(\mathsf A_K)=\varepsilon_K-K(r-\dim\mathsf A_K/\ell)$) is arithmetic from (1) and not stated.
+\end{proposition}
+\begin{proof}
+  \leanok
+  Proved in L17-1. (1) (\texttt{satdefect\_core}) $T^{\mathrm{sat}}$ is free of rank $r$ (\texttt{finrank\_tsat}: $T\hookrightarrow
+  T^{\mathrm{sat}}$ and $\ell^{c^{\mathrm{sat}}}T^{\mathrm{sat}}\hookrightarrow T$), so $\mathrm{length}(T^{\mathrm{sat}}/\ell^K)=Kr$; the
+  exact sequence $0\to\mathsf A_K\to T^{\mathrm{sat}}/\ell^K\to Q/\ell^KQ\to0$ ($Q=T^{\mathrm{sat}}/T$; the kernel of
+  $T\to T^{\mathrm{sat}}/\ell^K$ is $\ker_K$ by P15(1)) and $\mathrm{length}(Q/\ell^KQ)=\mathrm{length}(Q[\ell^K])$ for $Q$ of finite
+  length (\texttt{length\_torsionBy\_eq}; $Q$ is a quotient of $T^{\mathrm{sat}}/\ell^{c^{\mathrm{sat}}}$). (2) $Q[\ell^K]\subseteq
+  Q[\ell^{K+1}]\subseteq Q$; equal lengths force equal submodules (finite length), and $Q[\ell^K]=Q[\ell^{K+1}]$ propagates to every
+  $K+j$, in particular to $K+c^{\mathrm{sat}}$ where $Q[\ell^{\cdot}]=Q$. (3) $Q=0$ iff saturated; $\varepsilon_0=0$, so
+  $\varepsilon_1=0$ is a plateau, hence $\delta^{\mathrm{sat}}=\varepsilon_1$; and $\varepsilon^{\mathrm{sat}}_1=r-\mathrm{length}(\mathsf A_1)=
+  \mathrm{length}(Q[\ell])$ by (1).
+\end{proof}
+
+\begin{definition}[The level-1 interface]\label{inf:satlevelone}
+  \lean{GL2.Sat.endQ, GL2.Sat.Lfree, GL2.Sat.onFree, GL2.Sat.Tcoh, GL2.Sat.TL}
+  \leanok
+  $L$ stands for $\mathbb L=H^1(\mathrm{SL}_2(\mathbb Z);\mathrm{Sym}^n\otimes\mathbb Z_\ell)$ (or a block $\mathbb L_{\mathfrak m}$), a finite
+  $\mathbb Z_\ell$-module, with Hecke operators $X\colon\iota\to\mathrm{End}(L)$ (interface data: no group cohomology in Lean yet);
+  $\mathbb L'=L/L_{\mathrm{tors}}$, the induced operators, $T^{\mathrm{coh}}$, $T^{\mathbb L}$, and the induced endomorphism of $M/IM$.
+\end{definition}
+\begin{proof}
+  \leanok
+  An endomorphism preserves torsion and every $IM$.
+\end{proof}
+
+\begin{hypothesis}[Eichler--Shimura at level one, Hecke-module form]\label{lit:eichler-shimura-levelone}
+  \lean{GL2.Literature.jointEigen, GL2.Literature.EichlerShimuraLevelOne} \leanok
+  \textbf{Sources verified} (L17-5 repairs, 2026-10-02, after the L17-5 audit's MAJOR-1); a \emph{derived consequence}, not a
+  quotation (deriving it from the quoted structures is an L2 proof). Eichler--Shimura with its Hecke equivariance:
+  Diamond--Im Thm.~12.2.2 and Prop.~12.4.10 (\texttt{lit:diamond-im-es}); the eigenbasis of $S_k$ and multiplicity one:
+  Diamond--Im \S3.5--\S3.6 (\texttt{lit:diamond-im-eigen}) and Serre GTM~7 \S5.4, Thm.~7, Cor.~1 (\texttt{lit:serre-course-thm7});
+  the Eisenstein system once: Serre \S3.2 ($M_k=M^0_k\oplus\mathbf C.G_k$) and \S5.5, Prop.~13 (\texttt{lit:serre-course-prop13}).
+  Shimura's book is no longer needed here. The consequence
+  [C] \texttt{lem:heckerankone}'s proof draws: the Hecke operators act semisimply on $E\otimes\mathbb L'$ with finitely many
+  systems, each of multiplicity $2$ except at most one (Eisenstein) of multiplicity $1$. Interface data; no decidable
+  finite instance, so no sanity instance. \textbf{$E\supseteq\mathbb Q_\ell$} (characteristic $0$; [C]'s $E=\bar{\mathbb Q}_\ell$):
+  the consumers \texttt{heckerankone}, \texttt{cohforms\_iso} carry it as \texttt{[Algebra $\mathbb Q_\ell$ E]
+  [IsScalarTower $\mathbb Z_\ell$ $\mathbb Q_\ell$ E]} (F3 repair, finding 1). \textbf{Index set} (HeckeZ M-HZ1 audit m3): the structure
+  is generic in the index type; the sources speak of the $T_p$, $p$ prime. A consumer may index by $\mathbb N$ with $X_0:=0$, $X_n=T_n$
+  (\texttt{GL2.HeckeZ.T1.T1\_691}): equivalent, since every $T_n$ is a polynomial in the $T_p$, so the joint eigenspaces and their
+  multiplicities are the same.
+\end{hypothesis}
+
+\begin{hypothesis}[The forms side carries the same systems, each once]\label{lit:forms-same-systems}
+  \lean{GL2.Literature.FormsSameSystems} \leanok
+  \textbf{Sources verified} (L17-5 repairs): a derived consequence of the same quoted structures as
+  \texttt{lit:eichler-shimura-levelone} (\texttt{lit:diamond-im-es}, \texttt{lit:diamond-im-eigen}, \texttt{lit:serre-course-thm7},
+  \texttt{lit:serre-course-prop13}); deriving it is an L2 proof. The classical $T_p$ act semisimply on $E\otimes M_k$ with
+  multiplicity one, and a system occurs on $E\otimes\mathbb L'$ iff it occurs on $E\otimes M_k$ ([C]
+  \texttt{prop:cohforms}(3)'s proof).
+\end{hypothesis}
+
+\begin{lemma}[The rank of the free Hecke algebra of a block]\label{lem:heckerankone}
+  % mirrors [C] v1.16.0-pre.3 lem:heckerankone
+  \lean{GL2.Sat.heckerankone}
+  \leanok
+  \uses{inf:satlevelone, lit:eichler-shimura-levelone}
+  For every idempotent $e\in T^{\mathbb L}$: $\mathrm{rank}\,eT^{\mathbb L}=\lceil\mathrm{rank}(e\mathbb L')/2\rceil$, and
+  $T^{\mathbb L}\otimes\mathbb Q_\ell$ is reduced (a product of fields). The field $E$ of the hypothesis contains $\mathbb Q_\ell$
+  (F3 repair, finding 1: with $E$ of characteristic $\ell$ the Lean statement was false, $\mathbb L'=\mathbb Z_\ell^2$,
+  $X=\mathrm{diag}(0,\ell)$, $E=\mathbb F_\ell$).
+  \gtmodlit{Eichler--Shimura at level one in its Hecke-module form, the hypothesis \gtlithyp{hES}
+  (\texttt{EichlerShimuraLevelOne}: the $T_p$ act semisimply on $E\otimes\mathbb L'$, finitely many systems, multiplicities
+  $1$ or $2$, at most one $1$); nothing else (L18-4)}
+\end{lemma}
+\begin{proof}
+  \leanok
+  (L18-4.) $\mathbb L'$ is free (finite, torsion-free over the DVR). The joint eigenspaces $V_\chi\subseteq V=E\otimes\mathbb L'$,
+  $\chi\in S$, span $V$; the base-changed $T_p$ then commute, so the $V_\chi$ are independent (simultaneous generalised
+  eigenspaces of commuting operators). Every $a\in T^{\mathbb L}$ acts on $V_\chi$ by a scalar $\psi_\chi(a)$; $e$ by $0$ or $1$;
+  $S_e:=\{\chi:\psi_\chi(e)=1\}$. (1) $\mathrm{rank}\,e\mathbb L'=\dim_E\mathrm{span}_E(1\otimes e\mathbb L')=\dim(e\otimes E)(V)=
+  \sum_{\chi\in S_e}\mathrm{mult}\,\chi$ (a submodule $N$ of a free finite module has $\mathrm{rank}\,N=\dim_E\mathrm{span}_E(1\otimes N)$,
+  $E$ being flat). (2) $\mathrm{rank}\,eT^{\mathbb L}=\dim_E\mathrm{span}_E\{a\otimes E:a\in eT^{\mathbb L}\}$ ($E\otimes\mathrm{End}\,\mathbb L'\to
+  \mathrm{End}_E V$ is injective, $\mathbb L'$ free finite), and $w\mapsto(\text{its scalar on }V_\chi)_{\chi\in S_e}$ is an
+  isomorphism of that span onto $E^{S_e}$: injective as $w$ is $0$ on $V_\chi$, $\chi\notin S_e$, and the $V_\chi$ span; onto because
+  the $E$-span of $\psi(T^{\mathbb L})$ is an $E$-algebra containing the coordinates $\chi\mapsto\chi(i)$, hence (interpolation) every
+  indicator function. (3) Multiplicities $2$ except at most one $1$: $\lceil\sum_{S_e}\mathrm{mult}/2\rceil=|S_e|$. (4)
+  $\mathbb Q_\ell\otimes T^{\mathbb L}\to E^S$ is injective (clear denominators, $\psi$ injective), so $\mathbb Q_\ell\otimes T^{\mathbb L}$ is
+  reduced.
+\end{proof}
+
+\begin{lemma}[The linear-algebra steps of \texttt{lem:heckerankone}]\label{lem:heckerankone-aux}
+  % the unconditional ingredients of lem:heckerankone's proof, split off (F3-19 MINOR 5)
+  \lean{GL2.Sat.finrank_span_tmul, GL2.Sat.bcEnd_injective, GL2.Sat.finrank_biSup_indep, GL2.Sat.jointEigen_indep,
+    GL2.Sat.tensor_qp_clear}
+  \leanok
+  \uses{lem:heckerankone}
+  The rank of a submodule of a free finite module is the dimension of its $E$-span after base change; $E\otimes\mathrm{End}\,\mathbb L'\to
+  \mathrm{End}_E(E\otimes\mathbb L')$ is injective; independent subspaces add dimensions; joint generalised eigenspaces of commuting
+  operators are independent; denominators clear in $\mathbb Q_\ell\otimes T$. (F3-19 MINOR 5: split off from the \textsf{proved\_mod\_lit} row so that the census counts declarations, not rows: none of these carries a literature hypothesis.)
+\end{lemma}
+\begin{proof}
+  \leanok
+  Steps (1), (2), (4) of the proof of \ref{lem:heckerankone} (L18-4).
+\end{proof}
+
+\begin{lemma}[The free part of a torsion block (P-WP6-2)]\label{lem:freepart}
+  % mirrors [C] v1.16.0-pre.3 lem:freepart (1)-(3)
+  \lean{GL2.Sat.freepart_iso, GL2.Sat.freepart_image, GL2.Sat.freepart_image_equiv, GL2.Sat.freepart_torsion}
+  \leanok
+  \uses{inf:satlevelone, prop:saturation}
+  With $\ell^tL_{\mathrm{tors}}=0$, $K>t$, $N=L/\ell^KL$: (1) a Hecke-equivariant $\mathbb L'/\ell^{K-t}\cong\ell^tN$; (2) $a\in T^{\mathrm{coh}}$
+  kills $\ell^tN$ iff $\ell^ta=0$ in $\mathrm{End}\,N$ iff its image in $\mathrm{End}(\mathbb L'/\ell^{K-t})$ is $0$; (3) on a pure
+  torsion block with $K\ge t$, $N=L$ and $T^{\mathrm{coh}}$ acts faithfully. The identification
+  $H^1(\Gamma;\mathrm{Sym}^n\otimes\mathbb Z/\ell^K)=\mathbb L/\ell^K$ ([C] \texttt{cl:bockstein}) is interface, not stated.
+  (2) and (3) hold for every endomorphism $a$; the hypothesis $a\in T^{\mathrm{coh}}$ is not used. (2), the module identification
+  (L18-4, \texttt{freepart\_image\_equiv}): conjugation by (1) is an algebra isomorphism
+  $\mathrm{End}(\ell^tN)\cong\mathrm{End}(\mathbb L'/\ell^{K-t})$ carrying $a|_{\ell^tN}$ to $\bar a$; so the image of $T^{\mathrm{coh}}$ in
+  $\mathrm{End}(\ell^tN)$, i.e.\ $\mathsf A_K/\mathsf A_K[\ell^t]$, is isomorphic to $\mathsf A'_{K-t}$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  Proved in L17-1 (\texttt{freepart\_exists}): $[x]\mapsto\ell^tx$ kills $\mathbb L_{\mathrm{tors}}$ and $\ell^{K-t}\mathbb L'$, is onto
+  $\ell^tN$, and is injective since $\ell^tx=\ell^Ky$ makes $x-\ell^{K-t}y$ torsion; it commutes with every endomorphism. (2) follows
+  through this isomorphism, and $a(\ell^tz)=\ell^ta(z)$. (3) $\ell^KL=\ell^{K-t}\ell^tL=0$.
+\end{proof}
+
+\begin{corollary}[The certified reading of the $\mathbb Z/\ell^K$ Hecke-algebra route]\label{cor:stablecert}
+  % mirrors [C] v1.16.0-pre.3 cor:stablecert (1),(2)
+  \lean{GL2.Sat.stablecert, GL2.Sat.TL_mul_comm, GL2.Sat.rk_Te_eq, GL2.Sat.stablecert_ES}
+  \leanok
+  \uses{prop:saturation, lem:heckerankone, lit:eichler-shimura-levelone}
+  (1) With $T_e=eT^{\mathbb L}$ on $e\mathbb L'$ of rank $f$, $\mathrm{rank}\,T_e=\lceil f/2\rceil$, and $T'\hookrightarrow T_e$: if
+  $\dim\mathsf A'_K/\ell=\lceil f/2\rceil$ at some $K$, then $\mathrm{rank}\,T'=\mathrm{rank}\,T_e$ and $T'/\ell\cong\mathsf A'_{K'}/\ell$ for all
+  $K'\ge K$; such $K$ exists iff the ranks agree, and then one with $K\le c^{\mathrm{sat}}+1$. (2) $T'=T_e$ iff
+  $T'+\ell T_e=T_e$ (Nakayama). Not in Lean: (2)'s Loewy-length counterexample and (3), the dictionary to
+  the code's verdicts \texttt{stable}, \texttt{torsion\_free\_stable}, \texttt{torsion\_stable}. The abstract Lean statement
+  \texttt{stablecert} takes $\mathrm{rank}\,T_e=\lceil f/2\rceil$ as the hypothesis \texttt{hrank} (what \texttt{lem:heckerankone}
+  supplies). (2) and the unconditional instance machinery (\texttt{stablecert\_generation}, \texttt{Te}, \texttt{actTe},
+  \texttt{actTe\_injective}, \texttt{rk\_Te\_eq\_span}) are the row \ref{cor:stablecert-uncond}. \textbf{The instance} (L19-1, M3-a): $T_e:=$ the image of $t\mapsto(et)|_{e\mathbb L'}$ in $\mathrm{End}(e\mathbb L')$
+  (\texttt{Te}; a commutative $\mathbb Z_\ell$-algebra with unit $e|_{e\mathbb L'}=\mathrm{id}$, not $\mathbb Z_\ell[eT^{\mathbb L}]\ni1$),
+  acting faithfully on $e\mathbb L'=\mathrm{range}\,e$ (\texttt{actTe}); $T^{\mathbb L}$ is commutative (\texttt{TL\_mul\_comm}),
+  $\mathrm{rank}\,T_e=\mathrm{rank}\,\mathrm{span}(eT^{\mathbb L})$ (\texttt{rk\_Te\_eq\_span}), so \texttt{hrank} is a theorem
+  (\texttt{rk\_Te\_eq}, from \texttt{heckerankone}), and \texttt{stablecert\_ES} is (1) at $T_e=eT^{\mathbb L}$ for every
+  $T'\hookrightarrow T_e$ with \texttt{hES} as its only hypothesis beyond the data.
+  \gtmodlit{the abstract \texttt{stablecert} is conditional on \gtlithyp{hrank}, the rank equality $\mathrm{rank}\,T_e=\lceil f/2\rceil$
+  (F3 repair, finding 3 (b): \textsf{proved\_mod\_lit}, not \textsf{proved}); its instance \texttt{stablecert\_ES} at $T_e=eT^{\mathbb L}$
+  (and \texttt{rk\_Te\_eq}, \texttt{TL\_mul\_comm}) is conditional only on Eichler--Shimura at level one, \gtlithyp{hES}
+  (\texttt{EichlerShimuraLevelOne}, as in \ref{lem:heckerankone}); \texttt{hrank} is discharged there (L19-1)}
+\end{corollary}
+\begin{proof}
+  \leanok
+  Proved in L17-1. (1) By \texttt{stopping\_rule} for $(T',\mathrm{act}\circ\iota')$, $\lceil f/2\rceil=\dim\mathsf A'_K/\ell\le\mathrm{rank}\,T'
+  \le\mathrm{rank}\,T_e=\lceil f/2\rceil$, so equality holds and $\ker'_K\subseteq\ell T'$, which persists (\texttt{stopping\_rule\_mono});
+  conversely the ranks agreeing give the reading at $K=c^{\mathrm{sat}}(T')+1$. (2) Nakayama over the local ring $\mathbb Z_\ell$
+  ($\ell$ in the Jacobson radical, $T_e$ finite). \emph{The instance} (L19-1): $e$ is central in $T^{\mathbb L}$ (commutative, as
+  $\psi:T^{\mathbb L}\hookrightarrow E^S$ of \ref{lem:heckerankone}'s proof is an injective ring map into a commutative ring) and
+  idempotent, so $t\mapsto(et)|_{e\mathbb L'}$ is a $\mathbb Z_\ell$-algebra map; its kernel is that of $t\mapsto et$ ($et$ vanishes on
+  $e\mathbb L'$ iff $et=e\,t\,e=0$), so $T_e\cong eT^{\mathbb L}$ as $\mathbb Z_\ell$-modules and $\mathrm{rank}\,T_e=\lceil f/2\rceil$ by
+  \ref{lem:heckerankone}; $e\mathbb L'$ is free of finite rank (a submodule of the free $\mathbb L'$ over a PID). Then (1).
+\end{proof}
+
+\begin{corollary}[\texttt{cor:stablecert}: (2) and the unconditional instance machinery]\label{cor:stablecert-uncond}
+  % mirrors [C] v1.16.0-pre.3 cor:stablecert (2), and the T_e construction of (1); split from cor:stablecert (F3-19 MINOR 5)
+  \lean{GL2.Sat.stablecert_generation, GL2.Sat.Te, GL2.Sat.actTe, GL2.Sat.actTe_injective, GL2.Sat.rk_Te_eq_span}
+  \leanok
+  \uses{cor:stablecert}
+  (2) $T'=T_e$ iff $T'+\ell T_e=T_e$ (Nakayama). $T_e:=$ the image of $t\mapsto(et)|_{e\mathbb L'}$ in $\mathrm{End}(e\mathbb L')$ is a
+  commutative $\mathbb Z_\ell$-algebra acting faithfully on $e\mathbb L'$, and $\mathrm{rank}\,T_e=\mathrm{rank}\,\mathrm{span}(eT^{\mathbb L})$,
+  for $e$ an idempotent central in $T^{\mathbb L}$ (commutativity as a hypothesis, not Eichler--Shimura). (F3-19 MINOR 5: split off from the \textsf{proved\_mod\_lit} row so that the census counts declarations, not rows: none of these carries a literature hypothesis.)
+\end{corollary}
+\begin{proof}
+  \leanok
+  As in \ref{cor:stablecert}: Nakayama over the local ring $\mathbb Z_\ell$; $\ker(t\mapsto(et)|_{e\mathbb L'})=\ker(t\mapsto et)$.
+\end{proof}
+
+\paragraph{L17-1 audit notes (PASS, four MINOR; recorded, no statement changed).}
+(1) \texttt{prop:saturation}(2)(a), (3)(b) and \texttt{cor:stablecert}(1) are stated as \emph{injectivity} of $T/\ell\to\mathsf A_K/\ell$
+plus equal length, not as an isomorphism of $\mathbb F_\ell$-algebras; the ring structure is that of $T/\ker_K$, so the isomorphism
+is formal, but no \texttt{RingEquiv} is exhibited. The injectivity-and-length form is what L17-2's soundness theorem needs.
+(2) \texttt{cohforms\_census\_surj} states only that $\mathsf A\twoheadrightarrow\mathsf A^{\mathbb L}$ is well defined; [C]
+\texttt{prop:cohforms}(4)'s second surjection $T^{\mathrm f}/\ell\cong T^{\mathbb L}/\ell\twoheadrightarrow\mathsf A^{\mathbb L}$ rests on
+\texttt{prop:cohforms-3}; \emph{closed by L18-4} as \texttt{cohforms\_census\_surj2} (in \texttt{prop:cohforms-3}). \texttt{cohforms\_ses}
+omits $L/\ell=H^1$ (interface, [C] \texttt{cl:bockstein}).
+(3) \texttt{freepart\_image} proves the three-way kernel equivalence, not the module identification ``image of $T^{\mathrm{coh}}$ in
+$\mathrm{End}(\ell^tN)\cong\mathsf A_K/\mathsf A_K[\ell^t]=\mathsf A'_{K-t}$''; it follows through \texttt{freepart\_iso}, and is a Lean
+theorem since L18-4 (\texttt{freepart\_image\_equiv}). Since \texttt{stablecert} is abstract in $(T_e,\mathrm{act},T',\iota')$, \textbf{L17-2's soundness theorem must say which
+$\mathrm{act}$ it feeds} (the free part $\mathbb L'/\ell^{K-t}$ of a torsion block).
+(4) \textbf{The \texttt{hrank} dependency.} \texttt{GL2.Sat.stablecert} takes $\mathrm{rank}\,T_e=\lceil f/2\rceil$ as its hypothesis
+\texttt{hrank}, which is exactly \texttt{lem:heckerankone} (\texttt{GL2.Sat.heckerankone}; \textsf{stated} until L18-4, now
+\textsf{proved\_mod\_lit} over \texttt{EichlerShimuraLevelOne}; the instantiation $T_e:=eT^{\mathbb L}$ acting on $e\mathbb L'$ is still
+not formalised, so \texttt{hrank} stays a hypothesis of \texttt{stablecert}; \emph{L19-1:} the instantiation is now formalised,
+\texttt{stablecert\_ES} / \texttt{stable\_of\_spec\_ES} carry \texttt{hES} and not \texttt{hrank}; the abstract forms keep it). So
+``\texttt{cor:stablecert} proved'' means \emph{proved given the rank equality}; \textbf{L17-2 (the stable-certificate checker's
+soundness) must discharge \texttt{hrank} for the actual $eT^{\mathbb L}$}, and until \texttt{heckerankone} is proved (from
+\texttt{lit:eichler-shimura-levelone}, whose sources are now verified) this is the single non-formal link. \emph{L17-2 outcome:} \texttt{hrank} is \textbf{carried}, not discharged: \texttt{GL2.SatChk.stable\_of\_spec} (\ref{chk:stablecert}) takes it verbatim as a hypothesis, alongside the explicit trust boundary (the dumped matrices are the $T_q$ on $e\mathbb L'/\ell^K$, $f=\mathrm{rank}\,e\mathbb L'$), and feeds \texttt{stablecert} with $\mathrm{act}$ the action of $eT^{\mathbb L}$ on the free block $e\mathbb L'$ of a \emph{torsion-free} block (torsion blocks, the free part $\mathbb L'/\ell^{K-t}$, are not covered and are not dumped). Discharging it is \texttt{heckerankone}'s proof (M2 / L17-7). The unused hypotheses
+(\texttt{hact} of \texttt{saturated\_of\_free\_rank\_one}, \texttt{hK} of \texttt{stopping\_rule}, $a\in T^{\mathrm{coh}}$ of
+\texttt{freepart\_image} / \texttt{cohforms\_census\_surj}) only strengthen the theorems and are kept as literal mirrors of [C].
+
+\begin{proposition}[The cohomological and the forms Hecke algebra: the algebraic clauses]\label{prop:cohforms}
+  % mirrors [C] v1.16.0-pre.3 prop:cohforms (1),(2),(4)
+  \lean{GL2.Sat.cohforms_ses, GL2.Sat.cohforms_restrict, GL2.Sat.cohforms_census_surj}
+  \leanok
+  \uses{inf:satlevelone}
+  (1) $0\to L_{\mathrm{tors}}/\ell\to L/\ell\to\mathbb L'/\ell\to0$ exact and $\mathrm{length}(L_{\mathrm{tors}}/\ell)=\mathrm{length}(L[\ell])$;
+  (2) $T^{\mathrm{coh}}\twoheadrightarrow T^{\mathbb L}$ with kernel the operators into $L_{\mathrm{tors}}$; (4) $\mathsf A\twoheadrightarrow
+  \mathsf A^{\mathbb L}$. (3) is split off as \texttt{prop:cohforms-3} (L17-1). (5) is \texttt{prop:saturation}(2) for
+  $(\mathbb L_{\mathfrak m},T^{\mathbb L}_{\mathfrak m})$ and (6) is \texttt{cor:stablecert}; neither is restated.
+\end{proposition}
+\begin{proof}
+  \leanok
+  Proved in L17-1. (1) $L_{\mathrm{tors}}$ is saturated in $L$ ($x=\ell y$ torsion makes $y$ torsion), which gives injectivity and
+  exactness; $L_{\mathrm{tors}}$ is finitely generated and killed by some $\ell^k$ (\texttt{torsion\_killed}), hence of finite length
+  (\texttt{length\_ne\_top\_of\_killed}), and $\mathrm{length}(M/\ell M)=\mathrm{length}(M[\ell])$ on it, with $L_{\mathrm{tors}}[\ell]=L[\ell]$.
+  (2) $f\mapsto\bar f$ is an algebra map (\texttt{onFreeAlg}) and the image of an adjoined algebra is the algebra adjoined by the
+  images. (4) $a(L)\subseteq\ell L$ gives $\bar a(\mathbb L')\subseteq\ell\mathbb L'$ (true for every endomorphism).
+\end{proof}
+
+\begin{proposition}[The cohomological and the forms Hecke algebra (3)]\label{prop:cohforms-3}
+  % mirrors [C] v1.16.0-pre.3 prop:cohforms (3)
+  \lean{GL2.Sat.cohforms_iso, GL2.Sat.cohforms_census_surj2}
+  \leanok
+  \uses{inf:satlevelone, lit:eichler-shimura-levelone, lit:forms-same-systems, prop:cohforms}
+  (3) $T^{\mathbb L}\cong T^{\mathrm f}$, $T_p\mapsto T_p$, given \texttt{EichlerShimuraLevelOne} and \texttt{FormsSameSystems}
+  (F3 repair, finding 2: [C]'s proof uses the same systems on both sides, \emph{each semisimply}; without the semisimplicity
+  on $E\otimes\mathbb L'$ the Lean statement was false, $\mathbb L'=\mathbb Z_\ell^2$, $X=\left(\begin{smallmatrix}0&1\\0&0\end{smallmatrix}\right)$,
+  $M_k=\mathbb Z_\ell$, $X_M=0$). And (4)'s second surjection (L17-1 audit MINOR-2, \texttt{cohforms\_census\_surj2}):
+  $T^{\mathrm f}\to T^{\mathbb L}\to\mathsf A^{\mathbb L}\subseteq\mathrm{End}(\mathbb L'/\ell)$, $T_p\mapsto T_p$, kills $\ell T^{\mathrm f}$ and
+  is onto $\mathsf A^{\mathbb L}$.
+  \gtmodlit{the two literature structures, as the hypotheses \gtlithyp{hES} (\texttt{EichlerShimuraLevelOne}: semisimplicity on
+  $E\otimes\mathbb L'$ with finitely many systems, which span) and \gtlithyp{hF} (\texttt{FormsSameSystems}: semisimple forms side,
+  the same systems); nothing else (L18-4)}
+\end{proposition}
+\begin{proof}
+  \leanok
+  (L18-4.) Every element of the algebra generated by a family acts by a scalar on each joint eigenspace, which gives an
+  $\mathbb Z_\ell$-algebra map $\psi\colon\mathrm{adjoin}(Y)\to E^{\mathrm{Sys}}$ (\texttt{sysHom}), $\mathrm{Sys}$ the systems with nonzero
+  eigenspace. It is injective when these eigenspaces span $E\otimes N$ and $a\mapsto a\otimes E$ is injective ($N$ flat:
+  $\mathbb L'$ is torsion-free over the DVR $\mathbb Z_\ell$, $M_k$ free; $\mathbb Z_\ell\to\mathbb Q_\ell\subseteq E$ injective).
+  Its image is the algebra generated by the coordinate functions $\chi\mapsto\chi(i)$, the same for $\mathbb L'$ and $M_k$ since
+  \texttt{FormsSameSystems} makes $\mathrm{Sys}$ the same set; so $T^{\mathbb L}\cong\psi(T^{\mathbb L})=\psi(T^{\mathrm f})\cong T^{\mathrm f}$.
+  Independence of the eigenspaces is not needed. (4): compose $\varphi^{-1}$ with $\mathrm{End}(\mathbb L')\to\mathrm{End}(\mathbb L'/\ell)$.
+\end{proof}
+
+\begin{lemma}[The system map of \texttt{prop:cohforms-3}]\label{prop:cohforms-3-aux}
+  % the unconditional ingredients of prop:cohforms-3's proof, split off (F3-19 MINOR 5)
+  \lean{GL2.Sat.sysHom, GL2.Sat.sysHom_injective, GL2.Sat.sysHom_range, GL2.Sat.endQAlg}
+  \leanok
+  \uses{prop:cohforms-3}
+  The algebra generated by a family acts by a scalar on each joint eigenspace: a $\mathbb Z_\ell$-algebra map
+  $\psi\colon\mathrm{adjoin}(Y)\to E^{\mathrm{Sys}}$ (\texttt{sysHom}), injective when the eigenspaces span and base change is injective,
+  with image the algebra generated by the coordinate functions. (F3-19 MINOR 5: split off from the \textsf{proved\_mod\_lit} row so that the census counts declarations, not rows: none of these carries a literature hypothesis.)
+\end{lemma}
+\begin{proof}
+  \leanok
+  The first paragraph of the proof of \ref{prop:cohforms-3} (L18-4).
+\end{proof}
+
+\begin{lemma}[$(\ell,P_k)=(\ell,X)$ in $\Lambda$]\label{inf:hidaalgconst-ideal}
+  \lean{GL2.Sat.ideal_p_Pk}
+  \leanok
+  In $\Lambda=\mathbb Z_\ell[[X]]$, $(\ell,P_k)=(\ell,X)$ for every $k$ ([C] \texttt{prop:hidaalgconst}(1), first step).
+\end{lemma}
+\begin{proof}
+  \leanok
+  $(1+\ell)^k-1=\ell u$, so $P_k=X-\ell u$.
+\end{proof}
+
+\begin{proposition}[The ordinary cuspidal Hecke algebra modulo $\ell$ is constant along a class (P18)]\label{prop:hidaalgconst}
+  % mirrors [C] v1.16.0-pre.3 prop:hidaalgconst (1)-(2)
+  \lean{GL2.Sat.hidaalgconst}
+  \leanok
+  \uses{inf:hidaalgconst-ideal, lit:hida-ens-3.2}
+  From Hida's control (\texttt{HidaEns32}): $h^0_k/\ell\cong h^0_{k'}/\ell$ for $k,k'\ge2$ in the class, hence (2).
+  ``Each Hecke operator goes to itself'' needs the universal $T(m)$, which the interface data of \texttt{HidaEns32} do not
+  carry. (3), the level-1 reading, is \textsf{[standard]} and not stated.
+  \gtmodlit{Hida's control theorem, Hida (ens) Cor.~3.2 (3.3 b), taken as the hypothesis \gtlithyp{hH} (\texttt{HidaEns32}).}
+\end{proposition}
+\begin{proof}
+  \leanok
+  Proved in L17-1, modulo \texttt{hH}. With $I_k=(P_k)h$: $h^0_k/\ell\cong(h/I_k)/\ell\cong h/(I_k+\ell h)=h/(\ell,P_k)h=h/(\ell,X)h$
+  by \texttt{inf:hidaalgconst-ideal}, independent of $k$.
+\end{proof}
+
+\begin{lemma}[The forms-side $\theta$ has a Frobenius kernel (P20)]\label{rmk:thetaforms}
+  % mirrors [C] v1.16.0-pre.3 rmk:thetaforms (1), first sentence
+  \lean{GL2.Sat.thetaQ, GL2.Sat.thetaQ_eq_zero_iff}
+  \leanok
+  $\theta=q\,d/dq$ on $\mathbb F_\ell[[q]]$ has $\ker\theta=\mathbb F_\ell[[q^\ell]]$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  The $m$-th coefficient of $\theta f$ is $m\,a_m$, and $m=0$ in $\mathbb F_\ell$ iff $\ell\mid m$.
+\end{proof}
+
+\begin{lemma}[$V(g)=g^\ell$]\label{rmk:thetaforms-frobenius}
+  % mirrors [C] v1.16.0-pre.3 rmk:thetaforms (1), second sentence
+  \lean{GL2.Sat.frobenius_eq_V}
+  \leanok
+  \uses{rmk:thetaforms}
+  On $\mathbb F_\ell[[q]]$, $g(q^\ell)=g^\ell$, so $V(g)\in\ker\theta$. (2) is computational data and (3) a pointer.
+\end{lemma}
+\begin{proof}
+  \leanok
+  Proved in L17-1: the $m$-th coefficient of $g^\ell$ is that of $(\mathrm{trunc}_{m+1}g)^\ell=\mathrm{expand}_\ell(\mathrm{trunc}_{m+1}g)$
+  (Frobenius on $\mathbb F_\ell[X]$).
+\end{proof}
+
+\chapter{Part G3. The pair, the cone and its Hecke action}\label{ch:cone}
+
+\paragraph{The model is abstract.} The bulk and boundary chains are $\mathbb Z$-graded chain complexes with a $\Gamma$-action
+($\Gamma$ a subgroup of any group $G$, $\Delta\supseteq\Gamma$ a submonoid acting on $V$), and [C]'s geometric hypotheses enter
+only through \texttt{PairHyp} (H4(ii) via \texttt{eq:contractibleuse}, B2, B1 + B3 as the (T1)-extension property). Nothing
+hard-wires the 7-vertex model, a trivial centre, or Bredon-only semantics. Index convention: $d^q\colon C^q\to C^{q+1}$; a
+degree-$(-1)$ map is indexed by its target, $h^q\colon C^{q+1}\to D^q$.
+
+\begin{definition}[Cochain complexes, cocycles, cohomology, cochain maps]\label{inf:cochaincx}
+  \lean{GL2.Cone.CochainCx, GL2.Cone.CochainCx.castX, GL2.Cone.CochainCx.Z, GL2.Cone.CochainCx.B, GL2.Cone.CochainCx.H,
+    GL2.Cone.GMap, GL2.Cone.GMapNeg, GL2.Cone.IsChainMap}
+  \leanok
+  $\mathbb Z$-graded cochain complexes of $R$-modules; $B^q$ is the image of $d^{q-1}$ transported along $q-1+1=q$.
+\end{definition}
+\begin{proof}
+  \leanok
+  Definitions.
+\end{proof}
+
+\begin{definition}[The pair, the restriction and the cone]\label{def:pair}
+  % mirrors [C] v1.16.0-pre.3 def:pair, eq:conediff
+  \lean{GL2.Cone.cone, GL2.Cone.coneInc, GL2.Cone.coneProj, GL2.Cone.Hc, GL2.Cone.Hmap, GL2.Cone.relCx, GL2.Cone.GChainCx,
+    GL2.Cone.eqHom, GL2.Cone.eqCochains, GL2.Cone.PairData, GL2.Cone.restr, GL2.Cone.restr_isChainMap, GL2.Cone.pairCone}
+  \leanok
+  \uses{inf:cochaincx}
+  $\mathrm{Cone}(r)^q=C^{q+1}\oplus D^q$, $D_{\mathrm{cone}}(c,c_\partial)=(-dc,\ dc_\partial+rc)$ (its square is $0$, proved in the
+  structure), $\iota(c_\partial)=(0,c_\partial)$, $\pi(c,c_\partial)=c$, $H^q_c=H^{q-1}(\mathrm{Cone}(r))$; the equivariant cochains
+  $\mathrm{Hom}_{\mathbb Z[\Gamma]}(C_\bullet(Y),V)$, $d\varphi=\varphi\circ\partial$; the pair $(X_{\mathrm{bulk}},X_\partial)$ with
+  $r=j^*$, a cochain map.
+\end{definition}
+\begin{proof}
+  \leanok
+  $D_{\mathrm{cone}}^2(c,c_\partial)=(d^2c,\ d^2c_\partial+drc-rdc)=0$.
+\end{proof}
+
+\begin{lemma}[$r$ onto; the short exact sequence of the cone]\label{lem:conerelative-12}
+  % mirrors [C] v1.16.0-pre.3 lem:conerelative (1), (2) first half
+  \lean{GL2.Cone.restr_surjective, GL2.Cone.cone_ses}
+  \leanok
+  \uses{def:pair}
+  (1) An equivariant retraction of $j$ (extension by zero) makes $r$ onto in every degree. (2) $\iota$ is a cochain map, $\pi$
+  intertwines $D_{\mathrm{cone}}$ with $-d$, and $0\to D^q\to\mathrm{Cone}^q\to C^{q+1}\to0$ is exact.
+\end{lemma}
+\begin{proof}
+  \leanok
+  $r(\varphi\circ e)=\varphi\circ e\circ j=\varphi$; the rest is componentwise.
+\end{proof}
+
+\begin{lemma}[The long exact sequence; relative cohomology]\label{lem:conerelative}
+  % mirrors [C] v1.16.0-pre.3 lem:conerelative (2) eq:coneles, (3)
+  \lean{GL2.Cone.coneles_exact_C, GL2.Cone.coneles_exact_D, GL2.Cone.coneles_exact_cone, GL2.Cone.relative_iso,
+    GL2.Cone.exact_C_H, GL2.Cone.exact_D_H, GL2.Cone.exact_cone_H}
+  \leanok
+  \uses{lem:conerelative-12}
+  The long exact sequence ([C] \texttt{eq:coneles}) is exact at $H^{q+1}(C)$, $H^q(D)$ and $H^q(\mathrm{Cone})$, stated elementwise on cocycles (the connecting map
+  is $+r$), and as $\mathrm{im}=\ker$ of the induced maps $\pi_*$, $r_*$, $\iota_*$ on cohomology; if $r$ is onto,
+  $H^{q+1}(\ker r)\cong H^q(\mathrm{Cone}(r))$. (4), the vanishing of $H^q_c$ for $q\le0$, $q\ge3$, needs the model and is not
+  stated here.
+\end{lemma}
+\begin{proof}
+  \leanok
+  (L18-4.) Elementwise: for $c\in Z^{q+1}(C)$ with $rc=de$, $(c,-e)$ is a cone cocycle; conversely a cone cocycle $(c',e)$ with
+  $c'-c=db$ gives $rc=d(-(e+rb))$. For $e\in Z^q(D)$: $(0,e)=D(c,e')$ iff $dc=0$ and $rc-e=d(-e')$. For a cone cocycle $(c,e)$:
+  $c=db$ iff $(c,e)-\iota(e+rb)=D(-b,0)$. Relative: $c\mapsto(c,0)$ on $Z^{q+1}(\ker r)$ is onto $H^q(\mathrm{Cone})$ (subtract
+  $D(c_0,0)$ with $rc_0=e$) with kernel $B^{q+1}(\ker r)$ (lift $e''=rc_3$), so $H^{q+1}(\ker r)\cong H^q(\mathrm{Cone})$.
+\end{proof}
+
+\begin{lemma}[The two dimension counts]\label{eq:conedims}
+  % mirrors [C] v1.16.0-pre.3 lem:conerelative (5), eq:conedims
+  \lean{GL2.Cone.conedims}
+  \leanok
+  \uses{lem:conerelative}
+  Over a field, with $H^0_c=0$: $\dim H^1_c+\dim H^0=\dim H^0(\partial)+\dim\ker r^1_*$; under $H^2=0$ also
+  $\dim H^2_c+\mathrm{rank}\,r^1_*=\dim H^1(\partial)$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  (L18-4.) Rank--nullity along $H^{-1}(\mathrm{Cone})\to H^0\to H^0(\partial)\to H^0(\mathrm{Cone})\to H^1\to H^1(\partial)\to
+  H^1(\mathrm{Cone})\to H^2$, exact by Lemma~\ref{lem:conerelative}: $r^0_*$ is injective since $H^{-1}(\mathrm{Cone})=H^0_c=0$,
+  and $\iota^1_*$ is onto when $H^2=0$.
+\end{proof}
+
+\begin{lemma}[The six-term sequence, abstract form]\label{cl:les}
+  % mirrors [C] v1.16.0-pre.3 cl:les (its consequence for dimensions)
+  \lean{GL2.Cone.sixterm}
+  \leanok
+  \uses{lem:conerelative}
+  If $H^0_c=0$ and $H^2=0$: $r^0_*$ is injective, and the alternating sum of dimensions of the six-term sequence vanishes.
+  [C]'s dimension formulas for $n,\ell$ (Claim~\texttt{cl:dimH1}) are not in this skeleton.
+\end{lemma}
+\begin{proof}
+  \leanok
+  (L18-4.) Lemma~\ref{eq:conedims}, both identities, plus rank--nullity for $r^1_*$.
+\end{proof}
+
+\begin{lemma}[The sign of $D_{\mathrm{cone}}\Phi-\Phi D_{\mathrm{cone}}$]\label{lem:conesign}
+  % mirrors [C] v1.16.0-pre.3 lem:conesign, eq:conesign
+  \lean{GL2.Cone.coneMap, GL2.Cone.conesign, GL2.Cone.coneMap_inc_proj}
+  \leanok
+  \uses{def:pair}
+  For cochain maps $\Theta,\Theta_\partial$ and any $h$, $\Phi(c,c_\partial)=(\Theta c,\Theta_\partial c_\partial+hc)$ satisfies
+  $(D\Phi-\Phi D)(c,c_\partial)=(0,(dh+hd+r\Theta-\Theta_\partial r)c)$; $\Phi\iota=\iota\Theta_\partial$ and $\pi\Phi=\Theta\pi$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  Componentwise, with $d\Theta=\Theta d$ and $d\Theta_\partial=\Theta_\partial d$.
+\end{proof}
+
+\begin{proposition}[The ambiguity of a free cochain-level $h$, cochain level]\label{prop:coneambiguity}
+  % mirrors [C] v1.16.0-pre.3 prop:coneambiguity (1)
+  \lean{GL2.Cone.coneambiguity}
+  \leanok
+  \uses{lem:conesign}
+  For two $h,h'$ satisfying the cone identity, $\xi=h'-h$ has $d\xi+\xi d=0$ and $\Phi'-\Phi=\iota\circ\xi\circ\pi$.
+\end{proposition}
+\begin{proof}
+  \leanok
+  Subtract the two cone identities; the second statement is componentwise.
+\end{proof}
+
+\begin{proposition}[Realisation over a field]\label{prop:coneambiguity-realise}
+  % mirrors [C] v1.16.0-pre.3 prop:coneambiguity (2)
+  \lean{GL2.Cone.coneambiguity_realise}
+  \leanok
+  \uses{prop:coneambiguity}
+  Over a field, every $\lambda\colon H^{q+1}(C)\to Z^q(D)$ is $\xi_*$ of a degree-$(-1)$ cochain map. Not claimed over
+  $\mathbb Z/\ell^e$.
+\end{proposition}
+\begin{proof}
+  \leanok
+  (L18-4.) Extend $\lambda\circ(Z^{q+1}\to H^{q+1})$ from $Z^{q+1}(C)$ to $C^{q+1}$ with values in $Z^q(D)$ (a field), and
+  put $\xi=0$ in every other degree: $d\xi^q=0$ since $\xi^q$ lands in cocycles, and $\xi^q d=0$ since coboundaries have
+  class $0$.
+\end{proof}
+
+\begin{definition}[(T1), twisted chain data, coset data, coset transport]\label{def:cosettransport}
+  % mirrors [C] v1.16.0-pre.3 def:cosettransport, eq:cosettransport, def:tau, def:hecke (the coset data)
+  \lean{GL2.Cone.T1, GL2.Cone.TwistedChainDatum, GL2.Cone.CosetData, GL2.Cone.transport, GL2.Cone.transportL}
+  \leanok
+  \uses{def:pair}
+  (T1) $F(h\cdot x)=(g^{-1}hg)\cdot F(x)$ for $h\in\Gamma''$; $\tau$ with (T1)--(T3); $s_1,\dots,s_m$ representing
+  $\Gamma''\backslash\Gamma$, $\delta_j=s_j^{-1}g\in\Delta$; $(\widetilde F\varphi)(y)=\sum_j\rho(\delta_j)\varphi(F(s_j y))$.
+\end{definition}
+\begin{proof}
+  \leanok
+  Definitions.
+\end{proof}
+
+\begin{lemma}[Coset transport: equivariance]\label{lem:cosettransport}
+  % mirrors [C] v1.16.0-pre.3 lem:cosettransport (1)
+  \lean{GL2.Cone.transport_equivariant}
+  \leanok
+  \uses{def:cosettransport}
+  For $F$ with (T1) and $\varphi$ equivariant, $\widetilde F\varphi$ is equivariant; $F\mapsto\widetilde F$ is additive.
+\end{lemma}
+\begin{proof}
+  \leanok
+  For $\gamma\in\Gamma$ write $s_j\gamma=h_js_{\pi(j)}$ with $h_j\in\Gamma''$; $\pi$ is a permutation (two $j$ with the same
+  $\pi(j)$ give $s_j\in\Gamma''s_{j'}$, so $j=j'$). Then $F(s_j\gamma y)=(g^{-1}h_jg)F(s_{\pi(j)}y)$ by (T1), and
+  $\rho(\delta_j)\rho(g^{-1}h_jg)=\rho(s_j^{-1}h_jg)=\rho(\gamma)\rho(\delta_{\pi(j)})$; reindex the sum by $\pi$.
+\end{proof}
+
+\begin{lemma}[Coset transport: four identities]\label{lem:cosettransport-24}
+  % mirrors [C] v1.16.0-pre.3 lem:cosettransport (2)-(4)
+  \lean{GL2.Cone.transport_bd, GL2.Cone.transport_j}
+  \leanok
+  \uses{def:cosettransport}
+  $\widetilde{\partial F}\varphi=\widetilde F(d\varphi)$, $\widetilde{F\partial}\varphi=d(\widetilde F\varphi)$,
+  $\widetilde{jG}\varphi=\widetilde G(r\varphi)$, $\widetilde{Gj}\varphi=r(\widetilde G\varphi)$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  Definitional, or equivariance of $\partial$ and $j$ under $s_j$.
+\end{proof}
+
+\begin{definition}[Pair homotopy; the geometric hypotheses]\label{def:pairhomotopy}
+  % mirrors [C] v1.16.0-pre.3 def:pairhomotopy, eq:pairhomotopy, eq:contractibleuse, B1-B3
+  \lean{GL2.Cone.IsPairHomotopy, GL2.Cone.PairHyp}
+  \leanok
+  \uses{def:cosettransport}
+  $\eta\colon C_\bullet(X_\partial)\to C_{\bullet+1}(X_{\mathrm{bulk}})$ with (T1) and $\partial\eta+\eta\partial=j\tau_\partial-\tau j$; and
+  \texttt{PairHyp}: \texttt{eq:contractibleuse}, the dimensions, and the (T1)-extension property.
+\end{definition}
+\begin{proof}
+  \leanok
+  Definitions.
+\end{proof}
+
+\begin{lemma}[$\eta$ exists over $\mathbb Z$ for every $\ell$]\label{lem:etaexists}
+  % mirrors [C] v1.16.0-pre.3 lem:etaexists
+  \lean{GL2.Cone.eta_exists}
+  \leanok
+  \uses{def:pairhomotopy}
+  Under \texttt{PairHyp} and $\varepsilon\circ j=\varepsilon_\partial$, a pair homotopy exists over $\mathbb Z$. \textbf{Restated
+  (L18-4):} the hypothesis $\varepsilon\circ j=\varepsilon_\partial$ ($j$ commutes with the augmentations, part of [C]
+  \texttt{def:pair}, used in [C]'s step (V): $\varepsilon(j\tau_\partial x)-\varepsilon(\tau jx)=1-1$) was missing from the
+  skeleton, which was false as written: $\Gamma=1$, both complexes $\mathbb Z$ in degree $0$, $j=\mathrm{id}$, $\varepsilon_\partial=0$,
+  $\varepsilon=\mathrm{id}$, $\tau=\mathrm{id}$, $\tau_\partial=2$ satisfy \texttt{PairHyp} and (T1)--(T3), and
+  $\partial\eta_0=j\tau_\partial-\tau j=\mathrm{id}$ has no solution as $C_1=0$. [C] is unaffected (no erratum).
+\end{lemma}
+\begin{proof}
+  \leanok
+  (L18-4.) [C]'s procedure: (V) on the orbit representatives of $C_0(X_\partial)$, $(j\tau_\partial-\tau j)(x)$ has augmentation
+  $0$, so is $\partial$ of a $1$-chain (\texttt{contract0}); extend by (T1) (\texttt{free\_twisted}). (E) on the representatives
+  of $C_1(X_\partial)$, $z_e=(j\tau_\partial-\tau j)(e)-\eta(\partial e)$ is a cycle, so $\partial$ of a $2$-chain
+  (\texttt{contract1}); extend by (T1). The identity holds on representatives and both sides are (T1) maps, so it holds
+  everywhere by the uniqueness in \texttt{free\_twisted}; all other degrees vanish by the dimension bounds.
+\end{proof}
+
+\begin{lemma}[$\eta$ is unique up to $\partial\Lambda-\Lambda\partial$, $\Lambda$ unique]\label{lem:etaunique}
+  % mirrors [C] v1.16.0-pre.3 lem:etaunique
+  \lean{GL2.Cone.eta_unique, GL2.Cone.eta_diff}
+  \leanok
+  \uses{def:pairhomotopy}
+  Two pair homotopies differ by $\partial\Lambda-\Lambda\partial$ for a unique degree-$(+2)$ map $\Lambda$, which has (T1).
+\end{lemma}
+\begin{proof}
+  \leanok
+  (L18-4.) $D=\eta'-\eta$ satisfies $\partial D+D\partial=0$; on $C_0(X_\partial)$, $D_0y$ is a $1$-cycle, so $D_0y=\partial\Lambda_0y$
+  for a unique $\Lambda_0y$ (\texttt{contract1}, \texttt{contract2}), additive and (T1) by injectivity of
+  $\partial\colon C_2\to C_1$; $\Lambda=0$ in all other degrees. In degree $1$, $\partial(D_1y+\Lambda_0\partial y)=0$ forces
+  $D_1y=-\Lambda_0\partial y$. Uniqueness: $\partial\Lambda_0'y=D_0y=\partial\Lambda_0y$, and the other degrees have zero source
+  or target.
+\end{proof}
+
+\begin{lemma}[Strictness]\label{thm:conewelldef-d}
+  % mirrors [C] v1.16.0-pre.3 thm:conewelldef (d), first sentence
+  \lean{GL2.Cone.eta_zero_iff}
+  \leanok
+  \uses{def:pairhomotopy}
+  $\eta\equiv0$ is a pair homotopy iff $\tau j=j\tau_\partial$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  With $\eta=0$ the defining identity reads $0=j\tau_\partial-\tau j$.
+\end{proof}
+
+\begin{definition}[The derived homotopy and the cone action]\label{def:coneaction}
+  % mirrors [C] v1.16.0-pre.3 def:coneaction, eq:derivedh, eq:conemap
+  \lean{GL2.Cone.thetaG, GL2.Cone.derivedH, GL2.Cone.PhiG}
+  \leanok
+  \uses{lem:cosettransport, lem:conesign}
+  $\Theta_g=\widetilde\tau$, $h=\widetilde\eta$, $\Phi_g(c,c_\partial)=(\Theta_gc,\ \Theta^\partial_gc_\partial+hc)$.
+\end{definition}
+\begin{proof}
+  \leanok
+  Well typed by Lemma~\ref{lem:cosettransport}; $R$-linear in $\varphi$.
+\end{proof}
+
+\begin{lemma}[The derived homotopy satisfies the cone identity]\label{lem:derivedhomotopy}
+  % mirrors [C] v1.16.0-pre.3 lem:derivedhomotopy
+  \lean{GL2.Cone.derived_homotopy}
+  \leanok
+  \uses{def:coneaction, lem:cosettransport-24}
+  $dh+hd=\Theta^\partial_g r-r\Theta_g$, with no hypothesis on $\ell$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  Term by term in the coset sum: $\varphi\bigl(\eta(s_j\partial y)+\partial\eta(s_jy)\bigr)=\varphi\bigl(j\tau_\partial(s_jy)-\tau j(s_jy)\bigr)$ by
+  \texttt{eq:pairhomotopy} at $s_jy$, using that $\partial$ and $j$ commute with $s_j$.
+\end{proof}
+
+\begin{theorem}[Well-definedness of the cone action]\label{thm:conewelldef}
+  % mirrors [C] v1.16.0-pre.3 thm:conewelldef (a)
+  \lean{GL2.Cone.conewelldef_a}
+  \leanok
+  \uses{lem:derivedhomotopy, lem:conesign}
+  (a) $\Phi_g$ is a cochain map, given that $\Theta_g$ and $\Theta^\partial_g$ are ([C] \texttt{thm:welldef},
+  \texttt{prop:bdrywelldef}, G2's, a hypothesis here); $\Phi_g\iota=\iota\Theta^\partial_g$ and $\pi\Phi_g=\Theta_g\pi$ are
+  Lemma~\ref{lem:conesign}.
+\end{theorem}
+\begin{proof}
+  \leanok
+  Lemma~\ref{lem:conesign} with $h=\widetilde\eta$ and Lemma~\ref{lem:derivedhomotopy}.
+\end{proof}
+
+\begin{theorem}[Independence of $\eta$]\label{prop:coneindep}
+  % mirrors [C] v1.16.0-pre.3 thm:conewelldef (b), prop:coneindep (1)
+  \lean{GL2.Cone.conewelldef_b}
+  \leanok
+  \uses{thm:conewelldef, lem:etaunique}
+  Two pair homotopies give $\Phi'-\Phi=D\Upsilon+\Upsilon D$ with $\Upsilon=(0,-\widetilde\Lambda)$, over $\mathbb Z$, for every
+  $\ell$ (proved, L18-4: $\widetilde{\eta'}-\widetilde\eta=-d\widetilde\Lambda+\widetilde\Lambda d$ term by term in the coset sum,
+  from Lemma~\ref{lem:etaunique} at $s_jy$). Not in this skeleton:
+  (c), (c$'$), (e), \texttt{prop:coneindep}(2)--(4), \texttt{prop:strictpair}, \texttt{prop:coneintegral},
+  \texttt{prop:coneroutes}, \texttt{obl:coneexact} (they need G2's $\tau$-uniqueness, the combinatorial model, or base change).
+\end{theorem}
+\begin{proof}
+  \leanok
+  (L18-4.) Lemma~\ref{lem:etaunique} gives $\Lambda$ with (T1); $\Upsilon(c,c_\partial)=(0,-\widetilde\Lambda c)$ and
+  Lemma~\ref{lem:cosettransport-24} turn $\eta'-\eta=\partial\Lambda-\Lambda\partial$ into the cochain identity.
+\end{proof}

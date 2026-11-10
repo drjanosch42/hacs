@@ -1,0 +1,203 @@
+% SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
+% SPDX-License-Identifier: CC-BY-4.0
+% gt_part_HZB.tex -- [GT] Part HZ (continued): Bockstein sequences and Tor terms at level one (M-HZ3).  Slot 25, package L-HZ2.
+% Plan: docs/implementation/slot24/heckez/07-lean-plan.md v0.4 sec. 2.3 (LB-1 .. LB-7), 5.5-5.8 (K5-K8), 10 (M-HZ3);
+% 03-bockstein-tor.md v0.3 sec. 8.  Report: docs/implementation/slot25/LHZ2_report.md.  Read by lean_census.py (gt_part_*.tex).
+% Lean: GL2/HeckeZ/Bock/{UCT,Types,Filt,Split,LevelOne23,Glue,Fibre}, GL2/HeckeZ/Exec/Bock, GL2/HeckeZ/Check/{Bock,BockK7},
+% GL2/HeckeZ/Cells/{BockData,BockControls,Bock}.  No [C] marker (07 sec. 10; [C] 1.25.0-pre.3 is HEAD, not released).
+
+\chapter{Part HZ (continued). Bockstein sequences, Tor terms and the glue at level one (M-HZ3)}
+
+\begin{lemma}[LB-1: the universal-coefficient sequence modulo $N=\ell^K$, elementary]\label{inf:heckez-uct}
+  \lean{GL2.HeckeZ.Bock.ZN, GL2.HeckeZ.Bock.BN, GL2.HeckeZ.Bock.bock, GL2.HeckeZ.Bock.bock_spec,
+    GL2.HeckeZ.Bock.bock_unique, GL2.HeckeZ.Bock.bock_mem_ker, GL2.HeckeZ.Bock.smul_bock_mem_range,
+    GL2.HeckeZ.Bock.bock_of_mem_BN, GL2.HeckeZ.Bock.exact_red, GL2.HeckeZ.Bock.exact_mid, GL2.HeckeZ.Bock.exact_bock,
+    GL2.HeckeZ.Bock.bock_natural, GL2.HeckeZ.Bock.Caveat.d_F, GL2.HeckeZ.Bock.Caveat.F_id_H0,
+    GL2.HeckeZ.Bock.Caveat.F_ne_id_H0_mod}
+  \leanok
+  For a window $A\xrightarrow{d_0}B\xrightarrow{d_1}C\xrightarrow{d_2}D$ of a cochain complex of abelian groups with $C$, $D$ without
+  $N$-torsion, with $H^q(C/N)$ computed on representatives ($Z_N=\{x:d_1x\in NC\}$, $B_N=\mathrm{im}\,d_0+NB$): the Bockstein
+  $\beta x=N^{-1}d_1x$ is well defined with values in $\ker d_2$ and in $H^{q+1}[N]$, and the sequence
+  $0\to H^q/N\to H^q(C/N)\to H^{q+1}[N]\to0$ is exact at each place, elementwise; $\beta$ is natural in a cochain map. The induced map is
+  $T_p$ only for a cochain-level lift of $T_p$ (a hypothesis, A3-m1): the two-term example $F(b)=b+a$ is the identity on $H^\bullet(C)$ and not on
+  $H^0(C/\ell)$. (03 B1(1), (3); [C] \texttt{prop:heckeZuct}(1), (3).) The quotient modules and the cardinality identity are not assembled.
+\end{lemma}
+\begin{proof}
+  \leanok
+  The hand-written snake lemma: $N d_1b=d_1z-d_1d_0a$, uniqueness of $N^{-1}$ on $C$, $D$.
+\end{proof}
+
+\begin{lemma}[LB-2: mod-$\ell^K$ types and integral exponents]\label{inf:heckez-types}
+  \lean{GL2.HeckeZ.Bock.uctType, GL2.HeckeZ.Bock.count_map_min_lt, GL2.HeckeZ.Bock.count_uctType_lt,
+    GL2.HeckeZ.Bock.count_map_min_K, GL2.HeckeZ.Bock.count_uctType_K, GL2.HeckeZ.Bock.length_uctType,
+    GL2.HeckeZ.Bock.recursion, GL2.HeckeZ.Bock.card_torsionBy_zmod, GL2.HeckeZ.Bock.card_quotient_eq_card_ker}
+  \leanok
+  \uses{inf:heckez-uct}
+  The type of $H^q(\Gamma;V/\ell^K)$ is $[K]^{b_q}\cup[\min(a_{q,i},K)]\cup[\min(a_{q+1,i},K)]$: summands of exponent $j<K$ number
+  $\mu_q(j)+\mu_{q+1}(j)$, of exponent $K$ number $b_q+\tau_q(K)+\tau_{q+1}(K)$, the length is $b_q+t_q+t_{q+1}$ (K5's formula at $K=1$); one level
+  $K_0$ and $\mu_q$ recover $\mu_{q+1}(j)$, $j<K_0$ (B2(2)); $|(\mathbb Z/\ell^a)[\ell^K]|=\ell^{\min(a,K)}$ and $|G/NG|=|G[N]|$ for a finite abelian group.
+\end{lemma}
+\begin{proof}
+  \leanok
+  List counting; for the cyclic group, $x\mapsto x/\ell^{a-\min(a,K)}$ is a bijection onto $\mathbb Z/\ell^{\min(a,K)}$; first isomorphism theorem.
+\end{proof}
+
+\begin{lemma}[LB-3: the filtration and its Hecke algebra]\label{inf:heckez-filt}
+  \lean{GL2.HeckeZ.Bock.prod_eq_zero_of_filtration, GL2.HeckeZ.Bock.pow_eq_zero_of_filtration, GL2.HeckeZ.Bock.kerGr,
+    GL2.HeckeZ.Bock.kerGr_le_prime}
+  \leanok
+  On a filtration $0=F_0\le\dots\le F_m=M$, a product of $m$ endomorphisms acting by $0$ on every graded piece is $0$; for a commutative ring acting
+  faithfully and preserving the filtration, the kernel of $A\to\prod\mathrm{End}(\mathrm{gr}_i)$ lies in every prime ideal (the spectrum is the union of
+  the graded pieces' spectra). (03 B4(2); [C] \texttt{prop:heckeZuct}(4).)
+\end{lemma}
+\begin{proof}
+  \leanok
+  Induction along the filtration; a nilpotent element lies in every prime.
+\end{proof}
+
+\begin{lemma}[LB-4: splitting by a Bezout separation]\label{inf:heckez-split}
+  \lean{GL2.HeckeZ.Bock.commute_aeval, GL2.HeckeZ.Bock.commute_aeval_aeval, GL2.HeckeZ.Bock.aeval_mem,
+    GL2.HeckeZ.Bock.aeval_restrict_apply, GL2.HeckeZ.Bock.BezoutNil, GL2.HeckeZ.Bock.BezoutSep,
+    GL2.HeckeZ.Bock.BezoutNil.isUnit_res, GL2.HeckeZ.Bock.BezoutNil.eq_zero_of_mem, GL2.HeckeZ.Bock.BezoutSep.hom_eq_zero,
+    GL2.HeckeZ.Bock.BezoutSep.isCompl_ker, GL2.HeckeZ.Bock.BezoutSep.ker_stable, GL2.HeckeZ.Bock.BezoutSep.eq_ker_of_isCompl}
+  \leanok
+  Let $S\subseteq M$ be $\theta$-stable and killed by a power of $\ell$, $G(\theta)$ nilpotent on $S$, $F(\theta)M\subseteq S$ and $UF+VG=1+\ell W$ in
+  $\mathbb Z[X]$. Then $F(\theta)$ is a unit on $S$, $\mathrm{Hom}_{\mathbb Z[\theta]}(M/S,S)=0$, $M=S\oplus\ker F(\theta)$, the complement is stable under
+  everything commuting with $\theta$ and is the unique $\theta$-stable complement. (03 B7 in the form the K6 certificate supplies, without
+  $\mathrm{Ext}^1$; [C] \texttt{prop:heckeZsplit}. The general support form through Artinian idempotents is not formalised.)
+\end{lemma}
+\begin{proof}
+  \leanok
+  $UF=1-N$ on $S$ with $N=VG-\ell W$ a sum of commuting nilpotents.
+\end{proof}
+
+\begin{lemma}[LB-5: level one at $\ell\in\{2,3\}$, in A3-M1's corrected form]\label{inf:heckez-levelone23}
+  \lean{GL2.HeckeZ.Bock.pow_apply_mem_smul, GL2.HeckeZ.Bock.pow_eq_zero_of_mem_smul, GL2.HeckeZ.Bock.redMat,
+    GL2.HeckeZ.Bock.redMat_apply, GL2.HeckeZ.Bock.redMat_eq_zero_iff, GL2.HeckeZ.Bock.redMat_eq_zero_of_forall,
+    GL2.HeckeZ.Bock.HScalar23, GL2.HeckeZ.Bock.HTellRank, GL2.HeckeZ.Bock.exists_eq_smul_of_scalar,
+    GL2.HeckeZ.Bock.aeval_restrict_apply_field, GL2.HeckeZ.Bock.exists_monic_aeval_eq_zero, GL2.HeckeZ.Bock.adjoin_le_span,
+    GL2.HeckeZ.Bock.finrank_adjoin_le_three, GL2.HeckeZ.Bock.redMat_mem_adjoin, GL2.HeckeZ.Bock.not_modIndep_levelOne23}
+  \leanok
+  \uses{inf:heckez-cert}
+  Under \texttt{hScalar23} ([C] \texttt{prop:ltwothreescalar} read on $L/\ell$) and \texttt{hTellRank} ([C] \texttt{lem:tellrank} read on $L/\ell$):
+  $T_p-(1+p)\in\ell\,\mathrm{End}(L)$ for primes $p\ne\ell$, nilpotent on every module killed by a power of $\ell$ (not on $L$); a matrix of rank $r$ over
+  a field satisfies a monic polynomial of degree $\le r+1$, so $\dim_{\mathbb F_\ell}A_1(L/\ell)\le3$; and for $d\ge4$ no $d$ elements of
+  $\mathbb Z[T_p:p\text{ prime}]$ are linearly independent modulo $\ell$: Thm.~4.1's (C3) cannot pass at $2$ or $3$. (03 B8(1), B9;
+  [C] \texttt{prop:heckeZlevelone23}(1), (6). Only the lattice clause of B8(1) and B9 are formalised: Cor.~B8$'$ and B8(2)--(4) are not; B8(1)'s nilpotency on $\mathrm{tors}_\ell$, $H^{q+1}[\ell^K]$ and $H^q(\Gamma;V/\ell^K)$ is only the generic lemma \texttt{pow\_eq\_zero\_of\_mem\_smul}. The hypotheses state the consequences on $L/\ell$; the passage from $H^1(\Gamma;V/\ell)$ to $L/\ell$ is assumed, not proved. [C] labels of 1.25.0-pre.3 cited here were checked by hand.)
+  \gtmodlit{\texttt{exists\_eq\_smul\_of\_scalar}, \texttt{redMat\_mem\_adjoin} and \texttt{not\_modIndep\_levelOne23} are conditional on the carried
+  [C] statements \gtlithyp{hScalar23} ([C] \texttt{prop:ltwothreescalar}) and, for the last, \gtlithyp{hTellRank} ([C] \texttt{lem:tellrank}); the
+  \texttt{hrank} precedent of \ref{chk:stablecert-sound}}
+\end{lemma}
+\begin{proof}
+  \leanok
+  Reduction of the matrix modulo $\ell$; $g(Y)Y=0$ for $g$ the characteristic polynomial of $Y$ on its image; the reductions of $\mathbb T^{\mathrm{fr}}$ lie in
+  $\mathbb F_\ell[\bar T_\ell]\subseteq\mathrm{span}(1,\bar T_\ell,\bar T_\ell^2)$; a dependency lifts to a combination in $\ell\,\mathrm{End}(L)$.
+\end{proof}
+
+\begin{lemma}[LB-6: the glue $J$]\label{inf:heckez-glue}
+  \lean{GL2.HeckeZ.Bock.Ifr, GL2.HeckeZ.Bock.Itors, GL2.HeckeZ.Bock.Jset, GL2.HeckeZ.Bock.HomP,
+    GL2.HeckeZ.Bock.Jset_subset_HomP, GL2.HeckeZ.Bock.Jset_eq_zero_of_HomP, GL2.HeckeZ.Bock.commute_of_mem_adjoin,
+    GL2.HeckeZ.Bock.Jset_eq_zero_of_compl, GL2.HeckeZ.Bock.eq_zero_of_mem_Ifr_of_mod, GL2.HeckeZ.Bock.isCompl_comap,
+    GL2.HeckeZ.Bock.comap_stable, GL2.HeckeZ.Bock.mem_Ifr_iff_torsion, GL2.HeckeZ.Bock.not_bezoutSep_of_nonsplit,
+    GL2.HeckeZ.Bock.Jset_subset_of_ellPart, GL2.HeckeZ.Bock.Counter.x, GL2.HeckeZ.Bock.Counter.tors,
+    GL2.HeckeZ.Bock.Counter.x_mul_sub, GL2.HeckeZ.Bock.Counter.mem_adjoin, GL2.HeckeZ.Bock.Counter.J_eq_zero,
+    GL2.HeckeZ.Bock.Counter.nonsplit}
+  \leanok
+  \uses{inf:heckez-split}
+  With $J=\mathbb T\cap I_{\mathrm{fr}}\cap I_{\mathrm{tors}}$: $I_{\mathrm{fr}}$ is the additive torsion of $\mathrm{End}$ when $S$ is the torsion of finite
+  exponent (B11(1)); $J\subseteq\mathrm{Hom}_{\mathbb T'}(H/S,S)$ for commutative $\mathbb T\supseteq\mathbb T'$ (B11(2), the upper bound); a $\mathbb T'$-stable
+  complement forces $J\cap\mathbb T'=0$ (B12(3), the lower bound), and the converse fails ($H=\mathbb Z^2\oplus\mathbb F_2$, $x(a,b,c)=(0,2b,\bar a)$);
+  a complement modulo $N$ with $S\cap N=0$ pulls back (B12(1)); reduction modulo $N$ is injective on $I_{\mathrm{fr}}$ (B13); non-split for $\mathbb T'$
+  excludes every Bezout separation by $\theta\in\mathbb T'$ (B14); the $\ell$-primary part of $J$ lies in $J$ relative to $\mathrm{tors}_\ell$.
+  CB-3 is not a hypothesis. ([C] \texttt{prop:heckeZglue}(1), (2), (3), (4).) \textbf{Partial}: B13 is injectivity and the sandwich only (the isomorphism $J_\ell\cong J_K$ for $K\ge e+c$ is not formalised); absent are B12(4), the cardinality identity of B11(1), B14 from $J\cap\mathbb T'\ne0$ or $\mathrm{Hom}\ne0$, and B14's one-dimensional clause.
+\end{lemma}
+\begin{proof}
+  \leanok
+  Elementary; the counterexample by $\mathbb Z[x]=\mathbb Z+\mathbb Zx$ ($x^2=2x$) and $x(1,0,c)=(0,0,1)$.
+\end{proof}
+
+\begin{lemma}[LB-7: the fibre product for two ideals]\label{inf:heckez-fibre}
+  \lean{GL2.HeckeZ.Bock.fibreHom, GL2.HeckeZ.Bock.fibreHom_mk, GL2.HeckeZ.Bock.fibreHom_injective,
+    GL2.HeckeZ.Bock.mem_range_fibreHom}
+  \leanok
+  $R/(I\cap I')\to R/I\times R/I'$ is injective with image the pairs agreeing in $R/(I+I')$: $R/(I\cap I')\cong R/I\times_{R/(I+I')}R/I'$; with
+  $I=I_{\mathrm{fr}}$, $I'=I_{\mathrm{tors}}$, $\mathbb T/J\cong\mathbb T^{\mathrm{fr}}\times_{C_{\mathrm{ft}}}\mathbb T^{\mathrm{tors}}$ (03 B15(1); [C]
+  \texttt{prop:heckeZglue}(5)(a)).
+\end{lemma}
+\begin{proof}
+  \leanok
+  $x-y=i+i'$ gives $z=x-i=y+i'$.
+\end{proof}
+
+\begin{definition}[The checkers K5, K6, K7 and the consistency check K8]\label{chk:hz-k5k8}
+  \lean{GL2.HeckeZ.Exec.K5Cert, GL2.HeckeZ.Exec.k5Check, GL2.HeckeZ.Exec.K6Cert, GL2.HeckeZ.Exec.k6Check,
+    GL2.HeckeZ.Exec.K7Cert, GL2.HeckeZ.Exec.k7Check, GL2.HeckeZ.Exec.K8Item, GL2.HeckeZ.Exec.k8Check,
+    GL2.HeckeZ.Check.K5Spec, GL2.HeckeZ.Check.k5Check_sound, GL2.HeckeZ.Check.TorsModel, GL2.HeckeZ.Check.torsMap,
+    GL2.HeckeZ.Check.aeval_mem_torsion, GL2.HeckeZ.Check.eq_zero_of_mem_torsion, GL2.HeckeZ.Check.peqMod_sound,
+    GL2.HeckeZ.Check.k6_sound, GL2.HeckeZ.Check.k6_J_eq_zero, GL2.HeckeZ.Check.K7Model, GL2.HeckeZ.Check.K7Spec,
+    GL2.HeckeZ.Check.k7Check_sound, GL2.HeckeZ.Check.k7_hom_eq, GL2.HeckeZ.Check.k7_hom_zero, GL2.HeckeZ.Check.card_ann_le,
+    GL2.HeckeZ.Check.k7_finite, GL2.HeckeZ.Check.k7_card_le, GL2.HeckeZ.Check.splitC, GL2.HeckeZ.Check.k7_split,
+    GL2.HeckeZ.Check.k7_J_zero, GL2.HeckeZ.Check.k7_J_card_le, GL2.HeckeZ.Check.k7_J_split}
+  \leanok
+  \uses{inf:heckez-types, inf:heckez-split, inf:heckez-glue}
+  Mathlib-free checkers (\texttt{GL2/HeckeZ/Exec/Bock.lean}): K5 is a kernel-checked comparison of numbers (the emitted $h^q$ with $b_q+t_q+t_{q+1}$) that is not linked to \texttt{uctType} or to \texttt{dims\_n}, and at $K=1$ sees only the number of summands; K5 compares the emitted $h^q$ with $b_q+t_q+t_{q+1}$; K6 checks
+  $u\chi+vP\equiv1\pmod\ell$ and $P(C)^m\equiv0$ on the torsion coordinates (row $i$ modulo $\ell^{\sigma_i}$); K7 checks a section
+  $hB_p-c_ph\equiv\beta_p$ and a Smith certificate $AW\equiv G\,\mathrm{diag}(\ell^{v_k})$, $GG'\equiv1$ modulo $q=\ell^e$ for the system of
+  $\mathrm{Hom}_{\mathbb T'}(L/\ell^e,\mathrm{tors})$; K8 checks $(1+p)p^{a\ell^j}\bmod\ell^{j+1}$ and $n=\ell^j(a(\ell+1)+b(\ell^2-\ell))$.
+  \textbf{Soundness}: K6 with TB-$\chi$ (the characteristic polynomial of $T_p$ on $L=H/\mathrm{tors}$) and TB-mat (the export's torsion block and
+  generation of $\mathrm{tors}_\ell$) gives $\mathrm{Hom}_{\mathbb Z[T_p]}(H/\mathrm{tors}_\ell,\mathrm{tors}_\ell)=0$, hence $J_\ell=0$; K7 with TB-mat
+  (\texttt{K7Model}) gives the Smith read's injectivity and annihilation, $|\mathrm{Hom}_{\mathbb T'}|\le\ell^{\sum v_k}$ (and $=0$ when all $v_k=0$),
+  and with a section a $\mathbb T'$-stable complement. Never \texttt{exact}.
+\end{definition}
+\begin{proof}
+  \leanok
+  K6 by \ref{inf:heckez-split} (\texttt{BezoutNil}) and the prime-to-$\ell$ splitting of a torsion element; K7 by linear algebra over
+  $\mathbb Z/q$ and \ref{inf:heckez-glue}.
+\end{proof}
+
+\begin{theorem}[The M-HZ3 certificates, checked]\label{chk:hz-bock-cert}
+  \lean{GL2.HeckeZ.Cells.BockData.k5All_check, GL2.HeckeZ.Cells.BockData.k6_n8_check,
+    GL2.HeckeZ.Cells.BockData.k7_n18_check, GL2.HeckeZ.Cells.BockData.k7_n20_check, GL2.HeckeZ.Cells.BockData.k7_n26_check,
+    GL2.HeckeZ.Cells.BockData.k7_n30_check, GL2.HeckeZ.Cells.BockControls.ctl_k5_rejected,
+    GL2.HeckeZ.Cells.BockControls.ctl_k5_mu_rejected, GL2.HeckeZ.Cells.BockControls.ctl_k6_chi_rejected,
+    GL2.HeckeZ.Cells.BockControls.ctl_k6_mat_rejected, GL2.HeckeZ.Cells.BockControls.ctl_k7_split_rejected,
+    GL2.HeckeZ.Cells.BockControls.ctl_k7_zero_rejected, GL2.HeckeZ.Cells.BockControls.ctl_k7_mat_rejected,
+    GL2.HeckeZ.Cells.BockControls.ctl_k8_rejected}
+  \leanok
+  \uses{chk:hz-k5k8}
+  K5 on the 54 cells $(1,n)$, $n\in\{8,\dots,60\}$ even, $\ell\in\{2,3\}$; K6 at $(1,8)$, $\ell=2$, $T_2$; K7 at $(1,18)$, $(1,20)$ (Hom bound $1$),
+  $(1,26)$, $(1,30)$ (split, Hom bound $25$), $\ell=5$, $\mathbb T'=\mathbb Z[T_2,T_3,T_5,T_7]$; one tamper per kind of check rejected.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \texttt{decide +kernel} on \texttt{GL2/HeckeZ/Cells/BockData.lean} and \texttt{BockControls.lean} (Mathlib-free).
+\end{proof}
+
+\begin{theorem}[K8: the Frobenius residues of the Dickson torsion (B10(2)), an emitter consistency check; 16 of 16 agree, 10 of them determine the monomial]\label{orc:hz-frob}
+  \lean{GL2.HeckeZ.Cells.BockData.k8All_check}
+  \leanok
+  \uses{chk:hz-k5k8}
+  On every cyclic $\ell$-primary torsion summand of $H^1$ dumped by the export at $(1,8)$, $\ell=2$; $(1,6)$, $(1,18)$, $(1,20)$, $(1,26)$, $(1,30)$,
+  $\ell=5$; $(1,12)$, $(1,30)$, $(1,36)$, $\ell=3$ (16 summands), the emitted residues of $T_p$, $p\in\{2,3,5,7\}\setminus\{\ell\}$, are
+  $(1+p)p^{a\ell^j}\bmod\ell^{j+1}$ for one Dickson monomial $D_L^aD_D^b$ of degree $n/\ell^j$. No soundness theorem (B10 is NO-LEAN, A3-N6).
+\end{theorem}
+\begin{proof}
+  \leanok
+  \texttt{decide +kernel}.
+\end{proof}
+
+\begin{theorem}[03 at level one: universal coefficients, separation and the glue on the M-HZ3 cells]\label{chk:hz-bock-cells}
+  \lean{GL2.HeckeZ.Cells.Bock.k5_all_spec, GL2.HeckeZ.Cells.Bock.cell_k6_n8, GL2.HeckeZ.Cells.Bock.cell_k7_n18,
+    GL2.HeckeZ.Cells.Bock.cell_k7_n20, GL2.HeckeZ.Cells.Bock.cell_k7_n26, GL2.HeckeZ.Cells.Bock.cell_k7_n30}
+  \leanok
+  \uses{chk:hz-bock-cert, chk:hz-k5k8, inf:heckez-glue}
+  For $H=H^1(\mathrm{SL}_2(\mathbb Z);\mathrm{Sym}^n\mathbb Z^2)$ with commuting Hecke operators $X_m$ and $\mathbb T=\mathbb Z[X_m]$: the 54 K5 counts hold;
+  at $(1,8)$ under TB-$\chi$ ($\chi(T_2|L)=x-513$) and TB-mat ($\mathrm{tors}_2=\mathbb Z/2\oplus\mathbb Z/8$, $T_2=\mathrm{diag}(0,2)$) the glue relative to
+  $\mathrm{tors}_2$ vanishes; at $(1,18)$, $(1,20)$ under TB-mat the glue relative to $\mathrm{tors}_5$ vanishes (status \texttt{zero}); at $(1,26)$, $(1,30)$
+  under TB-mat $J\cap\mathbb Z[T_2,T_3,T_5,T_7]=0$ and the glue relative to $\mathrm{tors}_5$ (it contains $J_5$) is finite of order $\le25$ (status \texttt{bounds}). The trust inputs are hypotheses of each
+  theorem (\texttt{h$\chi$}, \texttt{hmat}, \texttt{hgen}, \texttt{hM}).
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{chk:hz-k5k8} on \ref{chk:hz-bock-cert}.
+\end{proof}

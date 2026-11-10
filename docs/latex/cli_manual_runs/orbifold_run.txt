@@ -1,0 +1,19 @@
+$ hacs --campaign orbifold_small.spec --output orbifold_small_out
+=== orbifold campaign 'orbifold_small' ===
+EFFECTIVE campaign arm=orbifold model=c_i cells=3 primes=2,3,5,7 m_target=auto k_cap=0 fingerprint=0000000000000000 resume=0 out=orbifold_small_out
+EFFECTIVE l23_ternary_f3=on source=default (h1_mod ell=3 k=1: Ops3F/TritMatrix when on, Ops3<1> when off)
+EFFECTIVE l23_ring2k=on source=default (orbifold (Z) phase at ell=2: engine::ring2k smith / kernel_module when on, elim::invariant_factors / kernel_module when off)
+EFFECTIVE l23_mod3k=on source=default (orbifold (Z) phase at ell=3: engine::ring3k smith / kernel_module when on, elim::invariant_factors / kernel_module when off)
+EFFECTIVE l23_f3l=on source=default rho_n=recurrence ell3_f3_elim=ternary (orbifold F_3 field half: rho_n by the O(d^2) column recurrence and, at ell=3, TritMatrix RREF when on; the O(d^3) sum and the engine PLU when off)
+EFFECTIVE l23_bin3o1=on source=default (amalgam reader: O(d^2) relation matrix, parity-split A, vectorised Taylor shifts; h1_mod ell=2 k=1 on F_2/BitMatrix)
+  [ok  ] orbifold ell=2 n=10 h=(2,6,6,6) rankL=3 T1=[2,1] T_ell|H1=0:[1,1,1,1,1] 1:[1] K=64 m=61 gates=61 G_fail=0 conj=0 fbk=0 0.03 s 30 MB
+  [ok  ] orbifold ell=2 n=11 h=(2,6,6,6) rankL=0 T1=[1,1] T_ell|H1=0:[1,1,1,1,1] 1:[1] K=64 m=62 gates=42 G_fail=0 conj=0 fbk=0 0.02 s 33 MB
+  [ok  ] orbifold ell=3 n=10 h=(1,4,1,1) rankL=3 T1=[1] T_ell|H1=0:[1,1,1] 1:[1] K=78 m=77 gates=80 G_fail=0 conj=0 fbk=0 0.01 s 32 MB
+BIN3O1_ROUTE route=on split=2/2 odd=1 rankq=9 f2=2 reused=3 split_fallback=0 rankq_fallback=0 parity_fallback=0 fallback=0
+EFFECTIVE campaign arm=orbifold cells=3 ran=3 skipped=0 failed=0 refused=0 fallback:0 findings=0 stopped=0 wall_s=2.43 peak_rss_mb=32.5
+[exit 0]
+$ cut -f1-16 orbifold_small_out/summary.tsv
+cell_id	ell	n	weight	model	formal	status	h0	h1	h2	h3	t1	rank_lambda	t2	t3	torsion1
+orb_ell2_n10	2	10	12	c_i	0	ok	2	6	6	6	2	3	1	5	2;1
+orb_ell2_n11	2	11	13	c_i	1	ok	2	6	6	6	2	0	4	2	1;1
+orb_ell3_n10	3	10	12	c_i	0	ok	1	4	1	1	1	3	0	1	1

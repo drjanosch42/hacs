@@ -1,0 +1,23 @@
+# multiplicity_two_34_5.oc -- multiplicity one fails mod 5 at weight 36 = 12 + ell^2 - 1: one residual eigensystem
+# occupies two dimensions of H^1_+, and the anemic Hecke operators cannot separate two ideals that U_5 does separate.
+# Phenomena gallery [PG] sec:pg-mult2.  Cell (n, ell) = (34, 5).  Read_only verbs only (notebook-safe).
+# Cost: < 1 s, < 0.1 GB.
+n = 34;
+ell = 5;
+assert(n + 2 == 12 + ell^2 - 1, "weight 12 + ell^2 - 1");
+R = ext_record(n, ell, sign_split = true);
+print("operators", R.operators, " separating set S_sep", R.s_sep, " ideals", R.num_ideals);
+for m in R.ideals {
+    print("ideal", m.id, " dim", m.dim, " atlas system", m.label.system, " chi", m.label.chi,
+          " a_2", m.character(2), " a_3", m.character(3), " U_5", m.character(5), " nu", m.nilpotency);
+}
+for m in R.ideals_plus { print("H^1_+ ideal", m.id, " dim", m.dim, " system", m.label.system, " nu", m.nilpotency); }
+
+# (a) Delta's residual system omega + omega^2 (atlas system 2) fills a 4-dimensional block, semisimple (nu = 1),
+#     U_5 = 0: two weight-36 eigenforms congruent to Delta mod 5, which no Hecke operator separates.
+# (b) The system 1 + omega^3 (atlas system 1, that of E_36) carries two ideals: T_2, T_3, T_7 agree, U_5 does not.
+m0 = R.ideals[0];
+m1 = R.ideals[1];
+m2 = R.ideals[2];
+assert(m2.label.chi == [1, 2] and m2.dim == 4 and m2.nilpotency == 1, "(a)");
+assert(m0.label.system == m1.label.system and m0.character(5) != m1.character(5), "(b)");

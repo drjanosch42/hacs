@@ -1,0 +1,58 @@
+# 011_decompose_certify.oc -- `decompose` and its UNCONDITIONAL certificate
+# (plan Sec. 10, Phase C1b: "a `decompose` script asserting certify() == 0").
+#
+# The certificate is the whole point of HeckeModuleDecomposition: it re-derives
+# every claim from the reported data alone -- block-diagonality for EVERY
+# operator of the family, each block's char poly by Berkowitz on the conjugated
+# block, pi re-extracted and re-certified irreducible, the Jordan partition
+# from the ranks of pi^r, the residue degree as lcm_j deg(pi_j), and the product
+# of the block char polys against charpoly(A) recomputed on the ORIGINAL
+# matrix.  So `certify() == 0` is not a self-report.
+#
+# It also pins the SIMULTANEOUS decomposition over {T_2, T_3, T_5}, which is
+# the golden object `decomp_sim{2,3,5}^1_*` -- the k > 1 MaxSpec(T) refinement,
+# a different code path from the k = 1 primary decomposition 006 pins.
+
+include("prelude.oc");
+
+H = cohomology(symmetric_power(MODEL, N_SYM, ELL));
+T2 = hecke(H, 2);
+T3 = hecke(H, 3);
+T5 = hecke(H, 5);
+
+# k = 1, every degree with a nonzero cohomology.
+for q in H.degrees {
+    if H.dims[q] > 0 {
+        D = decompose(T2, q);
+        assert(D.certify() == 0, "certify() == 0 in degree " + str(q));
+        assert(D.q == q, "the decomposition remembers its degree");
+        assert(D.ell == ELL, "the decomposition remembers its modulus");
+        assert(D.primes == [2], "the single-operator family is [2]");
+    }
+}
+
+# k = 3, the simultaneous MaxSpec(T) refinement -- the golden object.
+DS = decompose([T2, T3, T5], 1);
+assert(DS.primes == [2, 3, 5], "the family is the three primes, in the order given");
+assert(DS.certify() == golden(POINT_COH, "decomp_sim{2,3,5}^1_certify").value,
+       "decomp_sim{2,3,5}^1_certify");
+assert(hash(DS) == golden(POINT_COH, "decomp_sim{2,3,5}^1_invariants").hash,
+       "decomp_sim{2,3,5}^1_invariants");
+assert(hash(DS.U) == golden(POINT_COH, "decomp_sim{2,3,5}^1_U").hash,
+       "decomp_sim{2,3,5}^1_U");
+assert(DS.witness_hash == golden(POINT_COH, "decomp_sim{2,3,5}^1_witness").hash,
+       "decomp_sim{2,3,5}^1_witness");
+print(DS.num_blocks, DS.primes);
+for b in DS.blocks {
+    print(b.dim, b.residue_degree, b.certified, b.local, b.phase);
+}
+
+# A refinement can only refine: the simultaneous decomposition has at least as
+# many blocks as any single-operator one, and the same total dimension.
+D2 = decompose(T2, 1);
+assert(DS.num_blocks >= D2.num_blocks, "more operators cannot merge blocks");
+sum_dim = 0;
+for b in DS.blocks { sum_dim = sum_dim + b.dim; }
+assert(sum_dim == H.dims[1], "the blocks partition H^1");
+print(sum_dim);
+annotate("011_decompose_certify: " + str(DS.num_blocks) + " simultaneous block(s)");

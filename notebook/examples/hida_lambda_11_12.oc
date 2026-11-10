@@ -1,0 +1,12 @@
+# hida_lambda_11_12.oc -- the verb hida_lambda(ell, k, W): the ordinary forms of weight k over Z/ell^W (the Lambda-adic forms side).
+# Phenomena gallery [PG] sec:pg-hidalambda ([U] sec:u-lambda).  ell = 11, W = 2: the weights 12 and 12 + 110 = 122 are congruent mod (ell - 1) ell^(W-1) = 110,
+# so the ordinary parts e S_k have the same rank and the same characteristic polynomials of T_2 and U_11 modulo 11^2 (Hida's control, on forms).
+# Read_only verbs only (notebook-safe).  Cost: ~1 s, < 0.2 GB.
+A = hida_lambda(11, 12, 2, [2]);
+B = hida_lambda(11, 122, 2, [2]);
+for R in [A, B] {
+    print("k =", R.k, " dim S =", R.dim_S, " rank e S =", R.rank_S, " rank e M =", R.rank_M, " charpoly T_2 =", R.ops[0].charpoly, " charpoly U =", R.ops[1].charpoly, " comm_ok:", R.comm_ok, " stable_ok:", R.stable_ok);
+}
+assert(A.rank_S == B.rank_S);
+assert(A.ops[0].charpoly == B.ops[0].charpoly);
+assert(A.ops[1].charpoly == B.ops[1].charpoly);

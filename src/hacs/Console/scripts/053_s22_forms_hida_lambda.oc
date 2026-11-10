@@ -1,0 +1,28 @@
+# 053_s22_forms_hida_lambda.oc -- forms_algebra(k, ell) and hida_lambda(ell, k, W), read_only verbs of the slot-22 WP-VERB package
+# ([PG] sec:pg-missing).
+#
+# The forms side of the story: S_k over F_ell with its Miller q-expansion basis and T_p on it, and the ordinary part of S_k over Z/ell^W
+# ([U] sec:u-lambda).  Weight 12 has the one-dimensional S_12 = <Delta>, so T_p is the scalar tau(p): tau(2) = -24, tau(3) = 252,
+# tau(11) = 534612.
+F = forms_algebra(12, 7);
+print("S_12 over F_7: d =", F.d, " basis =", F.basis[0], " charpoly T_2 =", F.ops[0].charpoly);
+assert(F.d == 1);
+assert(F.basis[0][1] == 1);
+assert(F.ops[0].charpoly == [3, 1]);
+assert(F.ops[1].charpoly == [0, 1]);
+# The same operator appears in the cohomology of level 1: x + 24 divides the characteristic polynomial of T_2 on H^1(SL2(Z); Sym^10 F_7).
+A = level_n(1, 10, 7);
+assert(A.ops[0].charpoly == [4, 0, 1, 1]);
+G = forms_algebra(24, 7, [2, 3], 6);
+print("S_24 over F_7: d =", G.d, " charpoly T_2 =", G.ops[0].charpoly);
+assert(G.d == 2);
+# Delta at 11 is ordinary (tau(11) = 534612 is a unit mod 11); mod 11^3 the U-eigenvalue is tau(11) and 1331 - 534612 mod 1331 = 450.
+H = hida_lambda(11, 12, 3, [2, 3]);
+print("e S_12 over Z/11^3: rank =", H.rank_S, " charpoly T_2 =", H.ops[0].charpoly, " U =", H.ops[2].charpoly, " T_2 on Eisenstein =", H.eisenstein.T2);
+assert(H.rank_S == 1);
+assert(H.rank_M == 2);
+assert(H.comm_ok);
+assert(H.stable_ok);
+assert(H.ops[0].charpoly == [24, 1]);
+assert(H.ops[2].charpoly == [450, 1]);
+assert(H.eisenstein.T2 == (1 + 2048) % 1331);

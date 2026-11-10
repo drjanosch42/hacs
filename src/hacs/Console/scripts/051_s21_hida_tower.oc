@@ -1,0 +1,16 @@
+# 051_s21_hida_tower.oc -- hida_tower(n, ell, m), a read_only verb of the slot-21 verbs package ([PG] sec:pg-missing).
+#
+# One Hida weight-tower cell ([C] def:hidatower) at class n, levels e = 1 .. m: the ordinary part of H^1(SL2(Z); Sym^n)
+# over Z/ell^e read twice ([C] cor:ordprecision: on the reduction H_K / ell^e, and on the free block of H_K), its rank and
+# the characteristic polynomials of T_2, T_3.  Cell (10, 11), the ell = 11 case of (Hi3): h^1_ord = 3 for n = 0 mod 10.
+T = hida_tower(10, 11, 2);
+print("h =", T.h, " e_max =", T.e_max, " K =", T.K, " exps =", T.exps);
+for L in T.levels {
+    print("e =", L.e, " ord_rank =", L.ord_rank, " readings agree:", L.readings_agree, " charpoly T_2 =", L.charpoly["2"]);
+    assert(L.ord_rank == 3);
+    assert(L.readings_agree);
+    assert(L.image_free);
+}
+assert(T.h == 3);
+assert(len(T.lines) == 2);
+print(T.lines[0]);

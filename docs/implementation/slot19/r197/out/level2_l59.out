@@ -1,0 +1,14 @@
+R19-7 level2: ell=59 n=3422 W=9 r=3 Lfft=8192
+SELFTEST product FFT == Kronecker: True  maxerr=8.38e-09
+SELFTEST sigma_2 multiplicative: True
+LAMBDA2 lambda_2 = Lg/ell^4: products=50 maxerr=9.31e-09 content_val(y)=3 terms=3 sha=d71f473a05266835 wall=0.2s
+P6 log(1+z) == (sigma_2 - 1) lambda_2: agree mod ell^5 (absolute; scaled digits 9/9)
+CLASS w=44: nu integral after e_w: True; Psi_k == (1-ell^(k-1))B_k/k mod ell^2 at 59/59 [exact]; affine=True; zeros mod ell: 59, mod ell^2: [914]; L_ell(1,omega^w) mod ell^2 = 767; alpha mod ell^2 = 1711
+   P3_level1_right_mod_l=59; P3_level1_right_mod_l2=1; P7_eta_integral=True; P7_psi_eq_S_Psi=59; P7_psi_eq_S_bern=59; P7_zeros_mod_l2=[914]; x0_integral=True; x0_psi_units=59
+CLASS w=2: nu integral after e_w: True; Psi_k == (1-ell^(k-1))B_k/k mod ell^2 at 59/59 [exact]; affine=True; zeros mod ell: 0, mod ell^2: []; L_ell(1,omega^w) mod ell^2 = 290; alpha mod ell^2 = None
+   P3_level1_right_mod_l=59; P3_level1_right_mod_l2=1; P7_eta_integral=True; P7_psi_eq_S_Psi=59; P7_psi_eq_S_bern=59; P7_zeros_mod_l2=[]; x0_integral=True; x0_psi_units=59
+CLASS w=4: nu integral after e_w: True; Psi_k == (1-ell^(k-1))B_k/k mod ell^2 at 59/59 [exact]; affine=True; zeros mod ell: 0, mod ell^2: []; L_ell(1,omega^w) mod ell^2 = 3098; alpha mod ell^2 = None
+   P3_level1_right_mod_l=59; P3_level1_right_mod_l2=1; P7_eta_integral=True; P7_psi_eq_S_Psi=59; P7_psi_eq_S_bern=59; P7_zeros_mod_l2=[]; x0_integral=True; x0_psi_units=59
+CLASS w=5: nu integral after e_w: True; Psi_k == (1-ell^(k-1))B_k/k mod ell^2 at 59/59 [odd]; affine=None; zeros mod ell: 59, mod ell^2: [5, 63, 121, 179, 237, 295, 353, 411, 469, 527, 585, 643, 701, 759, 817, 875, 933, 991, 1049, 1107, 1165, 1223, 1281, 1339, 1397, 1455, 1513, 1571, 1629, 1687, 1745, 1803, 1861, 1919, 1977, 2035, 2093, 2151, 2209, 2267, 2325, 2383, 2441, 2499, 2557, 2615, 2673, 2731, 2789, 2847, 2905, 2963, 3021, 3079, 3137, 3195, 3253, 3311, 3369]
+DONE ell=59 products=1333 maxerr=1.12e-08 wall=7.0s
+TIME 7.09 s 51080 KB

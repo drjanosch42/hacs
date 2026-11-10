@@ -1,0 +1,58 @@
+# 004_family_identities.oc -- IDENTITIES, not pins (plan Sec. 6, rule R10).
+#
+# The recursion of [C, thm:relations] against the INDEPENDENT double-coset
+# route, the diamond T(p,p) = p^n I, and commutativity -- all statements that
+# hold wherever they are evaluated, so they need no golden entry and would be
+# just as meaningful off the grid.
+
+include("prelude.oc");
+
+H = cohomology(symmetric_power(MODEL, N_SYM, ELL));
+F = family(H);
+
+rec = F.T_pow(P_HECKE, 2);
+dir = F.T_pow_direct(P_HECKE, 2);
+for q in H.degrees {
+    assert(hash(rec[q]) == hash(dir[q]),
+           "T_{p^2} by the recursion equals the direct double-coset route, degree " + str(q));
+}
+
+# r = 1: the primitive double coset IS T_p.
+prim = F.T_pow_primitive(P_HECKE, 1);
+t1 = F.T(P_HECKE);
+for q in H.degrees {
+    assert(hash(prim[q]) == hash(t1[q]), "primitive == full at r = 1, degree " + str(q));
+}
+
+# The diamond is the scalar p^n I ([C, prop:diamond]).
+dia = F.T_pp(P_HECKE);
+for q in H.degrees {
+    d = H.dims[q];
+    if d > 0 {
+        s = dia[q].entry(0, 0);
+        assert(hash(dia[q]) == hash(scale(identity(ELL, d), s)),
+               "T(p,p) is a scalar matrix in degree " + str(q));
+    }
+}
+
+# Commutativity of the Hecke algebra where [C, obl:algebra] applies.
+t2 = F.T(2);
+t3 = F.T(3);
+for q in H.degrees {
+    assert(hash(mul(t2[q], t3[q])) == hash(mul(t3[q], t2[q])),
+           "[T_2, T_3] = 0 in degree " + str(q));
+}
+
+# And the pins that DO exist for the family route, through golden(...).
+for q in H.degrees {
+    assert(hash(rec[q]) == golden("n=10 ell=691 p=2 r=2", "A(T_p^2)_rec^" + str(q)).hash,
+           "A(T_p^2)_rec^" + str(q));
+    assert(hash(dir[q]) == golden("n=10 ell=691 p=2 r=2", "A(T_p^2)_dir^" + str(q)).hash,
+           "A(T_p^2)_dir^" + str(q));
+}
+
+
+# (C1b) The frozen line: the two r = 2 hashes this script pins.
+print(hash(rec[1]), hash(dir[1]));
+
+annotate("004_family_identities: recursion == direct on " + str(len(H.degrees)) + " degrees");

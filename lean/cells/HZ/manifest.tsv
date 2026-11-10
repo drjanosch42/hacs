@@ -1,0 +1,6 @@
+# schema=hz_lean_manifest/v1 (07-lean-plan.md §11.1: the Lean status per (cell, checker), outside both record hashes)
+# HZ-EMIT (slot 25): written by lean/tools/hzcert_to_lean.py from the default HECKE_DUMP_HZ_CERT list; regenerated with the dumps, never by hand
+cell	checker	ell	lean_cert	lean_module	dump_sha256	record_fnv1a64	file_sha256	note
+N1_n10	K3	691	emitted	GL2.HeckeZ.HZGen.T1Toy	5a6b102a1fc02a6a3a3fd0d1e8b099abda20a4613727ba6b225fa8d19b8351ad	0x5e84b4c2540ff22a	abf1d3a2e56fe87f743acf6681bd36e6c79a07ee18127e469a3c5795fa6fa11f	the generated module kernel-checked in scratch by HZ-REC (k3Check, chiCheck; a tampered entry rejected), not committed: HZREC_report.md Sec. 5 and "Schema-audit fixes"
+N1_n22	K3	103	absent	-	-	0xa68f6f1daf281d13	0111bff8bad6d1c9abb3885ec970aecd78f07f64cd3567898f6cba66ad08f501	shape: d != 2 (K3Cert is the two-system rational case, r = 1)
+N1_n22	K3	2294797	absent	-	-	0xa68f6f1daf281d13	7a851b42ee32e05ad02e47ee37db0364a71995fc4ff4f8cb179771363745c288	shape: d != 2 (K3Cert is the two-system rational case, r = 1)

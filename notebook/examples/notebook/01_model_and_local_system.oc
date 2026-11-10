@@ -1,0 +1,18 @@
+# SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
+# SPDX-License-Identifier: LGPL-3.0-only WITH LicenseRef-CUDA-exception
+
+# %% [md] 01 -- the space and the coefficients.
+# SL_2(Z) acts on the upper half plane; the console's model is a finite triangulation of the quotient
+# with its isotropy (sl2z_model()). A coefficient system is the representation Sym^n of the standard
+# representation over F_ell, here n = 10 and ell = 691, so d_V = n + 1 = 11.
+# In the notebook every display(...) is rendered (TeX, tables); in a script it prints the canonical text.
+
+# %% The model of SL_2(Z)\H
+# The coefficient ring is the default F_ell, stated here so that the file runs in any order in one session (08 sets Z).
+set coefficient_ring = "F_ell";
+M = sl2z_model();
+display(M);
+
+# %% The coefficients Sym^10 over F_691
+L = symmetric_power(M, 10, 691);
+display(L);

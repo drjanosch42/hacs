@@ -1,0 +1,30 @@
+% In this file you should put all LaTeX macros and settings to be used both by
+% the pdf version and the web version.
+% This should be most of your macros.
+
+% The theorem-like environments defined below are those that appear by default
+% in the dependency graph. See the README of leanblueprint if you need help to
+% customize this. 
+% The configuration below use the theorem counter for all those environments
+% (this is what the [theorem] arguments mean) and never resets it.
+% If you want for instance to number them within chapters then you can add
+% [chapter] at the end of the next line.
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% L16-2: status marker for a statement proved modulo named literature hypotheses (census: proved_mod_lit).
+\newcommand{\gtmodlit}[1]{\par\noindent\textit{Literature hypotheses (status proved\_mod\_lit):} #1\par}
+% L16-5 repair: inside \gtmodlit, \gtlithyp{name} DECLARES a literature hypothesis of the row's Lean declarations
+% (a binder name, or the last component of the hypothesis's head constant). lean_census.py checks every declared
+% name against the declarations' Prop binders and refuses undeclared project-defined / closed / False hypotheses.
+\newcommand{\gtlithyp}[1]{\texttt{#1}}
+% L20-6 repairs: \smat and \abs, used by gt_part_M4.tex's M4-i rows (L20-4) and undefined until now (the PDF build stopped there).
+\providecommand{\smat}[4]{\left(\begin{smallmatrix}#1&#2\\#3&#4\end{smallmatrix}\right)}
+\providecommand{\abs}[1]{\lvert#1\rvert}

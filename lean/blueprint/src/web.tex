@@ -1,0 +1,25 @@
+% Web build of [GT] (leanblueprint / plasTeX).  Driver only; the content is content.tex.
+\documentclass{report}
+
+\usepackage{amssymb, amsthm, amsmath}
+\usepackage{hyperref}
+\usepackage[dep_graph]{blueprint}
+
+\input{macros/common}
+\input{macros/web}
+
+\home{https://example.invalid/gl2}
+\dochome{https://example.invalid/gl2/docs}
+
+\title{The Mathematics of Orbifold Cohomology of GL(2): Formal Ground Truth}
+\author{Fabian Januszewski\\ Universit\"at Paderborn\\ \texttt{fabian.januszewski@math.uni-paderborn.de}}
+\date{Version 0.1.0, 2026-11-07 (not yet binding; history in Appendix~\ref{app:gt-history})}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+\input{gt_intro}
+\end{abstract}
+\input{content}
+\input{gt_history}
+\end{document}

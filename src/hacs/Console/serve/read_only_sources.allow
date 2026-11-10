@@ -1,0 +1,29 @@
+# read_only_sources.allow -- the content-keyed exceptions of
+# ConsoleReadOnlyTagValidation (C1) ([P] v3.10 Sec. 18.11; slot-19 NB-2).
+#
+# (C1) greps the registration TUs of the console verbs (Console/Core/CoreVerbs.cpp,
+# Console/Bindings/*.cpp, HeckeExt/RegisterHeckeExtensionVerbs*.cpp) for writer /
+# environment / process entry points (ofstream, fopen, open(, std::filesystem
+# mutators, getenv, system(, popen, mkdir, unlink, exec*, fork).  A hit is
+# allowed only by an entry here: `relpath|fragment|reason`, the fragment a
+# substring of the hit's code.  An entry that matches nothing is STALE and fails
+# (the label_census.allow rule), so the list cannot outlive its reason.
+#
+# Every entry is either reached only from an UNTAGGED overload (not served) or a
+# process-start / own-process read that writes nothing.
+src/hacs/Console/Bindings/Reproducibility.cpp|std::ofstream side(sidecar.c_str());|save_state(x, path) only (untagged): the state sidecar
+src/hacs/Console/Bindings/Reproducibility.cpp|std::ofstream out(path.c_str());|save_state(x, path) only (untagged): the state file
+src/hacs/Console/Bindings/EngineSettings.cpp|std::getenv(e.env)|the engine knobs' defaults, read once when the session's settings are installed (process start)
+src/hacs/Console/Bindings/Serve.cpp|std::fopen("/proc/self/statm", "r")|the --serve driver's own resident-set read (the RSS watchdog, perf), not request-named, read-only
+src/hacs/Console/Bindings/Serve.cpp|std::getenv("ENGINE_CUDA_DISABLE")|the hello frame's cuda field, read once at process start (a whitelisted variable)
+src/hacs/Console/Bindings/ServeAtlas.cpp|std::fopen("/proc/self/statm", "r")|(slot-20 NB-4) the --serve-atlas driver's own resident-set read (the RSS watchdog), not request-named, read-only
+src/hacs/Console/Bindings/ServeAtlas.cpp|::open(path.c_str(), O_RDONLY|(slot-20 NB-4) --serve-atlas reads the index sidecar named on its command line (the launch configuration, never a request), O_RDONLY, before the first frame
+src/hacs/Console/Bindings/ServeAtlas.cpp|store.file.open(store_real, err)|(slot-20 NB-4) --serve-atlas maps the store named on its command line (never a request) O_RDONLY / PROT_READ (Util/AtlasIndex.h MappedFile), before the first frame
+src/hacs/Console/Bindings/Harness.cpp|std::getenv("TMPDIR")|(slot-24 Termux, a8afad1e; listed in S25 EXZ2-P3 fix round 1, audit F8) run_campaign(spec, output, ...) only (untagged: writes the campaign output, never served): an explicit /tmp/... output goes under $TMPDIR when /tmp is not writable
+src/hacs/Console/Bindings/Calibrate.cpp|const pid_t pid = ::fork();|(NBCONFIRM S3; listed in S4, the first notebook-ON run since S3) `cohomology_app --calibrate` only: a CLI token dispatched in main.cpp before any registry, never a verb, never reached from --serve; each probe is a child of /proc/self/exe
+src/hacs/Console/Bindings/Calibrate.cpp|const int devnull = ::open("/dev/null", O_RDONLY);|(NBCONFIRM S3; listed in S4) --calibrate only (see above): the probe child's stdin
+src/hacs/Console/Bindings/Calibrate.cpp|::execve(exe.c_str(), argv.data(), envp.data());|(NBCONFIRM S3; listed in S4) --calibrate only (see above): the probe child runs the same binary
+src/hacs/Console/Bindings/Calibrate.cpp|::mkdir(dir.substr(0, i).c_str(), 0755);|(NBCONFIRM S3; listed in S4) --calibrate only (see above): the device profile's directory (an in-tree path is REFUSED, S3 audit m5)
+src/hacs/Console/Bindings/Calibrate.cpp|std::ofstream o(tmp.c_str());|(NBCONFIRM S3; listed in S4) --calibrate only (see above): the device profile, written to a temporary then renamed
+src/hacs/Console/Bindings/HostProbe.cpp|std::getenv("HACS_HOST_PROBE_FIXTURE")|(NBCONFIRM S3; listed in S4) the read-only test interlock of the host probe (MemAvailable 4096 MiB, C: 255 GB), read when the probe is built at process start (REPL, --calibrate, --serve), never request-named; it changes no value, record or hash input
+src/hacs/Console/Bindings/Serve.cpp|std::getenv("HACS_CANCEL_TEST")|(NBCONFIRM S5) the read-only cancel test interlock (Console/Core/Cancel.h), read once at process start, honoured only as the child of this same binary (the environment gate); it can only stop a cell at a cancellation point, it changes no value, record or hash input

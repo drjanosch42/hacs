@@ -1,0 +1,17 @@
+R19-7 level2: ell=691 n=476790 W=9 r=3 Lfft=1048576
+SELFTEST product FFT == flint fmpz_poly: True  maxerr=2.44e-04
+SELFTEST sigma_2 multiplicative: True
+LAMBDA2 lambda_2 = Lg/ell^4: products=75 maxerr=3.05e-04 content_val(y)=3 terms=3 sha=1cc99c56e175f32f wall=27.5s
+P6 log(1+z) == (sigma_2 - 1) lambda_2: agree mod ell^5 (absolute; scaled digits 9/9)
+CLASS w=12: nu integral after e_w: True; Psi_k == (1-ell^(k-1))B_k/k mod ell^2 at 691/691 [affine(12,702),exact]; affine=True; zeros mod ell: 691, mod ell^2: [342252]; L_ell(1,omega^w) mod ell^2 = 460897; alpha mod ell^2 = 143037
+   P3_level1_right_mod_l=691; P3_level1_right_mod_l2=1; P4_r194_mod_l2=460897; P4_agree=True; x0_integral=True; x0_psi_units=691
+CLASS w=200: nu integral after e_w: True; Psi_k == (1-ell^(k-1))B_k/k mod ell^2 at 691/691 [affine(200,890),exact]; affine=True; zeros mod ell: 691, mod ell^2: [342440]; L_ell(1,omega^w) mod ell^2 = 282619; alpha mod ell^2 = 272945
+   P3_level1_right_mod_l=691; P3_level1_right_mod_l2=1; P4_r194_mod_l2=282619; P4_agree=True; x0_integral=True; x0_psi_units=691
+CLASS w=2: nu integral after e_w: True; Psi_k == (1-ell^(k-1))B_k/k mod ell^2 at 691/691 [affine(2,692),exact]; affine=True; zeros mod ell: 0, mod ell^2: []; L_ell(1,omega^w) mod ell^2 = 408093; alpha mod ell^2 = None
+   P3_level1_right_mod_l=691; P3_level1_right_mod_l2=1; P4_r194_mod_l2=408093; P4_agree=True; x0_integral=True; x0_psi_units=691
+CLASS w=4: nu integral after e_w: True; Psi_k == (1-ell^(k-1))B_k/k mod ell^2 at 691/691 [affine(4,694),exact]; affine=True; zeros mod ell: 0, mod ell^2: []; L_ell(1,omega^w) mod ell^2 = 140440; alpha mod ell^2 = None
+   P3_level1_right_mod_l=691; P3_level1_right_mod_l2=1; P4_r194_mod_l2=140440; P4_agree=True; x0_integral=True; x0_psi_units=691
+CLASS w=100: nu integral after e_w: True; Psi_k == (1-ell^(k-1))B_k/k mod ell^2 at 691/691 [affine(100,790),exact]; affine=True; zeros mod ell: 0, mod ell^2: []; L_ell(1,omega^w) mod ell^2 = 98564; alpha mod ell^2 = None
+   P3_level1_right_mod_l=691; P3_level1_right_mod_l2=1; P4_r194_mod_l2=98564; P4_agree=True; x0_integral=True; x0_psi_units=691
+DONE ell=691 products=375 maxerr=3.05e-04 wall=114.2s
+TIME 114.29 s 1189488 KB

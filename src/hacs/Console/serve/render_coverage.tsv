@@ -1,0 +1,66 @@
+# SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
+# SPDX-License-Identifier: LGPL-3.0-only WITH LicenseRef-CUDA-exception
+#
+# render_coverage.tsv -- how the notebook page renders every value that can reach `--serve` ([P] Sec. 18.5 "coverage";
+# slot-24 NB-RENDER R4). Gated by arm (R) of ConsoleReadOnlyTagValidation, in both directions:
+#   * every core kind, every registered object type and every Record `schema` set in the verb sources has exactly
+#     one row here, and every row names one of them;
+#   * `tex`   -- notebook/page/render.js has a TeX renderer for it (a `case "<name>":` of toTeXRaw), and every
+#               such case is marked tex here;
+#   * `hint`  -- Console/serve/render_hints.tsv has at least one row for it (a typed piece of its tree is TeX),
+#               and every name of that table is marked hint here;
+#   * `table` -- the page's generic structure (a Record as a key/value table, a List of Records as a grid);
+#   * `allow` -- shown as its canonical text (with a member table or a json view): an explicit decision, and the
+#               reason column says why. `allow` combines with nothing.
+# A new type or Record schema fails the gate until someone decides here how it renders.
+# A Record without a `schema` field (theta(), iota(), ...) is a plain `Record`: a table whose leaves render by type.
+#
+# Columns (TAB-separated): name, class (kind | type | schema), render (tex, hint, table, allow; `+`-joined), reason.
+#
+# name	class	render	reason
+Nil	kind	allow	the text `nil` is the whole value
+Bool	kind	allow	the text `true` / `false` is the whole value
+Int	kind	tex	an integer, typeset as is
+String	kind	allow	a session string never reaches TeX (injection rule, [P] Sec. 18.1.2)
+List	kind	tex+table	a flat list of TeX members is a TeX list; a list of Records a grid; else an ordered list
+Record	kind	tex+table	a key/value table, each value rendered by its own type (and by a hint below a schema); {free_rank, torsion} alone is TeX
+Fp	type	tex	a in F_p
+Poly	type	tex	a polynomial over F_ell, coefficient order labelled
+Matrix	type	tex	pmatrix up to 900 entries, a paged table above; a shape-only one offers "show all"
+Model	type	allow	a triangulation: name, dims, vertices -- structural data, shown with its json view
+Complex	type	allow	a simplicial complex: simplices are combinatorial lists, shown with the json view
+LocalSystem	type	tex	Sym^n of the standard representation over its coefficient ring
+Cohomology	type	tex	dimensions over F_ell, invariant factors over Z/ell^k, lengths otherwise (computed handles)
+HeckeOperator	type	hint	member form: the matrices A(q) and charpoly(A) are TeX; the free charpoly over Z/ell^k by hint
+Family	type	allow	a lazy family of Hecke operators: T(p), T_pow(p, r) are methods, so the page shows its parameters; display(F.T(2)) renders an operator
+ContragredientLocalSystem	type	allow	the dual local system: its parameters, each member rendered by type
+Pairing	type	allow	member form: perfect(q) per degree (Bool) beside its Int members, each rendered by type
+Block	type	allow	one block of a Decomposition: its record is engine JSON (json view); its basis is a Matrix
+Decomposition	type	allow	engine JSON of the block decomposition (json view); its blocks are Block values
+Report	type	allow	the hecke_report/v2 engine JSON, shown as the json view
+CampaignSpec	type	allow	a campaign description (paths, cells): configuration, not mathematics
+Sturm	type	allow	the Sturm bound record: a few integers in a member table
+Atlas	type	allow	Sigma(ell) in process; the atlas panel (render.js atlas*) typesets the store instead
+GF	type	tex	F_{ell^r} = F_ell[X]/(C_{ell,r})
+GFElt	type	tex	an element of F_{ell^r} as a polynomial in Y
+Settings	type	allow	the settings snapshot: key/value configuration, not mathematics
+ExtRecord	type	allow	the hecke_ext/v5 record: engine JSON (json view); its ideals are MaximalIdeal values
+MaximalIdeal	type	hint	member form: character(p) is the eigenvalue in F_ell[w]/(pi_w) by the eigen hint; t(p) a Matrix
+HeckeAlgebra	type	hint	member form: the Hilbert function by hint; dimensions are Int
+LoewyProfile	type	hint	member form: Loewy and socle layers, Jordan types by hint
+ExtensionClass	type	allow	member form: matrix(p) per active prime is a Matrix (TeX); the rest are flags
+Presentation	type	allow	generators and relations of H_m over T_m: a member table, the relations as printed (no typed tree yet)
+Involution	type	allow	generic form: dims / lengths per sign are Int lists (TeX); matrix(q), plus(q), minus(q) are methods -- display(I.matrix(1))
+BoundaryCohomology	type	allow	member form: dims and bulk_dims are Int lists (TeX); r(q) and A(p, q) are methods -- display(B.A(2, 1))
+ConeCohomology	type	allow	member form: dims are Int lists (TeX), les a grid of records; pi, r, iota, A(p, q) are methods -- display(C.A(2, 1))
+DicksonLES	type	hint	member form: the five maps of the long exact sequence, labelled source -> target, by the lesmap hint
+DescentRecord	type	tex+hint	H^q(Gamma_0(N), Sym^n Z^2) as abelian groups; the char_Z(T_p) and the pair groups by hint; char_Z(T_p) factored over Z (charpoly_factored[].factors, kind factored)
+level_n/v1	schema	hint	the characteristic polynomials ops[].charpoly over F_ell
+nebentypus/v1	schema	hint	the characteristic polynomials ops[].charpoly over F_ell
+forms_algebra/v1	schema	hint	the q-expansions basis[] and the characteristic polynomials
+hida_lambda/v1	schema	hint	the characteristic polynomials over Z/ell^W
+hida_tower/v1	schema	hint	the characteristic polynomials per level over Z/ell^e
+kummer_unit/v1	schema	hint	the unit as a polynomial in zeta_ell over Z
+lfunction/v1	schema	hint	L_a(T) as a polynomial over Z/ell^R
+hecke_ring_algebra/v1	schema	hint	per block: the torsion of Lambda_m as (+) Z/ell^e, the Hilbert functions of A_1 and A_K
+integral_hecke_structure/v1	schema	allow	(S25 HZ-REC; row added in EXZ2-P3 fix round 1, audit F8) the HeckeZ record: words, decimal strings and hashes, shown with its json view (no TeX)

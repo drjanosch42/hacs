@@ -1,0 +1,33 @@
+(C) length H^q(B; Sym^n Z/p^k), q = 0..3 (SNF/UCT = local elimination), and the integral groups H^q(B; Sym^n Z)
+  GROUP G0(2)    Z/4 n=0 len=[2, 4, 3, 3] F_2=[1, 2, 2, 2] torsion_visible=True H_Z=[Z^1 Z^1 Z^0+Z/4 Z^0+Z/2]
+  GROUP G0(2)    Z/4 n=1 len=[1, 3, 3, 3] F_2=[1, 3, 3, 3] torsion_visible=True H_Z=[Z^0 Z^0+Z/2 Z^0+Z/2+Z/2 Z^0+Z/2]
+  GROUP G0(4)    Z/4 n=0 len=[2, 5, 3, 3] F_2=[1, 3, 3, 3] torsion_visible=True H_Z=[Z^1 Z^2 Z^0+Z/2 Z^0+Z/2+Z/2]
+  GROUP G0(4)    Z/4 n=1 len=[1, 4, 4, 4] F_2=[1, 4, 4, 4] torsion_visible=True H_Z=[Z^0 Z^0+Z/2 Z^0+Z/2+Z/2+Z/2 Z^0+Z/2]
+  GROUP G0(3)    Z/9 n=0 len=[2, 3, 1, 1] F_3=[1, 2, 1, 1] torsion_visible=True H_Z=[Z^1 Z^1 Z^0+Z/6 Z^0+Z/2]
+  GROUP G0(9)    Z/9 n=0 len=[2, 6, 0, 0] F_3=[1, 3, 0, 0] torsion_visible=False H_Z=[Z^1 Z^3 Z^0+Z/2 Z^0+Z/2+Z/2+Z/2]
+  GROUP G0(5)    Z/25 n=0 len=[2, 2, 0, 0] F_5=[1, 1, 0, 0] torsion_visible=False H_Z=[Z^1 Z^1 Z^0+Z/2+Z/4 Z^0+Z/2]
+  GROUP G0(25)   Z/25 n=0 len=[2, 10, 0, 0] F_5=[1, 5, 0, 0] torsion_visible=False H_Z=[Z^1 Z^5 Z^0+Z/2+Z/4 Z^0+Z/2+Z/2+Z/2+Z/2+Z/2]
+  GROUP G1(4)    F_2 n=0 len=[1, 2, 0, 0]
+  GROUP G1(4)    F_3 n=1 len=[0, 2, 0, 0]
+  GROUP G1(8)    F_2 n=0 len=[1, 5, 0, 0]
+  GROUP G1(8)    F_3 n=1 len=[0, 8, 0, 0]
+(D) pairs B<A: [A:B], H(A), H(B), rank res (= length of the image on H^q), H^q(A,B) (relative), q = 0..3
+  PAIR G0(4)<G0(2) [A:B]=2 Z/4 n=0 H(A)=[2, 4, 3, 3] H(B)=[2, 5, 3, 3] rank_res=[2, 3, 2, 2] H(A,B)=[0, 1, 3, 2]
+  PAIR G0(4)<G0(2) [A:B]=2 Z/4 n=1 H(A)=[1, 3, 3, 3] H(B)=[1, 4, 4, 4] rank_res=[1, 2, 2, 2] H(A,B)=[0, 1, 3, 3]
+  PAIR G0(9)<G0(3) [A:B]=3 Z/9 n=0 H(A)=[2, 3, 1, 1] H(B)=[2, 6, 0, 0] rank_res=[2, 2, 0, 0] H(A,B)=[0, 1, 5, 1]
+  PAIR G0(25)<G0(5) [A:B]=5 Z/25 n=0 H(A)=[2, 2, 0, 0] H(B)=[2, 10, 0, 0] rank_res=[2, 2, 0, 0] H(A,B)=[0, 0, 8, 0]
+  PAIR Gamma^2<Gamma [A:B]=2 F_2 n=0 H(A)=[1, 1, 1, 1] H(B)=[1, 1, 1, 1] rank_res=[1, 0, 1, 0] H(A,B)=[0, 1, 1, 1]
+  PAIR G0(4)<G0(2) [A:B]=2 F_3 n=2 H(A)=[0, 2, 0, 0] H(B)=[0, 3, 0, 0] rank_res=[0, 2, 0, 0] H(A,B)=[0, 0, 1, 0]
+  PAIR G0(4)<G0(2) [A:B]=2 Z/4 n=1 H(A)=[1, 3, 3, 3] H(B)=[1, 4, 4, 4] rank_res=[1, 2, 2, 2] H(A,B)=[0, 1, 3, 3]
+  PAIR G1(8)<G1(4) [A:B]=4 F_2 n=0 H(A)=[1, 2, 0, 0] H(B)=[1, 5, 0, 0] rank_res=[1, 1, 0, 0] H(A,B)=[0, 1, 4, 0]
+  PAIR G1(8)<G1(4) [A:B]=4 F_3 n=1 H(A)=[0, 2, 0, 0] H(B)=[0, 8, 0, 0] rank_res=[0, 2, 0, 0] H(A,B)=[0, 0, 6, 0]
+(E) B-descriptors: tri, group, index, -I in B, vertex B-orbits, top B-orbits, |S_0..3^nd(B)| (None if -I not in B)
+  DESC M7 G0(5) index=6 -I_in=True vertex_orbits=24 top_orbits=30 nd_S0..3=[30, 762, 15246, 318858]
+  DESC M7 G0(25) index=30 -I_in=True vertex_orbits=116 top_orbits=150 nd_S0..3=[150, 3810, 76230, 1594290]
+  DESC M7 G1(8) index=48 -I_in=False vertex_orbits=92 top_orbits=120 nd_S0..3=None
+  DESC R_Z Gamma^2 index=2 -I_in=True vertex_orbits=11 top_orbits=14 nd_S0..3=[14, 330, 5854, 112698]
+  DESC R_Z G0(2) index=3 -I_in=True vertex_orbits=15 top_orbits=21 nd_S0..3=[21, 495, 8781, 169047]
+  DESC R_Z G0(4) index=6 -I_in=True vertex_orbits=29 top_orbits=42 nd_S0..3=[42, 990, 17562, 338094]
+(F) Gamma_1(8) -> Gamma_1(4): for each of the 5 top orbits sigma of M7 the B-top (sigma, w), w of bottom row (0, 3) mod 8,
+    lies over the A-class of bottom row (0, 3) = -(0, 1) mod 4, the negative of the A-top representative I: label u = -I
+  FORCED_U_MINUS_I tri=M7 G1(8)->G1(4) at_least=5

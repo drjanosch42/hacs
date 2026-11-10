@@ -1,0 +1,23 @@
+# SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
+# SPDX-License-Identifier: LGPL-3.0-only WITH LicenseRef-CUDA-exception
+
+# %% [md] 03 -- Hecke operators as matrices.
+# hecke(H, p) is the operator T_p on H^*; T.A(q) is its matrix on H^q in the stored basis, and charpoly
+# its characteristic polynomial over F_ell. On H^1(SL_2(Z); Sym^10 F_691^2) the eigenvalues of T_2 are
+# tau(2) = -24 on the two-dimensional cusp part (Delta, both signs) and 1 + 2^11 on the Eisenstein line -- and mod
+# 691 these agree: -24 = 2049 (mod 691), Ramanujan's congruence.
+
+# %% Setting, model and cohomology
+# The coefficient ring is the default F_ell, stated here so that the file runs in any order in one session (08 sets Z).
+set coefficient_ring = "F_ell";
+M = sl2z_model();
+H = cohomology(symmetric_power(M, 10, 691));
+
+# %% T_2 on H^1 and its characteristic polynomial
+T2 = hecke(H, 2);
+display(T2.A(1));
+display(charpoly(T2.A(1)));
+
+# %% The operator handle
+# The operator handle itself: its matrices per degree and their characteristic polynomials.
+display(T2);

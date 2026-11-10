@@ -1,0 +1,654 @@
+% SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
+% SPDX-License-Identifier: CC-BY-4.0
+
+%======================================================================
+% gl2_notation.tex --- Chapter 2 of the unified contract.
+% DRAFTED IN FULL (design pass, 2026-09-15).  Binds every later chapter.
+%======================================================================
+\section{Notation, fixed once}\label{sec:notation}
+
+This chapter is \emph{normative and exhaustive}. A symbol used anywhere in this
+document has exactly the meaning fixed here, in every chapter, in every proof, and
+in every displayed formula. A symbol not listed here is either local to the
+statement that introduces it --- in which case that statement introduces it
+explicitly --- or it is a mistake.
+
+The machine-readable form of this chapter is \file{gl2\_preamble.tex}: every macro
+named below is defined there and nowhere else, and companion documents
+\code{\textbackslash input} that file rather than copying it. The pre-consolidation
+corpus copied macro blocks between \file{hecke\_action.tex},
+\file{hecke\_extensions.tex} and \file{monodromy\_v5.tex}, which is precisely how
+three incompatible meanings of $\De$, $\tau$ and $\inv$ came to coexist; \S\ref{sec:notation-collisions}
+lists the nineteen resulting collisions and their resolution.
+
+\subsection{Reading rules}\label{sec:notation-rules}
+
+\begin{enumerate}[label=(N\arabic*)]
+\item\label{N1} \textbf{One symbol, one meaning, document-wide.} Not
+  ``one meaning per chapter'': a reader who opens the document at a proof must be
+  able to read every symbol in it without knowing which chapter it is in.
+\item\label{N2} \textbf{Decoration does not create a new symbol.} $\pi_1$ and a map
+  called $\pi$ are a collision, not a disambiguation; so are $\tau$ and $\tau'$ with
+  different meanings. Where two objects are genuinely two instances of one notion
+  (the transporters $s_1,\dots,s_m$; the vertices $v_0,\dots,v_6$) indices are of
+  course used.
+\item\label{N3} \textbf{Single letters are a scarce resource; operators get names.}
+  Where a map has no traditional single-letter name, it is written as a named
+  operator in upright type ($\coneinc$, $\coneproj$, $\prR$, $\adjg$) rather than
+  given a Greek letter. This costs three characters and buys a permanently free letter.
+\item\label{N4} \textbf{Indices are letters, not primes.} $p$, $\ell$ and $q$ are
+  reserved (\S\ref{sec:notation-primes}); a running index is $t$, $j$ or $s$. $i$ is
+  never an index: it is reserved for $\sqrt{-1}$ and the elliptic point $v_6=i$
+  (\S\ref{sec:notation-framework}, C15).
+\item\label{N5} \textbf{Retired symbols are errors, not deprecations.} The macros
+  \code{\textbackslash K}, \code{\textbackslash R}, \code{\textbackslash C},
+  \code{\textbackslash M}, \code{\textbackslash pR}, \code{\textbackslash pu},
+  \code{\textbackslash image} are defined in \file{gl2\_preamble.tex} to raise a
+  \LaTeX{} error. Text re-homed from the old documents therefore cannot carry an old
+  meaning in unnoticed: it fails to build.
+\end{enumerate}
+
+\subsection{The three arithmetic parameters}\label{sec:notation-primes}
+
+This is the single most error-prone point in the corpus, and the one the owner has
+already decided (OQ1, \file{hecke\_extensions\_owner\_decisions.md} \S OQ1:
+\emph{adopt the contract's} \code{ell} / \code{n\_sym} / \code{p\_hecke}, weight
+$k=n+2$). It is restated here as the binding rule, extended to the cohomological degree.
+
+\begin{contractbox}
+\begin{center}
+\begin{tabular}{@{}llll@{}}
+\toprule
+role & symbol & code identifier & range \\
+\midrule
+\textbf{coefficient prime} (characteristic of $\cring$)      & $\ell$ & \code{ell}      & any prime \\
+\textbf{Hecke prime} (index of the operator $T_p$)           & $p$    & \code{p\_hecke} & any prime, $p=\ell$ allowed \\
+\textbf{symmetric-power degree}                              & $n$    & \code{n\_sym}   & $n\ge 0$ \\
+\textbf{cohomological degree}                                & $q$    & \code{q}        & $q\ge 0$ \\
+modular weight (derived, never independent)                  & $k:=n+2$ & ---           & \\
+prime-power exponent in $T_{p^{\nu}}$, $N=p^{\nu}$           & $\nu$  & \code{r} (code) & $\nu\ge1$ \\
+coefficient-ring exponent in $\cring=\Z/\ell^{e}$            & $e$    & ---             & $e\ge1$ \\
+residue degree of $\Flf=\Talg_{\midl}/\midl$                 & $f$    & \code{r} (code) & $f\ge1$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{contractbox}
+
+\noindent
+Consequences, each of which changes text somewhere:
+\begin{itemize}
+\item $q$ is \textbf{the cohomological degree and nothing else}. The spec
+  \file{hecke\_extensions.tex} used $q$ for the Hecke prime while also writing $H^q$
+  and $d_q=\dim H^q$; every $T_q$, $B_q$, $\chi_b(q)$, $\Ga_0(q)$ there becomes
+  $T_p$, $B_p$, $\chi_b(p)$, $\Ga_0(p)$ here.
+\item $p$ is \textbf{the Hecke prime and nothing else}. The owner's notes
+  \file{hecke\_extensions\_mathematics.md} and
+  \file{hecke\_extensions\_computational\_strategy.md} use $p$ for the
+  \emph{coefficient} prime --- the exact opposite assignment. A formula copied from
+  them without applying the dictionary is not merely mislabelled, it is wrong.
+\item $n$ is \textbf{the symmetric-power degree and nothing else}. Two other uses
+  are retired: the cone degree (now $q$, \S\ref{sec:notation-cone}) and the composite
+  Hecke index $T_n$ (now $T_N$ with $N\in\Z_{>0}$, which
+  \file{hecke\_action.tex} already used at one site and not at two others).
+\item $k$ is \textbf{the modular weight and nothing else}, and it is a
+  \emph{derived} quantity: the document writes $k$ only where the classical
+  weight-$k$ statement is being invoked, and always with $k=n+2$ visible nearby. The
+  three other uses are retired: $k:=\#S$ (the number of Hecke operators; now $s$),
+  the basis index $u_k=x^{n-k}y^k$ (now $u_j$), and the chain-term index
+  $n^{(i,\sigma)}_k$ (now $n^{(j,\sigma)}_t$, C15).
+\item The exponent of a coefficient ring $\Z/\ell^{e}$ is $e$, \textbf{not} $k$.
+  This departs from the letter of the owner's OQ18 wording (``$\Z/\ell^k$''), which
+  was written before $k$ was pinned to the weight; the two symbols would otherwise
+  collide in the Sturm chapter, where $\Z/\ell^{e}$-coefficients and weight-$k$ forms
+  appear in one sentence. \textbf{Owner confirmation requested} (\S\ref{sec:notation-open}, O1).
+\end{itemize}
+
+\subsection{The framework: complexes, the model, the pair}\label{sec:notation-framework}
+
+\begin{center}
+\begin{longtable}{@{}lll@{}}
+\toprule
+symbol & macro & meaning \\
+\midrule
+\endhead
+$K$ & --- & the finite simplicial complex of the model (the 7-vertex complex) \\
+$\Rel$ & \code{\textbackslash Rel} & the \emph{relation set} on $K$; the model is the pair $(K,\Rel)$ \\
+$\KR$ & \code{\textbackslash KR} & the quotient complex \\
+$\Ku$ & \code{\textbackslash Ku} & the universal cover complex \\
+$\prR$, $\pru$ & \code{\textbackslash prR}, \code{\textbackslash pru} & the projections $K\to\KR$, $\Ku\to\KR$ \\
+$\piOne$ & \code{\textbackslash piOne} & the fundamental group (only with the subscript $1$) \\
+$\sigma$ & --- & an \emph{oriented simplex}; $\orient{q}(K)$ is the set of oriented $q$-simplices \\
+$v_0,\dots,v_6$ & --- & the seven vertices of the model \\
+$\Ga$ & \code{\textbackslash Ga} & $\SL_2(\Z)$ \\
+$\Ga''$ & --- & $\Ga_0(N)$, $N=p^{\nu}$, the group of the correspondence \\
+$\Gbdry$ & \code{\textbackslash Gbdry} & the boundary group $\langle T\rangle\times\langle -I\rangle$ \\
+$\De$ & \code{\textbackslash De} & the monoid $\{g\in\Mat_2(\Z):\det g>0\}$ \\
+$\Deprim_{p^{\nu}}$ & \code{\textbackslash Deprim} & the \emph{primitive} double coset \\
+$\Xbulk$ & \code{\textbackslash Xbulk} & the $\Ga$-tessellation of the truncated upper half plane \\
+$\Xbdry$ & \code{\textbackslash Xbdry} & $\Ga\cdot i(\Kbdry)\subset\Xbulk$, the $\Ga$-subcomplex of horocycle lines \\
+$\Kbdry$ & \code{\textbackslash Kbdry} & the circle model: the path $v_0v_1v_2v_3$ with $v_3=Tv_0$ \\
+$j$ & --- & the inclusion $\Xbdry\hookrightarrow\Xbulk$ (of \emph{spaces/chains}) \\
+$\rres$ & \code{\textbackslash rres} & the restriction cochain map $\rres:=j^{\ast}$ \\
+$\zeta$ & --- & $e^{\pi i/3}$; the elliptic vertices are $v_4=\zeta^2$, $v_5=\zeta$, $v_6=i$ \\
+$T,S$ & --- & the standard generators $\smat1101$, $\smat0{-1}10$ of $\Ga$ \\
+$\inv$, $\invK$ & \code{\textbackslash inv}, \code{\textbackslash invK} & the involution $\mathrm{diag}(-1,1)$ and its simplicial realisation \\
+$\lift{\sigma}$ & \code{\textbackslash lift} & the distinguished lift of $\sigma\in\orient{q}(K)$ into $\orient{q}(\Ku)$, for the strict fundamental domain $K\subseteq\Ku$; the code spells this \code{i(sigma)}, which this document cannot (C16); the tilde's other readings are C19 \\
+\bottomrule
+\end{longtable}
+\end{center}
+
+\noindent\textbf{Note on $\Rel$ and $\cring$.} The old contract wrote the model as
+$(K,R)$ and the cohomology as $H^q(K,R;L)$, with $R$ the \emph{relation}; the cone
+and coefficient-ring material writes $\cring$ for the \emph{coefficient ring}
+($6\in\cring^{\times}$, $\VR$, $\Z/\ell^{e}$). Both are indispensable and they cannot
+share a letter. Here $\cring$ is the coefficient ring and the relation set is
+$\Rel$, so the model is $(K,\Rel)$ and its cohomology $H^q(K,\Rel;L)$. Individual
+relations are written as triples $(\sigma_{\mathrm{lhs}},\sigma_{\mathrm{rhs}},\gamma)
+\in\Rel$, $\gamma\in\Ga$ (C17), and are given no single-letter name (the old
+$r\in R_+$ is retired: $r$ is the restriction map). Code identifiers are unaffected:
+\code{SimplexRelation} and
+\code{EquivariantCohomologyOnK} name the same objects.
+
+\subsection{Cochains, coefficients, bases}\label{sec:notation-cochains}
+
+\begin{center}
+\begin{longtable}{@{}lll@{}}
+\toprule
+symbol & macro & meaning \\
+\midrule
+\endhead
+$\cring$ & \code{\textbackslash cring} & the coefficient ring: $\Fl$, $\Z/\ell^{e}$, or $\Z/m$ \\
+$\Vcoef$ & \code{\textbackslash Vcoef} & $\Sym^n(\Z^2)$, the integral coefficient module \\
+$\VR$ & \code{\textbackslash VR} & $\Vcoef\otimes\cring$ \\
+$\Mn$, $\Dn$ & \code{\textbackslash Mn}, \code{\textbackslash Dn} & $\Sym^n\Fl^2$ and its contragredient (divided powers) \\
+$\rhon$, $\rhodual$ & \code{\textbackslash rhon}, \code{\textbackslash rhodual} & the symmetric-power action and its contragredient \\
+$u_j=x^{n-j}y^j$ & --- & the ordered basis of $\Sym^n$, $0\le j\le n$ \\
+$d_V$ & --- & $\dim\Vcoef=n+1$ \\
+$M_\gamma$ & --- & the monodromy matrix $\rhon(\gamma)$ of a relation \\
+$\Cq{q}$, $\Zq{q}$, $\Bq{q}$, $\Heq{q}$ & \code{\textbackslash Cq}\ldots & equivariant cochains, cocycles, coboundaries, cohomology \\
+$c^{(q)}_j$, $z^{(q)}_j$, $b^{(q)}_j$ & --- & the stored bases of $\Cq{q}$, $\Zq{q}$, $\Bq{q}$ \\
+$d$ & --- & the \emph{coboundary} $\Cq{q}\to\Cq{q+1}$ \\
+$\partial$ & --- & the \emph{chain boundary} $C_q\to C_{q-1}$ \\
+$\aug$ & \code{\textbackslash aug} & the augmentation $C_0\to\Z$ \\
+$P_q$ & --- & the projector $\Zq{q}\to\Heq{q}$ \\
+$\cf$ & \code{\textbackslash cf} & the normalised weight-$12$ cusp form (classically ``$\Delta$'') \\
+\bottomrule
+\end{longtable}
+\end{center}
+
+\noindent The basis-name scheme $c/z/b$ replaces \file{monodromy\_v5.tex}'s
+$\beta_j^{(q)}$, $\delta_s^{(q)}$, $\eta_p^{(q)}$, each of which collided with a
+different reserved symbol --- and the last of which was additionally indexed by $p$.
+
+\subsection{The Hecke datum}\label{sec:notation-hecke}
+
+\begin{center}
+\begin{longtable}{@{}lll@{}}
+\toprule
+symbol & macro & meaning \\
+\midrule
+\endhead
+$\tau$ & --- & the $g$-twisted chain datum on $\Xbulk$ (\emph{only} this) \\
+$\taub$ & \code{\textbackslash taub} & the $g$-twisted chain datum on $\Xbdry$ \\
+$s_1,\dots,s_m$ & --- & the transporters, $\Ga=\bigsqcup_j\Ga''s_j$ \\
+$\delta_j$ & --- & the coset elements $\delta_j=s_j^{-1}g$ \\
+$\beta_j$, $\beta_\infty$ & --- & the upper-triangular \emph{right}-coset representatives \\
+$\delta_j$, $\delta_\infty$ & --- & the upper-triangular \emph{left}-coset representatives (the normative ones) \\
+$\Xig$, $\Th_g$ & \code{\textbackslash Xig}, \code{\textbackslash Th} & the induced-system map and the fused cochain map $\Th_g=\omega_\bullet\circ\Xig$ \\
+$\alpha$, $\omega$ & --- & the restriction unit and the corestriction counit \\
+$\mu$ & --- & the would-be middle map of the induced sequence (\emph{provably does not exist}) \\
+$\Thb_g$ & \code{\textbackslash Thb} & the boundary cochain map \\
+$\Amat{q}$, $\Abdry{q}$, $\Acone{q}$ & \code{\textbackslash Amat}\ldots & the cohomology-level matrices on $H^q$, $H^q(\partial)$, $H^q_c$ \\
+$T_p$, $T_{p^{\nu}}$, $T_N$, $\diam$, $U_\ell$ & --- & the operators; $N\in\Z_{>0}$ a composite index \\
+$\Talg$, $\midl$ & \code{\textbackslash Talg}, \code{\textbackslash midl} & the Hecke algebra and a maximal ideal of it \\
+$\chi_b$ & --- & a boundary character \\
+$a_N(\cf)$ & --- & the $N$-th Fourier coefficient of $\cf$ (classically ``$\tau(N)$'') \\
+\bottomrule
+\end{longtable}
+\end{center}
+
+\subsection{The pair, the cone, compact supports}\label{sec:notation-cone}
+
+\begin{center}
+\begin{longtable}{@{}lll@{}}
+\toprule
+symbol & macro & meaning \\
+\midrule
+\endhead
+$\etapair$ & \code{\textbackslash etapair} & the \emph{pair homotopy} $C_\ast(\Xbdry)\to C_{\ast+1}(\Xbulk)$ \\
+$\hder$ & \code{\textbackslash hder} & the \emph{derived} cochain homotopy $\hder:=\widetilde{\etapair}$ (never freely chosen) \\
+$\Lam$ & \code{\textbackslash Lam} & the unique $C_0(\Xbdry)\to C_2(\Xbulk)$ with $\etapair'-\etapair=\partial\Lam-\Lam\partial$ \\
+$\Cone{\rres}$ & \code{\textbackslash Cone} & the mapping cone, $\Cone{\rres}^q=\Cq{q+1}(K)\oplus\Cq{q}(\Kbdry)$ \\
+$(c,c_\partial)$ & --- & a cone cochain (bulk component, boundary component) \\
+$\Dcone$ & \code{\textbackslash Dcone} & the cone differential $\Dcone(c,c_\partial)=(-dc,\;dc_\partial+\rres c)$ \\
+$\Phig$ & \code{\textbackslash Phig} & the cone cochain map $\Phig(c,c_\partial)=(\Th_g c,\;\Thb_g c_\partial+\hder c)$ \\
+$\coneinc$, $\coneproj$ & \code{\textbackslash coneinc}, \code{\textbackslash coneproj} & the cone inclusion and projection \\
+$\Hcpt{q}$ & \code{\textbackslash Hcpt} & $\Hcpt{q}:=H^{q-1}(\Cone{\rres})$ \\
+$X_1,\dots,X_6$ & --- & the six groups of the long exact sequence \\
+\bottomrule
+\end{longtable}
+\end{center}
+
+\noindent Three points where this differs from the sources it is re-homed from:
+\begin{itemize}
+\item \textbf{The cone degree is $q$.} The OQ2 verdict and
+  \file{monodromy\_v5.tex} \S8 write $\Cone{\rres}^n=A^{n+1}\oplus B^n$ and
+  $H^n_c:=H^{n-1}(\Cone{\rres})$ --- with $n$ also the symmetric power, in the same
+  notation block. Here: $\Cone{\rres}^q$, $\Hcpt{q}=H^{q-1}(\Cone{\rres})$.
+\item \textbf{The cone inclusion is $\coneinc$, not $\inv$.} Both the verdict
+  ($\inv_\ast\circ k_\ast\circ\pi_\ast$) and the implementation plan
+  ($\Phig\,\inv=\inv\,\Thb_g$) wrote $\inv$ for the cone inclusion, $130$ lines after
+  the same plan fixed $\inv$ as the involution --- both inside the text proposed for
+  the contract. Here $\inv$ is the involution; the cone maps are named operators.
+\item \textbf{The cone element is $(c,c_\partial)$, not $(a,b)$.} $a$ is a Fourier
+  coefficient and an exponent in $\Z/\ell^a$; $b$ indexes the boundary characters
+  $\chi_b$. The component names also say which component is which, which the
+  formalization will want.
+\end{itemize}
+
+\subsection{The nineteen collisions and their resolution}\label{sec:notation-collisions}
+
+Eleven collisions were found by the corpus survey of 2026-09-15; three more
+(C12, C13, C14) were found during this design pass, a fifteenth (C15) during
+the Chapters~7--8 drafting pass, a sixteenth (C16) during the Chapter~11
+drafting pass, and a seventeenth (C17) during the Chapter~13 slot~4 follow-up
+pass, all 2026-09-15. Two further ones were found while Chapters~14 and~15 were
+written (2026-09-16) and resolved \emph{locally} there, each with a note saying it was
+not yet listed here: they are C18 and C19, added 2026-09-16. Each
+row says which document's usage \emph{changes}.
+
+\begin{center}
+\begin{longtable}{@{}p{0.055\textwidth}p{0.40\textwidth}p{0.47\textwidth}@{}}
+\toprule
+\# & the two (or more) live meanings & resolution \\
+\midrule
+\endhead
+\textbf{C3} &
+$\inv=\mathrm{diag}(-1,1)$ (spec (A3); owner decision OQ3; record field
+\code{iota\_sign}) \emph{vs} $\inv=$ the cone inclusion $B\to\Cone{\rres}$
+(\file{monodromy\_v5.tex}:1226; verdict \S0, \S2; plan \S0.4 C-A3) &
+$\inv$ \textbf{is the involution}. The cone inclusion becomes $\coneinc$ and the
+projection $\coneproj$. \emph{Changes:} \file{monodromy\_v5.tex} \S8, the verdict's
+and the plan's cone text. \\
+\addlinespace
+\textbf{C4} &
+$\tau=$ the $g$-twisted chain datum (contract, $36$ code sites via \code{alg:tau})
+\emph{vs} $\tau=$ an oriented simplex (\file{hecke\_action.tex}:1012--1015,
+\emph{inside the proof of} \code{thm:xi}; \file{monodromy\_v5.tex}:619,628--630)
+\emph{vs} $\tau(N)=$ Ramanujan's function (spec, six sites) &
+$\tau$ \textbf{is the chain datum}. Oriented simplices are $\sigma$ (already the
+contract's own convention elsewhere). Ramanujan's function is written
+$a_N(\cf)$ and never appears as $\tau$. \emph{Changes:} the proof of
+\code{thm:xi}, \file{monodromy\_v5.tex} Thm~44's proof, the spec's $\ell=691$ section. \\
+\addlinespace
+\textbf{C5} &
+$\De=\{g\in\Mat_2(\Z):\det g>0\}$ (both documents; ``note $\inv\notin\De$'')
+\emph{vs} $\Delta=$ Ramanujan's cusp form (spec:162, 424--425, 1037, 1327, 1334) ---
+\emph{same macro, same document} &
+$\De$ \textbf{is the monoid}. The weight-$12$ cusp form is $\cf$, with
+$a_N(\cf)$ its coefficients. \emph{Changes:} the spec. \\
+\addlinespace
+\textbf{C6} &
+$\etapair=$ the pair homotopy (verdict \S2.3ff; spec:779; plan:346) \emph{vs}
+$\eta_p^{(q)}=$ a coboundary basis vector (\file{monodromy\_v5.tex}:1182, 1208,
+1211, 1325, 1328 --- \emph{inside \S8, the very cone section}), itself indexed by $p$ &
+$\etapair$ \textbf{is the pair homotopy}. Basis vectors are $c^{(q)}_j$ / $z^{(q)}_j$
+/ $b^{(q)}_j$ for $\Cq{q}$ / $\Zq{q}$ / $\Bq{q}$, indexed by $j$.
+\emph{Changes:} \file{monodromy\_v5.tex} \S7--\S8. \\
+\addlinespace
+\textbf{C7} &
+$\delta_j=s_j^{-1}g$ (contract, \code{alg:assembly}) \emph{vs} $\delta$ the
+coboundary $(\delta\varphi)(x)=\varphi(\partial x)$ (\file{hecke\_action.tex}:690,
+1014 --- same proof as the coset elements) \emph{vs} $\delta_s^{(q)}$ a cocycle basis
+vector (\file{monodromy\_v5.tex}:1098--1109) &
+$\delta$ \textbf{is the coset element}. The coboundary is $d$ throughout
+($\partial$ for chains, $d$ for cochains, $\Dcone$ for the cone). Basis vectors as in
+C6. \emph{Changes:} \file{hecke\_action.tex} \S\S4--5, \file{monodromy\_v5.tex} \S7. \\
+\addlinespace
+\textbf{C8} &
+$\beta_j=\smat1j0p$ right-coset representatives (contract \code{prop:cosets})
+\emph{vs} $\beta$ the middle map of the induced sequence
+(\file{monodromy\_v5.tex}:1519, the map proved not to exist) \emph{vs}
+$\beta_j^{(q)}$ a basis vector (\file{monodromy\_v5.tex}:1098) &
+$\beta_j$ \textbf{is the right-coset representative}. The non-existent middle map is
+$\mu$, with a parenthetical ``called $\beta$ in [v5] \S12''. Basis vectors as in C6.
+\emph{Changes:} \file{monodromy\_v5.tex} \S7, \S12; the no-go remark keeps its label
+\code{rmk:nogo}. \\
+\addlinespace
+\textbf{C9} &
+$\rho=e^{2\pi i/3}$, $\rho^2$, ``the elliptic points $i,\rho,\rho^2$''
+(\file{hecke\_action.tex}:194, 222--223, 243--244) \emph{vs} $\rhon$, $\rho_L$ the
+representation (\emph{same subsection}, :245) &
+$\rho$ \textbf{is the representation}. The elliptic points are $\zeta:=e^{\pi i/3}$,
+$\zeta^2$ and $i$; the vertices are $v_4=\zeta^2$, $v_5=\zeta$, $v_6=i$. (The old
+naming was non-standard as well as colliding: $e^{\pi i/3}$ is conventionally
+$-\bar\rho$.) \emph{Changes:} \file{hecke\_action.tex} \S2.2. \\
+\addlinespace
+\textbf{C2} &
+$n=$ symmetric power (everywhere) \emph{vs} $n=$ the cone degree (verdict:32; plan
+C-A3(ii.4); \file{monodromy\_v5.tex}:1152) \emph{vs} $T_n$ the composite Hecke index
+(\file{hecke\_action.tex}:80, 1439, against $T_N$ at :518) &
+$n$ \textbf{is the symmetric power}. Cone degree $\to q$; composite index $\to T_N$.
+\emph{Changes:} the verdict's and the plan's cone text, \file{monodromy\_v5.tex} \S8,
+two sites in \file{hecke\_action.tex}. \\
+\addlinespace
+\textbf{C10} &
+$k=n+2$ the weight (spec:136, 206, 323, 419) \emph{vs} $k:=\#S$ (spec:746,
+\emph{same document}) \emph{vs} $u_k=x^{n-k}y^k$ (contract:294) \emph{vs}
+$n_k^{(i,\sigma)}$ (contract:977) \emph{vs} $k=$ the symmetric power in [M]/[S] &
+$k$ \textbf{is the weight}, always derived and always with $k=n+2$ visible.
+$\#S\to s$; $u_k\to u_j$; $n_k^{(i,\sigma)}\to n_t^{(j,\sigma)}$ (the transporter index by C15); [M]/[S]'s $k\to n$.
+\emph{Changes:} spec \S7, contract \S2.3 and \S5, both owner notes. \\
+\addlinespace
+\textbf{C11} &
+$r$ the exponent in $T_{p^r}$ (contract:496) \emph{vs} $r$ the residue degree of
+$\F_{\ell^r}$ (spec:40, 345) \emph{vs} $r^0,r^1$ the restriction maps (spec:238;
+verdict; plan) \emph{vs} $r\in R_+$ a relation (contract:107, 121) ---
+two of them as superscripts on one line at spec:280 &
+$r$ \textbf{is the restriction cochain map} $\rres=j^{\ast}$ (it is the symbol the
+cone notation is built on: $\Cone{\rres}$, $\ker\rres^1$, $\coker\rres^0$). Exponent
+$\to\nu$ ($T_{p^{\nu}}$, $N=p^{\nu}$); residue degree $\to f$ ($\Flf$) --- the
+standard number-theoretic letter; relations get no letter (see
+\S\ref{sec:notation-framework}). \emph{Changes:} contract \S3, \S2.1; spec \S6. \\
+\addlinespace
+\textbf{C1} &
+$q$ the Hecke prime (spec:134, and $\sim60$ occurrences of $T_q$) \emph{vs} $q$ the
+cohomological degree (spec:262, 746, \emph{same Throughout-line}; the whole contract;
+the code) &
+$q$ \textbf{is the cohomological degree}; the Hecke prime is $p$
+(\S\ref{sec:notation-primes}, owner decision OQ1). \emph{Changes:} the spec throughout. \\
+\addlinespace
+\label{coll:p}D3 &
+$p$ the Hecke prime (contract, code) \emph{vs} $p$ the coefficient prime
+([M], [S], and the owner's own wording in the decision record) &
+$p$ \textbf{is the Hecke prime}; the coefficient prime is $\ell$
+(owner decision OQ1). \emph{Changes:} [M], [S]. \\
+\addlinespace
+\textbf{C12} &
+$M_\gamma:=\rhon(\gamma)$ a monodromy matrix (contract:245; the code's
+\code{SimplexRelation::M}) \emph{vs} $\Mn=\Sym^n\Fl^2$ and $\Dn$ (spec) \emph{vs}
+$M:C_0(\Xbdry)\to C_2(\Xbulk)$ the unique map of the $\etapair$-uniqueness lemma
+(verdict Lemma 2.4.1; plan C-A3(ii.3)) \emph{vs} $\Mat_2(\Z)$ (macro
+\code{\textbackslash M}) \emph{vs} $M^T$, $M_T$ boundary (co)invariants &
+The coefficient module is $\Vcoef$ / $\VR$, with $\Mn$ retained as a synonym
+\emph{defined once} for the classification literature; monodromy matrices keep
+$M_\gamma$ (always subscripted); the unique degree-$(+2)$ map is $\Lam$; the matrix
+algebra is $\Mat_2(\Z)$ (\code{\textbackslash Mat}; \code{\textbackslash M} is
+retired to an error); boundary (co)invariants are $\VR^{T}$, $(\VR)_{T}$.
+\emph{Changes:} the verdict's and plan's cone text, the spec. \\
+\addlinespace
+\textbf{C13} &
+$R$ the relation set, in $(K,R)$ and $H^q(K,R;L)$ --- \emph{including the title of
+the contract} --- \emph{vs} $R$ the coefficient ring ($6\in R^{\times}$, $V_R$,
+$R=\Z/\ell^e$) in all of the cone and integrality material &
+$\cring$ \textbf{is the coefficient ring}; the relation set is $\Rel$, so the model
+is $(K,\Rel)$ and its cohomology $H^q(K,\Rel;L)$. \emph{Changes:} the contract's
+title and \S\S1--2, \file{monodromy\_v5.tex} throughout (typographic only; no label
+and no code identifier moves). \\
+\addlinespace
+\textbf{C14} &
+$s_i$ the transporters $\Ga=\bigsqcup_i\Ga''s_i$ (contract) \emph{vs} $s$ an
+(un)oriented simplex (\file{monodromy\_v5.tex}; the code's flat index $s\cdot d_V+k$)
+\emph{vs} $S=\smat0{-1}10$ the generator \emph{vs} $S$ the set of computed operators
+(spec \S7) &
+$s_j$ \textbf{is a transporter} (index $j$, not $i$: C15); simplices are $\sigma$; $S$ is the generator; the
+operator set is $\mathcal{S}$ with $s:=\#\mathcal{S}$. \emph{Changes:}
+\file{monodromy\_v5.tex}, spec \S7. \\
+\addlinespace
+\textbf{C15} &
+\ref{N4}'s reading rule, ``a running index is $i$, $j$, $t$ or $s$''
+\emph{vs} $v_6=i=\sqrt{-1}$, the elliptic point
+(\S\ref{sec:notation-framework}) --- the same chapter, the reading rules and the
+framework table a page apart &
+$i$ \textbf{is $\sqrt{-1}$ (and the elliptic point $v_6$) only}. Running indices
+are $t$, $j$ or $s$; \ref{N4} is amended accordingly. The transporters and coset
+elements are therefore $s_j$, $\delta_j=s_j^{-1}g$ and the chain-term coefficients
+$n^{(j,\sigma)}_t$, which is what Chapters~10--11 write. \emph{Changes:} this
+chapter's own \ref{N4} and its tables (\S\ref{sec:notation-hecke},
+C7, C10, C14); Chapters~7--8 already avoided $i$ as an
+index (found during their drafting); \file{hecke\_action.tex} throughout, where the
+transporter index is $i$ (crosswalk, \S\ref{sec:notation-crosswalk}). Owner decision
+recorded \S\ref{sec:notation-open}, 2026-09-15. \\
+\addlinespace
+\textbf{C16} &
+$i(\sigma)$ the distinguished lift of a simplex $\sigma\in K$ into the universal cover
+$\Ku$ (the code's \code{i(sigma)}; \file{monodromy\_v5.tex}'s inclusion
+$i:K\to\Ku$ and \code{rmk:injectivityofi}; \file{hecke\_action.tex}, the $\tau$-datum
+and \code{alg:tau}) \emph{vs} $i=\sqrt{-1}$ and the elliptic point $v_6$ (C15) ---
+and, in the same formulas, $i$ as the transporter index &
+$i$ \textbf{is $\sqrt{-1}$} (C15), so the lift gets no letter at all: it is the
+decoration $\lift{\sigma}$ (\code{\textbackslash lift}), rendered
+$\widetilde{\sigma}$, for the strict fundamental domain $K\subseteq\Ku$ of
+\ref{H4}(iii). It is a \emph{map}, not an index, so \ref{N3} does not force an
+upright operator name. \emph{Changes:} \file{monodromy\_v5.tex} \S\S1--2 and
+\file{hecke\_action.tex} \S\S5--6 wherever $i(\sigma)$ appears; the code identifier
+\code{i(sigma)} is unaffected and does \emph{not} move. \\
+\addlinespace
+\textbf{C17} &
+$g$ the relation element of a triple $(\sigma_{\mathrm{lhs}},\sigma_{\mathrm{rhs}},g)
+\in\Rel$ (\code{def:model7rel}, the seven-vertex model's relation table) \emph{vs}
+$g=\smat{1}{0}{0}{N}$ the Hecke element fixed throughout the Hecke chapters
+(\S\ref{sec:notation-hecke}) --- the two meet in one formula, \code{thm:xi}(1) &
+$g$ \textbf{is the Hecke element only}. Relation elements are $\gamma\in\Ga$, so a
+relation is a triple $(\sigma_{\mathrm{lhs}},\sigma_{\mathrm{rhs}},\gamma)\in\Rel$;
+this model's relation elements ($T$, $S$, $ST$, $TS$, $-I$) all lie in $\Ga$, so the
+rename costs nothing. \emph{Changes:} \code{def:model7rel} and its contract box
+(both instances of $g$), and the one further site where the relation triple's third
+component was written $g$ (the contragredient local system, \code{sec:contragredient}
+in the contract's numbering). \\
+\addlinespace
+\textbf{C18} &
+$N=p^{\nu}$ the Hecke level, fixed throughout the Hecke chapters
+(\S\ref{sec:notation-primes}; $\Ga''=\Ga_0(N)$, $g=\mathrm{diag}(1,N)$, $T_N$,
+$a_N(\cf)$) \emph{vs} $N:=\prod_{c\in\F_\ell}(y+cx)=y^{\ell}-x^{\ell-1}y$, the
+degree-$\ell$ boundary invariant of \code{cl:boundary} and \code{cl:chi}
+(\file{hecke\_extensions.tex}; the spelling the boundary chapter inherited) --- the two
+meet in one statement, \code{prop:bdrychar}, whose eigenvalues are indexed by the
+\emph{level} $p$ and whose basis is built from the \emph{invariant} &
+$N$ \textbf{is the Hecke level only}. The invariant is $\mathrm{Nm}$ --- it is the norm,
+i.e.\ the $\langle T\rangle$-orbit product, of $y$ --- and it gets an upright operator
+name, not a letter (\ref{N3}). \emph{Changes:} \file{hecke\_extensions.tex}
+\code{cl:boundary}, \code{cl:chi} and every occurrence of the invariant in their
+neighbourhood; in this document the spelling is already $\mathrm{Nm}$ everywhere
+(\code{prop:bdrychar} and the $\VR^{T}$ basis $x^{\,n-b\ell}\mathrm{Nm}^{\,b}$). Found
+while Chapter~14 was written; resolved locally there on 2026-09-16 and listed here on
+the same day. \\
+\addlinespace
+\textbf{C19} &
+The \textbf{tilde} as a decoration, with four live readings: $\lift{\sigma}$, the
+distinguished lift of a simplex (C16, \code{\textbackslash lift}); $\widetilde F$, the
+coset transport of a (T1)-map (\code{def:cosettransport} --- $\widetilde\tau$,
+$\widetilde H$, $\widetilde\Lam$, $\widetilde{N_\partial}$, $\hder=\widetilde{\etapair}$);
+$\widetilde T$, the \emph{cochain-level} operator of \code{def:hecke}; and, in Part~I
+only, $\widetilde K$ the saturation and $\widetilde X$ the universal cover &
+\textbf{The decoration is read from what it decorates}, and no rename is made: on a
+\emph{simplex or chain} it is the lift, on a \emph{map with (T1)} it is coset transport.
+The two never meet in one formula and are typographically distinct (a decorated symbol
+versus a decorated operator); the point of definition of each says so
+(\S\ref{sec:notation-framework}, \code{def:cosettransport}). $\widetilde T$ is
+\emph{consistent} with the second reading only because $\widetilde T=\widetilde\tau$
+(\code{def:cosettransport}), $T$ itself being no chain map; it is kept because $53$ code
+sites and both superseded documents spell it so. Part~I's two are out of scope of the
+other three --- no lift and no coset transport occurs there --- and are not renamed.
+\emph{Rule:} no \textbf{new} tilde decoration may be introduced, in this document or in
+the code, without a row here. \emph{Changes:} none to any document; this row records the
+reading rule. Found while Chapter~15 was written; noted there on 2026-09-16 and listed
+here on the same day. \\
+\bottomrule
+\end{longtable}
+\end{center}
+
+\subsection{Crosswalk: reading the old documents}\label{sec:notation-crosswalk}
+
+A reader holding a pre-consolidation document applies this table. It is also the
+checklist for the re-homing work: a chapter is not done until every row that touches
+its source has been applied.
+
+\begin{center}
+\begin{longtable}{@{}llll@{}}
+\toprule
+here & \file{hecke\_action.tex} & \file{hecke\_extensions.tex} & \file{monodromy\_v5.tex} / [M], [S], [V] \\
+\midrule
+\endhead
+$\ell$ & $\ell$ & $\ell$ & $p$ \quad([M], [S]) \\
+$p$ & $p$ & $q$ & $q$ \quad([M], [S]); $p$ ([V]) \\
+$n$ & $n$ & $n$ & $k$ \quad([M], [S]) \\
+$q$ (degree) & $q$ & $q$ \emph{and} the prime & $k$, $n$ \\
+$k=n+2$ & --- & $k$, \emph{also} $\#S$ & $k+2$ \quad([M]) \\
+$\nu$ & $r$ (in $T_{p^r}$) & $r$ & --- \\
+$f$ & --- & $r$ (in $\F_{\ell^r}$) & --- \\
+$e$ & --- & --- & $k$ (in $\Z/\ell^k$) \\
+$s$ & --- & $k:=\#S$ & --- \\
+$t,j,s$ (running index) & $i$ & $i$ & $i$ \\
+$s_j$, $\delta_j$, $n^{(j,\sigma)}_t$ & $s_i$, $\delta_i$, $n^{(i,\sigma)}_k$ & --- & --- \\
+$\lift{\sigma}$ & $i(\sigma)$ & --- & $i(\sigma)$, $i:K\to\Ku$ \\
+$\rres$ & --- & $r^0,r^1$ & $r$ \\
+$\Rel$ & $R$ & --- & $R$ \\
+$\gamma$ (relation element) & $g_r$ & --- & $g_r$ \\
+$\cring$ & --- & $R$ & $R$ \quad([V], [X]) \\
+$\sigma$ & $\sigma$, \emph{also} $\tau$ & --- & $\tau$, $s$ \\
+$\zeta$ & $\rho$ & --- & --- \\
+$u_j$ & $u_k$ & --- & --- \\
+$d$ (coboundary) & $\delta$ & --- & $\delta_{\mathrm{simp}}$ \\
+$c^{(q)}_j,z^{(q)}_j,b^{(q)}_j$ & --- & --- & $\beta_j^{(q)},\delta_s^{(q)},\eta_p^{(q)}$ \\
+$\coneinc,\coneproj$ & --- & --- & $\inv$, $\pi$ \\
+$(c,c_\partial)$ & --- & --- & $(a,b)$ \\
+$\Lam$ & --- & --- & $M$ \quad([V]) \\
+$\mu$ & $\beta$ (in \code{rmk:nogo}) & --- & $\beta$ \\
+$\cf$, $a_N(\cf)$ & --- & $\Delta$, $\tau(q)$ & --- \\
+$\Mat_2(\Z)$ & $\mathrm{M}_2(\Z)$ & $\Mat_2(\Z)$ & --- \\
+$T_N$ & $T_n$ \emph{and} $T_N$ & --- & --- \\
+$\mathrm{Nm}$ (the invariant) & --- & $N$ \quad(C18) & --- \\
+the tilde & \multicolumn{3}{l}{read by what it decorates; no rename (C19)} \\
+\bottomrule
+\end{longtable}
+\end{center}
+
+\subsection{What the owner must confirm}\label{sec:notation-open}
+
+OQ1 fixed the three arithmetic parameters and nothing else. The following go beyond
+it and are decisions taken in this design pass; each is defensible and each is
+reversible at zero cost \emph{now} and at the cost of a full re-read \emph{later}.
+One item that would otherwise belong here does not: C15 ($i$ reserved for
+$\sqrt{-1}$/the elliptic point, never a running index) was already decided by the
+owner on 2026-09-15 and needs no confirmation; it is recorded, settled, at its row
+in \S\ref{sec:notation-collisions} and in \ref{N4}.
+
+\begin{enumerate}[label=(O\arabic*)]
+\item\label{O1} $\cring=\Z/\ell^{e}$ rather than $\Z/\ell^{k}$
+  (\S\ref{sec:notation-primes}). Departs from the letter of OQ18's wording; needed
+  because $k$ is the weight.
+\item\label{O2} $\cring$ for the coefficient ring and $\Rel$ for the relation set
+  (C13) --- which changes the \emph{title} of the binding contract from
+  $H^{\ast}(K,R;L)$ to $H^{\ast}(K,\Rel;L)$. The alternative (keep $R$ for the
+  relation, rename the coefficient ring) was rejected: $6\in R^{\times}$, $V_R$ and
+  $\Z/\ell^e$ appear in far more statements than $(K,R)$ does, and no other letter for
+  a commutative ring reads naturally.
+\item\label{O3} $\nu$ for the prime-power exponent and $f$ for the residue degree
+  (C11), so that $r$ can be the restriction map. The alternative (keep
+  $T_{p^r}$, rename the restriction to $\res^{q}$) was rejected because $\res$ is
+  already the group-cohomology restriction and $\Cone{\rres}$, $\ker\rres^1$,
+  $\coker\rres^0$ are the load-bearing notation of the newest chapter.
+\item\label{O4} The elliptic points as $\zeta=e^{\pi i/3}$, $\zeta^2$
+  (C9), rather than keeping $\rho$ and renaming the representation.
+\item\label{O5} Ramanujan's $\Delta$ and $\tau(N)$ written $\cf$ and $a_N(\cf)$
+  (C5, C4). This is the one resolution that departs from
+  universal mathematical custom; it is taken because $\De$ and $\tau$ are both
+  normative \emph{implementation} objects with code citations, and the cusp form
+  appears only in the classification literature.
+\item\label{O6} The basis-name scheme $c^{(q)}_j$ / $z^{(q)}_j$ / $b^{(q)}_j$
+  (C6, C7, C8) replacing three colliding
+  Greek letters at once.
+\item\label{O7} Cone maps as named operators $\coneinc$, $\coneproj$ rather than
+  letters (\ref{N3}, C3).
+\end{enumerate}
+
+\subsection{The integral line}\label{sec:notation-integral}
+
+Added at v1.8.0 with \S\ref{sec:integral}; every symbol below is used only there and in
+the statements that point at it.
+
+\begin{center}
+\begin{longtable}{@{}p{0.2\textwidth}p{0.17\textwidth}p{0.55\textwidth}@{}}
+\toprule
+symbol & macro & meaning \\
+\midrule
+\endhead
+$\Ceq(\cring)$ & --- & $\Ceq(K,\Rel;L)$ with fibre $\VR$ and the relations imposed \emph{over $\cring$}: the complex the implementation builds for the ring in force. \textbf{Never} the base change $\Ceq(\Z)\otimes\cring$, which is written so; the two agree when $6\in\cring^{\times}$ (\ref{prop:ringinforce}) \\
+$\Iso_{\bullet}$, $\Isob_{\bullet}$ & \code{\textbackslash Iso}, \code{\textbackslash Isob} & the isotropy-resolution model on the unrefined $(\Xbulk,\Xbdry)$ and its boundary subcomplex (\ref{def:isomodel}) \\
+$F^{\sigma}_{\bullet}$ & --- & the periodic free resolution of $\Z$ over $\Z[\Ga_\sigma]$; the analogue, for the stabiliser, of the $F_{\bullet}$ of \ref{def:borelmodel} over $\Z[\Ga]$ (\ref{N2}: the same kind of object for a subgroup, not the same object; worded so at v1.8.1) \\
+$\Sigma_s$, $\Sigma^{\partial}_{s}$ & --- & the orbit representatives of $s$-simplices of $\Xbulk$, $\Xbdry$, as in the proof of \ref{thm:specialisation} \\
+$\cmpI$ & \code{\textbackslash cmpI} & the comparison map $\Iso_{\bullet}\to C_{\bullet}(\Xbulk)$, a named operator (\ref{N3}); $\cmpI^{\ast}$ its cochain map \\
+$\CI(\cring)$ & \code{\textbackslash CI} & $\Hom_{\Z[\Ga]}(\Iso_{\bullet},\VR)$ \\
+$\tau_{\Iso}$, $\tau^{\partial}_{\Iso}$ & --- & the $g$-twisted chain datum on $\Iso_{\bullet}$, $\Isob_{\bullet}$ (\ref{prop:strictlift}); an instance of \ref{def:tau}'s notion, not a new meaning of $\tau$ \\
+$\Zsix$, $\Qsix$ & \code{\textbackslash Zsix}, \code{\textbackslash Qsix} & $\Z_2\times\Z_3$ and $\Q_2\times\Q_3$ \\
+$\Z_\ell$, $\Z_{(\ell)}$ & --- & the $\ell$-adic integers; the localisation of $\Z$ at $\ell$ \\
+$\Hfr{q}$ & \code{\textbackslash Hfr} & $H^{q}(\Ga;\Vcoef)$ modulo its torsion \\
+$e$ & --- & the exponent of the ring $\Z/\ell^{e}$ in force (\S\ref{sec:notation-primes}); the design notes' ``$K$'' for a certified level is this $e$, since $K$ is the model complex \\
+\bottomrule
+\end{longtable}
+\end{center}
+
+\noindent\emph{Reading the design notes.} The integral-line brief
+(\file{docs/implementation/integral\_line\_design\_brief.md}) and the $\ell$-adic
+investigation write $R$ for the free resolution (here $\Iso_{\bullet}$: $\cring$ is the
+coefficient ring), $\varepsilon$ for the comparison map (here $\cmpI$: $\aug$ is the
+augmentation), $\widehat C$ for $\Hom_{\Z[\Ga]}(R,V)$ (here $\CI$), $\hat\tau$ for the lifted
+datum (here $\tau_{\Iso}$), $R_\partial$ (here $\Isob_{\bullet}$), $\Lambda^{q}$ for the free
+quotient (here $\Hfr{q}$: $\Lam$ is the $\etapair$-uniqueness map), $C_7\otimes\Z/\ell^{K}$
+for the pipeline object (here $\Ceq(\Z/\ell^{e})$), $\Z/\ell^{k}$ and $K$ for rings and
+certified levels (here $\Z/\ell^{e}$), and $e_i$ for torsion exponents (here $a_t$, local to
+the statement that introduces it).
+
+\subsection{The Dickson line and the ordinary projector}\label{sec:notation-dickson}
+
+Added at v1.11.0-pre.1 with \S\ref{sec:dicksontheta} and \S\ref{sec:ordinary}. The plan and
+the code write $L$, $D$ and $\theta$; this document cannot, because $L$ is the matrix local
+system (\S\ref{sec:notation-framework}), $\Dn$ the contragredient module and $\theta_g$ the
+translation of \S\ref{sec:correspondence} (rule~\ref{A5}).
+
+\begin{center}
+\begin{longtable}{@{}p{0.2\textwidth}p{0.17\textwidth}p{0.55\textwidth}@{}}
+\toprule
+symbol & macro & meaning \\
+\midrule
+\endhead
+$\DkL$ & \code{\textbackslash DkL} & the first Dickson invariant $x^{\ell}y-xy^{\ell}\in\Sym^{\ell+1}(\Fl^{2})$ (\ref{def:dicksoninv}); the code's and the plan's $L$ \\
+$\DkD$ & \code{\textbackslash DkD} & the second Dickson invariant, of degree $\ell^{2}-\ell$ (\ref{def:dicksoninv}); the plan's $D$ \\
+$\thL$ & \code{\textbackslash thL} & multiplication by $\DkL$, on fibres, cochains and cohomology (\ref{def:theta}); the literature's and the plan's $\theta$ \\
+$n^{+}$ & \code{\textbackslash nplus} & $n+\ell+1$, the target degree of $\thL$ (the plan's and the code's $m$; $N$ is the Hecke level only, $m$ the coset count) \\
+$\Qn$, $\rho_{\Qn}$ & \code{\textbackslash Qn} & the quotient $\Sym^{n^{+}}/\DkL\cdot\Sym^{n}$ over $\Fl$ and its monoid action (\ref{def:Qn}) \\
+$\bar u_t$ & --- & the class of $u_t=x^{n^{+}-t}y^{t}$ in $\Qn$; the complement basis is $(\bar u_0,\ldots,\bar u_{\ell-1},\bar u_{n^{+}})$ \\
+$\mathbf{1}_n$ & --- & the class $\bar u_0-\bar u_{\ell-1}+\bar u_{n^{+}}$, the invariant of $\Qn$ when $(\ell-1)\mid(n+2)$ (\ref{lem:Qnfunctions}) \\
+$h^{q}(m)$ & --- & $\dim_{\Fl}H^{q}(\Ga;M_m)$ \\
+$\eord$ & \code{\textbackslash eord} & the ordinary projector of an endomorphism of a finite-length module (\ref{def:ordinary}); \emph{not} the class $e$ of \ref{lem:bulkperiodic} nor the exponent $e$ of $\Z/\ell^{e}$ \\
+\midrule
+\multicolumn{3}{@{}l}{\emph{Added at v1.12.0-pre.1 with \S\ref{sec:hida}.}}\\
+$J_n$ & --- & $\rhon(S)-1$ stacked over $\rhon(T)-1$, a $2(n+1)\times(n+1)$ integer matrix (\ref{prop:torsionprepass}) \\
+$\lambda_e$ & --- & $\lambda(H^{0}(\Ga;\Vcoef\otimes\Z/\ell^{e}))$, the length (\ref{prop:torsionprepass}) \\
+$e_{\max}$ & --- & the largest exponent of the $\ell$-primary torsion of $H^{1}(\Ga;\Vcoef)$ ($0$ if none); the code's \code{e\_max} \\
+$e'$ & --- & a target precision; [E]'s and the code's $k$ in $K=k+e_{\max}$, which this document cannot write ($k$ is the weight) \\
+$\mathfrak g$ & --- & a number of generators (\ref{lem:ordexponent}); the plan's $r$, which is the restriction map here \\
+$N_{\mathrm{ord}}(\mathfrak g,K)$ & --- & the ordinary exponent $\ell^{K-1+\lceil\log_\ell\mathfrak g\rceil}\prod_{f\le\mathfrak g}(\ell^{f}-1)$ (\ref{lem:ordexponent}); $N$ alone is the Hecke level \\
+$h^{1}_{\mathrm{ord}}(n)$, $\chi^{\mathrm{ord}}_{n,p}$ & --- & the ordinary rank and the characteristic polynomial of $T_p$ on the ordinary part (\ref{def:hidatower}) \\
+$\mathrm{Tw}_m(\ell;n_0)$ & --- & the weight tower of level $m$ through $n_0$ (\ref{def:hidatower}) \\
+(Hi1)--(Hi6) & --- & the predictions of \ref{rmk:hidacheckable}; the plan's (H1)--(H6), which are the standing hypotheses here \\
+\midrule
+\multicolumn{3}{@{}l}{\emph{Added at v1.13.0-pre.1 with \S\ref{sec:hidafull}.}}\\
+$m_N$ & --- & $[\Ga:\Ga_0(N)]=\abs{\mathbb{P}^1(\Z/N)}$ (\ref{def:levelellmodel}); subscripted, as $m$ alone is a coset count or a tower level \\
+$[A\,g\,B]$ & --- & $\cor^{B}_{B\cap gAg^{-1}}\circ(\conj_g)_{\ast}\circ\res^{A}_{A\cap g^{-1}Bg}$ between two groups; $[\Ga g\Ga]=\Tdc{g}$ \\
+$\widetilde{[A\,g\,B]}$ & --- & its block formula on the induced fibre \eqref{eq:levelcorr}, reusing the level-$1$ $\tau$-table (\ref{prop:levelcorrespondence}) \\
+$U^{(\ell)}_\ell$ & --- & $[\Ga_0(\ell)\,g\,\Ga_0(\ell)]$, $g=\mathrm{diag}(1,\ell)$ (\ref{prop:levelellU}); the plan's $U_\ell^{(\ell)}$; $U_\ell=T_\ell$ stays the level-$1$ operator \\
+$U^{\ast}$ & --- & $[\Ga_0(\ell)\,\mathrm{diag}(\ell,1)\,\Ga_0(\ell)]$, the Atkin--Lehner conjugate, Hida's $T(p)$ at level $p$ (\ref{rmk:stabconvention}) \\
+$\mathrm{dg}_1$, $\mathrm{dg}_\ell$ & --- & the degeneracy maps $\res^{\Ga}_{\Ga_0(\ell)}$ and $[\Ga\,g\,\Ga_0(\ell)]$; the plan's $\alpha_1$, $\alpha_\ell$ ($\alpha$ is \ref{prop:alpha}'s restriction unit) \\
+$\alpha^{0}_{B/A}$, $\omega_{A/B}$ & --- & the level-change fibre maps, projection and trace (\ref{prop:levelcorrespondence}(4)(b)); $\omega_{\Ga_0(N)/\Ga}=\omega$ of \ref{prop:omega} \\
+$\varpi$ & --- & the block row $(\rhon(gs_1^{-1}),\dots,\rhon(gs_\ell^{-1}),0)$ of \eqref{eq:Ulevell} \\
+$s^{(2)}_b$ & --- & $\smat{1}{0}{\ell b}{1}$, representatives of $\Ga_0(\ell^{2})\backslash\Ga_0(\ell)$ (\ref{prop:levelellU}) \\
+$\nu_2(N)$, $\nu_3(N)$ & --- & the numbers of fixed points of $S$, $ST$ on $\mathbb{P}^1(\Z/N)$ (\ref{prop:levelorbit}) \\
+$e_1$, $e_\ell$ & --- & the $\ell$-adic ordinary projectors of $T_\ell$ at level $1$ and of $U^{(\ell)}_\ell$ at level $\ell$ (\ref{prop:stabilisation}) \\
+$c_{\mathrm{st}}$, $u_{\mathrm{st}}$ & --- & $\omega\,e_\ell\,\mathrm{dg}_\ell$ on $e_1H(1)$, and the unit root of $u^{2}-T_\ell u+\ell^{n+1}$ (\ref{prop:stabilisation}) \\
+$M_m(n)$, $\Talg^{\mathrm{ord}}_{m,\mathcal P}(n)$ & --- & the lattice datum and its Hecke algebra (\ref{def:hidalattice}) \\
+(Hi7)--(Hi12) & --- & the predictions of \ref{rmk:hidacheckable2} \\
+\bottomrule
+\end{longtable}
+\end{center}

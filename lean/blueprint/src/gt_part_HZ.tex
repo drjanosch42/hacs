@@ -1,0 +1,903 @@
+% gt_part_HZ.tex -- [GT] Part HZ: the integral Hecke structure (HeckeZ), Lean lane.  Slot 24 A5 / L-HZ0 (M-HZ1); slot 25 L-HZ1 (M-HZ2, appended).
+% Plan: docs/implementation/slot24/heckez/07-lean-plan.md v0.4 (sec. 2.2 LC-9, sec. 2.1 HZ-0, sec. 5.3 K3, sec. 7 T1).
+% Report: docs/implementation/slot24/heckez/MHZ1-report.md.  Read by lean_census.py (gt_part_*.tex).
+% Lean: lean/GL2/HeckeZ/ (Exec/K3, Cong, Check/K3, Bridge, Cells/T1Data, Cells/T1).
+% The [C] counterparts (sec:heckeZ, def:heckeZcong, prop:heckeZcong) are proposed by WP Z0 and not yet in [C]; no [C]
+% marker is added here (07 sec. 10).  Labels are therefore inf:/chk: rows without a "% mirrors [C]" line.
+
+\chapter{Part HZ. The integral Hecke structure: Ramanujan's 691 (M-HZ1)}
+
+\begin{lemma}[LC-9 at $r=1$, partly: the congruence module of one rational Eisenstein line]\label{inf:heckez-cong}
+  \lean{GL2.HeckeZ.EisSplit, GL2.HeckeZ.EisSplit.key, GL2.HeckeZ.EisSplit.dvd_of_read,
+    GL2.HeckeZ.EisSplit.congIdeal, GL2.HeckeZ.EisSplit.mem_congIdeal_sub, GL2.HeckeZ.EisSplit.fibre_iff,
+    GL2.HeckeZ.EisSplit.pair_injective}
+  \leanok
+  Let $L$ be a torsion-free $\mathbb Z$-module, $T\subseteq\mathrm{End}_{\mathbb Z}L$ a subalgebra, $\lambda,\mu:T\to\mathbb Z$ ring maps
+  and $\theta\in T$ with $\lambda\theta\ne\mu\theta$, such that, with $P=\theta-\mu\theta$ and $Q=\theta-\lambda\theta$, $QP=0$, every $t$ acts
+  on $\ker Q$ by $\lambda t$ and on $\ker P$ by $\mu t$ (an \emph{Eisenstein split}, HeckeZ 01 Def.~5.1 in the two-system case).
+  Then $(\lambda\theta-\mu\theta)(t-\mu t)=(\lambda t-\mu t)P$ on $L$; if $\ell^a\mid\lambda\theta-\mu\theta$ and some coordinate of some $Pv$
+  has $\ell$-valuation exactly $s$, then $\ell^{a-s}\mid\lambda t-\mu t$ for every $t\in T$ (the consequence of 01 Prop.~5.4 read at a
+  root that M-HZ1 needs, proved directly from the key identity, no generation used); $t-\mu t\in T$ lies over $(\lambda t-\mu t,0)$ (the upper bound of Prop.~5.3); and if
+  $g\mid\lambda t-\mu t$ for all $t$ and $(g,0)$ comes from $T$, then $(a,c)$ comes from $T$ iff $g\mid a-c$, and $t\mapsto(\lambda t,\mu t)$
+  is injective: $T\cong\mathbb Z\times_{\mathbb Z/g}\mathbb Z$, $C_T\cong\mathbb Z/g$.
+  \textbf{Partly delivered} (M-HZ1 audit m5): the module $\eta_L$ of 01 is not formalised, so neither Prop.~5.2(1)
+  ($\exp\eta_L\mid\exp C_{\mathbb T}$) nor Prop.~5.4 ($|\eta_L|=c(\lambda)/a$) is stated as in 01; both, and LC-9 in full
+  ($\eta_L$ as a quotient, elementary divisors of a rank-$1$ image), are deferred to M-HZ2.
+\end{lemma}
+\begin{proof}
+  \leanok
+  $Dv=Pv-Qv$ with $D=\lambda\theta-\mu\theta$, $Pv\in\ker Q$, $Qv\in\ker P$; apply $t-\mu t$. The read: one coordinate of the key
+  identity, $D x=(\lambda t-\mu t)\ell^s y'$ with $\ell\nmid y'$. The fibre product: $t=c+k\,t_0$.
+\end{proof}
+
+\begin{definition}[The K3 certificate (Eisenstein, at-root read) and its checker]\label{chk:hz-k3}
+  \lean{GL2.HeckeZ.Exec.K3Cert, GL2.HeckeZ.Exec.k3Check, GL2.HeckeZ.K3.K3Spec, GL2.HeckeZ.K3.k3Check_sound,
+    GL2.HeckeZ.K3.zero_iff_of_conj, GL2.HeckeZ.K3.k3_sound}
+  \leanok
+  \uses{inf:heckez-cong}
+  A K3 certificate (HeckeZ 07 \S5.3, two rational systems, $r=1$) lists $(p,\lambda_p,\mu_p)$ for $p\in P$ with $\lambda_p=1+p^{k-1}$,
+  $g_P=\gcd_p(\lambda_p-\mu_p)=\ell^e$, and the at-root read at one $p$: the dumped matrix $D$ of $T_p$ on $L/\ell^K$ (column convention,
+  entries mod $\ell^K$), a valuation $v<K$ and a witness entry: every entry of $D-\mu_p$ is divisible by $\ell^v$, the witness entry
+  not by $\ell^{v+1}$, and $\ell^{v+e}\mid\lambda_p-\mu_p$. \texttt{k3Check} (Mathlib-free, \texttt{decide +kernel}) decides it
+  (\texttt{k3Check\_sound}). \textbf{Soundness} (\texttt{k3\_sound}): for an Eisenstein split $E$ (\ref{inf:heckez-cong}) whose systems are those
+  of the certificate, with $\theta=T_p$, if $D$ is the matrix of $T_p$ on $L/\ell^K$ in some basis (\emph{trust boundary TB-mat}:
+  $U\,[T_p]_b\equiv D\,U\bmod\ell^K$, $U$ invertible) and $\ell$ is prime, then $g_P\mid\lambda t-\mu t$ for every $t\in T$ and $(g_P,0)$
+  comes from $T$.
+\end{definition}
+\begin{proof}
+  \leanok
+  Reduce $U[P]_bU^{-1}\equiv D-\mu_p$ modulo $\ell^v$ and $\ell^{v+1}$ (both divide $\ell^K$): $[P]_b\equiv0\bmod\ell^v$ and
+  $[P]_b\not\equiv0\bmod\ell^{v+1}$, so some coordinate of some $P b_j$ has valuation exactly $v$; then \ref{inf:heckez-cong} with
+  $a=v+e$, $s=v$, and $g_P$ in the ideal spanned by the $\lambda_p-\mu_p$.
+\end{proof}
+
+\begin{lemma}[HZ-0 for T1: Eichler--Shimura over $\mathbb Z_\ell$ gives an Eisenstein split over $\mathbb Z$]\label{inf:heckez-bridge}
+  \lean{GL2.HeckeZ.Bridge.emb_injective, GL2.HeckeZ.Bridge.repr_emb, GL2.HeckeZ.Bridge.bcH_emb,
+    GL2.HeckeZ.Bridge.twoSys_of_ES, GL2.HeckeZ.Bridge.scalar_adj, GL2.HeckeZ.Bridge.aeval_charpoly_eq_zero,
+    GL2.HeckeZ.Bridge.trace_of_charpoly, GL2.HeckeZ.Bridge.trace_E, GL2.HeckeZ.Bridge.ident,
+    GL2.HeckeZ.Bridge.int_of_eigen, GL2.HeckeZ.Bridge.evHom, GL2.HeckeZ.Bridge.eisSplit_of_ES}
+  \leanok
+  \uses{lit:eichler-shimura-levelone, inf:heckez-cong}
+  Let $L$ be free of rank $3$ over $\mathbb Z$ with endomorphisms $X_i$ ($\mathbb T^{\mathrm{fr}}=\mathbb Z[X_i]$), $\ell$ a prime, $E\supseteq\mathbb Q_\ell$ a
+  field, and assume Eichler--Shimura at level one for $\mathbb Z_\ell\otimes L$ with the $X_i\otimes\mathbb Z_\ell$ over $E$. Then
+  $E\otimes_{\mathbb Z_\ell}(\mathbb Z_\ell\otimes L)=W_e\oplus W_c$ with exactly two systems, of multiplicities $1$ and $2$; if
+  $\chi_{\mathbb Z}(X_{i_q})=(x-u_q)^2(x-w_q)$ with $u_q\ne w_q$ ($q=2,3$, \emph{trust input TB-$\chi$}), the simple system takes $w_q$ and the double
+  one $u_q$ (Cayley--Hamilton and the trace); eigenvalues of $\mathbb T^{\mathrm{fr}}$ on integral eigenvectors are rational algebraic
+  integers, hence integers; and $\mathbb T^{\mathrm{fr}}$ carries an Eisenstein split with $\theta=X_{i_2}$, $\lambda(X_{i_q})=w_q$, $\mu(X_{i_q})=u_q$.
+  \gtmodlit{conditional on Eichler--Shimura at level one, \gtlithyp{hES} (\texttt{EichlerShimuraLevelOne}); the characteristic
+  polynomials $\chi_{\mathbb Z}(X_{i_q})$ (TB-$\chi$) are explicit equality hypotheses of \texttt{eisSplit\_of\_ES}}
+\end{lemma}
+\begin{proof}
+  \leanok
+  $v\mapsto1\otimes1\otimes v$ is injective with integer coordinates; independence of joint eigenspaces counts $3=\sum$ multiplicities;
+  the trace on $W_e\oplus W_c$ is $a+2c$; integrality by Cayley--Hamilton and $\mathbb Z$ integrally closed in $\mathbb Q$.
+\end{proof}
+
+\begin{theorem}[The K3 certificate of T1 $=(1,10)$, checked]\label{chk:hz-T1-cert}
+  \lean{GL2.HeckeZ.T1Data.certT1_check, GL2.HeckeZ.T1Data.tampered_692_rejected,
+    GL2.HeckeZ.T1Data.tampered_wit_rejected, GL2.HeckeZ.T1Data.tampered_mu_rejected,
+    GL2.HeckeZ.T1Data.tampered_lam_rejected, GL2.HeckeZ.T1Data.tampered_v_rejected,
+    GL2.HeckeZ.Exec.chiCheck, GL2.HeckeZ.T1Data.certT1_chi, GL2.HeckeZ.T1Data.tampered_diag_k3_accepted,
+    GL2.HeckeZ.T1Data.tampered_diag_chi_rejected}
+  \leanok
+  \uses{chk:hz-k3}
+  The certificate of weight $12$, level $1$, $\ell=691$, $K=2$: $(\lambda_2,\mu_2)=(2049,-24)$, $(\lambda_3,\mu_3)=(177148,252)$,
+  $g_P=\gcd(2073,176896)=691$, read at $p=2$ with $v=0$ on the dumped $T_2$ of \texttt{HECKE\_DUMP\_SAT\_CERT} at $(10,691,2)$
+  (witness entry $4860=7\cdot691+23$), is accepted by \texttt{k3Check}; one tamper per kind of check is rejected ($\ell=g_P=692$; the
+  witness entry $691\cdot7$; $\mu_3=253$; $\lambda_2=2050$; $v=1$). \textbf{TB-$\chi$ against TB-mat} (06 \S5 Q10, 07 \S8; M-HZ1
+  audit m1): \texttt{chiCheck} accepts the certificate, i.e.\ the trace, $c_2$ and determinant of the dumped $T_2$ are, modulo $691^2$,
+  those of $(x+24)^2(x-2049)=x^3-2001x^2-97776x-1180224$, the polynomial of \texttt{h$\chi$2} (expanded in \texttt{chi2\_expand});
+  so the two emitted-data trust inputs do not contradict each other modulo the certifying prime power. A dump with the diagonal
+  entry $2049$ replaced by $2050$ is still accepted by \texttt{k3Check} and rejected by \texttt{chiCheck}.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \texttt{decide +kernel} on \texttt{GL2/HeckeZ/Cells/T1Data.lean} (Mathlib-free).
+\end{proof}
+
+\begin{theorem}[Ramanujan's $691$: the Eisenstein and $\Delta$ systems of $\mathbb T^{\mathrm{fr}}$ are congruent (T1, M-HZ1)]\label{chk:hz-T1}
+  \lean{GL2.HeckeZ.T1.T1_691, GL2.HeckeZ.T1.chi2_expand}
+  \leanok
+  \uses{chk:hz-T1-cert, chk:hz-k3, inf:heckez-bridge, lit:eichler-shimura-levelone}
+  Let $L$ be free of rank $3$ over $\mathbb Z$ ($H^1(\mathrm{SL}_2(\mathbb Z);\mathrm{Sym}^{10}\mathbb Z)/\mathrm{tors}$) with Hecke operators
+  $X_n$, $\mathbb T^{\mathrm{fr}}=\mathbb Z[X_n]$; the index runs over $\mathbb N$, with the interface convention $X_0:=0$, $X_1=T_1=1$,
+  $X_n=T_n$ (M-HZ1 audit m3). \texttt{hES} is \texttt{lit:eichler-shimura-levelone} for the family $(X_n)_{n\in\mathbb N}$; this is
+  equivalent to the row's family $(T_p)_p$, because $T_n=F_n(T_p:p\mid n)$ is a polynomial in the $T_p$ ($F_0=0$, $F_1=1$): a joint
+  eigenspace of the $T_p$ for $(a_p)$ is the joint eigenspace of all $X_n$ for $n\mapsto F_n(a_p)$, with the same multiplicity. Assume Eichler--Shimura at level one at $\ell=691$ (\texttt{hES}), the integral
+  characteristic polynomials $\chi(X_2)=(x+24)^2(x-2049)$, $\chi(X_3)=(x-252)^2(x-177148)$ (TB-$\chi$, \texttt{h$\chi$2}, \texttt{h$\chi$3}),
+  and that the dumped matrix of $T_2$ is the matrix of $X_2$ on $L/691^2$ in some basis (TB-mat, \texttt{hmat}). Then there are ring
+  maps $\lambda,\mu:\mathbb T^{\mathrm{fr}}\to\mathbb Z$ with $\lambda(X_2)=2049$, $\mu(X_2)=-24$, $\lambda(X_3)=177148$, $\mu(X_3)=252$, such
+  that $\lambda(t)\equiv\mu(t)\bmod691$ for every $t\in\mathbb T^{\mathrm{fr}}$, $(a,c)$ comes from $\mathbb T^{\mathrm{fr}}$ iff $a\equiv c\bmod691$,
+  and $t\mapsto(\lambda t,\mu t)$ is injective: $\mathbb T^{\mathrm{fr}}\cong\mathbb Z\times_{\mathbb Z/691}\mathbb Z$ and
+  $C_{\mathbb T}(\mathrm{Eis},\Delta)\cong\mathbb Z/691$. The statement pins $\lambda,\mu$ at $X_2,X_3$ only. Under the classical
+  identification $\lambda(T_n)=\sigma_{11}(n)$ (Serre GTM~7 \S5.5 Prop.~13, \texttt{lit:serre-course-prop13}) and $\mu(T_n)=\tau(n)$ ($\Delta$
+  a normalised eigenform) it is Ramanujan's $\tau(n)\equiv\sigma_{11}(n)\bmod691$; that identification is not part of the
+  statement and not a consequence of \texttt{hES} (M-HZ1 audit m4).
+  \gtmodlit{conditional on Eichler--Shimura at level one, \gtlithyp{hES} (\texttt{EichlerShimuraLevelOne}); the trust inputs
+  TB-$\chi$ (\texttt{h$\chi$2}, \texttt{h$\chi$3}: the descent's integral characteristic polynomials) and TB-mat (\texttt{hmat}: the
+  \texttt{HECKE\_DUMP\_SAT\_CERT} matrix of $T_2$) are explicit hypotheses in the theorem's type}
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{inf:heckez-bridge} gives the Eisenstein split; \ref{chk:hz-T1-cert} and \ref{chk:hz-k3} give $691\mid\lambda t-\mu t$ and $(691,0)$ in the
+  image; then \ref{inf:heckez-cong}.
+\end{proof}
+
+\chapter{Part HZ (continued). Thm.~4.1 at level one: the global certificate on T1, T2 and S1 (M-HZ2)}
+% Slot 25, package L-HZ1 (M-HZ2).  Plan: 07-lean-plan.md v0.4 sec. 2.1 (HZ-0), 2.2 (LC-10, LC-3a, LC-2), 5.1-5.2 (K1, K2g),
+% 6 (S1), 10; slot25/00-slot25-plan.md v0.2 sec. 2.3.  Report: docs/implementation/slot25/LHZ1_report.md.
+% Lean: GL2/HeckeZ/{Cert, RankES, Exec/Cert, Check/Cert, Cells/S1DataA..C, Cells/S1, Cells/S1Controls}.  No [C] marker (07 sec. 10).
+
+\begin{theorem}[01 Thm.~4.1 over $\mathbb Z$ (LC-10): (C1), (C2) with a cofactor, (C3); local--global]\label{inf:heckez-cert}
+  \lean{GL2.HeckeZ.Cert.charpoly_dvd_pow, GL2.HeckeZ.Cert.charpoly_dvd_pow_of_aeval, GL2.HeckeZ.Cert.squarefree_map_of_bezout,
+    GL2.HeckeZ.Cert.dvd_of_aeval_eq_zero, GL2.HeckeZ.Cert.RankLE, GL2.HeckeZ.Cert.ModIndep, GL2.HeckeZ.Cert.Loc,
+    GL2.HeckeZ.Cert.end_smul_eq_zero, GL2.HeckeZ.Cert.exists_rel_not_dvd, GL2.HeckeZ.Cert.loc_of_modIndep,
+    GL2.HeckeZ.Cert.le_of_loc, GL2.HeckeZ.Cert.modIndep_pow, GL2.HeckeZ.Cert.coeff_sum_fin,
+    GL2.HeckeZ.Cert.eq_zero_of_dvd_sum, GL2.HeckeZ.Cert.aeval_eq_zero_of_C1, GL2.HeckeZ.Cert.heckeZcert}
+  \leanok
+  Let $L$ be free of finite rank over $\mathbb Z$, $\mathbb T'\le\mathbb T^{\mathrm{fr}}\subseteq\mathrm{End}_{\mathbb Z}L$ subalgebras with
+  $\operatorname{rank}\mathbb T^{\mathrm{fr}}\le d$ (any $d+1$ elements satisfy a non-trivial $\mathbb Z$-relation).
+  \textbf{(C1)} If $f$ is monic of degree $d$, divides $\chi_\theta$ for some $\theta\in\mathbb T^{\mathrm{fr}}$, and $uf+vf'=D\ne0$, then every
+  $g$ with $g(\theta)=0$ is divisible by $f$ ($\chi_\theta\mid g^{\operatorname{rank}L}$ by the adjugate identity), $f(\theta)=0$ and
+  $1,\theta,\dots,\theta^{d-1}$ are independent: $m_\theta=f$ (the degree count of 01 v0.5, no semisimplicity used).
+  \textbf{Local step.} If $d$ elements of $\mathbb T'$ stay linearly independent modulo a prime $\ell$ (in $\mathrm{End}(L/\ell)$), every
+  $x\in\mathbb T^{\mathrm{fr}}$ has a multiple $mx\in\mathbb T'$ with $\ell\nmid m$ ($\mathbb T'_{(\ell)}=\mathbb T^{\mathrm{fr}}_{(\ell)}$). This
+  applies (a) at $\ell\nmid D$, to $1,\theta,\dots,\theta^{d-1}$ with $\theta\in\mathbb T'$ (LC-3a in local form: $g(\theta)=\ell y$ makes $y$
+  integral, so $\bar f\mid\bar g^{m}$, $\bar f$ is separable, $\deg\bar g<d$), and (b) at $\ell\in S$, to the elements a (C3) certificate
+  exhibits. \textbf{Local--global}: if this holds at every prime, $\mathbb T^{\mathrm{fr}}=\mathbb T'$. \textbf{The theorem}: with (C1) for
+  $\theta_j\in\mathbb T'$, (C3) at every $\ell\in S$ and (C2) ``every prime $\ell\nmid c$ misses some $D_j$ or lies in $S$'',
+  $\mathbb T'_{(\ell)}=\mathbb T^{\mathrm{fr}}_{(\ell)}$ for every prime $\ell\nmid c$, and $\mathbb T^{\mathrm{fr}}=\mathbb T'$ when $c=1$.
+  The $v_\ell(D)=1$ clause (LC-3b) is not used; such primes lie in $S$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  Adjugate: $g(X)\cdot1=Q(X)\,(X\cdot1-M)$ by the geometric sums of the commuting $X\cdot1$ and $M$; take determinants. Local step: a
+  relation among the $d$ elements and $x$, divided by $\ell$ while possible (torsion-freeness), has an $x$-coefficient prime to $\ell$.
+  Local--global: the least $m>0$ with $mx\in\mathbb T'$ is $1$ (a prime factor $\ell$ of it and a multiple $m'$ with $\ell\nmid m'$ give a
+  smaller positive $\gcd$).
+\end{proof}
+
+\begin{lemma}[HZ-0, rank part: $\operatorname{rank}\mathbb T^{\mathrm{fr}}\le\lceil b_1/2\rceil$ from Eichler--Shimura]\label{inf:heckez-rank}
+  \lean{GL2.HeckeZ.RankES.toMatrix_bcH, GL2.HeckeZ.RankES.linearIndependent_bcH, GL2.HeckeZ.RankES.rankLE_of_ES}
+  \leanok
+  \uses{lit:eichler-shimura-levelone, inf:heckez-bridge, inf:heckez-cert}
+  Let $L$ be free of rank $b_1$ over $\mathbb Z$ with endomorphisms $X_i$, $\mathbb T^{\mathrm{fr}}=\mathbb Z[X_i]$, $p$ a prime and $E\supseteq\mathbb Q_p$
+  a field. If Eichler--Shimura at level one holds for $\mathbb Z_p\otimes L$ with the $X_i\otimes\mathbb Z_p$ over $E$, then any
+  $(b_1+1)/2+1$ elements of $\mathbb T^{\mathrm{fr}}$ satisfy a non-trivial $\mathbb Z$-relation: the joint eigenspaces are independent and
+  span, so $\sum\mathrm{mult}=b_1$ and $\#S\le(b_1+1)/2$; $\mathbb T^{\mathrm{fr}}\otimes E$ acts by scalars on each eigenspace, so its span embeds
+  in $E^S$; $\mathbb Z$-independent endomorphisms stay $E$-independent (same integer matrices).
+  \gtmodlit{conditional on Eichler--Shimura at level one, \gtlithyp{hES} (\texttt{EichlerShimuraLevelOne})}
+\end{lemma}
+\begin{proof}
+  \leanok
+  \texttt{jointEigen\_indep}, \texttt{finrank\_biSup\_indep}, \texttt{scalar\_adj}; a coordinate functional per system;
+  \texttt{linearIndependent\_algebraMap\_comp\_iff}.
+\end{proof}
+
+\begin{definition}[The K2g, K1 and K1m certificates and their checkers]\label{chk:hz-k12}
+  \lean{GL2.HeckeZ.Exec.K2Item, GL2.HeckeZ.Exec.k2OK, GL2.HeckeZ.Exec.K1Cert, GL2.HeckeZ.Exec.k1OK,
+    GL2.HeckeZ.Exec.K1mCert, GL2.HeckeZ.Exec.k1mOK, GL2.HeckeZ.Exec.CellCert, GL2.HeckeZ.Exec.cellCheck,
+    GL2.HeckeZ.Check.toPoly, GL2.HeckeZ.Check.k2OK_sound, GL2.HeckeZ.Check.lmat, GL2.HeckeZ.Check.TBmatK1,
+    GL2.HeckeZ.Check.conj_word, GL2.HeckeZ.Check.k1_modIndep, GL2.HeckeZ.Check.TBmatK1m,
+    GL2.HeckeZ.Check.map_eq_of_peqMod, GL2.HeckeZ.Check.k1m_modIndep, GL2.HeckeZ.Check.Tp,
+    GL2.HeckeZ.Check.cell_sound, GL2.HeckeZ.Exec.mzeroB, GL2.HeckeZ.Exec.chiMatOK}
+  \leanok
+  \uses{inf:heckez-cert}
+  A \emph{cell certificate} (level one, HeckeZ 07 \S5.1--5.2) lists $b_1$, $d=(b_1+1)/2$, the generators $P$ of $\mathbb T'=\mathbb Z[T_p:p\in P]$,
+  \textbf{K2g items} for $\theta=T_p$ ($\chi$, $f$ monic of degree $d$, $q$ with $fq=\chi$, $uf+vf'=D\ne0$), \textbf{K1 certificates}
+  (the dumped matrices of some $T_g$ on all of $L/q$, $d$ monomials, pivots and the inverse pivot matrix mod $q$),
+  \textbf{K1m certificates} (the dumped stable blocks $B$ of $L/q$ only: $r_B$ monomials independent on $B$, and $s=d-r_B$ elements
+  $\theta^if_1(\theta)^m$ with $f_1(D_\theta)^m\equiv0$ on $B$ and $f_2\mid\chi_\theta\bmod q$ squarefree, coprime to $f_1$, of degree $s$),
+  a cofactor $c$ and an exponent with $\gcd_jD_j\mid c\,(\prod q)^{e}$, and (slot 25, LC-11, M-HZ2 audit F3) the cross-check
+  $\chi_g(M_g)\equiv0\bmod q$ of TB-$\chi$ against TB-mat for every dumped generator with a K2g item (\texttt{chiMatOK}; a guard against a
+  wrong file or cell, not against a forger). \texttt{cellCheck} (Mathlib-free, \texttt{decide +kernel})
+  decides it. \textbf{Soundness} (\texttt{cell\_sound}): if $\operatorname{rank}\mathbb T^{\mathrm{fr}}\le d$, the recorded $\chi$ are the
+  characteristic polynomials of the $T_p$ (\emph{trust input TB-$\chi$}, \texttt{h$\chi$}) and the dumped matrices are the operators on
+  $L/q$, resp.\ on the blocks $B$ of $L/q$ up to an unknown complement (\emph{trust input TB-mat}, \texttt{hmat}, \texttt{hmatm}: one
+  invertible $U$ modulo $q$ conjugating the integral matrices to the dumped ones, resp.\ to $\mathrm{diag}(D_g,Y_g)$), then
+  $\mathbb T'_{(\ell)}=\mathbb T^{\mathrm{fr}}_{(\ell)}$ at every prime $\ell\nmid c$, and $\mathbb T^{\mathrm{fr}}=\mathbb T'$ when $c=1$.
+\end{definition}
+\begin{proof}
+  \leanok
+  K2g: list polynomial identities are $\mathbb Z[x]$ identities. K1: reduce $U[\cdot]_b\equiv D\,U$ modulo $\ell\mid q$; a relation evaluated
+  at the pivots is $\bar a\,C=0$, so $\bar a=\bar a\,C\,C^{-1}=0$. K1m: on $B$ the elements $\theta^if_1(\theta)^m$ vanish and the pivots
+  give the monomial coefficients; then $\bar g\,\bar f_1^m(\bar\theta)=0$, so $\bar\chi\mid(\bar g\bar f_1^m)^{b_1}$, $\bar f_2\mid\bar g$, $\bar g=0$.
+  Then \ref{inf:heckez-cert}.
+\end{proof}
+
+\begin{theorem}[The cell theorem with Eichler--Shimura supplying the rank]\label{chk:hz-cell}
+  \lean{GL2.HeckeZ.Check.cell_sound_ES}
+  \leanok
+  \uses{chk:hz-k12, inf:heckez-rank, lit:eichler-shimura-levelone}
+  \texttt{cell\_sound} with $\operatorname{rank}\mathbb T^{\mathrm{fr}}\le d=(b_1+1)/2$ from \ref{inf:heckez-rank}, $b_1=\operatorname{rank}L$.
+  \gtmodlit{conditional on Eichler--Shimura at level one, \gtlithyp{hES} (\texttt{EichlerShimuraLevelOne}); TB-$\chi$ (\texttt{h$\chi$}) and
+  TB-mat (\texttt{hmat}, \texttt{hmatm}) are explicit hypotheses in the theorem's type}
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{inf:heckez-rank}, then \ref{chk:hz-k12}.
+\end{proof}
+
+\begin{theorem}[The S1 cell certificates, checked; negative controls]\label{chk:hz-S1-cert}
+  \lean{GL2.HeckeZ.Cells.S1DataA.cert_n2_check, GL2.HeckeZ.Cells.S1DataA.cert_n4_check,
+    GL2.HeckeZ.Cells.S1DataA.cert_n6_check, GL2.HeckeZ.Cells.S1DataA.cert_n8_check,
+    GL2.HeckeZ.Cells.S1DataA.cert_n10_check, GL2.HeckeZ.Cells.S1DataA.cert_n12_check,
+    GL2.HeckeZ.Cells.S1DataA.cert_n14_check, GL2.HeckeZ.Cells.S1DataA.cert_n16_check,
+    GL2.HeckeZ.Cells.S1DataA.cert_n18_check, GL2.HeckeZ.Cells.S1DataA.cert_n20_check,
+    GL2.HeckeZ.Cells.S1DataB.cert_n22_check, GL2.HeckeZ.Cells.S1DataB.cert_n24_check,
+    GL2.HeckeZ.Cells.S1DataB.cert_n26_check, GL2.HeckeZ.Cells.S1DataB.cert_n28_check,
+    GL2.HeckeZ.Cells.S1DataB.cert_n30_check, GL2.HeckeZ.Cells.S1DataB.cert_n32_check,
+    GL2.HeckeZ.Cells.S1DataB.cert_n34_check, GL2.HeckeZ.Cells.S1DataB.cert_n36_check,
+    GL2.HeckeZ.Cells.S1DataB.cert_n38_check, GL2.HeckeZ.Cells.S1DataB.cert_n40_check,
+    GL2.HeckeZ.Cells.S1DataC.cert_n42_check, GL2.HeckeZ.Cells.S1DataC.cert_n44_check,
+    GL2.HeckeZ.Cells.S1DataC.cert_n46_check, GL2.HeckeZ.Cells.S1DataC.cert_n48_check,
+    GL2.HeckeZ.Cells.S1DataC.cert_n50_check, GL2.HeckeZ.Cells.S1DataC.cert_n52_check,
+    GL2.HeckeZ.Cells.S1DataC.cert_n54_check, GL2.HeckeZ.Cells.S1DataC.cert_n56_check,
+    GL2.HeckeZ.Cells.S1DataC.cert_n58_check, GL2.HeckeZ.Cells.S1DataC.cert_n60_check,
+    GL2.HeckeZ.Cells.S1DataC.cert_n62_check, GL2.HeckeZ.Cells.S1Controls.ctl_chi_rejected,
+    GL2.HeckeZ.Cells.S1Controls.ctl_bezout_rejected, GL2.HeckeZ.Cells.S1Controls.ctl_k1_cinv_rejected,
+    GL2.HeckeZ.Cells.S1Controls.ctl_k1_mat_rejected, GL2.HeckeZ.Cells.S1Controls.ctl_k1m_nil_rejected,
+    GL2.HeckeZ.Cells.S1Controls.ctl_k1m_c2_rejected, GL2.HeckeZ.Cells.S1Controls.ctl_cof_rejected,
+    GL2.HeckeZ.Cells.S1Controls.fg2_rejected, GL2.HeckeZ.Cells.S1Controls.fg7_rejected,
+    GL2.HeckeZ.Cells.S1Controls.ctl_k1_chi_rejected}
+  \leanok
+  \uses{chk:hz-k12}
+  The 31 level-one cells $(1,n)$, $n\in\{2,4,\dots,62\}$ (T1 $=(1,10)$, T2 $=(1,22)$ and the 29 cells of C1), generated by the untrusted
+  \texttt{lean/tools/hz\_descent\_to\_lean.py} from the integral census ed.1 (\texttt{char\_Z} of $T_2,T_3,T_5$) and the
+  \texttt{HECKE\_DUMP\_SAT\_CERT} dumps (sha256 ledger \texttt{docs/implementation/slot25/lhz1-data/SHA256SUMS}), are accepted by
+  \texttt{cellCheck}; one tamper per kind of check is rejected (a recorded $\chi$; a Bezout constant; a K1 inverse pivot entry; a K1 dump;
+  a K1m exponent $m$; a K1m cofactor $c_2$; the cofactor of T2 claimed to be $1$). Slot 25 (LC-11, M-HZ2 audit F5, F3): the auditor's
+  forgeries FG2 (a K1m \'etale factor sharing a root with the dumped block; only the coprimality conjunct fails) and FG7 (the rank read off
+  the data, $d:=1$; only $d=(b_1+1)/2$ fails), and a K1 matrix that passes K1 but not $\chi_{T_2}(M)\equiv0$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \texttt{decide +kernel} on \texttt{GL2/HeckeZ/Cells/S1Data\{A,B,C\}.lean} and \texttt{S1Controls.lean} (Mathlib-free).
+\end{proof}
+
+\begin{theorem}[01 Thm.~4.1 at level one on T1, T2 and S1 (M-HZ2)]\label{chk:hz-S1}
+  \lean{GL2.HeckeZ.Cells.S1.cell_n2, GL2.HeckeZ.Cells.S1.cell_n4, GL2.HeckeZ.Cells.S1.cell_n6,
+    GL2.HeckeZ.Cells.S1.cell_n8, GL2.HeckeZ.Cells.S1.cell_n10, GL2.HeckeZ.Cells.S1.cell_n12,
+    GL2.HeckeZ.Cells.S1.cell_n14, GL2.HeckeZ.Cells.S1.cell_n16, GL2.HeckeZ.Cells.S1.cell_n18,
+    GL2.HeckeZ.Cells.S1.cell_n20, GL2.HeckeZ.Cells.S1.cell_n22, GL2.HeckeZ.Cells.S1.cell_n24,
+    GL2.HeckeZ.Cells.S1.cell_n26, GL2.HeckeZ.Cells.S1.cell_n28, GL2.HeckeZ.Cells.S1.cell_n30,
+    GL2.HeckeZ.Cells.S1.cell_n32, GL2.HeckeZ.Cells.S1.cell_n34, GL2.HeckeZ.Cells.S1.cell_n36,
+    GL2.HeckeZ.Cells.S1.cell_n38, GL2.HeckeZ.Cells.S1.cell_n40, GL2.HeckeZ.Cells.S1.cell_n42,
+    GL2.HeckeZ.Cells.S1.cell_n44, GL2.HeckeZ.Cells.S1.cell_n46, GL2.HeckeZ.Cells.S1.cell_n48,
+    GL2.HeckeZ.Cells.S1.cell_n50, GL2.HeckeZ.Cells.S1.cell_n52, GL2.HeckeZ.Cells.S1.cell_n54,
+    GL2.HeckeZ.Cells.S1.cell_n56, GL2.HeckeZ.Cells.S1.cell_n58, GL2.HeckeZ.Cells.S1.cell_n60,
+    GL2.HeckeZ.Cells.S1.cell_n62}
+  \leanok
+  \uses{chk:hz-S1-cert, chk:hz-cell, lit:eichler-shimura-levelone}
+  For each cell $(1,n)$ of S1, with $L=H^1(\mathrm{SL}_2(\mathbb Z);\mathrm{Sym}^n\mathbb Z)/\mathrm{tors}$ of rank $b_1$ and $X_m=T_m$ (interface
+  data, as in \ref{chk:hz-T1}): under Eichler--Shimura at level one (\texttt{hES}), TB-$\chi$ (\texttt{h$\chi$}) and TB-mat (\texttt{hmat},
+  \texttt{hmatm}), $\mathbb T^{\mathrm{fr}}=\mathbb Z[T_p:p\in P]$ when the cell's cofactor is $1$, and otherwise
+  $\mathbb Z[T_p:p\in P]_{(\ell)}=\mathbb T^{\mathrm{fr}}_{(\ell)}$ at every prime $\ell$ not dividing the stated cofactor. The cofactor collects
+  $2$, $3$ (no dump exists at $\ell\in\{2,3\}$; 01 Prop.~5.6 is not formalised here), the primes whose stable blocks were not dumped or did not
+  give a K1/K1m certificate, and the factors the untrusted finder did not split; the per-cell list is in the theorem's docstring and
+  in \texttt{LHZ1\_report.md}.
+  \gtmodlit{conditional on Eichler--Shimura at level one, \gtlithyp{hES} (\texttt{EichlerShimuraLevelOne}); the trust inputs TB-$\chi$
+  (\texttt{h$\chi$}: the ed.1 integral characteristic polynomials) and TB-mat (\texttt{hmat}, \texttt{hmatm}: the
+  \texttt{HECKE\_DUMP\_SAT\_CERT} blocks) are explicit hypotheses in each theorem's type}
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{chk:hz-cell} on the certificates of \ref{chk:hz-S1-cert}.
+\end{proof}
+
+\chapter{Part HZ (continued). Prop.~5.6 at level one (LC-11): the single-Eisenstein-component certificate; advances M-HZ2: exit 2 met in the generation form; 17 cells partial}
+% Slot 25, package LC-11 (advances M-HZ2).  Plan: 07-lean-plan.md v0.4 sec. 2.2 (LC-11), 3 (hSturm), 10 ("LC-11 reproduces T1,
+% T2"); slot25/00-slot25-plan.md sec. 3; MHZ2_audit.md F3-F7.  Report: docs/implementation/slot25/LC11_report.md.
+% Lean: GL2/Literature/SturmCusp, GL2/HeckeZ/{Sturm, Exec/Sturm, Check/Sturm, Cells/S1SturmData, Cells/S1SturmControls,
+% Cells/S1Sturm}.  No [C] marker (07 sec. 10).
+
+\begin{theorem}[01 Prop.~5.6 over $\mathbb Z$ (LC-11), local form]\label{inf:heckez-sturm}
+  \lean{GL2.HeckeZ.Sturm.comm_of_ES, GL2.HeckeZ.Sturm.comm_mem, GL2.HeckeZ.Sturm.charpoly_bcH, GL2.HeckeZ.Sturm.eval_map_int,
+    GL2.HeckeZ.Sturm.line_of_simple, GL2.HeckeZ.Sturm.scalar_of_simple, GL2.HeckeZ.Sturm.kill_pow, GL2.HeckeZ.Sturm.kill_aeval,
+    GL2.HeckeZ.Sturm.kill_sub, GL2.HeckeZ.Sturm.dvd_of_read, GL2.HeckeZ.Sturm.EisData, GL2.HeckeZ.Sturm.EisData.gIdeal,
+    GL2.HeckeZ.Sturm.aeval_mem_Tp, GL2.HeckeZ.Sturm.core, GL2.HeckeZ.Sturm.heckeZeiscert, GL2.HeckeZ.Sturm.heckeZeiscert_ES}
+  \leanok
+  \uses{inf:heckez-cert, inf:heckez-bridge, lit:hz-sturm-integral, lit:eichler-shimura-levelone}
+  Let $L$ be free of finite rank over $\mathbb Z$ with commuting $X_m$ (from Eichler--Shimura: \texttt{comm\_of\_ES}),
+  $\mathbb T^{\mathrm{fr}}=\mathbb Z[X_m]$, $\mathbb T'=\mathbb Z[X_p:p\in P]$ with $P\supseteq\{p\text{ prime}:p\le k/12\}$. For $q$ in a
+  set $Q$ of primes of $P$ let $\lambda_q=1+q^{k-1}$ be a simple root of $\chi(X_q)$ (TB-$\chi$) and $c_q$ a polynomial with
+  $(X_q-\lambda_q)\,c_q(X_q)=0$; let $g$ lie in the ideal $(c_q(\lambda_q):q\in Q)$. Assume Sturm for the cuspidal Hecke algebra over
+  $\mathbb Z$ (\texttt{hS}, \ref{lit:hz-sturm-integral}). Then $\mathbb T'_{(\ell)}=\mathbb T^{\mathrm{fr}}_{(\ell)}$ at every prime
+  $\ell$ with $\ell^{v+1}\nmid g$ for which the read at $(\ell,v)$ holds: trivially for $v=0$, i.e.\ at every $\ell\nmid g$ (this is how
+  Prop.~5.6 covers $2$ and $3$), and otherwise an entry of some $c_{q_0}(X_{q_0})$ in a $\mathbb Z$-basis of valuation exactly $s$ with
+  $\ell^{s+v}\mid c_{q_0}(\lambda_{q_0})$ (01 Prop.~5.4, the hypothesis $v_\ell(\exp\eta_L)\ge v_\ell(g_P)$ of Prop.~5.6, read entrywise).
+  \gtmodlit{conditional on Sturm for the cuspidal Hecke algebra over $\mathbb Z$, \gtlithyp{hS} (\texttt{SturmCuspLevelOne}), and, for the
+  commutativity, on Eichler--Shimura at level one, \gtlithyp{hES} (\texttt{EichlerShimuraLevelOne})}
+\end{theorem}
+\begin{proof}
+  \leanok
+  For $x\in\mathbb T^{\mathrm{fr}}$, \texttt{hS} gives $s\in\mathbb Z[X_p:p\le k/12]\subseteq\mathbb T'$ with $z:=x-s$ zero on the
+  cuspidal lattice $\sum_p(X_p-\lambda_p)L$; so $zX_q=\lambda_qz$ and $z\,c(X_q)=c(\lambda_q)z$. The line $\ker(X_q-\lambda_q)$ has rank
+  one ($\lambda_q$ a simple root; over $E\supseteq\mathbb Q_2$, \texttt{finrank\_eigenspace\_le}); $z$ commutes with $X_q$, so it acts on
+  the line by an integer $\varphi$ (Bridge's \texttt{int\_of\_eigen}), the same for every $q$ (each line contains $zL$). As
+  $e_q:=c_q(X_q)$ maps $L$ into the line, $c_q(\lambda_q)z=\varphi e_q\in\mathbb T'$, hence $g z\in\ell^v\mathbb T'$ once
+  $\ell^v\mid\varphi$ (the read: the coordinate argument of \texttt{dvd\_of\_read}), and $(g/\ell^{v_\ell(g)})\,x\in\mathbb T'$.
+\end{proof}
+
+\begin{definition}[The Prop.~5.6 certificate and its checker]\label{chk:hz-sturm}
+  \lean{GL2.HeckeZ.Exec.eisLamE, GL2.HeckeZ.Exec.peval, GL2.HeckeZ.Exec.primeB, GL2.HeckeZ.Exec.SItem, GL2.HeckeZ.Exec.SRead,
+    GL2.HeckeZ.Exec.SturmCert, GL2.HeckeZ.Exec.SItem.val, GL2.HeckeZ.Exec.SturmCert.g, GL2.HeckeZ.Exec.SturmCert.rprod,
+    GL2.HeckeZ.Exec.sitemOK, GL2.HeckeZ.Exec.sreadOK, GL2.HeckeZ.Exec.sturmCheck, GL2.HeckeZ.Check.primeB_sound,
+    GL2.HeckeZ.Check.primeB_complete, GL2.HeckeZ.Check.peval_eq, GL2.HeckeZ.Check.toPoly_lin, GL2.HeckeZ.Check.eisLamE_eq,
+    GL2.HeckeZ.Check.toMatrix_aeval_cast, GL2.HeckeZ.Check.read_entry}
+  \leanok
+  \uses{inf:heckez-sturm, chk:hz-k12, chk:hz-k3}
+  A \emph{Prop.~5.6 certificate} sits on a cell certificate: the weight $k=n+2$, with every prime $p\le k/12$ in $P$; per K2g item $T_p$
+  ($p$ prime) polynomials $c$, $r$ with $(x-\lambda_p)c=f$ and $(x-\lambda_p)r=\chi$, $r(\lambda_p)\ne0$; $g=\gcd_pc(\lambda_p)$
+  (01's $g_P$); \textbf{reads} at primes $\ell\mid g$ (primality by trial division to a certified bound): the matrix $M$ of $T_{p_0}$ on
+  $L/\ell^{s+1}$ (\emph{trust input TB-mat}, \texttt{hread}; the slot-25 EXPORT), with $\chi_{p_0}(M)\equiv0$, $c(M)\equiv0\bmod\ell^s$,
+  $c(M)\not\equiv0\bmod\ell^{s+1}$, $\ell^{s+v}\mid c(\lambda_{p_0})$, $\ell^{v+1}\nmid g$; a cofactor $\mathrm{cof}_{56}$ with
+  $g\mid\mathrm{cof}_{56}\,(\prod\ell)^{e}$ and the combined cofactor $\gcd(c,\mathrm{cof}_{56})$. \texttt{sturmCheck} (Mathlib-free) decides
+  it. \texttt{read\_entry}: vanishing of $c(M)$ modulo $\ell^s$ and non-vanishing modulo $\ell^{s+1}$ are invariant under the conjugation of
+  TB-mat, so some entry of $c(X_{p_0})$ in a $\mathbb Z$-basis has valuation exactly $s$.
+\end{definition}
+\begin{proof}
+  \leanok
+  List identities are $\mathbb Z[x]$ identities; \texttt{primeB}: a composite $n$ has a prime factor $m$ with $m^2\le n$; the read by
+  \texttt{zero\_iff\_of\_conj} of \ref{chk:hz-k3}.
+\end{proof}
+
+\begin{theorem}[The Prop.~5.6 cell theorems, alone and with Thm.~4.1]\label{chk:hz-cell-sturm}
+  \lean{GL2.HeckeZ.Check.cell56_sound, GL2.HeckeZ.Check.cell_sturm_sound}
+  \leanok
+  \uses{chk:hz-sturm, chk:hz-cell, inf:heckez-sturm, inf:heckez-rank, lit:hz-sturm-integral, lit:eichler-shimura-levelone}
+  For a passing cell certificate and a passing Prop.~5.6 certificate on it: under \texttt{hES}, \texttt{hS}, TB-$\chi$ (\texttt{h$\chi$}) and
+  TB-mat for the reads (\texttt{hread}), $\mathbb T'_{(\ell)}=\mathbb T^{\mathrm{fr}}_{(\ell)}$ at every prime $\ell\nmid\mathrm{cof}_{56}$
+  (\texttt{cell56\_sound}: no K1 or K1m datum is used; $c(T_p)$ kills $(T_p-\lambda_p)$-torsion because $f(T_p)=0$ by (C1) with the rank of
+  \ref{inf:heckez-rank}); with TB-mat of the cell (\texttt{hmat}, \texttt{hmatm}) the same at every prime not dividing
+  $\gcd(c,\mathrm{cof}_{56})$ (\texttt{cell\_sturm\_sound}); $\mathbb T^{\mathrm{fr}}=\mathbb T'$ when the cofactor is $1$.
+  \gtmodlit{conditional on Eichler--Shimura at level one, \gtlithyp{hES} (\texttt{EichlerShimuraLevelOne}), and Sturm for the cuspidal
+  Hecke algebra over $\mathbb Z$, \gtlithyp{hS} (\texttt{SturmCuspLevelOne}); TB-$\chi$ (\texttt{h$\chi$}) and TB-mat (\texttt{hread},
+  \texttt{hmat}, \texttt{hmatm}) are explicit hypotheses in the theorems' types}
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{chk:hz-sturm} gives the data of \ref{inf:heckez-sturm}; at $\ell\mid g$ the prime divides some read prime; then
+  \ref{chk:hz-cell} for the combined form.
+\end{proof}
+
+\begin{theorem}[The S1 Prop.~5.6 certificates, checked; negative controls]\label{chk:hz-S1-sturm-cert}
+  \lean{GL2.HeckeZ.Cells.S1SturmData.sturm_n2_check, GL2.HeckeZ.Cells.S1SturmData.sturm_n4_check,
+    GL2.HeckeZ.Cells.S1SturmData.sturm_n6_check, GL2.HeckeZ.Cells.S1SturmData.sturm_n8_check,
+    GL2.HeckeZ.Cells.S1SturmData.sturm_n10_check, GL2.HeckeZ.Cells.S1SturmData.sturm_n12_check,
+    GL2.HeckeZ.Cells.S1SturmData.sturm_n14_check, GL2.HeckeZ.Cells.S1SturmData.sturm_n16_check,
+    GL2.HeckeZ.Cells.S1SturmData.sturm_n18_check, GL2.HeckeZ.Cells.S1SturmData.sturm_n20_check,
+    GL2.HeckeZ.Cells.S1SturmData.sturm_n22_check, GL2.HeckeZ.Cells.S1SturmData.sturm_n24_check,
+    GL2.HeckeZ.Cells.S1SturmData.sturm_n26_check, GL2.HeckeZ.Cells.S1SturmData.sturm_n28_check,
+    GL2.HeckeZ.Cells.S1SturmData.sturm_n30_check, GL2.HeckeZ.Cells.S1SturmData.sturm_n32_check,
+    GL2.HeckeZ.Cells.S1SturmData.sturm_n34_check, GL2.HeckeZ.Cells.S1SturmData.sturm_n36_check,
+    GL2.HeckeZ.Cells.S1SturmData.sturm_n38_check, GL2.HeckeZ.Cells.S1SturmData.sturm_n40_check,
+    GL2.HeckeZ.Cells.S1SturmData.sturm_n42_check, GL2.HeckeZ.Cells.S1SturmData.sturm_n44_check,
+    GL2.HeckeZ.Cells.S1SturmData.sturm_n46_check, GL2.HeckeZ.Cells.S1SturmData.sturm_n48_check,
+    GL2.HeckeZ.Cells.S1SturmData.sturm_n50_check, GL2.HeckeZ.Cells.S1SturmData.sturm_n52_check,
+    GL2.HeckeZ.Cells.S1SturmData.sturm_n54_check, GL2.HeckeZ.Cells.S1SturmData.sturm_n56_check,
+    GL2.HeckeZ.Cells.S1SturmData.sturm_n58_check, GL2.HeckeZ.Cells.S1SturmData.sturm_n60_check,
+    GL2.HeckeZ.Cells.S1SturmData.sturm_n62_check, GL2.HeckeZ.Cells.S1SturmControls.ctl56_noread_rejected,
+    GL2.HeckeZ.Cells.S1SturmControls.ctl56_read_v_rejected,
+    GL2.HeckeZ.Cells.S1SturmControls.ctl56_read_composite_rejected,
+    GL2.HeckeZ.Cells.S1SturmControls.ctl56_item_rejected, GL2.HeckeZ.Cells.S1SturmControls.ctl56_weight_rejected}
+  \leanok
+  \uses{chk:hz-sturm, chk:hz-S1-cert}
+  The 31 level-one cells of \ref{chk:hz-S1-cert}, generated by the untrusted \texttt{lean/tools/hz\_sturm\_to\_lean.py} from the same ed.1
+  \texttt{char\_Z} and the slot-25 EXPORT runs \texttt{DescentRecord.module($\ell$, $s+1$)} at the primes $\ell<2^{31}$ of $g_P$, $n\le60$
+  (sha256 ledger \texttt{docs/implementation/slot25/lc11-data/SHA256SUMS}), are accepted by \texttt{sturmCheck}; one tamper per kind of check
+  is rejected (T2 claimed complete without the read at 2294797; a read claiming $v=2$ at 103; a read at a composite modulus; a cuspidal
+  polynomial $c$; the weight).
+\end{theorem}
+\begin{proof}
+  \leanok
+  \texttt{decide +kernel} on \texttt{GL2/HeckeZ/Cells/S1SturmData.lean} and \texttt{S1SturmControls.lean} (Mathlib-free).
+\end{proof}
+
+\begin{theorem}[01 Prop.~5.6 at level one on T1, T2 and S1; with Thm.~4.1 (M-HZ2, LC-11)]\label{chk:hz-S1-sturm}
+  \lean{GL2.HeckeZ.Cells.S1Sturm.prop56_n2, GL2.HeckeZ.Cells.S1Sturm.prop56_n4, GL2.HeckeZ.Cells.S1Sturm.prop56_n6,
+    GL2.HeckeZ.Cells.S1Sturm.prop56_n8, GL2.HeckeZ.Cells.S1Sturm.prop56_n10, GL2.HeckeZ.Cells.S1Sturm.prop56_n12,
+    GL2.HeckeZ.Cells.S1Sturm.prop56_n14, GL2.HeckeZ.Cells.S1Sturm.prop56_n16, GL2.HeckeZ.Cells.S1Sturm.prop56_n18,
+    GL2.HeckeZ.Cells.S1Sturm.prop56_n20, GL2.HeckeZ.Cells.S1Sturm.prop56_n22, GL2.HeckeZ.Cells.S1Sturm.prop56_n24,
+    GL2.HeckeZ.Cells.S1Sturm.prop56_n26, GL2.HeckeZ.Cells.S1Sturm.prop56_n28, GL2.HeckeZ.Cells.S1Sturm.prop56_n30,
+    GL2.HeckeZ.Cells.S1Sturm.prop56_n32, GL2.HeckeZ.Cells.S1Sturm.prop56_n34, GL2.HeckeZ.Cells.S1Sturm.prop56_n36,
+    GL2.HeckeZ.Cells.S1Sturm.prop56_n38, GL2.HeckeZ.Cells.S1Sturm.prop56_n40, GL2.HeckeZ.Cells.S1Sturm.prop56_n42,
+    GL2.HeckeZ.Cells.S1Sturm.prop56_n44, GL2.HeckeZ.Cells.S1Sturm.prop56_n46, GL2.HeckeZ.Cells.S1Sturm.prop56_n48,
+    GL2.HeckeZ.Cells.S1Sturm.prop56_n50, GL2.HeckeZ.Cells.S1Sturm.prop56_n52, GL2.HeckeZ.Cells.S1Sturm.prop56_n54,
+    GL2.HeckeZ.Cells.S1Sturm.prop56_n56, GL2.HeckeZ.Cells.S1Sturm.prop56_n58, GL2.HeckeZ.Cells.S1Sturm.prop56_n60,
+    GL2.HeckeZ.Cells.S1Sturm.prop56_n62, GL2.HeckeZ.Cells.S1Sturm.cellZ_n2, GL2.HeckeZ.Cells.S1Sturm.cellZ_n4,
+    GL2.HeckeZ.Cells.S1Sturm.cellZ_n6, GL2.HeckeZ.Cells.S1Sturm.cellZ_n8, GL2.HeckeZ.Cells.S1Sturm.cellZ_n10,
+    GL2.HeckeZ.Cells.S1Sturm.cellZ_n12, GL2.HeckeZ.Cells.S1Sturm.cellZ_n14, GL2.HeckeZ.Cells.S1Sturm.cellZ_n16,
+    GL2.HeckeZ.Cells.S1Sturm.cellZ_n18, GL2.HeckeZ.Cells.S1Sturm.cellZ_n20, GL2.HeckeZ.Cells.S1Sturm.cellZ_n22,
+    GL2.HeckeZ.Cells.S1Sturm.cellZ_n24, GL2.HeckeZ.Cells.S1Sturm.cellZ_n26, GL2.HeckeZ.Cells.S1Sturm.cellZ_n28,
+    GL2.HeckeZ.Cells.S1Sturm.cellZ_n30, GL2.HeckeZ.Cells.S1Sturm.cellZ_n32, GL2.HeckeZ.Cells.S1Sturm.cellZ_n34,
+    GL2.HeckeZ.Cells.S1Sturm.cellZ_n36, GL2.HeckeZ.Cells.S1Sturm.cellZ_n38, GL2.HeckeZ.Cells.S1Sturm.cellZ_n40,
+    GL2.HeckeZ.Cells.S1Sturm.cellZ_n42, GL2.HeckeZ.Cells.S1Sturm.cellZ_n44, GL2.HeckeZ.Cells.S1Sturm.cellZ_n46,
+    GL2.HeckeZ.Cells.S1Sturm.cellZ_n48, GL2.HeckeZ.Cells.S1Sturm.cellZ_n50, GL2.HeckeZ.Cells.S1Sturm.cellZ_n52,
+    GL2.HeckeZ.Cells.S1Sturm.cellZ_n54, GL2.HeckeZ.Cells.S1Sturm.cellZ_n56, GL2.HeckeZ.Cells.S1Sturm.cellZ_n58,
+    GL2.HeckeZ.Cells.S1Sturm.cellZ_n60, GL2.HeckeZ.Cells.S1Sturm.cellZ_n62}
+  \leanok
+  \uses{chk:hz-S1-sturm-cert, chk:hz-cell-sturm, chk:hz-S1, lit:hz-sturm-integral, lit:eichler-shimura-levelone}
+  For each S1 cell $(1,n)$, $L$ and $X_m=T_m$ as in \ref{chk:hz-S1}, $\mathbb T'=\mathbb Z[T_2,T_3,T_5]$: by Prop.~5.6 alone
+  (\texttt{prop56\_n$\langle n\rangle$}) $\mathbb T'_{(\ell)}=\mathbb T^{\mathrm{fr}}_{(\ell)}$ at every prime $\ell\nmid\mathrm{cof}_{56}$,
+  in particular at $2$, $3$, $5$ in every cell ($g_P$ is prime to $30$ throughout S1), and $\mathbb T^{\mathrm{fr}}=\mathbb T'$ for
+  $n\in\{2,\dots,24,28,30\}$ --- this is ``LC-11 reproduces T1, T2'' of 07 \S10 (T1: the read at 691; T2: the reads at 103 and 2294797);
+  with Thm.~4.1 (\texttt{cellZ\_n$\langle n\rangle$}) at every prime not dividing $\gcd(c,\mathrm{cof}_{56})$, and
+  $\mathbb T^{\mathrm{fr}}=\mathbb T'$ for the same 14 cells. The other 17 cells keep a cofactor: Eisenstein primes $\ell\mid g_P$ without a
+  closing read ($7$, $11$, $13$: $c(T_p)\equiv0\bmod\ell$, i.e.\ $\exp\eta_L<g_P$ there), primes of $g_P$ above $2^{31}$ or unfactored, and
+  $n=62$ (the console \texttt{descent} refuses $n>60$). Per-cell list: \texttt{docs/implementation/slot25/lc11-data/manifest\_lc11.tsv},
+  \texttt{LC11\_report.md}.
+  \gtmodlit{conditional on Eichler--Shimura at level one, \gtlithyp{hES} (\texttt{EichlerShimuraLevelOne}), and Sturm for the cuspidal
+  Hecke algebra over $\mathbb Z$, \gtlithyp{hS} (\texttt{SturmCuspLevelOne}); the trust inputs TB-$\chi$ (\texttt{h$\chi$}) and TB-mat
+  (\texttt{hread}: the EXPORT matrices; \texttt{hmat}, \texttt{hmatm}: the L-HZ1 dumps) are explicit hypotheses in each theorem's type}
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{chk:hz-cell-sturm} on the certificates of \ref{chk:hz-S1-sturm-cert} and \ref{chk:hz-S1-cert}.
+\end{proof}
+
+\chapter{Part HZ (continued). The Mazur cells: K10, K10$'$ and the valuation check (M-HZ4a, partly; L-K10)}
+% Slot 25, package L-K10.  Plan: 07-lean-plan.md v0.4.3 sec. 3 (hMazurEis), 5.10 (K10, K10', A7-M1), 10 (M-HZ4a), 11.2;
+% slot25/H3_report.md "For L-K10 / Z0", H3_referee.md note 5.  Brief / report: docs/implementation/slot25/LK10_brief.md, LK10_report.md.
+% Lean: GL2/Literature/MazurEis, GL2/HeckeZ/{Exec/K10, Check/K10, Cells/MazurData{A..G}, Cells/MerelData, Cells/Mazur,
+% Cells/MazurControls}.  The [C] counterpart is prop:heckeZeiscert(3); no [C] marker is added here (07 sec. 10).
+
+\begin{definition}[The K10$'$ certificate (good $q$, Hensel factor, valuation check) and its checker]\label{chk:hz-k10p}
+  \lean{GL2.HeckeZ.Exec.K10.K10pCert, GL2.HeckeZ.Exec.K10.k10pCheck, GL2.HeckeZ.Exec.K10.goodB, GL2.HeckeZ.Exec.K10.henselB,
+    GL2.HeckeZ.Exec.K10.valB, GL2.HeckeZ.K10.toPoly, GL2.HeckeZ.K10.toPoly_pmul, GL2.HeckeZ.K10.peval_eq,
+    GL2.HeckeZ.K10.toPoly_plin, GL2.HeckeZ.K10.peqMod_sound, GL2.HeckeZ.K10.primeB_sound, GL2.HeckeZ.K10.goodB_sound,
+    GL2.HeckeZ.K10.mazurN_eq, GL2.HeckeZ.K10.K10pSpec, GL2.HeckeZ.K10.k10p_sound}
+  \leanok
+  \uses{lit:hz-mazur-eis}
+  A K10$'$ certificate of a cell $(N,\ell)$ (prime level $N$, weight $2$) is $(N,\ell,q,K,v,h,F,H)$: $h=c_q\in\mathbb Z[x]$, the record's
+  characteristic polynomial of $T_q$ on $S_2(\Gamma_0(N))$ (HZ-RAT / H3: $\chi_{\mathbb Z}(T_q)=(x-1-q)c_q^2$; \emph{trust input TB-$\chi$}), and
+  $F=x^e+\dots$, $H$ with residues modulo $\ell^K$. \texttt{k10pCheck} (Mathlib-free, \texttt{decide +kernel}; polynomial arithmetic exact over
+  $\mathbb Z$) checks: $N,\ell,q$ prime, $N,\ell\ge5$, $q\ne N$, $\ell\mid N-1$, $\ell^v\,\|\,(N-1)/\gcd(N-1,12)$, $v<K$; goodness
+  $q\not\equiv1\pmod\ell$, $q^{(N-1)/\ell}\not\equiv1\pmod N$ (the choice rule); $F\equiv(x-1-q)^e\pmod\ell$, $h\equiv FH\pmod{\ell^K}$,
+  $H(1+q)\not\equiv0\pmod\ell$ (so $F$ is the Hensel factor of $h$ at $1+q$ modulo $\ell^K$); and \textbf{the valuation check} (A7-M1)
+  $\ell^v\mid F(1+q)$, $\ell^{v+1}\nmid F(1+q)$. The checker does not check $h$ against a characteristic polynomial: $h$ is data
+  (TB-$\chi$ is outside it). \textbf{Soundness} (\texttt{k10p\_sound}): an accepted certificate gives the guard of
+  \ref{lit:hz-mazur-eis}, $q$ good in Mazur's sense read literally (\texttt{goodB\_sound}: an $\ell$-th root of $q$ modulo $N$ would give
+  $q^{(N-1)/\ell}\equiv1$; $\frac{q-1}2\ne0$ in $\mathbb Z/\ell$), $v=v_\ell(\mathrm{num}\frac{N-1}{12})$ (\texttt{mazurN\_eq}), the Hensel
+  factorisation over $\mathbb Z/\ell^K$ with $F$ monic of degree $e$, and for every $\tilde F\in\mathbb Z_\ell[x]$ lifting $F\bmod\ell^K$:
+  $\ell^v\mid\tilde F(1+q)$ and $\ell^{v+1}\nmid\tilde F(1+q)$.
+\end{definition}
+\begin{proof}
+  \leanok
+  The list operations are the polynomial operations (induction); a congruence of coefficient lists is an equality over $\mathbb Z/m$;
+  divisibility by $\ell^j$, $j\le K$, of an element of $\mathbb Z_\ell$ is read off its residue modulo $\ell^K$ (\texttt{ker\_toZModPow}).
+\end{proof}
+
+\begin{lemma}[Cayley--Hamilton modulo an ideal; no contamination (H3 referee note 5)]\label{inf:hz-mazur-core}
+  \lean{GL2.HeckeZ.K10.charpoly_eval_mem, GL2.HeckeZ.K10.padic_dvd_of_map_zero, GL2.HeckeZ.K10.padic_dvd_iff_int,
+    GL2.HeckeZ.K10.no_contamination}
+  \leanok
+  (1) Let $T$ be a commutative $R$-algebra, free of finite rank over $R$, $I\subseteq T$ an ideal, $t\in T$, $a\in R$ with $a-t\in I$, and $f$ the
+  characteristic polynomial of multiplication by $t$. Then $f(a)\in I$. (2) A ring map $\mathbb Z_p\to\mathbb Z/p^v$ kills $x$ only if
+  $p^v\mid x$. (3) Let $F=fG$ in $\mathbb Z_\ell[x]$ with $G$ monic, $G\equiv(x-a)^d\pmod\ell$, $\ell^v\mid f(a)$ and $\ell^{v+1}\nmid F(a)$.
+  Then $G=1$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  (1) Cayley--Hamilton gives $f(t)=0$; modulo $I$, $t\equiv a$. (2) $x=\mathrm{appr}_v(x)+p^vy$. (3) $G$ has degree $d$; if $d\ge1$ then
+  $G(a)\equiv0\pmod\ell$, so $\ell^{v+1}\mid f(a)G(a)=F(a)$.
+\end{proof}
+
+\begin{theorem}[The valuation check certifies the Eisenstein block (M-HZ4a, partly)]\label{chk:hz-mazur-val}
+  \lean{GL2.HeckeZ.K10.mazur_dvd_charpoly, GL2.HeckeZ.K10.mazur_val_cert}
+  \leanok
+  \uses{chk:hz-k10p, inf:hz-mazur-core, lit:hz-mazur-eis}
+  Let $T$ be Mazur's completed cuspidal Hecke ring at the Eisenstein prime over $\ell$ (\ref{lit:hz-mazur-eis}), with $T_q$, $w$, and
+  $f=f_{q,\mathfrak m}$ the characteristic polynomial of $T_q$ on $T$. (a) For \emph{every} prime $q\ne N$: $\ell^{v_\ell(n)}\mid f(1+q)$
+  (\texttt{mazur\_dvd\_charpoly}; $\eta_q\in\mathfrak I$ and $T/\mathfrak IT=\mathbb Z/\ell^{v_\ell(n)}$; goodness is not used). (b) Let $c$ be an accepted
+  K10$'$ certificate of $(N,\ell)$ and $\tilde F\in\mathbb Z_\ell[x]$ a lift of its $F$; assume the \emph{block identification}
+  $\tilde F=f\cdot G$ with $G$ monic, $G\equiv(x-1-q)^d\pmod\ell$ (the other maximal ideals through $(\ell,\eta_q)$; an explicit hypothesis).
+  Then $G=1$, $\tilde F=f$, $\mathrm{rank}_{\mathbb Z_\ell}T=e$, $\ell^v\,\|\,f(1+q)$, $T=\mathbb Z_\ell[\eta_q]$ and $\mathfrak IT=(\eta_q)$
+  (\texttt{mazur\_val\_cert}). This is [C] \texttt{prop:heckeZeiscert}(3) ``If it holds, then $\mathsf F_q=f_{q,\mathfrak m}$,
+  $e^{\mathrm{cusp}}_{\mathfrak m}=\deg\mathsf F_q$, $\mathbb T^{\mathrm{cusp}}_{\mathfrak m}=\mathbb Z_\ell[\eta_q]$, the Eisenstein ideal is $(\eta_q)$'' for the
+  certified cell, given the block identification; the isomorphism with $\mathbb Z_\ell[x]/(\mathsf F_q)$ and the rank-$(e+1)$ ring
+  $\mathbb T^{\mathrm{fr}}_{\mathfrak m}$ are not stated here.
+  \gtmodlit{conditional on Mazur II (9.7), (16.2), (16.6), \gtlithyp{hMazurEis} (\texttt{MazurEisLocal}), and on the block identification,
+  a mathematical premise not yet proved in Lean (open point 1 of \texttt{slot25/LK10\_report.md}): \gtlithyp{hblock} ($\tilde F=f\cdot G$),
+  \gtlithyp{hGm} ($G$ monic), \gtlithyp{hGred} ($G\equiv(x-1-q)^d\bmod\ell$); the lift \texttt{hlift} ($\tilde F\equiv F\bmod\ell^K$) only names
+  $\tilde F$. The link between $F$ and the Hecke side is carried by \texttt{hblock} and \texttt{hlift} alone: the certificate's $h$ (TB-$\chi$)
+  and its Hensel factorisation are kernel-checked data, but \texttt{mazur\_val\_cert} does not use them (it uses the guards, goodness, the
+  valuation check, and $F$ monic of degree $e$); they enter only the paper argument that would discharge \texttt{hblock}}
+\end{theorem}
+\begin{proof}
+  \leanok
+  (a) is \ref{inf:hz-mazur-core}(1), (2) with $t=T_q$, $a=1+q$, $I=\mathfrak IT$ and the ring map $\mathbb Z_\ell\to T/\mathfrak IT\cong\mathbb Z/\ell^v$.
+  (b) \ref{chk:hz-k10p} gives $\ell^{v+1}\nmid\tilde F(1+q)$; \ref{inf:hz-mazur-core}(3) with (a) gives $G=1$; $\deg f=\mathrm{rank}\,T$; goodness of
+  $q$ and the fields (16.2), (16.6).
+\end{proof}
+
+\begin{theorem}[The 180 Mazur cells of H3, checked; negative controls]\label{chk:hz-mazur-cells}
+  \lean{GL2.HeckeZ.Cells.MazurData.cellsA_check, GL2.HeckeZ.Cells.MazurData.cellsB_check,
+    GL2.HeckeZ.Cells.MazurData.cellsC_check, GL2.HeckeZ.Cells.MazurData.cellsD_check,
+    GL2.HeckeZ.Cells.MazurData.cellsE_check, GL2.HeckeZ.Cells.MazurData.cellsF_check,
+    GL2.HeckeZ.Cells.MazurData.cellsG_check, GL2.HeckeZ.Cells.Mazur.allCells_length, GL2.HeckeZ.Cells.Mazur.allCells_check,
+    GL2.HeckeZ.Cells.Mazur.mazurCells_spec, GL2.HeckeZ.Cells.MazurControls.cert61_accepted,
+    GL2.HeckeZ.Cells.MazurControls.ctl61_37_rest, GL2.HeckeZ.Cells.MazurControls.ctl61_37_val,
+    GL2.HeckeZ.Cells.MazurControls.ctl61_37_rejected, GL2.HeckeZ.Cells.MazurControls.good_61_5,
+    GL2.HeckeZ.Cells.MazurControls.ctl61_q13_rejected, GL2.HeckeZ.Cells.MazurControls.ctl61_q13_several,
+    GL2.HeckeZ.Cells.MazurControls.ctlGood13, GL2.HeckeZ.Cells.MazurControls.ctlGood31,
+    GL2.HeckeZ.Cells.MazurControls.ctlGood_only, GL2.HeckeZ.Cells.MazurControls.ctl61_F_rejected,
+    GL2.HeckeZ.Cells.MazurControls.ctl61_h_rejected}
+  \leanok
+  \uses{chk:hz-k10p}
+  The 180 cells of the H3 run (\texttt{slot25/H3\_report.md}: C4's 47 pairs united with [C, LN6]'s 168), each with the $q$ accepted by H3's
+  finder, pass K10$'$; so \texttt{K10pSpec} holds on each (\texttt{mazurCells\_spec}): in particular the valuation check, for every lift. Data:
+  \texttt{lean/tools/hz\_mazur\_to\_lean.py} (untrusted; $F$ shifted to $x$, $H=c_q/F$), manifest
+  \texttt{docs/implementation/slot25/lk10-data/manifest\_lk10.tsv}. \textbf{Negative controls}: at $(N,\ell,q)=(61,5,37)$ ([C] \texttt{prop:heckeZeiscert}(3),
+  $h_{37}=(x-8)(x^3+6x^2-36x-108)$) the guards, goodness and the Hensel factorisation pass and the valuation check rejects
+  ($v_5(F(38))=2>1$): the control a goodness-only checker accepts. $q=13$ (a $5$-th power mod $61$) and $q=31$ ($\equiv1\bmod5$) are not good
+  (\texttt{good\_61\_5}); the accepted certificate with only $q$ changed to $13$ is rejected by several checks at once (goodness, shape,
+  unit, valuation: \texttt{ctl61\_q13\_several}); the \emph{goodness-only} controls \texttt{ctlGood13}, \texttt{ctlGood31} (synthetic
+  $h=F=x-(1+q)+5$, $H=1$) pass the guards, the Hensel factorisation and the valuation and fail goodness alone (\texttt{ctlGood\_only}).
+  A tampered $F(0)$ is rejected (shape and identity); a tampered $h(0)$ fails the identity $h\equiv FH\pmod{\ell^K}$ alone
+  (\texttt{ctl61\_h\_rejected}).
+\end{theorem}
+\begin{proof}
+  \leanok
+  \texttt{decide +kernel} on the Mathlib-free data modules, then \ref{chk:hz-k10p}.
+\end{proof}
+
+\begin{theorem}[The 180 Mazur cells, certified mod \texttt{hMazurEis} and the block identification]\label{chk:hz-mazur-cells-cert}
+  \lean{GL2.HeckeZ.Cells.Mazur.mazurCells_cert}
+  \leanok
+  \uses{chk:hz-mazur-cells, chk:hz-mazur-val, lit:hz-mazur-eis}
+  On each of the 180 cells, \ref{chk:hz-mazur-val}(b) holds for the recorded $q$.
+  \gtmodlit{conditional on \gtlithyp{hMazurEis} (\texttt{MazurEisLocal}) and on the block identification \gtlithyp{hblock}, \gtlithyp{hGm},
+  \gtlithyp{hGred} (not yet proved in Lean); the lift \texttt{hlift} explicit; $h$ and the Hensel data unused, as in \ref{chk:hz-mazur-val}}
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{chk:hz-mazur-val} on \ref{chk:hz-mazur-cells}.
+\end{proof}
+
+\begin{definition}[K10: Merel's criterion as one \texttt{powMod} (an oracle consistency check)]\label{orc:hz-merel}
+  \lean{GL2.HeckeZ.Exec.K10.merelP, GL2.HeckeZ.Exec.K10.merelCheck, GL2.HeckeZ.Cells.MazurData.merelCellsA_check,
+    GL2.HeckeZ.Cells.MazurData.merelCellsB_check, GL2.HeckeZ.Cells.MazurData.merelCellsC_check,
+    GL2.HeckeZ.Cells.Mazur.merelCells_e_eq, GL2.HeckeZ.Cells.MazurControls.merel_controls}
+  \leanok
+  K10 (07 \S5.10) recomputes $P=\prod_{i\le(N-1)/2}i^i\bmod N$ and compares $[P^{(N-1)/\ell}\equiv1\pmod N]$ with $[e\ge2]$, $e=\deg F$ of the
+  cell's K10$'$ certificate (a kernel theorem, \texttt{merelCells\_e\_eq}: the K10 data carry the $N$, $\ell$ and $e=\deg F$ of the 180
+  K10$'$ certificates, in order). On all 180 cells they agree (32 cells with $e\ge2$, as in H3); a tampered $P$ and a tampered $e$ are rejected.
+  No soundness theorem: ``$e\ge2$ iff $P$ is an $\ell$-th power'' is Merel's theorem ([C] LN5, STD), not a hypothesis structure (07 \S3);
+  the check is a consistency check of [C] LN5 against the certified degrees.
+\end{definition}
+\begin{proof}
+  \leanok
+  \texttt{decide +kernel} (Mathlib-free).
+\end{proof}
+
+\chapter{Part HZ (continued). The Hida one-weight certificate K9 (M-HZ4, partly; L-K9)}
+% Slot 25, package L-K9.  Plan: 07-lean-plan.md v0.4.3 sec. 3 (hHidaControl, hEmertonEis), 5.9 (K9), 11.1, 11.2; [U] 0.7.0-pre part 6
+% (sec:u-eislambda: prop:u-H11, prop:u-H12 (D1), (D3)); data slot25/H1_report.md sec. 5 (h1/k9_data.tsv).  Brief / report:
+% docs/implementation/slot25/LK9_brief.md, LK9_report.md.  Lean: GL2/HeckeZ/{Exec/K9, Check/K9, Cells/K9Data, Cells/K9, Cells/K9Controls},
+% GL2/Literature/HidaControl.  No [C] / [U] marker is added here.
+
+\begin{definition}[The K9 certificate and its checker]\label{chk:hz-k9}
+  \lean{GL2.HeckeZ.Exec.K9.K9Cert, GL2.HeckeZ.Exec.K9.k9Check, GL2.HeckeZ.Exec.K9.eisRoot, GL2.HeckeZ.Exec.K9.v1B,
+    GL2.HeckeZ.Exec.K9.guardB, GL2.HeckeZ.Exec.K9.rootB, GL2.HeckeZ.Exec.K9.shapeB, GL2.HeckeZ.Exec.K9.valB,
+    GL2.HeckeZ.Exec.K9.bernB, GL2.HeckeZ.Exec.K9.discB, GL2.HeckeZ.Exec.K9.signB, GL2.HeckeZ.Exec.K9.lamB,
+    GL2.HeckeZ.K9.v1_of_res, GL2.HeckeZ.K9.toZMod_of_res, GL2.HeckeZ.K9.Fp_monic, GL2.HeckeZ.K9.Fp_natDegree,
+    GL2.HeckeZ.K9.K9Spec, GL2.HeckeZ.K9.k9_sound}
+  \leanok
+  A K9 certificate of an irregular pair $(\ell,a)$ at one weight $k\equiv a\pmod{\ell-1}$ (07 \S5.9) is $(\ell,k,f,e,b,G_1,G_2,\lambda)$, all
+  residues below $\ell^2$: $f=x^g+\dots$ the characteristic polynomial modulo $\ell^2$ of $T_2$ on the ordinary Eisenstein block cut out by the
+  full residual system (\emph{trust input TB-$\chi$, block form}; H1's \texttt{ReadBlock}), $e$ the eigenvalue $1+2^{k-1}$, $b=B_k/k$
+  (\emph{trust input TB-B}, the C++ residue), $G_1=G_a(x_k)$, $G_2=G_a(x_{k+\ell-1})$ (TB-B at the weight $k+\ell-1$), $\lambda$ the
+  $\lambda$-residue. \texttt{k9Check} (Mathlib-free, \texttt{decide +kernel}; polynomial arithmetic exact over $\mathbb Z$) checks: $\ell$ prime,
+  $\ell\ge5$, $k\ge3$, $(\ell-1)\nmid k$, $g\ge1$; $e=(1+2^{k-1})\bmod\ell^2$ \emph{recomputed}; $f\equiv(x-e)^g\pmod\ell$; $\ell\,\|\,f(e)$ and
+  $\ell\,\|\,b$ at precision $\ell^2$ (so $v(f_k(e_k))=v(B_k/k)=1$); for $g=2$, $\ell\,\|\,f_1^2-4f_0$; $G_1\equiv-b\pmod{\ell^2}$
+  ($G_a(x_k)=-(1-\ell^{k-1})B_k/k$, $k\ge3$); $G_1-G_2\equiv\ell\lambda\pmod{\ell^2}$, $\lambda\not\equiv0\pmod\ell$. The checker does not check $f$
+  against a Hecke operator nor $b$, $G_2$ against Bernoulli numbers: they are data. \textbf{Soundness} (\texttt{k9\_sound}): an accepted
+  certificate gives the guards, $e=1+2^{k-1}$ in $\mathbb Z/\ell^2$, $f$ monic of degree $g$ with $f\equiv(x-e)^g\pmod\ell$, and for \emph{every}
+  lift to $\mathbb Z_\ell$ of the residues: $\ell\,\|\,\tilde F(\tilde e)$, $\ell\,\|\,\tilde b$, ($g=2$) $\ell\,\|\,\operatorname{disc}\tilde F$,
+  $\tilde G_1\equiv-\tilde b\pmod{\ell^2}$, $\ell\,\|\,\tilde G_1-\tilde G_2$.
+\end{definition}
+\begin{proof}
+  \leanok
+  The list operations of \ref{chk:hz-k10p} are the polynomial operations; $\ell^j\mid x$, $j\le2$, for $x\in\mathbb Z_\ell$ is read off its residue
+  modulo $\ell^2$ (\texttt{padic\_dvd\_iff\_int}); \texttt{powMod} is exact for exponents $<2^{12}$ (checked).
+\end{proof}
+
+\begin{lemma}[The finite-weight theorem: Eisenstein at $e$ with $\ell\,\|\,F(e)$]\label{inf:hz-k9-eis}
+  \lean{GL2.HeckeZ.K9.EisFiniteWeight, GL2.HeckeZ.K9.eis_finite_weight, GL2.HeckeZ.K9.eis_taylor, GL2.HeckeZ.K9.eis_irreducible,
+    GL2.HeckeZ.K9.cong_equiv, GL2.HeckeZ.K9.span_pi_maximal, GL2.HeckeZ.K9.p_mem_maximal, GL2.HeckeZ.K9.maximal_eq,
+    GL2.HeckeZ.K9.span_F_sup, GL2.HeckeZ.K9.sub_shape_dvd, GL2.HeckeZ.K9.eval_eq_p_mul_unit, GL2.HeckeZ.K9.k9_cert}
+  \leanok
+  \uses{chk:hz-k9}
+  Let $F\in\mathbb Z_p[x]$ be monic of degree $g\ge1$, $e\in\mathbb Z_p$, $F\equiv(x-e)^g\pmod p$ and $p\,\|\,F(e)$. Then: $F(x+e)$ is Eisenstein
+  at $(p)$; $F$ is irreducible over $\mathbb Z_p$ and over $\mathbb Q_p$ (the $g$ roots are conjugate); $A=\mathbb Z_p[x]/(F)$ has $\mathbb Z_p$-rank ($\mathrm{finrank}$) $g$
+  over $\mathbb Z_p$, its only maximal ideal is $(x-e)$, it is a \textbf{discrete valuation ring}, and the $T_2$-Eisenstein quotient
+  $A/(x-e)\cong\mathbb Z/p$ (it equals [U]'s $C_{\mathrm{Eis},k}$ of \texttt{def:u-congmod} only given the generator statement $I^0=(T_2-e)$, [U] \texttt{prop:u-H11}, \texttt{prop:u-H12}(2), via Emerton, i.e.\ L-H0, which is not proved here) (\texttt{eis\_finite\_weight}, structure \texttt{EisFiniteWeight}). With \ref{chk:hz-k9}: an accepted certificate and
+  \emph{every} monic lift $\tilde F\in\mathbb Z_\ell[x]$ of degree $g$ of $f\bmod\ell^2$ satisfy this at $e_k=1+2^{k-1}$ (\texttt{k9\_cert}). This is 07
+  \S5.9's ``soundness, now'', [U] \texttt{prop:u-H12}(4) at $v(B_k/k)=1$ for $\mathbb Z_\ell[x]/(f_k)$, and, at $g=1$, the generator test of [U]
+  \texttt{prop:u-H11} at $q=2$: $v(a_2(f_k)-e_2)=v(B_k/k)=1$. Total ramification ($\ell=(x-e)^g\cdot$unit) and Gorenstein are standard consequences
+  (a DVR of rank $g$ with residue field $\mathbb F_\ell$) and are not stated in Lean. The identification of $\tilde F$ with the characteristic
+  polynomial of $T_2$ on the block (TB-$\chi$) is \emph{not} a hypothesis of these theorems: they hold for every lift of the checked residues, and
+  read as statements about Hecke algebras only through TB-$\chi$, TB-B, and one further paper step not in Lean: $\mathbb Z_\ell[T_2]$ is the maximal order (the DVR), hence equals $\mathfrak h_{k,\mathfrak m}$ ([U] \texttt{prop:u-H12}(4); empty at $g=1$, Step 1 of [U]'s proof at $(547,486)$).
+\end{lemma}
+\begin{proof}
+  \leanok
+  The coefficients of $F(x+e)$ below the top reduce to those of $x^g$, the constant one is $F(e)\notin(p)^2$; Eisenstein's criterion, the
+  Taylor shift (an automorphism) and Gauss's lemma give the irreducibility; $(F)$ is prime in the UFD $\mathbb Z_p[x]$. $A/(x-e)\cong
+  \mathbb Z_p[x]/(F(e),x-e)\cong\mathbb Z_p/(F(e))=\mathbb Z_p/(p)$. A maximal ideal $M$ of $A$ contracts to $(p)$ ($A$ is finite over the local
+  $\mathbb Z_p$), and $F-(x-e)^g\in p\,\mathbb Z_p[x]$ gives $(x-e)^g\in M$, so $M=(x-e)$. $A$ is a Noetherian local domain, not a field ($p\ne0$
+  in $A$), with principal maximal ideal: a DVR (\texttt{IsDiscreteValuationRing.TFAE}).
+\end{proof}
+
+\begin{theorem}[The 12 irregular pairs of H1, checked and certified; negative controls]\label{chk:hz-k9-cells}
+  \lean{GL2.HeckeZ.Cells.K9Data.k9Cells, GL2.HeckeZ.Cells.K9Data.k9Cells_length, GL2.HeckeZ.Cells.K9Data.k9Cells_check,
+    GL2.HeckeZ.Cells.K9.k9Cells_spec, GL2.HeckeZ.Cells.K9.k9Cells_cert, GL2.HeckeZ.Cells.K9.k9Cells_lift,
+    GL2.HeckeZ.Cells.K9.fact_prime_547, GL2.HeckeZ.Cells.K9.cell547_cert,
+    GL2.HeckeZ.Cells.K9Controls.checks, GL2.HeckeZ.Cells.K9Controls.c547_eq, GL2.HeckeZ.Cells.K9Controls.c691_eq,
+    GL2.HeckeZ.Cells.K9Controls.c547_checks, GL2.HeckeZ.Cells.K9Controls.ctlBern_only, GL2.HeckeZ.Cells.K9Controls.ctlBern_rejected,
+    GL2.HeckeZ.Cells.K9Controls.ctlVal_only, GL2.HeckeZ.Cells.K9Controls.ctlVal_rejected,
+    GL2.HeckeZ.Cells.K9Controls.ctlRoot_only, GL2.HeckeZ.Cells.K9Controls.ctlRoot_rejected,
+    GL2.HeckeZ.Cells.K9Controls.ctlSign_only, GL2.HeckeZ.Cells.K9Controls.ctlSign_rejected,
+    GL2.HeckeZ.Cells.K9Controls.ctlLam_only, GL2.HeckeZ.Cells.K9Controls.ctlLam_rejected,
+    GL2.HeckeZ.Cells.K9Controls.ctlShape_two, GL2.HeckeZ.Cells.K9Controls.ctlShape_rejected,
+    GL2.HeckeZ.Cells.K9Controls.ctlPrime_guard, GL2.HeckeZ.Cells.K9Controls.ctlPrime_rejected}
+  \leanok
+  \uses{chk:hz-k9, inf:hz-k9-eis}
+  The 12 pairs of \texttt{slot25/H1\_report.md} \S5 at their first weights --- the 11 C2 chain pairs $(37,32)$, $(59,44)$, $(67,58)$, $(101,68)$,
+  $(103,24)$, $(131,22)$, $(149,130)$, $(157,62)$, $(157,110)$, $(691,12)$, $(691,200)$ ($g=1$) and $(547,486)$ ($g=2$, [U] \texttt{prop:u-H12}
+  (D1) at $k=486$: $f\equiv x^2+62064x+135932\pmod{547^2}$) --- pass K9 (kernel), so \texttt{K9Spec} holds on each and the finite-weight theorem
+  holds for every monic lift of degree $g$ (\texttt{k9Cells\_cert}; \texttt{cell547\_cert} spelled out); a lift exists (\texttt{k9Cells\_lift}). Data:
+  \texttt{lean/tools/hz\_k9\_to\_lean.py} (untrusted; mirrors every check, cross-checks $b$, $G_1$, $G_2$ against exact Bernoulli numbers in
+  Python, 12/12), manifest \texttt{docs/implementation/slot25/lk9-data/manifest\_lk9.tsv} (sha256 of \texttt{h1/k9\_data.tsv}). \textbf{Negative
+  controls}, each with the whole vector of the eight sub-checks (\texttt{checks}): a unit $B_k/k$ with $G_1$, $G_2$ kept consistent fails the
+  Bernoulli valuation \emph{alone} (07's control, \texttt{ctlBern\_only}); $f(e)\equiv0\pmod{\ell^2}$ fails the valuation alone; $e+\ell$ fails the
+  recomputation of $1+2^{k-1}$ alone; $G_1\not\equiv-b$ fails the sign identity alone; a $\lambda$-residue $0$ fails the $\lambda$-test alone;
+  $f+(x-e)$ at $547$ fails the shape and the discriminant (at $g=2$ the two are not independent: a non-Eisenstein $f$ with $\ell\,\|\,f(e)$ has a unit
+  discriminant here, and shape $+$ valuation force $\ell\,\|\,\operatorname{disc}$); $\ell=549$ fails the guard.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \texttt{decide +kernel} on the Mathlib-free data and control modules, then \ref{chk:hz-k9} and \ref{inf:hz-k9-eis}.
+\end{proof}
+
+\chapter{Part HZ (continued). Level $N$, anemic: T3 and T4 (M-HZ4b, partly; L-HZ3)}
+% Slot 25, package L-HZ3.  Plan: 07-lean-plan.md v0.4.3 sec. 3 (hES_N_an), 5.3 (K3 at level N), 10 (M-HZ4b); 01 sec. 9 T3, T4.
+% Data: docs/implementation/slot25/lhz3-data/ (EXPORT on the slot-25 shared binary).  Brief / report:
+% docs/implementation/slot25/LHZ3_brief.md, LHZ3_report.md.  Lean: GL2/HeckeZ/{BridgeN, Exec/K3N, Check/K3N, Cells/LevelNData,
+% Cells/LevelN, Cells/LevelNControls}, GL2/Literature/AnemicRank.  No [C] marker is added here.
+
+\begin{theorem}[An Eisenstein split from the rank alone (HZ-0 at level $N$, two systems)]\label{inf:hz-bridge-rank2}
+  \lean{GL2.HeckeZ.BridgeN.int_eigen_div, GL2.HeckeZ.BridgeN.zsmul_cancel, GL2.HeckeZ.BridgeN.end_zsmul_cancel,
+    GL2.HeckeZ.BridgeN.exists_eigvec, GL2.HeckeZ.BridgeN.tfr_finite, GL2.HeckeZ.BridgeN.dep, GL2.HeckeZ.BridgeN.genSq,
+    GL2.HeckeZ.BridgeN.quad, GL2.HeckeZ.BridgeN.scalar_on, GL2.HeckeZ.BridgeN.eisSplit_of_rank2}
+  \leanok
+  \uses{inf:heckez-cong, inf:heckez-bridge}
+  Let $L$ be a free $\mathbb Z$-module of finite rank, $X:\iota\to\operatorname{End}_{\mathbb Z}L$, $\mathbb T=\mathbb Z[X]$. If
+  $\operatorname{rank}_{\mathbb Z}\mathbb T\le2$ and $\chi_{\mathbb Z}(X_{i_0})=(x-u)^a(x-w)^b$ with $a,b\ge1$, $u\ne w$, then $\mathbb T$ has an
+  Eisenstein split (\ref{inf:heckez-cong}'s \texttt{EisSplit}) with $\theta=X_{i_0}$, $\lambda(\theta)=w$, $\mu(\theta)=u$: ring maps
+  $\lambda,\mu:\mathbb T\to\mathbb Z$, $(\theta-u)(\theta-w)=0$, every $t$ acting on $\ker(\theta-w)$ by $\lambda(t)$ and on $\ker(\theta-u)$ by
+  $\mu(t)$. No semisimplicity input in the Lean proof and no field: 07 P2a-6's degree count, made explicit. (Semisimplicity is not
+  removed from the trust chain: it is part of the literature derivation of the rank, \ref{lit:hz-es-anemic}, step (ii).)
+\end{theorem}
+\begin{proof}
+  \leanok
+  The roots $u,w$ of $\chi$ are eigenvalues over $\mathbb Z$ (\texttt{Module.End.hasEigenvalue\_iff\_isRoot\_charpoly}). $1,\theta$ are
+  independent (on the two eigenvectors), $1,\theta,t$ dependent (rank $\le2$): $ct=\alpha+\beta\theta$, $c\ne0$. For $t=\theta^2$ the eigenvectors
+  force $\beta=c(u+w)$, $\alpha=-cuw$, so $c(\theta-u)(\theta-w)=0$ and, $\operatorname{End}_{\mathbb Z}L$ being torsion-free,
+  $(\theta-u)(\theta-w)=0$. On $\ker(\theta-w)$ the element $ct$ acts by $\alpha+\beta w$; on an integral eigenvector the quotient by $c$ is a
+  rational algebraic integer (\texttt{Bridge.int\_eigen\_vec}), hence an integer; $\lambda=$ \texttt{evHom}; likewise $\mu$.
+\end{proof}
+
+\begin{definition}[The level-$N$ K3 certificate K3N and its checker]\label{chk:hz-k3n}
+  \lean{GL2.HeckeZ.Exec.K3N.K3Read, GL2.HeckeZ.Exec.K3N.K3NCert, GL2.HeckeZ.Exec.K3N.K3Read.m, GL2.HeckeZ.Exec.K3N.rEntry,
+    GL2.HeckeZ.Exec.K3N.shapeB, GL2.HeckeZ.Exec.K3N.allDivB, GL2.HeckeZ.Exec.K3N.witB, GL2.HeckeZ.Exec.K3N.gapB,
+    GL2.HeckeZ.Exec.K3N.readOK, GL2.HeckeZ.Exec.K3N.nodupB, GL2.HeckeZ.Exec.K3N.opB, GL2.HeckeZ.Exec.K3N.k3nCheck,
+    GL2.HeckeZ.Exec.K3N.K3NCert.G, GL2.HeckeZ.Exec.K3N.K3NCert.gUp, GL2.HeckeZ.Exec.K3N.K3NCert.complete,
+    GL2.HeckeZ.Exec.K3N.chiReadsOK,
+    GL2.HeckeZ.K3N.ReadSpec, GL2.HeckeZ.K3N.K3NSpec, GL2.HeckeZ.K3N.rEntry_dvd, GL2.HeckeZ.K3N.readOK_sound,
+    GL2.HeckeZ.K3N.nodupB_iff, GL2.HeckeZ.K3N.k3nCheck_sound, GL2.HeckeZ.K3N.TBmat, GL2.HeckeZ.K3N.read_lower,
+    GL2.HeckeZ.K3N.gProd, GL2.HeckeZ.K3N.coprime_gProd, GL2.HeckeZ.K3N.gProd_dvd, GL2.HeckeZ.K3N.G_eq,
+    GL2.HeckeZ.K3N.k3n_sound, GL2.HeckeZ.K3N.k3n_fibre, GL2.HeckeZ.K3N.k3n_gen}
+  \leanok
+  \uses{chk:hz-k3, inf:heckez-cong}
+  A K3N certificate (07 \S5.3 at level $N$, two systems) is one operator $T_p$ ($p$ prime, $p\nmid N$) with $\lambda=\lambda(T_p)$, checked to be
+  $1+p^{k-1}$, and $\mu=\mu(T_p)$ (the other root of the recorded $\chi_{\mathbb Z}(T_p)$, \emph{TB-$\chi$}), and reads at pairwise distinct
+  primes $\ell$: the dumped matrix $D$ of $T_p$ on $L/\ell^K$ (\emph{TB-mat}: the slot-25 EXPORT's free block), a valuation $v<K$ with
+  $\ell^v$ dividing every entry of $D-\mu$ and a witness entry not divisible by $\ell^{v+1}$, and $e$ with $\ell^{v+e}\mid\lambda-\mu$.
+  \texttt{k3nCheck} (Mathlib-free, \texttt{decide +kernel}) checks all of this, primality of $p$ and of each $\ell$ included. The lower bound is
+  $G=\prod\ell^e$, the upper bound $|\lambda-\mu|$; \emph{complete} means $G=|\lambda-\mu|$. \texttt{chiReadsOK} ($\chi(D)\equiv0\bmod\ell^K$) is a
+  guard against a wrong file, used by no theorem. \textbf{Soundness and bridge} (\texttt{k3n\_sound}): for an Eisenstein split with
+  $\lambda(\theta)=\lambda$, $\mu(\theta)=\mu$ and TB-mat for every read, $G\mid\lambda(t)-\mu(t)$ for every $t\in\mathbb T$ (01 Prop.~5.4 at a
+  root, read entrywise, one prime at a time; the primes are distinct, so the bounds multiply) and $\lambda-\mu$ lies in the congruence ideal
+  (01 Prop.~5.3). If complete (\texttt{k3n\_fibre}, \texttt{k3n\_gen}): $\mathbb T\cong\mathbb Z\times_{\mathbb Z/g}\mathbb Z$ with
+  $g=\lambda-\mu$, $C_{\mathbb T}\cong\mathbb Z/g$, and $\mathbb T=\mathbb Z+\mathbb Z\theta$.
+\end{definition}
+\begin{proof}
+  \leanok
+  \texttt{k3nCheck\_sound}: each Boolean sub-check is read back as its proposition (\texttt{readOK\_sound}, \texttt{nodupB\_iff}, the primality
+  checks). \texttt{read\_lower}: at one read, \ref{chk:hz-k3}'s at-root argument (01 Prop.~5.4) with \texttt{rEntry\_dvd} (an entry of $D-\mu$
+  modulo $\ell^K$ determines its divisibility by $\ell^j$, $j\le K$) gives $\ell^e\mid\lambda(t)-\mu(t)$. \texttt{gProd\_dvd}: the primes are
+  pairwise distinct, so the prime powers are pairwise coprime (\texttt{coprime\_gProd}) and their product divides. With $G=|\lambda-\mu|$ the
+  fibre-product description is \ref{inf:heckez-cong}'s (\texttt{k3n\_fibre}), and $\mathbb T=\mathbb Z+\mathbb Z\theta$ follows from it (\texttt{k3n\_gen}).
+\end{proof}
+
+\begin{theorem}[The cells T3, T4: certificates, negative controls, and the cross-check with M-HZ4a]\label{chk:hz-levelN-cert}
+  \lean{GL2.HeckeZ.Cells.LevelNData.certT3, GL2.HeckeZ.Cells.LevelNData.certT3_check, GL2.HeckeZ.Cells.LevelNData.certT3_chi,
+    GL2.HeckeZ.Cells.LevelNData.certT3_bounds, GL2.HeckeZ.Cells.LevelNData.certT3_complete,
+    GL2.HeckeZ.Cells.LevelNData.certT4, GL2.HeckeZ.Cells.LevelNData.certT4_check, GL2.HeckeZ.Cells.LevelNData.certT4_chi,
+    GL2.HeckeZ.Cells.LevelNData.certT4_bounds, GL2.HeckeZ.Cells.LevelNData.certT4_complete,
+    GL2.HeckeZ.Cells.LevelNData.readT4_2, GL2.HeckeZ.Cells.LevelNData.readT4_2_check, GL2.HeckeZ.Cells.LevelNData.readT4_2_chi,
+    GL2.HeckeZ.Cells.LevelNData.readT4_2_exact,
+    GL2.HeckeZ.Cells.LevelNControls.checks, GL2.HeckeZ.Cells.LevelNControls.all_and4, GL2.HeckeZ.Cells.LevelNControls.checks_and,
+    GL2.HeckeZ.Cells.LevelNControls.certT3_checks, GL2.HeckeZ.Cells.LevelNControls.certT4_checks, GL2.HeckeZ.Cells.LevelNControls.r3,
+    GL2.HeckeZ.Cells.LevelNControls.ctlGap, GL2.HeckeZ.Cells.LevelNControls.ctlGap_only, GL2.HeckeZ.Cells.LevelNControls.ctlGap_rejected,
+    GL2.HeckeZ.Cells.LevelNControls.ctlVal, GL2.HeckeZ.Cells.LevelNControls.ctlVal_only, GL2.HeckeZ.Cells.LevelNControls.ctlVal_rejected,
+    GL2.HeckeZ.Cells.LevelNControls.ctlWit, GL2.HeckeZ.Cells.LevelNControls.ctlWit_only, GL2.HeckeZ.Cells.LevelNControls.ctlWit_rejected,
+    GL2.HeckeZ.Cells.LevelNControls.ctlDump, GL2.HeckeZ.Cells.LevelNControls.ctlDump_only,
+    GL2.HeckeZ.Cells.LevelNControls.ctlDump_rejected, GL2.HeckeZ.Cells.LevelNControls.ctlDump_chi,
+    GL2.HeckeZ.Cells.LevelNControls.ctlPrime, GL2.HeckeZ.Cells.LevelNControls.ctlPrime_only,
+    GL2.HeckeZ.Cells.LevelNControls.ctlPrime_rejected,
+    GL2.HeckeZ.Cells.LevelNControls.ctlLam, GL2.HeckeZ.Cells.LevelNControls.ctlLam_only, GL2.HeckeZ.Cells.LevelNControls.ctlLam_rejected,
+    GL2.HeckeZ.Cells.LevelNControls.ctlPN, GL2.HeckeZ.Cells.LevelNControls.ctlPN_only, GL2.HeckeZ.Cells.LevelNControls.ctlPN_rejected,
+    GL2.HeckeZ.Cells.LevelNControls.ctlDup, GL2.HeckeZ.Cells.LevelNControls.ctlDup_only, GL2.HeckeZ.Cells.LevelNControls.ctlDup_rejected,
+    GL2.HeckeZ.Cells.LevelNControls.ctlGap4, GL2.HeckeZ.Cells.LevelNControls.ctlGap4_only,
+    GL2.HeckeZ.Cells.LevelNControls.ctlGap4_rejected, GL2.HeckeZ.Cells.LevelNControls.ctlChi_rejected,
+    GL2.HeckeZ.Cells.LevelNControls.mazur11_xcheck}
+  \leanok
+  \uses{chk:hz-k3n, chk:hz-mazur-cells}
+  \textbf{T3}, $(N,n)=(11,0)$, $k=2$, $T_2$: $\lambda=3$, $\mu=-2$ (record: $\chi_{\mathbb Z}(T_2\mid H^1/\mathrm{tors})=x^3+x^2-8x-12=(x+2)^2(x-3)$),
+  one read at $\ell=5$, $K=2$ (cokernel route): the unit entry $24$ of $T_2+2$ on $L/25$, $v=0$, $e=1$; $G=5=|\lambda-\mu|$, complete.
+  \textbf{T4}, $(N,n)=(2,6)$, $k=8$, $T_3$: $\lambda=2188=1+3^7$, $\mu=12$ (record: $\chi_{\mathbb Z}(T_3)=(x-12)^2(x-2188)^2$), one read at
+  $\ell=17$, $K=2$: the unit entry $246$, $v=0$, $e=1$; $G=17$, $|\lambda-\mu|=2176=2^7\cdot17$, not complete. \textbf{The read at $\ell=2$}
+  ($K=9$, tree route; \texttt{readT4\_2}, checked on its own, not in the certificate): every entry of $T_3-12$ on $L/2^9$ is divisible by $2^7$
+  and one is not by $2^8$, and $2^7\,\|\,2176$: the read gives $2^0$. ($T_7$ reads the same way in the data: minimal valuation $8=v_2(\lambda(T_7)-\mu(T_7))$. $T_5$ is not a read at $K=9$:
+  $T_5-\mu(T_5)\equiv0\bmod2^9$, so \texttt{readOK} would refuse it; $v\ge9=v_2(78336)$ holds there only through the general bound
+  $v(c)\le v(\lambda-\mu)$. Stronger: the minimal valuation $v(c)=v_2(\lambda-\mu)=7$ of $c=T_3-12$ forces $L\otimes\mathbb Z_2=L_\lambda\oplus L_\mu$
+  ($c(L)\subseteq L_\lambda\cap2^7L=2^7L_\lambda=c(L_\lambda)$, so $L=L_\lambda+\ker c$); hence no read on $L$, of any $t\in\mathbb T$ or any operator,
+  gives a 2-adic lower bound, and the 2-part needs input from outside $L$.) Data: \texttt{lean/tools/hz\_levelN\_to\_lean.py} (untrusted; mirrors every check), manifest
+  \texttt{docs/implementation/slot25/lhz3-data/manifest\_lhz3.tsv} (sha256 of the binary, the six console inputs and outputs, and the
+  generated module). \textbf{Negative controls}, each with the vector of the six sub-checks (\texttt{checks}, \texttt{checks\_and}): $e=2$ fails
+  the gap alone (T3 and T4); $v=1$ fails the divisibility alone; the witness $(0,0)$ fails the witness alone; the dump with its unit entry
+  zeroed fails the witness alone, and passes the TB-$\chi$ guard (the guard does not catch it); $\ell=25$ fails primality alone; $k=3$ and
+  $N=2$ fail the operator guard alone; a repeated read fails the distinct-primes check alone; a wrong $\chi$ fails the guard.
+  \textbf{Cross-check with M-HZ4a} (\texttt{mazur11\_xcheck}): L-K10's Mazur cell $(11,5)$ has the same $q=2$, the cuspidal factor
+  $c_2=x+2=x-\mu$, $1+q=\lambda$, and $v=1=e$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \texttt{decide +kernel} on the Mathlib-free data and control modules.
+\end{proof}
+
+\begin{theorem}[T3: the anemic Hecke algebra of $\Gamma_0(11)$ in weight $2$; $C\cong\mathbb Z/5$ by the at-root read]\label{chk:hz-T3}
+  \lean{GL2.HeckeZ.Cells.LevelN.dumpT3, GL2.HeckeZ.Cells.LevelN.chiT3_factor, GL2.HeckeZ.Cells.LevelN.T3_11}
+  \leanok
+  \uses{chk:hz-levelN-cert, chk:hz-k3n, inf:hz-bridge-rank2, lit:hz-es-anemic}
+  Let $L$ be free of finite rank over $\mathbb Z$ ($H^1(\Gamma_0(11);\mathbb Z)/\mathrm{tors}$, rank $3$) with $X_n$ ($T_n$ for $11\nmid n$, $0$
+  otherwise), $\mathbb T=\mathbb Z[X_n]=\mathbb T^{\mathrm{an,fr}}$. Assume $\operatorname{rank}\mathbb T^{\mathrm{an,fr}}=d^{\mathrm{an}}(11,2)=2$
+  (\texttt{hR}; one newform of level $11$, $e^{\mathrm{an}}_2(11)=1$), the record's $\chi_{\mathbb Z}(X_2)=x^3+x^2-8x-12$ (TB-$\chi$, \texttt{h$\chi$}),
+  and that the dumped $T_2$ is the matrix of $X_2$ on $L/25$ in some basis (TB-mat, \texttt{hmat}). Then there are ring maps
+  $\lambda,\mu:\mathbb T\to\mathbb Z$ with $\lambda(T_2)=3$, $\mu(T_2)=-2$, $\lambda(t)\equiv\mu(t)\bmod5$ for every $t$, $(a,c)$ comes from $\mathbb T$
+  iff $a\equiv c\bmod5$, $t\mapsto(\lambda t,\mu t)$ injective: $\mathbb T^{\mathrm{an,fr}}\cong\mathbb Z\times_{\mathbb Z/5}\mathbb Z$, the congruence
+  module $\mathbb T/(I_\lambda+I_\mu)\cong\mathbb Z/5$; and $\mathbb T^{\mathrm{an,fr}}=\mathbb Z[T_2]$. That $\lambda$ is the system of
+  $E_2(q)-11E_2(q^{11})$ and $\mu$ that of the newform $11a$ is the classical reading, not part of the statement.
+  \gtmodlit{conditional on the anemic rank at level $N$, \gtlithyp{hR} (\texttt{AnemicRankLevelN}); the trust inputs TB-$\chi$
+  (\texttt{h$\chi$}: the descent record's integral characteristic polynomial) and TB-mat (\texttt{hmat}: the EXPORT's matrix of $T_2$ on
+  $L/25$) are explicit hypotheses in the theorem's type}
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{inf:hz-bridge-rank2} with $\theta=T_2$, $(u,w)=(-2,3)$, $(a,b)=(2,1)$; \ref{chk:hz-levelN-cert} and \ref{chk:hz-k3n} (complete).
+\end{proof}
+
+\begin{theorem}[T4: the anemic Hecke algebra of $\Gamma_0(2)$ in weight $8$, its $17$-part]\label{chk:hz-T4}
+  \lean{GL2.HeckeZ.Cells.LevelN.dumpT4, GL2.HeckeZ.Cells.LevelN.chiT4_factor, GL2.HeckeZ.Cells.LevelN.T4_2}
+  \leanok
+  \uses{chk:hz-levelN-cert, chk:hz-k3n, inf:hz-bridge-rank2, lit:hz-es-anemic}
+  As \ref{chk:hz-T3} at $(N,k)=(2,8)$ ($L$ of rank $4$, $X_n=T_n$ for $n$ odd, $0$ for $n$ even), with
+  $\operatorname{rank}\mathbb T^{\mathrm{an,fr}}=d^{\mathrm{an}}(2,8)=2$ (one newform of level $2$, $e^{\mathrm{an}}_8(2)=1$), the record's
+  $\chi_{\mathbb Z}(X_3)=x^4-4400x^3+4892512x^2-115526400x+689377536$, and TB-mat for $T_3$ on $L/17^2$. Then there are ring maps $\lambda,\mu$ with
+  $\lambda(T_3)=2188$, $\mu(T_3)=12$, $\lambda(t)\equiv\mu(t)\bmod17$ for every $t$, $t\mapsto(\lambda t,\mu t)$ injective, and the congruence ideal
+  $g\mathbb Z=\{a:(a,0)\text{ comes from }\mathbb T\}$ has $17\mid g\mid2176=2^7\cdot17$. \textbf{The $2$-part of $g$ is open}: the at-root read at
+  $2$ reaches nothing (\ref{chk:hz-levelN-cert}); closing it needs a Sturm-type statement at level $2$ ($U_2$ over $\mathbb Z$, M-HZ5) or a
+  literature input. (07 \S10's acceptance "T4 17 and 2-part" is met for $17$ only.)
+  \gtmodlit{conditional on the anemic rank at level $N$, \gtlithyp{hR} (\texttt{AnemicRankLevelN}); the trust inputs TB-$\chi$
+  (\texttt{h$\chi$}) and TB-mat (\texttt{hmat}: the EXPORT's matrix of $T_3$ on $L/17^2$) are explicit hypotheses in the theorem's type}
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{inf:hz-bridge-rank2} with $\theta=T_3$, $(u,w)=(12,2188)$, $(a,b)=(2,2)$; \ref{chk:hz-levelN-cert} and \ref{chk:hz-k3n} (\texttt{k3n\_sound}).
+\end{proof}
+
+% Slot 26, package Z5 (L-HZ4, M-HZ5).  Plan: 07-lean-plan.md sec. 3, 10; slot26/Z5_plan.md, Z5_report.md.  Data: lean/tools/hzup_to_lean.py from
+% the *.Up<p>.mat dumps + DescentRecord.module_Z() (same basis_fnv; binary s26/bin 21a00a01...).  No [C] marker is added here.
+
+\begin{theorem}[The counting criterion and the upper-bound tag (\texttt{non\_reduced\_certified}, \texttt{upper\_bound\_certified})]\label{inf:hz-count}
+  \lean{GL2.HeckeZ.Count.finrank_le_of_reduced_faithful, GL2.HeckeZ.Count.finrank_le_int, GL2.HeckeZ.Count.finrank_le_of_reduced,
+    GL2.HeckeZ.Count.not_isReduced_of_count, GL2.HeckeZ.Count.upper_bound_mem}
+  \leanok
+  Let $\mathbb T\subseteq\operatorname{End}_{\mathbb Z}L$ be commutative, $\mathbb T^{\mathrm{an}}\le\mathbb T$, $U\in\mathbb T$ with $\mathbb T=\mathbb T^{\mathrm{an}}+U\mathbb T$. If $\mathbb T$ is reduced, then
+  $\operatorname{rank}\mathbb T\le\operatorname{rank}\mathbb T^{\mathrm{an}}+\operatorname{rank}(U^mL)$ for every $m\ge1$; so strict excess certifies a non-zero nilpotent in $\mathbb T$
+  (the counting criterion of [C, \texttt{thm:heckeZcert}]'s text for $N=p^r$, where $\mathbb T=\mathbb T^{\mathrm{an}}+U_p\mathbb T$). Upper bound ([C, \texttt{prop:heckeZcong}](2)): if $f(\theta)\in I$,
+  $g(\theta)\in J$ and $uf+vg=c$ in $\mathbb Z[x]$ then $c\in I+J$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $U\mathbb T$ meets the kernel of $\mathbb T\to\operatorname{End}(U^mL)$ trivially: $a=Uy$, $aU^m=0$ gives $a^{m+1}=0$. The image $B$ is reduced and faithful on $U^mL$; a reduced
+  commutative algebra over a field embeds in any faithful module (product of fields, one vector per factor), so $\operatorname{rank}B\le\operatorname{rank}U^mL$ after $\otimes\mathbb Q$. Sum: $\mathbb T=\mathbb T^{\mathrm{an}}+U\mathbb T$.
+\end{proof}
+
+\begin{theorem}[Three rational systems from the rank alone; pair congruence modules; the pair read]\label{inf:hz-three}
+  \lean{GL2.HeckeZ.Three.dep3, GL2.HeckeZ.Three.ThreeSys, GL2.HeckeZ.Three.exists_threeSys, GL2.HeckeZ.Three.pairIdeal,
+    GL2.HeckeZ.Three.sub_mem_pairIdeal, GL2.HeckeZ.Three.fibre_iff, GL2.HeckeZ.Three.dvd_of_read_pair, GL2.HeckeZ.Three.read_b_c}
+  \leanok
+  \uses{inf:hz-bridge-rank2}
+  $\operatorname{rank}\mathbb T\le3$ and $U\in\mathbb T$ with three distinct integral eigenvalues give three jointly injective ring maps $\mathbb T\to\mathbb Z$ (07 P2a-6's degree count; (C1) for $\theta=U$ in the form
+  $\mathbb T_{\mathbb Q}=\mathbb Q[U]$). The pair ideal $\{n:(n,0)\in\operatorname{im}(l_1,l_2)\}$ and the fibre description of the image ([U, \texttt{lem:u-fibre}], $A=\mathbb Z$). The pair read (elementwise [C, \texttt{prop:heckeZcong}](5)).
+\end{theorem}
+\begin{proof}
+  \leanok
+  As \ref{inf:hz-bridge-rank2} with a Vandermonde elimination in three eigenvalues.
+\end{proof}
+
+\begin{theorem}[The full algebra with one $U_{p_0}$: commutativity, $\mathbb T=\mathbb T^{\mathrm{fr}}+U_{p_0}\mathbb T$, the pair congruence on all of $\mathbb T$]\label{inf:hz-three-full}
+  \lean{GL2.HeckeZ.Three.tfull_comm, GL2.HeckeZ.Three.tfull_gen, GL2.HeckeZ.Three.full_three}
+  \leanok
+  \uses{inf:hz-three, lit:hz-es-full}
+  \gtmodlit{conditional on \gtlithyp{hF} (\texttt{FullRankLevelN}): its commutativity fields (\texttt{tfull\_comm}, \texttt{tfull\_gen}) and its rank $d$ (\texttt{full\_three}, with $d\le3$)}
+  Under $\mathtt{hES\_N}$ and $\operatorname{rank}\mathbb T^{\mathrm{fr}}\le2$ (stated as a hypothesis on $\operatorname{finrank}$, discharged at the cells by $\mathtt{hES\_N\_an}$) and $U_p=0$ for $p\ne p_0$ (so $N=p_0^r$ at the cells):
+  $\mathbb T$ is commutative and $\mathbb T=\mathbb T^{\mathrm{fr}}+U_{p_0}\mathbb T$; systems $a,b$ agreeing on every $T_n$, $(n,N)=1$, are congruent modulo $b-a$ on all of $\mathbb T$ with exact fibre product (\texttt{full\_three}).
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{inf:hz-three}; the pair statement by induction on the generators of $\mathbb T$.
+\end{proof}
+
+\begin{definition}[TB-int: exact integer matrices and their checks]\label{chk:hz-tbint}
+  \lean{GL2.HeckeZ.Exec.TBInt.ient, GL2.HeckeZ.Exec.TBInt.imulEnt, GL2.HeckeZ.Exec.TBInt.imul, GL2.HeckeZ.Exec.TBInt.ieq,
+    GL2.HeckeZ.Exec.TBInt.ishift, GL2.HeckeZ.Exec.TBInt.iadd, GL2.HeckeZ.Exec.TBInt.icol, GL2.HeckeZ.Exec.TBInt.ieigen,
+    GL2.HeckeZ.Check.TBInt.lmat, GL2.HeckeZ.Check.TBInt.lmat_imul, GL2.HeckeZ.Check.TBInt.lmat_ishift, GL2.HeckeZ.Check.TBInt.lmat_iadd,
+    GL2.HeckeZ.Check.TBInt.vecL, GL2.HeckeZ.Check.TBInt.eigen_of_check, GL2.HeckeZ.Check.TBInt.toMatrix_shift,
+    GL2.HeckeZ.Check.TBInt.toMatrix_mul', GL2.HeckeZ.Check.TBInt.eq_zero_of_check, GL2.HeckeZ.Check.TBInt.rank_le_of_factor}
+  \leanok
+  TB-int (07 \S1) is the hypothesis \texttt{LinearMap.toMatrix b b f = lmat n n F}: the dumped integer matrix is the operator on $L$ in the $\mathbb Z$-basis $b$. The Mathlib-free list checks (\texttt{decide +kernel}) then give identities in $\operatorname{End}_{\mathbb Z}L$, eigenvectors,
+  and $\operatorname{rank}(f^2L)\le k$ from a factorisation $F^2=QR$.
+\end{definition}
+\begin{proof}
+  \leanok
+  Entrywise, through \texttt{Fin.sum\_univ\_eq\_sum\_range}.
+\end{proof}
+
+\begin{theorem}[The prime-level Eisenstein certificate (LC-11 at level $N$)]\label{inf:hz-sturmN}
+  \lean{GL2.HeckeZ.SturmN.comm_Xt, GL2.HeckeZ.SturmN.Tfr_Xt_eq, GL2.HeckeZ.SturmN.Tp_Xt, GL2.HeckeZ.SturmN.heckeZeiscert_prime}
+  \leanok
+  \uses{inf:heckez-sturm, lit:hz-es-full, lit:hz-sturm-prime}
+  \gtmodlit{conditional on \gtlithyp{hS} (\texttt{SturmCuspPrimeLevel}) and the fields \texttt{bad}, \texttt{badU}, \texttt{commX}, \texttt{commU} of \gtlithyp{hF} (\texttt{FullRankLevelN})}
+  01 Prop.~5.6 at prime level $N$, \textbf{weight $k=2$ only} (\ref{lit:hz-sturm-prime} is false for $k>2$; \texttt{heckeZeiscert\_prime} is stated at $k=2$,
+  $N$ prime is \texttt{hS.prime}): with $P\supseteq\{p\text{ prime}\le 2(N+1)/12\}$, $N\notin P$, and the data of \texttt{EisData} for the shifted family, $\mathbb T'_{(\ell)}=\mathbb T^{\mathrm{fr}}_{(\ell)}$ at every prime where $\ell^{v+1}\nmid g$, given the read at $(\ell,v)$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \texttt{GL2.HeckeZ.Sturm.core} applied to $\tilde X_N=U_N+N$ ($=U_N+N^{k-1}$ at $k=2$); $\mathbb Z[\tilde X]=\mathbb T^{\mathrm{fr}}$.
+\end{proof}
+
+\begin{theorem}[M-HZ5: the toy cells at level $N>1$, full algebra]\label{chk:hz-full-cells}
+  \lean{GL2.HeckeZ.Cells.FullN.T4_full, GL2.HeckeZ.Cells.FullN.F54_full, GL2.HeckeZ.Cells.FullN.T5_nonreduced, GL2.HeckeZ.Cells.FullN.T3_full,
+    GL2.HeckeZ.Cells.FullN.C23_gen, GL2.HeckeZ.Cells.FullN.C11_gen,
+    GL2.HeckeZ.Cells.FullNControls.ctl_eigen, GL2.HeckeZ.Cells.FullNControls.ctl_f, GL2.HeckeZ.Cells.FullNControls.ctl_factor,
+    GL2.HeckeZ.Cells.FullNControls.ctl_identity, GL2.HeckeZ.Cells.FullNControls.ctl_annih, GL2.HeckeZ.Cells.FullNControls.ctl_read,
+    GL2.HeckeZ.Cells.FullNControls.ctl_pent}
+  \leanok
+  \uses{inf:hz-count, inf:hz-three, inf:hz-three-full, chk:hz-tbint, inf:hz-sturmN, lit:hz-es-full, lit:hz-es-anemic, lit:hz-sturm-prime}
+  \gtmodlit{conditional on \gtlithyp{hF} (\texttt{FullRankLevelN}), \gtlithyp{hAn} (\texttt{AnemicRankLevelN}), \gtlithyp{hS} (\texttt{SturmCuspPrimeLevel}), each only where the cell's type has it; the trust inputs TB-int (\texttt{hU}, \texttt{hT}, \texttt{hT2}) and TB-$\chi$ (\texttt{h$\chi$}) are explicit hypotheses}
+  \textbf{T4 $(2,6)$:} ring maps $\lambda_1,\lambda_{128},\mu$ with $U_2\mapsto1,128,-8$; $\lambda_1\equiv\lambda_{128}\bmod127$ on all of $\mathbb T$ with exact fibre product, so the pair congruence module is $\mathbb Z/127$; $(1,0)$ in the image of $(\lambda_1,\mu)$; $17\mid\lambda_{128}-\mu$ and $136$ in the pair ideal.
+  The $2$-part of $\lambda_{128}-\mu$ and of the anemic $g$ is \textbf{not} decided (no read on $L$ reaches it). \textbf{$(5,4)$:} $\mathbb Z/3124$ and $\mathbb Z/31$ exact. \textbf{T5 $(8,10)$:} $\mathbb T$ is not reduced ($d=13$, $d^{\mathrm{an}}=6$, $\operatorname{rank}U_2^2=6$). \textbf{T3 full $(11,0)$:} $U_{11}=1$ on $L$, $\mathbb T^{\mathrm{fr}}=\mathbb T^{\mathrm{an,fr}}$.
+  \textbf{$(23,0)$, $(11,0)$:} $\mathbb T^{\mathrm{fr}}=\mathbb Z[T_2,T_3]$, resp.\ $\mathbb Z[T_2]$ (Prop.~5.6 with the read at $11$, resp.\ $5$). Each \texttt{ctl\_*} proves that a matrix with one entry changed fails a kernel check of the data module: the eigenvector and
+  $f(U)=0$ checks (T4), the factorisation (T5), the identity (T3), the annihilation $(T_2-3)c(T_2)=0$ with $c(T_2)$ recomputed from the tampered $T_2$
+  (\texttt{ctl\_annih}), the read entry of $c(T_2)$ (\texttt{ctl\_read}) and the pair-read entry of $(U_2-1)(U_2+8)$ (\texttt{ctl\_pent}). Not
+  controlled: the non-zero checks \texttt{nz*} and the $T$-eigen checks. TB-$\chi$ is cross-checked in the generator (each \texttt{CHI} line against the
+  characteristic polynomial of its $F$, and at $(23,0)$, $(11,0)$ against the factorisation $h\chi$ states).
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{inf:hz-three}, \ref{inf:hz-count}, \ref{inf:hz-sturmN} and the \texttt{decide +kernel} checks of \texttt{GL2.HeckeZ.Cells.FullNData} (generated by \texttt{lean/tools/hzup\_to\_lean.py}).
+\end{proof}

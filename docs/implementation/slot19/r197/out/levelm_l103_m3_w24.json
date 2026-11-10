@@ -1,0 +1,30 @@
+{
+ "ell": 103,
+ "m": 3,
+ "w": 24,
+ "W": 12,
+ "r": 4,
+ "lambda_sha": "71ca74ef9863f524",
+ "integral": true,
+ "good": 10609,
+ "n_k": 10609,
+ "exact_rows": 30,
+ "law_checked": [
+  27,
+  27
+ ],
+ "zeros": {
+  "1": 10609,
+  "2": 103,
+  "3": [
+   914250
+  ]
+ },
+ "control": {
+  "right_low": 10609,
+  "right_high": 103
+ },
+ "products": 67,
+ "maxerr": 2.288818359375e-05,
+ "wall_s": 199.3710310459137
+}

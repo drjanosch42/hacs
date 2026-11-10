@@ -1,0 +1,169 @@
+# docs/matrix-engine/tools/raw_mod_calls.allow
+# ---------------------------------------------------------------------------
+# Allow-list for raw_mod_calls.sh: files under src/hacs/ that
+# may still call ModArithmetic's `mod_*` primitives directly.
+#
+# One entry per line, `#` starts a comment. An entry matches a path RELATIVE to
+# src/hacs/ if it is
+#   * an exact path            e.g.  Hecke/FpPoly.cpp
+#   * a directory prefix       e.g.  Golden/          (trailing slash)
+#   * a basename glob          e.g.  *Validation.cpp
+#
+# THE UNIT OF PROGRESS IS REMOVING A LINE FROM THIS FILE. The plan's target is
+# NOT zero raw calls (00-implementation-plan.md, Phase 3 "Validations"): the
+# files in the PERMANENT section below are deliberately left alone by the whole
+# matrix-engine programme, so they stay here for good. The STAGE B section is
+# the actual backlog -- each line there is a pipeline TU whose raw `mod_*` loops
+# Phase 3 Stage B is meant to absorb into engine calls (00 plan, Phase 3 scope:
+# "the ~20 raw mod_* loops (01 Sec. 5.1) ... this is the API's acceptance test:
+# if a loop survives, the API is missing a primitive"). Delete the line, rebuild,
+# and ConsumerMigrationValidation tells you whether the file is really clean.
+#
+# ---------------------------------------------------------------------------
+# PERMANENT -- explicitly out of scope for the matrix-engine programme
+# ---------------------------------------------------------------------------
+# Exact F_ell[X] polynomial arithmetic; "Non-goals: Decomposition/FpPoly (leave
+# alone)" (00 plan, Phase 3).
+Hecke/FpPoly.cpp
+# d_q <= ~20, 0.004 % of runtime -- "explicitly left alone" (03 Sec. 4.3).
+Hecke/HeckeModuleDecomposition.cpp
+# The exact-Z / mod-ell-fallback tau solver. "The tau triangle-fill solve
+# (HeckeTauTable.cpp:783-910) is NOT migrated in any phase" (00 plan, Phase 3);
+# its pivot rule and Z-first policy are determinism hazard 02 Sec. 6.5(2).
+#
+# PHASE 3 STAGE B DECISION on the conditional absorption of the second solver,
+# the mod-ell RREF-with-RHS at HeckeTauTable.cpp:228-263 (00 plan, Phase 3:
+# "absorb these two ONLY IF the engine's solve reproduces their exact pivot
+# rule and their Z-first / mod-ell-fallback policy; otherwise leave them in
+# place and record why"). VERDICT: NOT ABSORBED. The pivot rule does match --
+# solve_mod_ell_system takes the leftmost column with a nonzero entry and the
+# topmost such row, reduces fully, and reads the particular solution off the
+# pivot rows with the free variables at 0, which is entry for entry what
+# engine::elim::solve_multi_rhs computes from RREF([B | y]). What does NOT
+# match is the POLICY half of the condition:
+#   (1) solve_mod_ell_system SIGNALS INFEASIBILITY BY RETURNING false, and its
+#       only caller (line 887) uses that return value as the second arm of the
+#       Z-first / mod-ell-fallback ladder inside the triangle-fill solve at
+#       :783-910 -- the function the plan says is "NOT migrated in any phase"
+#       because tau's derivation is first-match-wins (02 Sec. 6.5(2)).
+#       solve_multi_rhs THROWS std::runtime_error instead. Absorbing it would
+#       re-express that never-migrated, determinism-critical ladder as
+#       exception control flow, and would make the fallback depend on matching
+#       an exception TYPE that ENGINE_CHECK also uses for genuine engine bugs.
+#   (2) The free-variable convention (free => 0) that the tau solve depends on
+#       for a rank-deficient A is not part of solve_multi_rhs's stated contract
+#       (ENGINE_API.md Sec. 8 promises "coordinates", and DenseElimValidation
+#       pins it only against change_of_basis_fm, which is used with independent
+#       bases). Depending on it here would be depending on unspecified
+#       behaviour on tau's result path.
+# THE API GAP THIS EXPOSES (the plan calls the absorption "the API's acceptance
+# test"): engine::elim has no NON-THROWING solve -- a `bool try_solve_multi_rhs`
+# returning false for an out-of-span right-hand side. With that primitive, and
+# with the free-variable convention written into ENGINE_API.md Sec. 8, this
+# solver becomes a two-line call. Until then it stays, and so does this file.
+# Cost of leaving it: none measurable -- the systems are those of the fixed
+# 7-vertex model (at most 11 columns), 0 % of any benchmark.
+Hecke/HeckeTauTable.cpp
+# The test harness itself: validations are oracles and MUST be free to compute
+# reference values with the primitives, independently of the engine under test.
+*Validation.cpp
+*Validation.h
+# Golden harness (frozen reference values) and the benchmark driver: both are
+# measurement scaffolding, not result paths.
+Golden/
+Bench/
+# PERMANENT (matrix-engine Phase 6). The campaign driver: like Golden/ and
+# Bench/ it is measurement scaffolding around the public API, and its two raw
+# sites are the mod_add / mod_add64 of the trace of a d_q x d_q cohomology-level
+# A^{(q)} (d_q <= ~50) -- the SAME element-width-generic trace helper the golden
+# harness carries, deliberately kept identical to it so campaign hashes and
+# GoldenReference.inc hashes cannot drift.
+Campaign/
+#
+# ---------------------------------------------------------------------------
+# PERMANENT -- the hecke-extensions extension layer (slot 1, WP-3 / E1s).
+# One block per package, append-only.
+# ---------------------------------------------------------------------------
+# HeckeExt/HeckeSturmBound.cpp -- the computed Sturm bound B'(k, ell).
+# 14 sites: the truncated q-expansion arithmetic of E_4, E_6 and Delta mod ell,
+# the sigma_j divisor sieve, the Miller-basis back-substitution and the
+# T_q = a_{qm} + q^{k-1} a_{m/q} read-off.  This unit is PIPELINE-FREE BY
+# DESIGN (hecke_extensions_implementation_plan.md v1.5 Sec. 1.1: "the one unit
+# that consumes NOTHING of the pipeline ... only SubspaceOps, FpPolyT, MatrixT
+# and ModArithmetic"), and the HeckeExt/ include guard
+# (docs/matrix-engine/tools/check_heckeext_includes.sh, rule 3) ENFORCES that
+# it may not include ModCtx.h or any other engine header.  Raw mod_* is
+# therefore the sanctioned arithmetic here, not a migration backlog item.  Size:
+# dim M_k <= 22 at k <= 258 and the precision is q * dim M_k + 1, so the whole
+# computation is ~1 ms and 0 % of any benchmark; it touches no golden value.
+HeckeExt/HeckeSturmBound.cpp
+# Hecke/SubspaceOps.cpp -- 8 sites, ALL of them inside the canonical
+# reduced-row-echelon span object `RrefRowSpan` that `algebra_closure` (the E1s
+# addition of WP-3) is built on; the E0a bodies moved from
+# HeckeModuleDecomposition.cpp carry none.  Slot 2's WP-4 promoted that class
+# from the file's anonymous namespace to the header (verbatim body) so that
+# HeckeExt/HeckeLocalAlgebra's ideal / socle / tangent steps share the one
+# canonical span rather than a second copy of it, and added `contains()`, whose
+# reduction loop is the 2 new sites (6 -> 8).  They are the incremental
+# reduced-row-echelon insert over F_ell^{D^2} that keeps the closure basis
+# canonical.  Same scope decision as
+# the two files at the head of this section: this is the D-sized level-(c)
+# layer (D <= ~20 for decomposition blocks, <= dim M_k <= 84 for the Sturm
+# closure), explicitly left alone by the matrix-engine programme (audit 03
+# Sec. 4.3), and the canonical-RREF basis choice is exactly what the golden
+# tier-B hashes and the Sturm resume-invariance property rest on -- routing it
+# through a different reduction would be a value decision, not a refactor.
+Hecke/SubspaceOps.cpp
+#
+# ---------------------------------------------------------------------------
+# PERMANENT -- hecke-extensions slot 2, WP-4 / E1a.
+# ---------------------------------------------------------------------------
+# HeckeExt/HeckeLocalAlgebra.{h,cpp} -- the local algebra A_S and certificate
+# (a) -- carry ZERO raw mod_* sites and are deliberately NOT listed here: every
+# scalar operation they need is a MatrixT product, an FpPolyT evaluation or an
+# RrefRowSpan insert, all of which already own their arithmetic.  The line is
+# recorded so that a later mod_* site in that unit is a decision, not a drift.
+# HeckeExt/HeckeExtAlgebraValidation.cpp (8 sites: the monomial-algebra
+# multiplication table and the seeded conjugation) is covered by the
+# *Validation.* glob of the PERMANENT block at the head of this file.
+#
+# ---------------------------------------------------------------------------
+# PERMANENT -- hecke-extensions slot 3, WP-5 / E5-2.
+# ---------------------------------------------------------------------------
+# EquivariantMappingCone.{h,cpp} (the generic cone, its certificate and the
+# golden collectors) and Hecke/SL2ZBoundaryPair.{h,cpp} (the pipeline-side
+# restriction) carry ZERO raw mod_* sites and are deliberately NOT listed:
+# every scalar operation is an engine::ModCtx call (neg / add on the
+# BlockBuilder's own context) or an engine::blk / engine::elim / kernels
+# call.  Hecke/HeckeConeValidation.cpp is covered by the *Validation.* glob
+# of the PERMANENT block at the head of this file.  Recorded so that a later
+# mod_* site in either unit is a decision, not a drift.
+#
+# ---------------------------------------------------------------------------
+# STAGE B BACKLOG -- remove one line at a time
+#
+# Cleared on branch phase3/xchk (2026-09-06): Hecke/HeckeCrossChecks.cpp (10),
+# Hecke/BarCocycleH1.cpp (15), Hecke/HeckeCosetTables.cpp (16). None of the
+# three needed a new engine primitive: the first two became block/dense engine
+# calls, and the third -- scalar arithmetic in Z/N, the LEVEL, not in the
+# coefficient field -- now runs through one engine::ModCtx built per table
+# instead of re-deriving the reduction in every call.
+# ---------------------------------------------------------------------------
+#
+# CLEARED IN PHASE 3 STAGE B (kept here as a record; do not re-add):
+#   EquivariantCochainComplexMorphismOnK.cpp  2 sites -> blk::gemm_dense (M1/M3
+#                                             as block GEMMs over the
+#                                             FiberBlockTable; contract B6).
+#   LocalSystemPresets.cpp                    6 sites -> ModCtx::canonicalise.
+#   SimplicialCohomology.cpp                  3 sites -> one kernels::gemm for
+#                                             the H^q ambient expansion and one
+#                                             kernels::scal for the cone's -d_A.
+#   Hecke/HeckeOperatorFamily.cpp             3 sites -> ModCtx::pow.
+#   EquivariantCohomologyOnK.cpp              6 sites -> BlockBuilder / BlockElim
+#                                             (compute_cohomology on the block model).
+#   Hecke/HeckeCrossChecks.cpp               10 sites -> block assembly + blk::gemm/equal.
+#   Hecke/BarCocycleH1.cpp                   15 sites -> elim::solve_multi_rhs
+#                                             (BarCocycleSolverValidation).
+#   Hecke/HeckeCosetTables.cpp               16 sites -> one ModCtx per table (Z/N).
+#   Hecke/HeckeOperatorOnK.cpp               15 sites -> BlockBuilder programs, blk::gemm_dense,
+#                                             blk::solve_multi_rhs, blk::equal (HeckeThetaBlockValidation).

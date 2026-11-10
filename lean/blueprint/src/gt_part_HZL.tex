@@ -1,0 +1,296 @@
+% gt_part_HZL.tex -- [GT] Part L, continued: the HeckeZ literature inputs (slot 24, package A6 / LIT).
+% Brief: docs/implementation/slot24/heckez/06-work-packages.md sec. 2.3 "LIT", Q11, Q13; 07-lean-plan.md v0.4 sec. 3;
+% 05-hida-targets.md.  Report: docs/implementation/slot24/heckez/LIT-report.md.  Read by lean_census.py (gt_part_*.tex).
+%
+% (Slot 25, LC-11: lit:hz-sturm-integral now carries \lean{GL2.Literature.SturmCuspLevelOne}.)  Otherwise none of these rows carries a \lean{} name yet: the Lean structures (07 sec. 3: hES_N, hES_N_an, hSemisimple_an, hSturm,
+% hMazurEis (slot 25, L-K10: done), hHidaControl, hEmertonEis (slot 25, L-K9: done)) are written by the Lean packages (L-HZ0 / L-K9 / L-K10 / L-HZ3) on their own branches;
+% each such package adds the \lean{...} \leanok link to the row below in the commit that adds the structure.  Until then
+% the census does not see these rows (no \lean{} name), which is correct: they are locators, not Lean statements.
+%
+% Every quotation below was read on the PAGE IMAGE (pdftoppm, 100-200 dpi), not only on the text layer, by the LIT agent
+% (Claude Opus, HeckeZ package A6) on 2026-11-04.  Library paths are relative to the read-only library
+% R = the author's private literature library (never written).  "PDF p" is the page index in that file.  Sources fetched from the
+% web (open copies only) are named as such; they live in a scratch directory outside the repository,
+% never in the tree and never in the library.  Mathematical symbols are transcribed into LaTeX; the words are verbatim; footnote marks are omitted.
+
+\chapter{Part L (continued): the HeckeZ literature inputs}
+
+\providecommand{\VERIFYloc}[1]{\textbf{Locator: #1.}}
+
+\section{Hecke rings and Eichler--Shimura at level $N$ (Diamond--Im; Stein)}
+
+\begin{hypothesis}[Diamond--Im, \S3.1: the semigroup $\Delta_0(N)$]\label{lit:hz-diamond-im-delta0}
+  \textbf{Locator: verified (page image), Diamond--Im, \emph{Modular forms and modular curves}, CMS Conf.\ Proc.\ 17 (1995),
+  \S3.1, printed p.~48} (scan $R$\texttt{/papers/k/Kolyvagin/modular.math.washington.edu/scans/papers/diamond/Diamond-Im-Modular\_forms\_and\_modular\_curves.pdf},
+  95 pp., one book page per PDF page, printed $=$ PDF $+\,38$: PDF p.~10). ``Throughout this section, we shall fix a positive integer
+  $N$. \dots\ \textbf{3.1. Double coset description.} \dots\ With $N$ as above, let
+  $\Delta_0(N)=\bigl\{\bigl(\begin{smallmatrix}a&b\\c&d\end{smallmatrix}\bigr)\in M_2(\mathbf Z)\,\big|\,\det>0,\ c\equiv0\pmod N,\ (a,N)=1\bigr\}$,
+  $\Delta_1(N)=\bigl\{\bigl(\begin{smallmatrix}a&b\\c&d\end{smallmatrix}\bigr)\in M_2(\mathbf Z)\,\big|\,\det>0,\ c\equiv a-1\equiv0\pmod N\bigr\}$.
+  Put $\Gamma=\Gamma_1(N)$ and $\Delta=\Delta_1(N)$; though the notation $(\Gamma,\Delta)$ will be reserved for this pair in this section, our
+  discussion is valid for $(\Gamma_0(N),\Delta_0(N))$ verbatim.'' And \S12.4, printed p.~115 (camera scan
+  $R$\texttt{/papers/d/Diamond/Diamond\_Im-Modular\_forms\_and\_modular\_curves.pdf}, PDF p.~39, right half): ``Let $\Delta$ denote the
+  corresponding semigroup $\Delta_1(N)$ or $\Delta_0(N)$ in the notation of \S3.1.''
+  \textbf{Reading:} $\operatorname{diag}(1,p)$ has $a=1$, $c=0$, $\det=p>0$, so $\operatorname{diag}(1,p)\in\Delta_0(N)$ for \emph{every} prime $p$,
+  $p\mid N$ included; hence $U_p=[\Gamma_0(N)\operatorname{diag}(1,p)\Gamma_0(N)]\in R(\Gamma_0(N),\Delta_0(N))$, and Prop.~12.4.10 of
+  \texttt{lit:diamond-im-es} covers $U_p$. This confirms 07 F07-6 / 01 Prop.~1.3(2). No Lean structure of its own: it is the
+  reading behind \texttt{hES\_N}'s ``including $U_p$''.
+\end{hypothesis}
+
+\begin{hypothesis}[The Eisenstein dimension $e_k$ (row of \texttt{hES\_N})]\label{lit:hz-eis-dim}
+  \textbf{Named source missing: Diamond--Shurman, GTM~228, \S3.8 / \S4.5 is not in the library (LIT-19).}
+  \textbf{Substitute, verified (page images): Diamond--Im, \S12.1, printed pp.~104--105} (Kolyvagin scan above, PDF pp.~66--67).
+  p.~104: ``(12.1.5) $\dim_{\mathbf C}\mathcal M_k(\Gamma)=(g-1)(k-1)+\nu_\infty\frac k2=\frac{\mu}{12}(k-1)+\frac{\nu_\infty}{2}$ by the
+  Riemann--Roch formula. Similarly, if $k>2$ then (12.1.6) $\dim_{\mathbf C}\mathcal S_k(\Gamma)=(g-1)(k-1)+\nu_\infty(\frac k2-1)
+  =\frac{\mu}{12}(k-1)-\frac{\nu_\infty}{2}$'' (for $\Gamma$ ``$k$-small''; $\nu_\infty$ ``the number of cusps on $X$''). p.~105: ``We find that
+  if $k\ge2$, then $\mathcal M_k$ has dimension $(k-1)\frac{\mu}{12}+\delta_4(k)\frac{\nu_2}{4}+\delta_3(k)\frac{\nu_3}{3}+\delta_2(k)\frac{u'}{2}+\frac u2$
+  if $k\ge2$, where $u$ (respectively, $u'$) is the number of regular (respectively, irregular) cusps on $X$, \dots\ We have a similar
+  expression for the dimension of $\mathcal S_k(\Gamma)$; replace `$+$' by `$-$' in the terms involving $u$ and $u'$, and add $1$ if $k=2$.
+  If $-1$ is in $\Gamma$, then we assume $k$ is even and obtain the same dimension formulas \dots; no distinction is needed between
+  regular and irregular cusps in this case.''
+  \textbf{Derived reading (not a quotation):} for $\Gamma=\Gamma_0(N)\ni-1$, $k\ge2$ even, every cusp counts in $u$, and
+  $e_k:=\dim\mathcal M_k(\Gamma_0(N))-\dim\mathcal S_k(\Gamma_0(N))=c_N-[k=2]$, $c_N=\nu_\infty(X_0(N))$ --- 07 \S3's row.
+  \textbf{Not in the held sources:} the closed formula $c_N=\sum_{d\mid N}\varphi(\gcd(d,N/d))$ (Diamond--Im Ex.~9.1.3, p.~76, gives the
+  count for $X_1(N)$ only); the certificate must take $c_N$ as computed data or prove the count. The reading ``every cusp counts in $u$''
+  of the last sentence is to be confirmed by the U6 referee.
+\end{hypothesis}
+
+\begin{hypothesis}[Anemic rank at level $N$: newforms and the Eisenstein basis (\texttt{hES\_N\_an})]\label{lit:hz-es-anemic}
+  \lean{GL2.Literature.AnemicRankLevelN, GL2.Literature.anemicRankLevelN_zero}
+  \leanok
+  % (Slot 25, L-HZ3: hES_N_an = AnemicRankLevelN, lean/GL2/Literature/AnemicRank.lean: the anemic algebra Z[X n] (X n = T_n for
+  % (n, N) = 1, X n = 0 otherwise) has Z-rank d = d^an(N, k); the value of d per cell is part of the reading (chk:hz-T3: (11, 2), d = 2;
+  % chk:hz-T4: (2, 8), d = 2), not computed in Lean.  Sanity instance: L = Z, X = 0, d = 1.)
+  \textbf{Named source missing: Diamond--Shurman \S4.5--4.8, \S5.8 (LIT-19). Substitutes, verified (page images):}
+  (a) \emph{cuspidal part}, Diamond--Im \S6.2--6.3, printed pp.~62--64 (Kolyvagin scan, PDF pp.~24--26). ``\textbf{Theorem 6.2.3.} Let
+  $f,g\in\mathcal S_k(\Gamma_1(N))$ be $\mathbf T^{(ND)}$-eigenforms with the same eigencharacters, i.e., $\theta_f(T_p)=\theta_g(T_p)$ for all
+  $p\nmid ND$. If $f\in\mathcal S_k(\Gamma_1(N))^{\mathrm{new}}$, $f$ normalized, then $g$ is a scalar multiple of $f$. (In particular, if $g$ is in the
+  old subspace, then $g=0$.)'' (p.~62). ``\textbf{Remark 6.3.3.} The multiplicity one theorem holds also for forms of different levels. Let
+  $f_i\in\mathcal S_k(\Gamma_1(N_i))^{\mathrm{new}}$ ($i=1,2$) be two normalized Hecke eigenforms with eigenvalues $a^i_p$ under $T_p$ for primes $p$.
+  Suppose $a^1_p=a^2_p$ for all but finitely many primes $p$. Then we must have $f_1=f_2$. \dots\ Thus for a $\mathbf T^{(ND)}$-eigenspace of
+  $\mathcal S_k(\Gamma_1(N))$, there is a unique pair $(f,M)$ such that $f$ is in the eigenspace and is a newform of level $M$.'' (p.~63).
+  Remark~6.3.4 (pp.~63--64): ``Now by multiplicity one (Theorem 6.2.3) and Remark 6.3.3 these $\theta^M_j$, over all $M\mid N$ and $1\le j\le j_M$,
+  are distinct as eigencharacters of $\mathbf T^{(N)}$. \dots\ These arguments thus yield the following direct sum
+  $\bigoplus_{M\mid N}\bigoplus_{j=1}^{j_M}\bigl(\bigoplus_{d:\,dM\mid N}\mathbf C\iota^*_dg^M_j\bigr)$ in $\mathcal S_k(\Gamma_1(N))$.'' And
+  (p.~63) ``The same is true of course if we consider eigenforms under $\mathbf T^{(ND)}$ in the old and new subspaces of $\mathcal S_k(N,\varepsilon)$,
+  since an eigencharacter determines the Nebentypus.''
+  (b) \emph{Eisenstein part}, W.~Stein, \emph{Modular forms: a computational approach} (AMS GSM~79), \textbf{fetched}: the author's free PDF
+  \texttt{https://wstein.org/books/modform/stein-modform.pdf} (2009 build, 282 pp.; printed $=$ PDF $-\,14$), \S5.3, printed p.~88 (PDF p.~102):
+  ``\textbf{Theorem 5.8.} Suppose $t$ is a positive integer and $\chi$, $\psi$ are as above and that $k$ is a positive integer such that
+  $\chi(-1)\psi(-1)=(-1)^k$. Except when $k=2$ and $\chi=\psi=1$, the power series $E_{k,\chi,\psi}(q^t)$ defines an element of
+  $M_k(RLt,\chi\psi)$. If $\chi=\psi=1$, $k=2$, $t>1$, and $E_2(q)=E_{k,\chi,\psi}(q)$, then $E_2(q)-tE_2(q^t)$ is a modular form in
+  $M_2(\Gamma_0(t))$. \textbf{Theorem 5.9.} The Eisenstein series in $M_k(N,\varepsilon)$ coming from Theorem 5.8 with $RLt\mid N$ and
+  $\chi\psi=\varepsilon$ form a basis for the Eisenstein subspace $E_k(N,\varepsilon)$. \textbf{Theorem 5.10.} The Eisenstein series
+  $E_{k,\chi,\psi}(q)\in M_k(RL)$ defined above are eigenforms (i.e., eigenvectors for all Hecke operators $T_n$). Also $E_2(q)-tE_2(q^t)$, for
+  $t>1$, is an eigenform.'' ($\chi,\psi$ primitive of conductors $L$, $R$; Stein attributes 5.8 to Miyake, Ch.~7.)
+  \textbf{Derived (01 Prop.~1.3(3$'$), not quoted):} at $\varepsilon=1$, $\chi=\bar\psi$, so $R=L$ and the basis is indexed by
+  $\operatorname{cond}(\psi)^2t\mid N$; the anemic system of $E_{k,\bar\psi,\psi}(q^t)$ is independent of $t$; distinct $\psi$ give distinct
+  systems (Brauer--Nesbitt) and no Eisenstein system is cuspidal (Deligne) --- those two steps have no quotation here.
+  \textbf{Derived, not quoted (from forms to the rank on $H^1$; off the Lean critical path: Lean assumes the conclusion as \texttt{hR}):}
+  (i) Eichler--Shimura at level $N$, Hecke-equivariant and including the Eisenstein part (\ref{lit:diamond-im-es}: $\beta\colon
+  \mathcal M_k(\Gamma_0(N))\oplus\overline{\mathcal S}_k(\Gamma_0(N))\cong H^1(\Gamma_0(N),V_k)$, compatible with $R(\Gamma_0(N),\Delta_0(N))$),
+  so the anemic systems on $H^1(\Gamma_0(N);\mathrm{Sym}^{k-2}\mathbb Z)\otimes\mathbb C$ are those of (a) and (b), and their number is $d^{an}(N,k)$;
+  (ii) the anemic $T_n$ act semisimply on $H^1\otimes\mathbb C$ (\ref{lit:hz-semisimple-an}, transported by $\beta$), so
+  $\mathbb T^{an}\otimes\mathbb C$ is a product of $d^{an}$ copies of $\mathbb C$; (iii) $\mathbb T^{an,fr}=\mathbb Z[T_n]\subset
+  \operatorname{End}_{\mathbb Z}(H^1/\mathrm{tors})$ is a lattice in $\mathbb T^{an}_{\mathbb Q}$, so $\operatorname{rank}_{\mathbb Z}\mathbb T^{an,fr}
+  =\dim_{\mathbb Q}\mathbb T^{an}_{\mathbb Q}=\dim_{\mathbb C}\mathbb T^{an}_{\mathbb C}=d^{an}(N,k)$, the number of systems. Semisimplicity enters
+  here, in step (ii), and not in the Lean proof (\ref{inf:hz-bridge-rank2} uses the rank only).
+  Sanity instances (01 \texttt{s01r/dan.py}): $(2,6)$, $(8,10)$, $(9,4)$.
+\end{hypothesis}
+
+\begin{hypothesis}[The rank of the full Hecke algebra at level $N$, with $U_p$ (\texttt{hES\_N})]\label{lit:hz-es-full}
+  \lean{GL2.Literature.Tfull, GL2.Literature.FullRankLevelN, GL2.Literature.fullRankLevelN_zero}
+  \leanok
+  \textbf{Status: derived (slot 26, Z5), not a quotation; accepted by the owner 2026-11-09.} Inputs, all verified above: \ref{lit:diamond-im-es}
+  (Diamond--Im Prop.~12.4.10, the Hecke-equivariant Eichler--Shimura isomorphism for $(\Gamma_0(N),\Delta_0(N))$), the reading of
+  $\Delta_0(N)$ just above (so $U_p$, $p\mid N$, is covered), \ref{lit:hz-eis-dim} for $e_k$, and Diamond--Im Prop.~12.4.13 for the
+  perfect pairing on $S_k$. \textbf{Derived, not quoted:} $H^1\otimes\mathbb C\cong M_k\oplus\overline{S_k}$ as modules over the full algebra
+  $\mathbb T$; $\mathbb T$ acts faithfully on $M_k$; $(f,T)\mapsto a_1(f|T)$ is a perfect pairing $M_k\times\mathbb T_{\mathbb C}\to\mathbb C$, the
+  $M_k$ case by the two-line argument ($a_1(f|T_n)=a_n(f)$: a form with all $a_n=0$, $n\ge1$, is constant, so $0$ for $k>0$; if
+  $a_1(tf)=0$ for all $f$ then $a_n(tf)=a_1(t\,T_nf)=0$ for all $n\ge1$, so $tf=0$). Hence $\operatorname{rank}_{\mathbb Z}\mathbb T^{\mathrm{fr}}=\dim M_k(\Gamma_0(N))=(b_1+e_k)/2=:d$
+  \emph{without a reducedness hypothesis} (T5 has $d=13$ and is not reduced). The field \texttt{commX}, \texttt{commU}, \texttt{commUU} is the
+  commutativity of the Hecke algebra. Interface data as \ref{lit:hz-es-anemic}: $X_n=T_n$ for $(n,N)=1$ (else $0$), $U_p$ for $p\mid N$ prime (else $0$);
+  $\mathbb T^{\mathrm{fr}}=\mathbb Z[X,U]$ (\texttt{Tfull}). \textbf{Adjoint:} the $U_p$ fed in by TB-int is the operator of the dump,
+  $[\Gamma_0(N)\,\mathrm{diag}(1,p)\,\Gamma_0(N)]$, the adjoint $U_p^*=W_NU_pW_N^{-1}$ of the classical $U_p$ (\texttt{prop:levelconehecke}(3)(d));
+  the derivation above uses the classical $U_p$ ($a_1(f|U_p)=a_p(f)$) and transfers by conjugation: $W_N$ commutes with every $T_n$, $(n,N)=1$, so
+  $\mathbb Z[X,U^*]=W_N\,\mathbb Z[X,U]\,W_N^{-1}$ is commutative of the same $\mathbb Z$-rank $d$. Sanity: \texttt{fullRankLevelN\_zero}.
+\end{hypothesis}
+
+\begin{hypothesis}[Sturm for the cuspidal algebra over $\mathbb Z$ at prime level, weight $2$ (\texttt{hSturm}, level $N$)]\label{lit:hz-sturm-prime}
+  \lean{GL2.Literature.XtPrime, GL2.Literature.SturmCuspPrimeLevel, GL2.Literature.sturmCuspPrimeLevel_zero}
+  \leanok
+  \uses{lit:hz-sturm-integral}
+  \textbf{Status: derived consequence (slot 26, Z5), same sources as \ref{lit:hz-sturm-integral}; accepted by the owner 2026-11-09 as restricted to $k=2$, $N$ prime} (Diamond--Im Prop.~12.4.13; Stein Thm.~9.23 with
+  $m=[\mathrm{SL}_2(\mathbb Z):\Gamma_0(N)]=N+1$, so $r\le 2(N+1)/12$; the mod-$\lambda$ Sturm theorem \texttt{lit:sturm}). \textbf{Scope: weight $k=2$ and $N$ prime only}
+  (the structure has no weight parameter and carries $N$ prime as its field \texttt{prime}). For $N$ prime, every element of
+  $\mathbb T^{\mathrm{fr}}$ agrees on the cuspidal lattice $\sum_{p\ne N}(T_p-1-p)L+(U_N-1)L$ with an element of $\mathbb Z[T_p:p\text{ prime},\,p\le 2(N+1)/12]$.
+  At $k=2$ the single Eisenstein class has $U_N=1$ and $T_p=1+p$, which is what the shift $\tilde X_N=U_N+N$ records; $2(N+1)/12<N$, so no
+  $U_N$ enters the bound. $S_2$ only, as in the level-one row. \textbf{False for $k>2$} (Z5 audit, M1): the prime-level Eisenstein space is then
+  two-dimensional ($U_N=1$ and $U_N=N^{k-1}$), so the lattice above is not cuspidal; and at $(N,k)=(11,12)$ the bound $12$ reaches $N$ while $X_N=0$,
+  and $U_{11}$ is not anemic on the old space $\langle\Delta(z),\Delta(11z)\rangle$ (charpoly $x^2-\tau(11)x+11^{11}$). \textbf{Adjoint:} $U_N$ is the
+  dumped $U_N^*=W_NU_NW_N^{-1}$ (as in \ref{lit:hz-es-full}); the statement transfers: $U_N^*$ has eigenvalue $1$ on the Eisenstein line, and on the
+  cuspidal part $U_N^*\in W_N\,\mathbb T^{an}\,W_N^{-1}=\mathbb T^{an}$. Sanity: \texttt{sturmCuspPrimeLevel\_zero} (at any prime $N$).
+\end{hypothesis}
+
+\begin{hypothesis}[Semisimplicity of the anemic algebra at level $N$ (\texttt{hSemisimple\_an})]\label{lit:hz-semisimple-an}
+  \textbf{Status: verified (derived), off the Lean critical path since 07 v0.3; inside \texttt{hES\_N\_an}'s derivation
+  (\ref{lit:hz-es-anemic}, step (ii)).} Cuspidal part: \texttt{lit:diamond-im-eigen} (Diamond--Im
+  pp.~54--55, verified L17-5): ``each $\mathcal S_k(N,\varepsilon)$ decomposes orthogonally into a direct sum of $\mathbf T^{(N)}$-eigenspaces'' ---
+  the $T_p$, $p\nmid N$, are simultaneously diagonalisable on $S_k(\Gamma_0(N))$. Eisenstein part: Stein Thms.~5.9, 5.10 (quoted in
+  \texttt{lit:hz-es-anemic}) give a basis of $E_k(N,1)$ by the series $E_{k,\bar\psi,\psi}(q^t)$; Thm.~5.10 states the eigenform property for $t=1$
+  (and for $E_2(q)-tE_2(q^t)$) only. \textbf{Derived, not quoted:} $T_p$ ($p\nmid N$, so $p\nmid t$) commutes with $q\mapsto q^t$, so every basis
+  vector is a $T_p$-eigenvector. Level~1 is already inside \texttt{EichlerShimuraLevelOne}.
+\end{hypothesis}
+
+\begin{hypothesis}[The integral perfect pairing and Sturm at level $N$ (\texttt{hSturm}; F07-7)]\label{lit:hz-sturm-integral}
+  \lean{GL2.Literature.eisLam, GL2.Literature.cuspLat, GL2.Literature.SturmCuspLevelOne, GL2.Literature.sturmCuspLevelOne_zero}
+  \leanok
+  \textbf{Locator: verified (page images).} (a) Diamond--Im \S12.4, printed p.~118 (Kolyvagin scan, PDF p.~80): ``We restrict our
+  attention to the context of cusp forms, fix a weight $k>0$ and group $\Gamma=\Gamma_0(N)$ or $\Gamma_1(N)$. We let $\mathbb T$ denote the image of
+  $\tilde{\mathbb T}$ in $\operatorname{End}(\mathcal S_k(\Gamma))$. \dots\ Now regard $\mathbf S_k(\Gamma;A)$ as a module for $\mathbb T\otimes A$ using
+  Proposition 12.4.1. \textbf{Proposition 12.4.13.} For every $A$, $\mathbf S_k(\Gamma;A)$ is isomorphic to $\operatorname{Hom}_A(\mathbb T,A)$. This is
+  proved in the case $A=\mathbf Z$ by showing that $(f,T)\mapsto a_1(f|T)$ is a perfect pairing; the general case follows on extending
+  scalars. (See [Shi1, \S3.5] and [Rib2, \S2].)'' With Cor.~12.3.12, p.~114 (camera scan PDF p.~39): ``Let $\Gamma=\Gamma_0(N)$ or $\Gamma_1(N)$
+  with $N\ge1$. Then $\mathcal M_k(\Gamma)$ (respectively, $\mathcal S_k(\Gamma)$) has a basis in $\mathbf M_k(\Gamma;\mathbf Z)$ (respectively,
+  $\mathbf S_k(\Gamma;\mathbf Z)$).''
+  (b) Stein (fetched free PDF, above), \S9.4.2, printed p.~175 (PDF p.~189): ``\textbf{Theorem 9.23.} Suppose $\Gamma$ is a congruence subgroup
+  that contains $\Gamma_1(N)$ and let (9.4.5) $r=\frac{km}{12}-\frac{m-1}{N}$, where $m=[\mathrm{SL}_2(\mathbf Z):\Gamma]$. Then the Hecke algebra
+  $\mathbb T=\mathbf Z[\dots,T_n,\dots]\subset\operatorname{End}(S_k(\Gamma))$ is generated as a $\mathbf Z$-module by the Hecke operators $T_n$ for
+  $n\le r$.'' Its proof: ``For any ring $R$ \dots\ there is a perfect pairing $S_k(N,R)\otimes_R\mathbb T_R\to R$ given by
+  $\langle f,T\rangle\mapsto a_1(T(f))$ (this is true for $R=\mathbf Z$, hence for any $R$).''
+  \textbf{Reading:} with the mod-$\lambda$ Sturm theorem (\texttt{lit:sturm}, Sturm LNM~1240 Thm.~1, $\Gamma\supseteq\Gamma(N)$) this is 01
+  Prop.~1.5(2); Stein's $r\le B_N=k\mu_N/12$, so the 01 bound is covered. The ``Ribet / Hida'' attribution of 07 is replaced by Diamond--Im
+  12.4.13 (which cites Shimura \S3.5 and Ribet). $S_k$ only: nothing here supports [E, \texttt{cl:sturm}](a)'s $M_k$ sentence.
+  \textbf{Lean (slot 25, LC-11):} the level-one consequence \texttt{SturmCuspLevelOne}, a derived-consequence structure over interface
+  data like \texttt{EichlerShimuraLevelOne}: every element of $\mathbb T^{\mathrm{fr}}=\mathbb Z[T_m]$ agrees on the cuspidal lattice
+  $\sum_p(T_p-1-p^{k-1})L$ with an element of $\mathbb Z[T_p:p\le k/12]$ (Stein Thm.~9.23 at $m=N=1$; $T_n\in\mathbb Z[T_p:p\le n]$ by Serre
+  VII \S5.3 Prop.~11, \texttt{lit:serre-course-prop11}, so the algebra form is weaker than the module form; the cuspidal part of $H^1$ carries
+  the systems of $S_k$, \texttt{lit:eichler-shimura-levelone}'s sources). Sanity: \texttt{sturmCuspLevelOne\_zero}. Level $N>1$ is not
+  formalised (needs $U_N$ over $\mathbb Z$).
+\end{hypothesis}
+
+\section{Mazur's Eisenstein ideal (\texttt{hMazurEis})}
+
+\begin{hypothesis}[Mazur, \emph{Modular curves and the Eisenstein ideal}, II (9.7), (16.1)--(16.6)]\label{lit:hz-mazur-eis}
+  \lean{GL2.Literature.MazurEisLocal, GL2.Literature.MazurGood, GL2.Literature.MazurGuard, GL2.Literature.mazurEta,
+    GL2.Literature.mazurEisLocal_rankOne}
+  \leanok
+  % (Slot 25, L-K10: the structure hMazurEis = MazurEisLocal, lean/GL2/Literature/MazurEis.lean; fields free, finite, quot
+  % ((9.7) localised, a derived consequence), gen ((16.2)), principal ((16.6)); MazurGood = case a) of the definition, literally;
+  % sanity instance: the rank-one model T = Z_ell, eta_l = ell^v.)
+  \textbf{Locator: verified (page images), Publ.\ Math.\ IH\'ES 47 (1977), 33--186}, scan $R$\texttt{/papers/m/Mazur/PMIHES\_1977\_\_47\_\_33\_0.pdf}
+  (Numdam, 155 pp., text layer; printed $=$ PDF $+\,31$). Standing convention, II (4.9), p.~77 (PDF 46): ``We shall be chiefly concerned with
+  modular forms of weight 2, over $\Gamma_0(N)$, for some (usually fixed) prime number $N\ge5$.'' II \S6, p.~90 (PDF 59): ``\emph{Definition.} ---
+  By the Hecke Algebra $\mathbf T$ we shall mean the subring of $\operatorname{End}(J_{/\mathbf Q})$ generated by the Hecke operators $T_\ell$
+  ($\ell\ne N$) and by $w$.'' II \S7, p.~91 (PDF 60): ``Let $\mathfrak a\subset\mathbf T$ be any ideal containing $p$. Let
+  $\mathbf T_{\mathfrak a}=\varprojlim_m\mathbf T/\mathfrak a^m$ denote the completion of $\mathbf T$ at $\mathfrak a$.'' II \S9, p.~95 (PDF 64): ``\emph{Definition.}
+  --- The Eisenstein ideal $\mathfrak I\subset\mathbf T$ is the ideal generated by the elements: $1+\ell-T_\ell$ (all $\ell\ne N$) and by $1+w$.''
+  p.~96 (PDF 65): ``\emph{Proposition (9.6).} --- Let $m$ be any integer divisible by $n=\operatorname{num}\bigl(\frac{N-1}{12}\bigr)$. \dots\
+  \emph{Proposition (9.7).} --- $\mathbf T/\mathfrak I=\mathbf Z/n$; the Eisenstein ideal $\mathfrak I$ contains the integer $n$.'' and ``If $p$ is such a
+  prime number, then the Eisenstein prime corresponding to $p$ \dots\ is given by: $\mathfrak P=(\mathfrak I,p)$.''
+  II \S15--16, p.~124 (PDF 93): ``\emph{Proposition (15.3).} --- If $R=\mathbf Z_p[\eta]$ is generated by one element over $\mathbf Z_p$, then $R$ is
+  Gorenstein [3]. \textbf{16. Eisenstein primes (mainly $p\ne2$).} Fix $p$ a prime number dividing $n$. \emph{Definition.} --- A prime number
+  $\ell\ne N$ will be called good (relative to the pair $(p,N)$, usually unmentioned and understood) if either: a) not both $\ell$ and $p$ are
+  equal to $2$, and (i) $\ell$ is not a $p$-th power modulo $N$ and (ii) $\frac{\ell-1}{2}\not\equiv0\bmod p$ or (the somewhat special
+  `degenerate' case): b) $\ell=p=2$, and $2$ is not a quartic residue modulo $N$.''
+  p.~125 (PDF 94): ``For any $\ell$ set $\eta_\ell=1+\ell-T_\ell$. \dots\ \emph{Proposition (16.1).} --- The Eisenstein prime
+  $\mathfrak P\cdot\mathbf T_{\mathfrak P}\subset\mathbf T_{\mathfrak P}$ is generated by the elements $p$ and $\eta_\ell$, where $\ell$ is any good prime.
+  \dots\ \emph{Corollary (16.2).} --- The $\mathbf Z_p$-algebra $\mathbf T_{\mathfrak P}$ is generated by $\eta_\ell$ for $\ell$ any good prime.
+  Therefore, by (15.3): \emph{Corollary (16.3).} --- The ring $\mathbf T_{\mathfrak P}$ is Gorenstein. The $\mathbf F_p$-vector group $J[\mathfrak P]$ is
+  two-dimensional. If $p>2$, then: $J[\mathfrak P]=C[p]\oplus\Sigma[p]$. If $p=2$, then $J[\mathfrak P]=D$. The $\mathbf T_{\mathfrak P}$-module
+  $H_{\mathfrak P}=\mathcal Ta(J_{\mathfrak P}(\bar{\mathbf Q}))$ is free of rank 2. \emph{Corollary (16.4).} --- If $p>2$,
+  $J_p[\mathfrak I]=J_{\mathfrak P}[\mathfrak I]=C_p\oplus\Sigma_p$.'' (Lemma (16.5), on inertia-fixed points of $J_p$, is a step of the proof and
+  is not part of the structure.) p.~126 (PDF 95): ``\emph{From now on, in this section, let $p\ne2$.} \dots\ \emph{Proposition (16.6).} --- The
+  ideal $\mathfrak I\cdot\mathbf T_{\mathfrak P}$ is a principal ideal in $\mathbf T_{\mathfrak P}$, generated by $\eta_\ell$ for $\ell$ any good prime.''
+  \textbf{Dictionary to 07 \S3 / 05 \S3:} Mazur's $p$ is our $\ell$, his good prime $\ell$ is our $q$, his $\mathbf T_{\mathfrak P}$ (a completion,
+  a direct factor of $\mathbf T\otimes\mathbf Z_p$, p.~91) is our $\mathbb T^0_{\mathfrak m}$; $\mathbf T\subset\operatorname{End}J_0(N)$ is
+  \emph{cuspidal} and contains $w$ (P2a-15 confirmed). \textbf{The good-prime test:} Mazur's (ii) is $\frac{q-1}{2}\not\equiv0\pmod\ell$, not
+  literally ``$q\not\equiv1\pmod\ell$''; for $\ell$ odd the two are equivalent (and for $q=2$ both hold). (i) ``$q$ is not an $\ell$-th power
+  modulo $N$'' is equivalent to $q^{(N-1)/\ell}\not\equiv1\pmod N$ because $N$ is prime ($(\mathbf Z/N)^\times$ cyclic) and $\ell\mid n\mid N-1$.
+  So K10$'$'s two \texttt{powMod}s are the definition for $\ell\ge3$; (16.6) needs $\ell\ne2$; 07's $\ell\ge5$ is inside. Gorenstein is (16.3),
+  not (16.2). The existing row \texttt{lit:mazur-9.7} (\texttt{Mazur97}) is the (9.7) part.
+\end{hypothesis}
+
+\section{Hida's control theorem and Emerton's theorem (\texttt{hHidaControl}, \texttt{hEmertonEis})}
+
+\begin{hypothesis}[Hida, ENS 1986, Thm.~3.1 and Cor.~3.2 (\texttt{hHidaControl})]\label{lit:hz-hida-control}
+  \lean{GL2.Literature.HidaControl, GL2.Literature.hidaControl_rankOne}
+  \leanok
+  % (Slot 25, L-K9: hHidaControl = HidaControl, lean/GL2/Literature/HidaControl.lean: the conjunction of HidaEns31 and HidaEns32 at
+  % Hida's N = p (tame level 1), i.e. Thm. 3.1 and (3.3 b) only, as ruled below; sanity instance: the rank-one model h = Lambda.
+  % Used by no theorem yet: the Lambda-adic reading of K9 waits for L-H0.)
+  \textbf{Locator: verified (page image, re-read 2026-11-04), Ann.\ Sci.\ \'ENS (4) 19 (1986), p.~250}, scan
+  $R$\texttt{/papers/h/Hida/Hida-Iwasawa\_modules\_attached\_to\_congruences\_of\_cusp\_forms.pdf}, PDF p.~21 (printed $=$ PDF $+\,229$).
+  ``\textbf{Theorem 3.1.} --- Assume that $p\ge5$ and that $N$ is divisible by $p$. Then the ordinary parts $\mathcal H_0(N;\mathcal O_K)$ and
+  $h_0(N;\mathcal O_K)$ of the universal Hecke algebras are free of finite rank over $\Lambda_K$. Moreover, we have that
+  $\operatorname{rank}_{\Lambda_K}(\mathcal H_0(N,a;\mathcal O_K))=\operatorname{rank}_{\mathbf Z_p}(\mathcal M^0_k(\Phi;\mathbf Z_p))$,
+  $\operatorname{rank}_{\Lambda_K}(h_0(N,a;\mathcal O_K))=\operatorname{rank}_{\mathbf Z_p}(\mathcal S^0_k(\Phi;\mathbf Z_p))$ if $k\ge3$ and $k\equiv a\bmod p-1$.
+  \dots\ Define a polynomial $P_k=(1+X)-(1+p)^k\in\Lambda$ for each integer $k$ and associate an integer $j(n)$ in the interval $[3,p+1]$ with
+  each integer $n$ by $j(n)\equiv n\bmod p-1$. Then we have \textbf{Corollary 3.2.} --- The natural morphism induces the following isomorphism:
+  (3.3 a) $\mathcal H_0(N,a;\mathcal O_K)/P_k\mathcal H_0(N,a;\mathcal O_K)\cong\mathcal H^0_k(\Gamma_1(N_0p),a;\mathcal O_K)$ if $k\ge j(a)$,
+  (3.3 b) $h_0(N,a;\mathcal O_K)/P_kh_0(N,a;\mathcal O_K)\cong h^0_k(\Gamma_1(N_0p),a;\mathcal O_K)$ if $k\ge2$.''
+  \textbf{Guards:} $p=\ell\ge5$, Hida's $N=\ell$, $N_0=1$ ([C, \texttt{thm:hidacontrol}](3)); this is the content of the existing rows
+  \texttt{lit:hida-ens-3.1}, \texttt{lit:hida-ens-3.2}, re-verified. \textbf{Mismatch with 07 \S3 as stated:} 07 bundles
+  ``with [U, \texttt{prop:u-truncbasic}](2)'', the control $\mathbb T(a)/P_k\cong\mathbb T_k(a)$ of the \emph{full} (Eisenstein-augmented) algebra for every
+  $k\ge3$. That is not Hida's statement: Hida's full-algebra control (3.3\,a) holds only for $k\ge j(a)\in[3,\ell+1]$, and [U] proves (2) for
+  all $k\ge3$ from (U1), i.e.\ from Emerton (\texttt{lit:hz-emerton-eis}). \texttt{hHidaControl} should carry Thm.~3.1 and (3.3\,b) only;
+  [U, \texttt{prop:u-truncbasic}](2) is a consequence of \texttt{hHidaControl} $+$ \texttt{hEmertonEis}, to be proved in Lean (L-H0), or
+  (3.3\,a) is quoted with its guard $k\ge j(a)$.
+\end{hypothesis}
+
+\begin{hypothesis}[Emerton, Thm.~5 (\texttt{hEmertonEis})]\label{lit:hz-emerton-eis}
+  \lean{GL2.Literature.EmertonEis, GL2.Literature.emertonEisIdeal, GL2.Literature.emertonEis_rankOne}
+  \leanok
+  % (Slot 25, L-K9: hEmertonEis = EmertonEis, lean/GL2/Literature/HidaControl.lean: EmertonThm for the ideal DEFINED as on p. 6
+  % (emertonEisIdeal: T_l - 1 - <l>l^{-1}, l != p prime, and U_p - 1); sanity instance: the rank-one model T = Lambda.
+  % Used by no theorem yet: the derivation of [U] pr:u-U1 from Thm. 5 is L-H0's.)
+  \textbf{Locator: verified (page images), M.~Emerton, \emph{The Eisenstein ideal in Hida's ordinary Hecke algebra}, preprint, library copy} $R$\texttt{/papers/e/Emerton/Emerton-The\_Eisenstein\_ideal\_in\_Hidas\_ordinary\_Hecke\_algebra.pdf}, 8 pp.,
+  \textbf{p.~6} (PDF $=$ printed). ``For any $i\pmod{p-1}$ we denote by $\mathfrak I_{Eis,(i)}$ the ideal in $\mathbf T^{ord}_{(i)}$ generated by the
+  elements $T_l-1-\langle l\rangle l^{-1}$ (where $l$ ranges over all primes distinct from $p$) together with the element $U_p-1$. \dots\ We let
+  $\mathbf T^{ord}_{par,(i)}$ denote the ordinary part of $\mathbf T_{par,(i)}$. \dots\ We let $\mathfrak I'_{Eis,(i)}$ denote the image of the ideal
+  $\mathfrak I_{Eis}$ in $\mathbf T^{ord}_{par,(i)}$. \textbf{Theorem 5.} Suppose that $i\not\equiv0\pmod{p-1}$. Then the pullback of $\mathfrak I'_{Eis,(i)}$
+  via the natural map $\Lambda_{(i)}\to\mathbf T^{ord}_{par,(i)}$ is equal to the principal ideal of $\Lambda_{(i)}$ generated by the Kubota-Leopoldt
+  $p$-adic $L$-function $L_p(\omega^i,1-s)$, and the consequent injection $\Lambda_{(i)}/L_p(\omega^i,1-s)\to\mathbf T^{ord}_{par,(i)}/\mathfrak I'_{Eis,(i)}$ is
+  an isomorphism.'' Standing hypothesis, p.~1: ``Let us fix a prime number $p\ge5$.''; tame level one (Abstract: ``Hida's ordinary Hecke algebra
+  acting on the space of $p$-ordinary cusp forms of tame level one'').
+  \textbf{Guards:} $p=\ell\ge5$, $i=a\not\equiv0\pmod{\ell-1}$. \textbf{Note:} the Introduction (p.~1) writes the generators as
+  $T_l-\langle l\rangle l^{-1}$, the Abstract and p.~6 as $T_l-1-\langle l\rangle l^{-1}$; the latter is the definition used. 07's content
+  ($C_{\mathrm{Eis}}(a)=\Lambda/(G_a)$, $L_k=v(B_k/k)$) is [U, \texttt{pr:u-U1}], \emph{derived} from Thm.~5 there (with [U]
+  \texttt{lem:u-emerton}(4) identifying $L_p(\omega^a,1-s)$ with $G_a$); the structure quotes Thm.~5, the derivation is Lean work (L-H0).
+  Same theorem as \texttt{lit:emerton} (which quotes the Introduction's statement, p.~2), now with the numbered statement and its page.
+\end{hypothesis}
+
+\section{Kurihara 1993: the level-one Eisenstein component and the Gorenstein condition}
+
+\begin{hypothesis}[Kurihara, JNT 45 (1993): Gorenstein $\Leftrightarrow$ cyclicity; rank $\le2$ suffices]\label{lit:hz-kurihara-gor}
+  \textbf{Locator: verified (page images, read 2026-11-04 by a lead-spawned Claude Opus reader; image-only scan, no text layer), M.~Kurihara,
+  \emph{Ideal class groups of cyclotomic fields and modular forms of level 1}, J.~Number Theory 45 (1993) 281--294, library copy}
+  $R$\texttt{/papers/k/kurihara/Kurihara-Ideal\_Class\_Groups\_of\_Cyclotomic\_Fields\_and\_Modular\_Forms\_of\_Level\_1.pdf}, 14 pp.,
+  printed $=$ PDF $+\,280$.
+  \textbf{Set-up, p.~282 (PDF 2):} ``take $k$ an even integer such that $\psi=\omega^{1-k}$ and $0<k<p-1$'' \dots\ ``$M^0_k(\mathbf Z)$ be the space of
+  cusp forms of weight $k$ with respect to $SL_2(\mathbf Z)$ \dots\ $\mathbf T_k$ the Hecke algebra, the subring of $\operatorname{End}(M^0_k(\mathbf Z))$
+  generated by all Hecke operators $T_l$ ($l$ prime) over $\mathbf Z$. \dots\ Let $\mathfrak I$ be the ideal of $\mathbf T_k$ generated by
+  $T_l-(1+l^{k-1})$ for all primes $l$. Put $n=\operatorname{ord}_p\zeta(1-k)$ and assume $n>0$.'' \textbf{Conjecture 0.1} (p.~282): ``$A^\psi$ is
+  isomorphic to $\mathbf Z_p/L(0,\psi^{-1})\mathbf Z_p$'', $A$ the $p$-Sylow of $\operatorname{Pic}\mathbf Z[\mu_p]$; ``a consequence of the famous Vandiver
+  conjecture''. Standing hypothesis, p.~284 (PDF 4): ``Throughout this paper, $p$ is a prime number $\ge5$.''
+  \textbf{Theorem 0.3} (p.~283, PDF 3; proved as Cor.~4.3, p.~293): ``Let $m$ be the maximal ideal of $\mathbf T_k$ generated by $p$ and $\mathfrak I$,
+  and $T^E$ the $m$-adic completion of $\mathbf T_k$. If $T^E$ is a Gorenstein ring, then Conjecture 0.1 holds for $\psi=\omega^{1-k}$.''
+  \textbf{Theorem 0.4} (p.~283): ``Assume that $A^\varphi=0$ for $\varphi=\omega^{2-k}=\psi\omega$. Then, there is a subgroup of
+  $H^2(\mathbf Z[1/p],\mathbf Z_p(k))$ isomorphic to $(\mathfrak I/\mathfrak I^2)\otimes\mathbf Z_p$. In particular, the following statements are
+  equivalent. (i) $\mathfrak I/\mathfrak I^2$ has an element of order $p^n$. (ii) $\mathfrak IT^E$ is a principal ideal of $T^E$. (iii) $T^E$ is
+  Gorenstein. (iv) Conjecture 0.1 is true for $\psi=\omega^{1-k}$.'' \textbf{Lemma 3.1} (p.~290, PDF 10): ``$T^E/\mathfrak I=\mathbf Z/p^n$.''
+  \textbf{Remark 3.6} (p.~291): ``For the known examples, we always have $n=1$, namely $\operatorname{ord}_p\zeta(1-k)=1$. So, the condition on
+  $\mathfrak I/\mathfrak I^2$ is automatically satisfied.'' \textbf{Remark 3.11} (p.~292): ``Vandiver's conjecture implies that $I_B$ is cyclic
+  \dots\ and $I_C$ is cyclic \dots, hence that $\mathfrak I$ is principal''. \textbf{Proposition 4.1} (p.~293): ``If $T^E$ is Gorenstein, at least one
+  of the following holds. (i) $T^E=\mathbf Z_p$ (ii) $I_B=\mathfrak I$ and $I_C=T^E$.'' \textbf{Corollary 4.4} (p.~293): ``If $T^E$ is generated by one
+  element over $\mathbf Z_p$ as a $\mathbf Z_p$-algebra, then Conjecture 0.1 for $\psi=\omega^{1-k}$ is true.'' \textbf{Remark 4.5} (p.~294, PDF 14):
+  ``The condition on $T^E$ in Corollary 4.4 is satisfied if (1) $\mathfrak I$ is a principal ideal. (2) $T^E$ is normal. \dots\ (3) There are at most
+  two liftings of $G_k$ mod $p$ to normalized eigenforms in $M^0_k(\bar{\mathbf Q}_p)$. In this case, rank $T^E\le2$, so the condition on $T^E$ is
+  satisfied.'' The only numerical example is Example 4.2 (p.~293): $k=12$, $p=691$, $T^E=\mathbf Z_p$.
+  \textbf{Guards:} level one, $p\ge5$, $k$ even with $0<k<p-1$ (so the class $a\equiv0\pmod{p-1}$ is \emph{not} covered), $T^E$ the
+  \emph{finite-level} cuspidal algebra of weight $k$ (all $T_l$, $T_p$ included) completed at $m$; nothing $\Lambda$-adic.
+  \textbf{Reading (derived, not quoted):} at $(p,k)=(547,486)$ ($n=1$, $g=2$ two lifts) Remark 4.5(3) gives that $T^E$ is monogenic, hence
+  Gorenstein, and Conjecture 0.1 holds for $\omega^{1-486}=\omega^{61}$; by Prop.~4.1, $T^E\ne\mathbf Z_p$ forces $I_B=\mathfrak I$, $I_C=T^E$.
+  Since $n=1$, $\mathfrak IT^E=m$ (Lemma 3.1); under $A^{\omega^{62}}=0$ (Vandiver at $547$, a computational input not read here)
+  Thm.~0.4 (ii) makes $m$ principal, i.e.\ $T^E$ is a DVR, totally ramified of degree $2$ over $\mathbf Z_{547}$. Kurihara does \emph{not}
+  name $547$ or any pair with two lifts, and gives \emph{no} non-Gorenstein example.
+\end{hypothesis}

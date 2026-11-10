@@ -1,0 +1,31 @@
+# ramanujan_10_691.oc -- Ramanujan's congruence tau(p) == 1 + p^11 (mod 691) as an Eisenstein ideal.
+# Phenomena gallery [PG] sec:pg-ramanujan.  Cell (n, ell) = (10, 691), weight k = 12.
+# Read_only verbs only (notebook-safe).  Cost: < 1 s, < 0.1 GB.
+M = sl2z_model();
+H = cohomology(symmetric_power(M, 10, 691));
+print("dim H^q =", H.dims);
+
+# (1) 691 divides the numerator of B_12: the Eisenstein series E_12 is congruent to a cusp form.
+print("B_12 mod 691 =", bernoulli_mod(12, 691));
+assert(bernoulli_mod(12, 691) == 0, "691 | B_12");
+
+# (2) T_p - (1 + p^11) is nilpotent but NOT zero on H^1: Jordan type (2, 1).  At p = 691 this is U_691 - 1.
+I3 = identity(691, 3);
+for p in [2, 3, 5, 7, 691] {
+    x = 1;
+    for i in range(0, 11) { x = (x * p) % 691; }
+    ap = (1 + x) % 691;
+    Np = sub(hecke(H, p).A(1), scale(I3, ap));
+    print("p =", p, " 1 + p^11 mod 691 =", ap, " Jordan type of T_p - a_p:", jordan_type(Np));
+    assert(jordan_type(Np) == [2, 1], "one non-split Jordan block");
+}
+
+# (3) The extension record: one maximal ideal, its local Hecke algebra F_691[eps]/eps^2.
+R = ext_record(10, 691);
+print("maximal ideals:", R.num_ideals);
+m = R.ideals[0];
+print("m: dim", m.dim, " f =", m.residue_degree, " witness", m.witness_poly, " final", m.final);
+T = local_algebra(m);
+print("T_m: dim", T.dim, " Hilbert function", T.hilbert, " Gorenstein", T.gorenstein);
+print("module H^1_m:", m.modules);
+assert(T.hilbert == [1, 1], "T_m = F_691[eps]/eps^2");

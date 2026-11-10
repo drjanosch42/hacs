@@ -1,0 +1,22 @@
+# cli_params.oc -- driven ONLY by the CLI arm of ConsoleCliPreservationValidation
+# (its name does not start with a digit, so ConsoleScriptValidation's in-process
+# sweep skips it): it needs command-line parameters, which only the CLI supplies.
+#
+#   ./cohomology_app --script Console/scripts/cli_params.oc n=10 ell=691
+#
+# Plan Sec. 6: "`name=value` pairs are parsed as literals and read as
+# `args.name`; an `args.name` the command line did not supply is a runtime
+# error (exit 3)".
+
+n = args.n;
+ell = args.ell;
+
+assert(n == 10, "the n parameter arrived as an Int");
+assert(ell == 691, "the ell parameter arrived as an Int");
+
+H = cohomology(symmetric_power(sl2z_model(), n, ell));
+pt = "n=" + str(n) + " ell=" + str(ell);
+for q in H.degrees {
+    assert(H.dims[q] == golden(pt, "dim_H^" + str(q)).value, "dim H^" + str(q));
+}
+print("dims " + str(H.dims));

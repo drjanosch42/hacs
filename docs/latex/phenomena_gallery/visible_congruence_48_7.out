@@ -1,0 +1,9 @@
+primes [2, 3, 5, 7]  K_cls 2  blocks 4
+system [1, 0, 0, 0]  D 4  A1 [1, 1]  AK/ell [1, 1]  hidden false  verdict stable
+system [3, 3, 1, 0]  D 2  A1 [1]  AK/ell nil  hidden false  verdict reduced_rank1
+system [3, 4, 6, 0]  D 1  A1 [1]  AK/ell [1]  hidden false  verdict torsion_stable
+system [3, 4, 6, 1]  D 1  A1 [1]  AK/ell nil  hidden false  verdict reduced_rank1
+ideal: dim 1  a_2 = 3 (mod 7)  T_m Hilbert [1]  nu 1
+ideal: dim 1  a_2 = 3 (mod 7)  T_m Hilbert [1]  nu 1
+ideal: dim 2  a_2 = 3 (mod 7)  T_m Hilbert [1]  nu 1
+ideal: dim 4  a_2 = 1 (mod 7)  T_m Hilbert [1, 1]  nu 2

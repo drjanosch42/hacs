@@ -1,0 +1,5 @@
+#! oc-format 1
+7 socle_loewy_pd passed
+    dim=5 socle dims 0 5 | radical dims 5 0 | rad^i(W) = (soc^i V)^perp
+7 socle_loewy_pd passed
+    dim=3 socle dims 0 2 3 | radical dims 3 1 0 | rad^i(W) = (soc^i V)^perp

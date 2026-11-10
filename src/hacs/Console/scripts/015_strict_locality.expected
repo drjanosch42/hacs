@@ -1,0 +1,5 @@
+#! oc-format 1
+1 budget linear
+strict false
+1 strict linear
+budget=64 true

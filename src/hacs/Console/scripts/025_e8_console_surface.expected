@@ -1,0 +1,7 @@
+#! oc-format 1
+Cohomology over Z/691^2 (declared, not yet computed)
+Z/ell^2 [0, 6, 0] 2 false derived [0, 1, 2]
+{free_rank: 0, torsion: []} {free_rank: 3, torsion: []} {free_rank: 0, torsion: []}
+{r_K0: 41, r_K1: 55} true
+HeckeOperator T_691 over Z/691^2 {precision: 2, coeffs: [205917, 65648, 205915, 1]}
+{precision: 2, coeffs: [252219, 379705, 475480, 1]}

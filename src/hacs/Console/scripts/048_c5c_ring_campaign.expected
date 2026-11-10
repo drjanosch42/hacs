@@ -1,0 +1,2 @@
+#! oc-format 1
+run_campaign( E8 ring=Z/5^2 n=6 ell=5 ): 2 ran, 0 failed; [1, 3, 0] 1 0

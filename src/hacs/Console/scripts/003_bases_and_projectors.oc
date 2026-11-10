@@ -1,0 +1,42 @@
+# 003_bases_and_projectors.oc -- the preservation gate on the BASES, i.e. the
+# golden reference's tier B.
+#
+# A basis is hashed as "count, then each matrix" (Collector::basis), which is
+# why `hash(H.C(q))` on the List of N_q x d_V cochains is comparable with the
+# frozen `C_eq^q` entry.  Tier B is basis-DEPENDENT, so these pins are also the
+# statement that the console reads the pipeline's own stored basis and does not
+# re-derive one of its own.
+
+include("prelude.oc");
+
+H = cohomology(symmetric_power(MODEL, N_SYM, ELL));
+
+for q in H.degrees {
+    gC = golden(POINT_COH, "C_eq^" + str(q));
+    assert(hash(H.C(q)) == gC.hash, "C_eq^" + str(q) + " basis");
+    assert(len(H.C(q)) == gC.rows, "the C_eq^" + str(q) + " basis size");
+
+    gZ = golden(POINT_COH, "Z_eq^" + str(q));
+    assert(hash(H.Z(q)) == gZ.hash, "Z_eq^" + str(q) + " basis");
+
+    gB = golden(POINT_COH, "B_eq^" + str(q));
+    assert(hash(H.B(q)) == gB.hash, "B_eq^" + str(q) + " basis");
+
+    gH = golden(POINT_COH, "H_eq^" + str(q));
+    assert(hash(H.H(q)) == gH.hash, "H_eq^" + str(q) + " basis");
+
+    gP = golden(POINT_COH, "P^" + str(q));
+    assert(hash(H.P(q)) == gP.hash, "the projector P^" + str(q));
+}
+
+# A structural check the reference does not carry: every C^q_eq basis element is
+# an N_q x d_V cochain, which is the L1 layout the whole pipeline shares.
+c0 = H.C(0);
+assert(len(c0) > 0, "C^0_eq is non-trivial at this cell");
+assert(c0[0].cols == N_SYM + 1, "a cochain has d_V columns");
+
+
+# (C1b) The frozen line: the tier-B basis sizes, asserted above.
+print(len(H.C(1)), len(H.Z(1)), len(H.B(1)), len(H.H(1)));
+
+annotate("003_bases_and_projectors: tier-B bases reproduced at " + POINT_COH);

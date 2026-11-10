@@ -1,0 +1,21 @@
+# SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
+# SPDX-License-Identifier: LGPL-3.0-only WITH LicenseRef-CUDA-exception
+
+# %% [md] 04 -- maximal ideals of the Hecke algebra and their characters.
+# ext_record(n, ell) decomposes H^* under the Hecke algebra T. Each maximal ideal m has a character
+# T_p -> T/m = F_ell[w]/(pi_w) = F_{ell^f}; m.character(p) is the value at T_p, written in the witness w.
+# At (10, 691) there is ONE ideal: the cusp form Delta and the Eisenstein series E_12 share the
+# character T_p -> 1 + p^11 (mod 691), and the local algebra is F_691[eps]/eps^2 (Hilbert function (1, 1)).
+
+# %% The maximal ideal of ext_record(10, 691)
+# The coefficient ring is the default F_ell, stated here so that the file runs in any order in one session (08 sets Z).
+set coefficient_ring = "F_ell";
+R = ext_record(10, 691);
+m = R.ideal(0);
+display(m);
+
+# %% Its character
+display(m.character(2), m.character(3));
+
+# %% The local algebra
+display(local_algebra(m));

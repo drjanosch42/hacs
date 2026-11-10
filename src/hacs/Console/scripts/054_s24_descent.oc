@@ -1,0 +1,58 @@
+# 054_s24_descent.oc -- the integral descent: descent(N, n, primes) and the DescentRecord ([C] sec:integral, sec:descentN,
+# sec:descenthecke, thm:descentcert, sec:descentpair; [CLI] sec:descent).
+#
+# Over Z the cohomology H^q(Gamma_0(N); Sym^n Z^2) is a finitely generated abelian group: a free part Z^r plus finite
+# torsion.  The verb exists only under coefficient_ring = "Z"; every other verb refuses that ring (exit 5).
+set coefficient_ring = "Z";
+#
+# (1) Level 1, n = 12 (weight 14): no cusp form, so H^1 / torsion = Z is the Eisenstein class and T_p acts on it by
+#     1 + p^13.  The torsion sits at 2 and 3 (the finite subgroups of SL_2(Z)) and at the bad primes 5 and 11.
+D = descent(1, 12);
+print("descent(1, 12):", D.status);
+for q in D.degrees {
+    print("  H^" + str(q) + " =", D.groups[q]);
+}
+print("  bad primes [ell, count]:", D.bad_primes, " torsion primes:", D.torsion_primes);
+for k in D.K {
+    print("  ell =", k.ell, " route =", k.route, " K =", k.K, " certified =", k.certified);
+}
+for c in D.charpoly {
+    print("  char_Z(T_" + str(c.p) + " | H^1/tors) coefficients (high -> low):", c.coefficients);
+}
+assert(D.charpoly[0].coefficients == ["1", str(0 - (1 + 2 ^ 13))], "T_2 = 1 + 2^13 on the Eisenstein class");
+#
+# The 2-primary torsion of H^1 with T_2, by its choice-free invariants (a=..;P=..;B=..;ker=..;cok=..;fit=..).
+t = D.torsion[0];
+print("  tors H^" + str(t.q) + " at ell =", t.ell, ": exponents", t.exponents, " module certified:", t.module_certified);
+print("  T_" + str(t.ops[0].p) + ":", t.ops[0].invariants);
+print("  record digest:", D.digest);
+#
+# (2) Level 11, n = 0 (weight 2): H^1 = Z^3 (two classes of the elliptic curve X_0(11) and one Eisenstein class), and the
+#     boundary pair: bulk H, boundary H(d), compact support H_c (the cone).
+E = descent(11, 0);
+print("descent(11, 0):", E.groups);
+print("  bulk    :", E.pair.bulk.groups);
+print("  boundary:", E.pair.boundary.groups);
+print("  compact :", E.pair.compact.groups);
+for c in E.charpoly {
+    print("  char_Z(T_" + str(c.p) + "):", c.coefficients);
+}
+#
+# (3) Level 11, n = 2 (weight 4): H^1 / torsion has rank 6 (2 dim S_4(Gamma_0(11)) + the 2 cusps).
+F = descent(11, 2, [2, 3]);
+print("descent(11, 2, [2, 3]):", F.groups);
+for c in F.charpoly {
+    print("  char_Z(T_" + str(c.p) + "):", c.coefficients);
+}
+#
+# (4) Refusals.  A cap of the verb is a type error (exit 3); a Hecke prime dividing N is refused (U_p is deferred).
+expect_error "n must satisfy 0 <= n <= 60" { descent(1, 400) }
+expect_error "must not divide N" { descent(4, 2, [2]) }
+set coefficient_ring = "F_ell";
+expect_error "set coefficient_ring = \"Z\" first" { descent(1, 12) }
+set coefficient_ring = "Z";
+expect_error "coefficient_ring=Z is honoured by the integral descent only" { cohomology(symmetric_power(sl2z_model(), 10, 691)).dims }
+print("refusals: ok");
+# Every script leaves the mathematical settings at their defaults (ConsoleScriptValidation).
+set coefficient_ring = "F_ell";
+assert(fingerprint() == "0x0000000000000000", "back at the defaults");

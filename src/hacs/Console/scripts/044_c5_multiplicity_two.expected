@@ -1,0 +1,13 @@
+#! oc-format 1
+(34, 5) operators [2, 3, 5, 7] S_sep [2]
+   (34, 5) MaximalIdeal #0 (all): dim 2, f = 1, local H1 system 1 nu 1
+   (34, 5) MaximalIdeal #1 (all): dim 1, f = 1, local H1 system 1 nu 1
+   (34, 5) MaximalIdeal #2 (all): dim 4, f = 1, local H1 system 2 nu 1
+(34, 5) ideals 3 doubled 2 non-split 0
+(58, 7) operators [2, 3, 5, 7] S_sep [2, 3]
+   (58, 7) MaximalIdeal #0 (all): dim 1, f = 1, local H0 system 4 nu 1
+   (58, 7) MaximalIdeal #1 (all): dim 2, f = 1, local H1 system 2 nu 1
+   (58, 7) MaximalIdeal #2 (all): dim 1, f = 1, local H1 system 2 nu 1
+   (58, 7) MaximalIdeal #3 (all): dim 3, f = 1, local H1 system 4 nu 1
+   (58, 7) MaximalIdeal #4 (all): dim 6, f = 1, local H1 system 7 nu 2
+(58, 7) ideals 5 doubled 2 non-split 1

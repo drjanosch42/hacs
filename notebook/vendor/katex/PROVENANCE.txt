@@ -1,0 +1,29 @@
+KaTeX, vendored for the read-only notebook (slot-19 NB-3).
+
+Package        : katex 0.19.0 (npm registry; MIT licence, see LICENSE)
+Source         : https://registry.npmjs.org/katex/-/katex-0.19.0.tgz
+Fetched        : 2026-10-04 (curl from the npm registry)
+Tarball sha256 : d8e49f2fea6eeed7cdae2cf4fd48e2f1d348758aa9e5740715e4533c2c96d1ee
+Tarball sha1   : b69c8cbcfc8c331be3f4f6e606b02b7146501ec7   (= registry dist.shasum)
+Tarball sha512 : v6Tznz3zJ7u3niRCoDTsumM2+HA2XXcCu+WAacCeHD2z3p9A9Ks987o5FzfTGBN0e8A0vjEgIDvLbICrXpdw/Q==
+                 (= registry dist.integrity)
+
+Files taken, unmodified, from package/:
+  LICENSE          package/LICENSE
+  katex.min.js     package/dist/katex.min.js
+  katex.min.css    package/dist/katex.min.css
+  fonts/*.woff2    package/dist/fonts/*.woff2  (20 files)
+
+Only the .woff2 faces are vendored (every current browser takes woff2 first;
+the .woff / .ttf fallbacks named in katex.min.css are not shipped). Nothing
+else of the package (src/, contrib/, cli.js) is used. Per-file sha256 sums:
+SHA256SUMS (check with `sha256sum -c SHA256SUMS` in this directory).
+
+To update: fetch the new tarball from the registry, compare its sha1 / sha512
+with the registry's dist.shasum / dist.integrity, replace the files above,
+regenerate SHA256SUMS, and record the new version here.
+
+Font licence (slot 22 WP-LIC2, 2026-10-06): FONTS-LICENSE-OFL.txt is NOT from the package (the package ships only the MIT LICENSE); it was written
+here from the licence statement embedded in the name table (nameID 0 / 13 / 14) of the .ttf faces of katex 0.16.47 (npm, found locally in a
+node_modules tree), whose 20 .woff2 files are byte-identical (cmp) to the 20 vendored 0.19.0 files: SIL OFL 1.1, (c) 2009-2010 Design Science,
+Inc., (c) 2014-2018 Khan Academy, Reserved Font Names KaTeX_*. The vendored 0.19.0 .woff2 carry no readable name strings.

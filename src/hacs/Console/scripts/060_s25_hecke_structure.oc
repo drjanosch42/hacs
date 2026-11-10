@@ -1,0 +1,28 @@
+# 060_s25_hecke_structure.oc -- the record integral_hecke_structure/v1 of one cell ([C] sec:recordschema item 8, sec:heckeZ;
+# slot-25 HZ-REC): the structure of the Hecke algebra over Z, prime by prime, each value with a status from one closed list.
+#
+# The record references its descent cell (descent_ref) and copies nothing it holds.  Generation of T (x) Z_ell is certified by
+# saturation ([C] prop:heckeZgen), by the single-Eisenstein-component certificate (prop:heckeZeiscert(1), route eis_single) or at
+# an etale ell (route rational); the congruence module C_T between the Eisenstein and the cuspidal part is `certified` only when its
+# lower and upper bounds meet at every ell | g_P (prop:heckeZcong).
+set coefficient_ring = "Z";
+#
+# (1) Ramanujan's 691: weight 12, level 1.  C_T = Z/691; T (x) Z_691 is monogenic of rank 2.
+R = hecke_structure(1, 10);
+print(R.schema, " (", R.N, ",", R.n, ",", R.algebra, ")");
+print("  generation per ell:", R.generation);
+print("  C_T:", R.C_T);
+assert(R.C_T == "certified:0x2b3", "the 691 congruence module is exact");
+#
+# (2) Weight 24: two Eisenstein primes, 103 and 2294797 (the latter read on the 64-bit regime); 2 and 3 by eis_single.
+S = hecke_structure(1, 22);
+print("  (1,22) generation:", S.generation);
+print("  (1,22) C_T:", S.C_T);
+#
+# (3) Level 11, weight 2, the anemic algebra: Mazur's Eisenstein prime 5.
+E = hecke_structure(11, 0, "anemic");
+print("  (11,0) anemic:", E.generation, " C_T:", E.C_T);
+#
+# Every script leaves the mathematical settings at their defaults (ConsoleScriptValidation).
+set coefficient_ring = "F_ell";
+assert(fingerprint() == "0x0000000000000000", "back at the defaults");

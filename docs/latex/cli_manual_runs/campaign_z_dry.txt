@@ -1,0 +1,10 @@
+$ hacs --campaign descent_small.spec --dry-run
+descent campaign 'descent_small': 6 cells (integral_descent_record/v1, coefficient_ring = Z, fingerprint 0x098a1abfd656372a)
+    desc_N1_n0_s098a1abfd656372a  N=1 n=0 primes=2,3,5 D=1
+    desc_N1_n2_s098a1abfd656372a  N=1 n=2 primes=2,3,5 D=3
+    desc_N1_n4_s098a1abfd656372a  N=1 n=4 primes=2,3,5 D=5
+    desc_N11_n0_s098a1abfd656372a  N=11 n=0 primes=2,3,5 D=12
+    desc_N11_n2_s098a1abfd656372a  N=11 n=2 primes=2,3,5 D=36
+    desc_N11_n4_s098a1abfd656372a  N=11 n=4 primes=2,3,5 D=60
+  6 cells total
+[exit 0]

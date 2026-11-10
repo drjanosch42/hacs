@@ -1,0 +1,5 @@
+$ HECKE_DESCENT_SMITH_PANEL=128 hacs -c 'print(descent(1, 30).groups[1])' --set coefficient_ring=Z
+EFFECTIVE HECKE_DESCENT_SMITH_MT phase=start mode=threaded lever=on source=default threads=32 threads_source=affinity panel=128 f2=threaded f2_source=default
+EFFECTIVE HECKE_DESCENT_SMITH_MT phase=exit mode=threaded lever=on source=default threads=32 threads_source=affinity panel=128 f2=threaded f2_source=default max_used=1 regions=parallel:0,serial:0 d2_regions=0 tasks=0 panel_splits=15 scoped_regions=0 lu_panels=128:7,512:0,other:0 f2_lazy=15 f2_par_searches=0 t_s=f2_pack:0.00,f2_ech:0.00,f3_pack:0.00,f3_ech:0.00,level:0.00,lu:0.00,ech_search:0.00,ech_flush:0.00,ech_table:0.00,perm:0.00,schur:0.00
+Z^5 + Z/2 + Z/2 + Z/2 + Z/2^2 + Z/2^2 + Z/2^2 + Z/3 + Z/3 + Z/3^2 + Z/5^2 + Z/29
+[exit 0]

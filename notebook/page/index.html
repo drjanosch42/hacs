@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OC Notebook</title>
+<link rel="stylesheet" href="/katex/katex.min.css">
+<link rel="stylesheet" href="/static/style.css">
+<script src="/static/themes.js"></script>
+<script src="/katex/katex.min.js" defer></script>
+<script src="/static/render.js" defer></script>
+<script src="/static/ocfile.js" defer></script>
+<script src="/static/cellbox.js" defer></script>
+<script src="/static/app.js" defer></script>
+</head>
+<body>
+<header>
+  <div class="brand">OC Notebook <span class="muted">read-only &middot; oc-serve/1 &middot; oc-serve-atlas/1</span></div>
+  <div id="status" class="status off">disconnected</div>
+  <div id="nb-name" class="nb-name muted" aria-live="polite">unsaved notebook</div>
+  <div class="actions">
+    <button id="btn-run-all" title="Run every cell in order">Run all</button>
+    <button id="btn-interrupt" title="Interrupt the running cell (cooperative)">Interrupt</button>
+    <button id="btn-kill" class="kill" title="The interrupt has not taken effect: kill the session (all bindings are lost) and start a fresh one" hidden>Kill session</button>
+    <button id="btn-restart" title="Kill the session and start a fresh one (all bindings are lost)">Restart session</button>
+    <button id="btn-open" title="Open a .oc notebook file: replaces all cells and restarts the session (asks first if there are unsaved changes)">Open notebook&hellip;</button>
+    <button id="btn-insert" title="Insert the cells of a .oc file below the current cell (the session is kept)">Insert file as cell&hellip;</button>
+    <button id="btn-save" title="Download the notebook as a .oc script: one '# %%' line per cell, code only (no outputs)">Save notebook (.oc)</button>
+    <select id="example-select" aria-label="open an example notebook" title="Open one of the gateway's example notebooks (replaces all cells)" hidden><option value="">Examples&hellip;</option></select>
+    <input type="file" id="file-input" accept=".oc,.txt,text/plain" hidden>
+    <button id="btn-export"title="Download every cell and its output as plain text (the canonical text behind every display)">Export text</button>
+    <button id="btn-export-code" title="Download only the code of every cell (an .oc script)">Export code</button>
+    <button id="btn-export-json" title="Download a JSON notebook: code and output of every cell as separate fields">Export JSON</button>
+    <label class="tex-ctl" title="Typeset values with LaTeX (KaTeX). Off: the canonical text. Values are the same either way; kept in this browser only."><input type="checkbox" id="tex-toggle" checked> LaTeX</label>
+  </div>
+  <div class="theme-ctl">
+    <span id="theme-warn" class="theme-warn" hidden></span>
+    <select id="theme-select" aria-label="page theme" title="Page theme (kept in this browser only)">
+      <option value="auto">Auto (system)</option><option value="light">Light</option><option value="dark">Dark</option>
+      <option value="high-contrast-light">High contrast (light)</option><option value="high-contrast-dark">High contrast (dark)</option>
+      <option value="custom">Custom&hellip;</option>
+    </select>
+    <button id="btn-theme" type="button" title="Open the theme editor">Theme&hellip;</button>
+  </div>
+</header>
+<section id="theme-editor" class="theme-editor" aria-label="theme editor" hidden></section>
+
+<div id="token-box" class="token-box" hidden>
+  <p>This notebook needs the access token the gateway printed at startup
+     (<code>OC_GATEWAY token=&hellip;</code>). Open the printed URL, or paste the token here.</p>
+  <form id="token-form"><input id="token-input" type="password" autocomplete="off" placeholder="token" size="48">
+  <button type="submit">Connect</button></form>
+</div>
+
+<main>
+  <div id="file-note" class="file-note muted" role="status" hidden></div>
+  <section id="atlas-view" class="atlas-view" aria-label="atlas results" hidden>
+    <div class="cell-bar"><span class="label">atlas</span><span id="atlas-view-title"></span><span class="spacer"></span>
+      <button id="atlas-view-close" type="button">close</button></div>
+    <div id="atlas-view-body" class="output"></div>
+  </section>
+  <section id="cells" aria-label="cells"></section>
+  <div class="add-row"><button id="btn-add">+ cell</button> <button id="btn-add-md" title="Add a text cell below the current one (saved as '# %% [md]', not executed)">+ text</button></div>
+</main>
+
+<aside id="side">
+  <details open>
+    <summary>Session</summary>
+    <dl id="session-info" class="kv"></dl>
+  </details>
+  <details>
+    <summary>Help</summary>
+    <form id="help-form"><input id="help-input" placeholder="verb, type or setting (empty: all)" size="28">
+    <button type="submit">help</button></form>
+    <div id="help-out" class="help-out"></div>
+  </details>
+  <details id="atlas-panel" open>
+    <summary>Atlas</summary>
+    <div class="atlas">
+      <p id="atlas-none" class="muted">No atlas store is configured on this gateway
+      (<code>--atlas-store</code>); only the in-process verb below is available.</p>
+      <div id="atlas-store" hidden>
+        <dl id="atlas-store-info" class="kv"></dl>
+        <div class="atlas-actions">
+          <button id="atlas-info" type="button">header</button>
+          <button id="atlas-cells" type="button">cells</button>
+        </div>
+        <form id="atlas-sys-form" class="atlas-form">system #<input id="atlas-sid" size="8" inputmode="numeric" autocomplete="off">
+          <button type="submit">show</button></form>
+        <form id="atlas-filter-form" class="atlas-form">
+          <label>r <input id="af-r" size="3" inputmode="numeric"></label>
+          <label>type <select id="af-type"><option value="">any</option><option>eisenstein</option><option>cuspidal</option></select></label>
+          <label>collected <select id="af-coll"><option value="">any</option><option value="true">yes</option><option value="false">no</option></select></label>
+          <label>base <input id="af-base" size="7" inputmode="numeric"></label>
+          <label>twist <input id="af-twist" size="4" inputmode="numeric"></label>
+          <label>at n <input id="af-n" size="4" inputmode="numeric"></label>
+          <button type="submit">find systems</button>
+        </form>
+        <p class="muted small">Queries go to <code>--serve-atlas</code> (<code>oc-serve-atlas/1</code>): the store
+        stays on the server, read-only; results appear above the cells.</p>
+      </div>
+      <hr>
+      <p class="muted small">In-process &Sigma;(&ell;) in the session (<code>atlas(ell)</code>, &ell; &isin; {5, 7, 11, 13}):</p>
+      <label>&ell; <select id="atlas-ell"><option>5</option><option>7</option><option>11</option><option>13</option></select></label>
+      <button id="atlas-go">insert cell</button>
+    </div>
+  </details>
+  <details>
+    <summary>Keys</summary>
+    <ul class="muted keys">
+      <li><kbd>Shift</kbd>+<kbd>Enter</kbd> run the cell</li>
+      <li><kbd>Ctrl</kbd>+<kbd>Enter</kbd> run and stay; <kbd>Alt</kbd>+<kbd>Enter</kbd> run, new cell below</li>
+      <li><kbd>Tab</kbd> complete the name before the cursor</li>
+      <li>An expression without <code>;</code> echoes its value</li>
+    </ul>
+  </details>
+</aside>
+</body>
+</html>

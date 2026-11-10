@@ -1,0 +1,105 @@
+# 018_e0_locality_grid.oc -- phase E0's own statement, from the console
+# (slot-5 WP-10 item 3, "engine .oc scripts for the E0-E2 cases", [X] Sec. 8
+# slot 5 Lane C).
+#
+# THE E0a VERDICT is that every primary block the golden harness builds is
+# CERTIFIED LOCAL: `HeckeLocalityValidation` prints
+#   LOCALITY_GRID decompositions=236 blocks=348 analytic=269 nonlocal=0
+#                 witness_changes=0 loop_disagreements=0 hashes=944 failing=0
+# and it is what let slot-2 WP-1 call `hecke::CertifyLocality` inside
+# `ComputeMultiOp`'s refinement loop without moving a single `decomp_*` hash.
+# Everything downstream of E0 -- the local algebra A_S of E1a, the generation
+# certificates, the per-ideal objects of the E2 record -- is defined only on a
+# block that carries that certificate, so this is the precondition the whole
+# extension stage stands on.
+#
+# 007-010 pin the grid's DIMENSIONS and decomposition HASHES; 012 reads the
+# locality data of one block at one cell; 015 compares strict mode against
+# budget mode.  What is asserted here and nowhere else in the script set is the
+# per-block LOCALITY DATA across the grid, in EVERY degree that carries
+# cohomology -- the certificate's own output, block by block: `local`,
+# `certified`, the phase it was reached in, the residue degree, the witness
+# polynomial's degree, and the fact that the certified blocks partition H^q.
+
+include("prelude.oc");
+
+# One cell from each of the four classes 007-010 pin, plus the flagship.
+CELLS = [[10, 691], [16, 13], [22, 3], [24, 5], [32, 5], [0, 134217757]];
+
+blocks_seen = 0;
+cells_seen = 0;
+for cell in CELLS {
+    n = cell[0];
+    ell = cell[1];
+    pt = "n=" + str(n) + " ell=" + str(ell);
+    ptp = pt + " p=2 r=1";
+    H = cohomology(symmetric_power(MODEL, n, ell));
+    T = hecke(H, 2);
+    cells_seen = cells_seen + 1;
+
+    for q in H.degrees {
+        if H.dims[q] > 0 {
+            D = decompose(T, q);
+
+            # The loop's own report: it ran in budget mode, it finished, and it
+            # split nothing -- `splits = 0` is the E0a verdict restated, since a
+            # split is exactly what the certificate does to a block with two
+            # maximal ideals.
+            assert(D.locality.mode == "budget", pt + ": the default mode");
+            assert(D.locality.complete == true, pt + ": the loop finished");
+            assert(D.locality.interrupted == false, pt + ": and was not interrupted");
+            assert(D.locality.splits == 0, pt + ": no block on the golden grid splits");
+            assert(D.locality.budget == 64, pt + ": at the shipped budget");
+
+            sum_dim = 0;
+            for b in D.blocks {
+                assert(b.local, pt + " q=" + str(q) + ": every block is LOCAL");
+                assert(b.certified, "and the residue degree is certified");
+                assert(b.phase == "linear",
+                       "reached in the linear witness phase, never by escalation");
+                assert(b.residue_degree >= 1, "the residue degree is a degree");
+                assert(b.dim >= b.residue_degree,
+                       "a block contains its own residue field");
+                # The witness polynomial IS the block's maximal ideal: its
+                # degree is the residue degree, and `certified` says the
+                # certificate re-derived that rather than read it back.
+                assert(degree(b.witness_poly) == b.residue_degree,
+                       "the witness polynomial has the block's residue degree");
+                # `w_hat_exponent` is the Teichmueller exponent the certificate
+                # reached; 0 is a legal and common value -- a block with a
+                # one-element family, or one certified before any lift is
+                # needed, never forms w_hat at all ([X]: k = 1 is local for
+                # free and the Teichmueller lift is never formed).
+                assert(b.w_hat_exponent >= 0, "w_hat_exponent is recorded either way");
+                sum_dim = sum_dim + b.dim;
+                blocks_seen = blocks_seen + 1;
+            }
+            assert(sum_dim == H.dims[q], pt + " q=" + str(q) + ": the blocks partition H^q");
+
+            # And the whole decomposition still re-derives, at the same hash the
+            # golden reference carries -- so reading the locality data above did
+            # not change what was computed.
+            assert(D.certify() == 0, pt + " q=" + str(q) + ": certify() == 0");
+            assert(hash(D) == golden(ptp, "decomp_A(T_p)^" + str(q) + "_invariants").hash,
+                   "decomp_A(T_p)^" + str(q) + "_invariants at " + ptp);
+        }
+    }
+    print(pt, H.dims, len(decompose(T, 1).blocks));
+}
+assert(cells_seen == 6, "all six cells ran");
+assert(blocks_seen >= 6, "and produced blocks in at least one degree each");
+print(cells_seen, blocks_seen);
+
+# The three-operator refinement at the flagship cell is where a split COULD
+# happen -- MaxSpec(T) over {T_2, T_3, T_5} is finer than over T_2 alone -- and
+# on the golden grid it does not: the block list is the same one, still local.
+H = cohomology(symmetric_power(MODEL, N_SYM, ELL));
+DS = decompose([hecke(H, 2), hecke(H, 3), hecke(H, 5)], 1);
+assert(DS.locality.splits == 0, "the three-operator refinement splits nothing either");
+for b in DS.blocks { assert(b.local, "and every simultaneous block is local"); }
+assert(hash(DS) == golden(POINT_COH, "decomp_sim{2,3,5}^1_invariants").hash,
+       "decomp_sim{2,3,5}^1_invariants");
+print(DS.num_blocks, DS.locality.splits, DS.blocks[0].residue_degree);
+
+assert(fingerprint() == "0x0000000000000000", "every pin taken at the defaults");
+annotate("018_e0_locality_grid: " + str(blocks_seen) + " certified-local blocks");

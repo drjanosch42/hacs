@@ -1,0 +1,494 @@
+% gt_part_G1.tex -- [GT] Part G1: coefficient and coset algebra (T2a).  Slot 17, package L17-3.
+% Read by lean_census.py (gt_part_*.tex).  Lean: lean/GL2/Cosets/ (namespace GL2.Cosets; the key model GL2.Ku).
+% G1's convention half (prop:symconv, lem:detsym, prop:pairing) is Part 0 (gl2_groundtruth.tex, L16-2 / L16-6).
+% Labels mirror [C] v1.16.0 verbatim; a clause split off a [C] label gets a suffix (-1, -hermite, ...).
+
+\chapter{Part G1. The correspondence datum and the boundary cosets}\label{ch:cosets}
+
+\paragraph{Setting.} $\Gamma=\mathrm{SL}_2(\mathbb Z)$ (mathlib \texttt{SL(2, ℤ)}), $p$ prime, $\nu\ge1$, $N=p^\nu$,
+$m=p^\nu+p^{\nu-1}$, $g=\mathrm{diag}(1,N)$; matrices act on column vectors from the left. $\Gamma''=\Gamma_0(N)$ is mathlib's
+\texttt{CongruenceSubgroup.Gamma0}; $\Gamma'=\Gamma^0(N)$ is \texttt{Gamma0Up}. Indices are $0$-based in Lean: [C]'s $j$ is
+$k+1$. No statement uses a determinant-$N$ inverse: every ``$\gamma\in g\Gamma g^{-1}$'' is written integrally as
+$\gamma g\in g\Gamma$. Nothing hard-wires the $7$-vertex model, a trivial centre, or $\ell\in\{2,3\}$ semantics (the MP
+constraint): the coset algebra is model-free, and the key model of \S\ref{def:keymodel} is a datum.
+
+\paragraph{Scope.} [C] \texttt{prop:tworoutes} and \texttt{prop:mu} are cochain-level identities; their cochain wrapping
+($\tau$-table, equivariant cochains, $\mathrm{Ind}$) is G2. What carries them is matrix algebra over $\mathbb Z$ and one
+reduction; that is proved here for an \emph{arbitrary} stored datum (any family of terms per coset index, any commutative
+ring, any $n$). [C] \texttt{lem:bounds}(5)--(6) bound the $\tau$-table and the quadratic points of \texttt{alg:tau} on the
+fixed model and are G2; \texttt{prop:bdrychar}(3)--(4) concern $H^1$ and are G2 / \texttt{cl:chi}.
+\emph{Deferred to the G2 intake} (moved here from a source comment by the F3 repairs, finding 10): $\mathbb P^1(\mathbb Z/N)$ as a
+type, the group-isomorphism / equivariance clauses of \texttt{prop:cosets}(3)--(4), and the characterisation
+$\gamma_j\cdot\infty=\delta_j^{-1}\cdot\infty$ of \texttt{prop:bdrycosets}(2). (L18-1 closed the group-isomorphism clause of
+\texttt{prop:cosets}(3) and \texttt{prop:cosets}(5) for any transversal, Part G2; the rest stays deferred.)
+\emph{Version} (F3 finding 12): the statements of this Part were compared by the F3 audit with [C] 1.17.0-pre.4 and are unchanged
+from [C] v1.16.0, which the \verb|% mirrors| comments cite.
+
+% ----------------------------------------------------------------------
+\section{The canonical transporters and the class map}
+
+\begin{definition}[Canonical representatives, class map, cocycle]\label{def:cosetreps}
+  % mirrors [C] v1.16.0 def:cosetreps, eq:cocycle
+  \lean{GL2.Cosets.mIdx, GL2.Cosets.RowRel, GL2.Cosets.gMat, GL2.Cosets.mkSL, GL2.Cosets.sMat, GL2.Cosets.sSL,
+    GL2.Cosets.cls, GL2.Cosets.act, GL2.Cosets.hcoc, GL2.Cosets.deltaMat, GL2.Cosets.tMat, GL2.Cosets.tSL,
+    GL2.Cosets.Gamma0Up, GL2.Cosets.DC, GL2.Cosets.IsPrimitive}
+  \leanok
+  $s_k=\left(\begin{smallmatrix}1&0\\k&1\end{smallmatrix}\right)$ for $0\le k<N$ (class $(k:1)$) and
+  $s_{N+c}=\left(\begin{smallmatrix}0&-1\\1&pc\end{smallmatrix}\right)$ for $0\le c<p^{\nu-1}$ (class $(1:pc)$);
+  $t_k=T^k$, $t_{N+c}=\left(\begin{smallmatrix}-pc&-1\\1&0\end{smallmatrix}\right)$; $\delta_k=s_k^{-1}g$.
+  $\mathrm{cls}(\gamma)$ is the $k<m$ with $\gamma s_k^{-1}\in\Gamma_0(N)$; $k\cdot\gamma=\mathrm{cls}(s_k\gamma)$ and
+  $h_k(\gamma)=s_k\gamma s_{k\cdot\gamma}^{-1}$. $\Gamma g\Gamma$ is \texttt{DC}; ``primitive'' means every common divisor of
+  the four entries is a unit. $\texttt{RowRel}\,p\,\nu\,k\,c\,d$ says $(c:d)$ is the class of $s_k$, written without
+  division: $N\mid c-dk$ ($k<N$), $N\mid c\,p(k-N)-d$ ($k\ge N$).
+\end{definition}
+\begin{proof}
+  \leanok
+  Definitions. \texttt{cls} is \texttt{Nat.find} of the existence half of Lemma~\ref{prop:cosets-rowclass}.
+\end{proof}
+
+\begin{lemma}[The row classes]\label{prop:cosets-rowclass}
+  % mirrors [C] v1.16.0 prop:cosets (4), proof: the count of P^1(Z/N) and the closed-form lifts
+  \lean{GL2.Cosets.isCoprime_pow_of_not_dvd, GL2.Cosets.rowRel_exists, GL2.Cosets.rowRel_unique,
+    GL2.Cosets.rowRel_existsUnique}
+  \leanok
+  \uses{def:cosetreps}
+  For a coprime pair $(c,d)$ there is exactly one $k<m$ with $\texttt{RowRel}\,p\,\nu\,k\,c\,d$; i.e.\ the $m$ classes
+  $(k:1)$, $(1:pc)$ are pairwise distinct and exhaust $\mathbb P^1(\mathbb Z/N)$, so $|\mathbb P^1(\mathbb Z/N)|=m$. (Formalised as a statement about coprime \emph{integer} pairs; $\mathbb P^1(\mathbb Z/N)$ is not a type, and the lifting of its points to coprime integer pairs is not proved.)
+\end{lemma}
+\begin{proof}
+  \leanok
+  If $p\nmid d$, $d$ is a unit mod $N$ and $k=cd^{-1}\bmod N$. If $p\mid d$ then $p\nmid c$ and $c_0=(d/p)c^{-1}\bmod
+  p^{\nu-1}$. Uniqueness: two first-family classes differ by $N\mid d(k-k')$ with $d$ a unit; a first- and a second-family
+  class would force $p\mid c$ and $p\mid d$; two second-family classes give $p^{\nu}\mid cp(c_0-c_0')$, so
+  $p^{\nu-1}\mid c_0-c_0'$. In each case $|{\rm difference}|<$ the modulus.
+\end{proof}
+
+\begin{proposition}[The transversal of $\Gamma_0(N)\backslash\Gamma$]\label{prop:cosets-4}
+  % mirrors [C] v1.16.0 prop:cosets (4) with def:cosetreps ("they exhaust Gamma''\Gamma")
+  \lean{GL2.Cosets.mem_Gamma0_iff_dvd, GL2.Cosets.mul_inv_apply_10, GL2.Cosets.mul_sInv_mem_Gamma0_iff,
+    GL2.Cosets.cosets_transversal, GL2.Cosets.cls_spec, GL2.Cosets.cls_eq, GL2.Cosets.cls_sSL}
+  \leanok
+  \uses{prop:cosets-rowclass}
+  $\gamma s_k^{-1}\in\Gamma_0(N)$ iff $\texttt{RowRel}$ holds on the bottom row of $\gamma$; hence every $\gamma\in\Gamma$ lies
+  in $\Gamma_0(N)s_k$ for exactly one $k<m$: the $s_k$ are a transversal of $\Gamma_0(N)\backslash\Gamma$ and the index is $m$.
+\end{proposition}
+\begin{proof}
+  \leanok
+  The bottom-left entry of $\gamma s^{-1}$ is $c\,s_{11}-d\,s_{10}$; the bottom row of an element of $\Gamma$ is coprime.
+\end{proof}
+
+\begin{proposition}[The two congruence subgroups and the conjugation]\label{prop:cosets-3}
+  % mirrors [C] v1.16.0 prop:cosets (3)
+  \lean{GL2.Cosets.mem_Gamma0Up, GL2.Cosets.conj_Gamma0_iff, GL2.Cosets.conj_Gamma0, GL2.Cosets.conj_Gamma0Up_iff,
+    GL2.Cosets.conj_formula}
+  \leanok
+  \uses{def:cosetreps}
+  For $\gamma\in\Gamma$: $\gamma g\in g\Gamma$ iff $N\mid c$, i.e.\ $\Gamma\cap g\Gamma g^{-1}=\Gamma_0(N)$; $g\gamma\in\Gamma g$ iff
+  $N\mid b$, i.e.\ $\Gamma\cap g^{-1}\Gamma g=\Gamma^0(N)$ (a subgroup); and
+  $g\left(\begin{smallmatrix}a&Nb\\c&d\end{smallmatrix}\right)=\left(\begin{smallmatrix}a&b\\Nc&d\end{smallmatrix}\right)g$.
+  Both indices are $m$ (Propositions~\ref{prop:cosets-4} and \ref{def:cosetreps-t}).
+\end{proposition}
+\begin{proof}
+  \leanok
+  Compare entries; the witness is $\left(\begin{smallmatrix}a&Nb\\c/N&d\end{smallmatrix}\right)$, resp.\
+  $\left(\begin{smallmatrix}a&b/N\\Nc&d\end{smallmatrix}\right)$, of determinant one.
+\end{proof}
+
+\begin{proposition}[The transversal of $\Gamma^0(N)\backslash\Gamma$]\label{def:cosetreps-t}
+  % mirrors [C] v1.16.0 def:cosetreps (the upper-triangular transporters t_j) and prop:mu (1)'s a_t
+  \lean{GL2.Cosets.tSL_coe, GL2.Cosets.mul_tInv_mem_Gamma0Up_iff, GL2.Cosets.tcosets_transversal}
+  \leanok
+  \uses{prop:cosets-rowclass, prop:cosets-3}
+  $\gamma t_k^{-1}\in\Gamma^0(N)$ iff $\texttt{RowRel}$ holds on $(b,a)$; every $\gamma$ lies in $\Gamma^0(N)t_k$ for exactly
+  one $k<m$.
+\end{proposition}
+\begin{proof}
+  \leanok
+  The top-right entry of $\gamma t^{-1}$ is $b-ak$, resp.\ $a-b\,p c$; the top row is coprime.
+\end{proof}
+
+% ----------------------------------------------------------------------
+\section{The double coset}
+
+\begin{proposition}[$\Gamma g\Gamma$ is the set of primitive matrices of determinant $N$]\label{prop:cosets}
+  % mirrors [C] v1.16.0 prop:cosets (1), first sentence
+  \lean{GL2.Cosets.mem_DC_iff, GL2.Cosets.upper_mem_DC, GL2.Cosets.exists_lower_zero, GL2.Cosets.isPrimitive_mul_iff,
+    GL2.Cosets.gMat_det, GL2.Cosets.gMat_isPrimitive, GL2.Cosets.DC_left_mul, GL2.Cosets.DC_right_mul}
+  \leanok
+  \uses{prop:cosets-3}
+  $\delta\in\Gamma g\Gamma$ iff $\det\delta=N$ and $\delta$ is primitive. The content is $\Gamma$-biinvariant.
+\end{proposition}
+\begin{proof}
+  \leanok
+  ([C] cites Shimura's elementary divisors; the Lean proof is direct at $N=p^\nu$.) Bézout on the first column puts $\delta$
+  in $\Gamma\left(\begin{smallmatrix}a&b\\0&d\end{smallmatrix}\right)$, $ad=N$. Since $ad$ is a power of $p$: if $p\nmid a$ or
+  $p\nmid d$ that entry is a unit, and if $p\mid a$, $p\mid d$ then $p\nmid b$; so $\gcd(a,b)=1$ or $\gcd(b,d)=1$. With
+  $ua+vb=1$: $\left(\begin{smallmatrix}a&b\\0&d\end{smallmatrix}\right)=\left(\begin{smallmatrix}1&0\\dv&1\end{smallmatrix}\right)
+  g\left(\begin{smallmatrix}a&b\\-v&u\end{smallmatrix}\right)$; with $ub+vd=1$:
+  $=\left(\begin{smallmatrix}b&-v\\d&u\end{smallmatrix}\right)g\left(\begin{smallmatrix}ua&1\\-1&0\end{smallmatrix}\right)$.
+\end{proof}
+
+\begin{proposition}[Hermite reduction]\label{prop:cosets-hermite}
+  % mirrors [C] v1.16.0 prop:cosets (1), proof: Hermite normal form, existence and uniqueness
+  \lean{GL2.Cosets.hermite_exists, GL2.Cosets.hermite_unique}
+  \leanok
+  \uses{prop:cosets}
+  Every integral $\delta$ with $\det\delta>0$ lies in $\Gamma\left(\begin{smallmatrix}a&b\\0&d\end{smallmatrix}\right)$ with
+  $a,d>0$, $0\le b<d$, and two such forms in one coset $\Gamma\delta$ coincide. (Only existence and uniqueness of the Hermite form is formalised here. The explicit list of right cosets in
+  $\Gamma g\Gamma$ for general $\nu$, namely the $\Gamma\left(\begin{smallmatrix}N/d&b\\0&d\end{smallmatrix}\right)$ with
+  $\gcd(N/d,b,d)=1$ each once, is \emph{not} formalised: the list is a theorem only at $\nu=1$
+  (\texttt{rightCosets\_nu\_one}), and the count $m$ is proved separately (\texttt{rightCosets}).)
+\end{proposition}
+\begin{proof}
+  \leanok
+  Bézout, $\pm I$, then $T^{-\lfloor b/d\rfloor}$. Uniqueness: the connecting element is upper triangular with positive
+  diagonal and determinant one, hence $T^x$, and $0\le b,b+xd<d$ forces $x=0$.
+\end{proof}
+
+\begin{proposition}[The left cosets $\delta_k\Gamma$]\label{prop:cosets-5}
+  % mirrors [C] v1.16.0 prop:cosets (5)
+  \lean{GL2.Cosets.deltaMat_mem_DC, GL2.Cosets.deltaMat_det, GL2.Cosets.leftCosets}
+  \leanok
+  \uses{prop:cosets-4, prop:cosets-3}
+  $\delta_k=s_k^{-1}g$ is integral of determinant $N$, and every $\delta\in\Gamma g\Gamma$ lies in $\delta_k\Gamma$ for exactly
+  one $k<m$: $\Gamma g\Gamma=\bigsqcup_{k<m}\delta_k\Gamma$. \textbf{For the canonical representatives} $s_k$ of
+  \texttt{def:cosetreps} only; [C] states (5) for any transversal of $\Gamma''\backslash\Gamma$ (F3 finding 9; the generalisation is
+  carried to M2).
+\end{proposition}
+\begin{proof}
+  \leanok
+  $\delta=\gamma_1g\gamma_2$; with $k=\mathrm{cls}(\gamma_1^{-1})$, $h=\gamma_1^{-1}s_k^{-1}\in\Gamma_0(N)$ and $h^{-1}g=gu$
+  (Proposition~\ref{prop:cosets-3}), so $\delta=s_k^{-1}g\,u\gamma_2$. If $\delta=\delta_{k'}\gamma'$ then
+  $(s_{k'}\gamma_1)g=g(\gamma'\gamma_2^{-1})$, so $s_{k'}\gamma_1\in\Gamma_0(N)$ and $\mathrm{cls}(\gamma_1^{-1})=k'$.
+\end{proof}
+
+\begin{proposition}[Transposition; the right cosets]\label{prop:cosets-2}
+  % mirrors [C] v1.16.0 prop:cosets (2) and the count of (1)
+  \lean{GL2.Cosets.trSL, GL2.Cosets.gMat_transpose, GL2.Cosets.transpose_mem_DC, GL2.Cosets.rightCosets}
+  \leanok
+  \uses{prop:cosets-5}
+  Transposition maps $\Gamma g\Gamma$ onto itself, and $\Gamma g\Gamma=\bigsqcup_{k<m}\Gamma\delta_k^{\top}$: exactly $m$ right
+  cosets.
+\end{proposition}
+\begin{proof}
+  \leanok
+  $(\gamma_1g\gamma_2)^\top=\gamma_2^\top g\gamma_1^\top$; apply Proposition~\ref{prop:cosets-5} to $\delta^\top$.
+\end{proof}
+
+\begin{proposition}[$\nu=1$: the explicit right cosets]\label{prop:cosets-1nu1}
+  % mirrors [C] v1.16.0 prop:cosets (1), last sentence
+  \lean{GL2.Cosets.betaMat, GL2.Cosets.betaMat_hermite, GL2.Cosets.rightCosets_nu_one}
+  \leanok
+  \uses{prop:cosets-hermite}
+  $\Gamma g\Gamma=\bigsqcup_{0\le b<p}\Gamma\beta_b\sqcup\Gamma\beta_\infty$, $\beta_b=\left(\begin{smallmatrix}1&b\\0&p\end{smallmatrix}\right)$,
+  $\beta_\infty=\mathrm{diag}(p,1)$, each coset once.
+\end{proposition}
+\begin{proof}
+  \leanok
+  The Hermite form has $ad=p$, so $(a,d)=(1,p)$ with $0\le b<p$, or $(p,1)$ with $b=0$; uniqueness by Hermite uniqueness.
+\end{proof}
+
+% ----------------------------------------------------------------------
+\section{The cocycle}
+
+\begin{lemma}[The cocycle is a cocycle]\label{lem:cocycle}
+  % mirrors [C] v1.16.0 lem:cocycle (all but the bound)
+  \lean{GL2.Cosets.act_lt, GL2.Cosets.hcoc_mem, GL2.Cosets.hcoc_eq, GL2.Cosets.act_one, GL2.Cosets.act_mul,
+    GL2.Cosets.hcoc_mul, GL2.Cosets.hcoc_one}
+  \leanok
+  \uses{prop:cosets-4}
+  $k\cdot\gamma<m$, $h_k(\gamma)\in\Gamma_0(N)$, $s_k\gamma=h_k(\gamma)s_{k\cdot\gamma}$; $k\cdot1=k$,
+  $k\cdot(\gamma_1\gamma_2)=(k\cdot\gamma_1)\cdot\gamma_2$ (a right action on $\{0,\dots,m-1\}$), and
+  $h_k(\gamma_1\gamma_2)=h_k(\gamma_1)\,h_{k\cdot\gamma_1}(\gamma_2)$, $h_k(1)=I$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  $s_k\gamma_1\gamma_2s_{k_2}^{-1}=h_k(\gamma_1)h_{k_1}(\gamma_2)\in\Gamma_0(N)$, so uniqueness of the class gives the action
+  law; the cocycle identity is then group algebra.
+\end{proof}
+
+\begin{lemma}[The transporter bound]\label{lem:cocycle-bound}
+  % mirrors [C] v1.16.0 lem:cocycle, last sentence
+  \lean{GL2.Cosets.coe_inv_apply, GL2.Cosets.sSL_bound}
+  \leanok
+  \uses{def:cosetreps}
+  For $k<m$, $|s_k|\le N$ and $|s_k^{-1}|\le N$ entrywise.
+\end{lemma}
+\begin{proof}
+  \leanok
+  The entries lie in $\{0,\pm1,k,pc\}$ with $k<N$, $pc<N$; $s_k^{-1}$ is the adjugate.
+\end{proof}
+
+% ----------------------------------------------------------------------
+\section{Entry bounds}
+
+\begin{lemma}[Submultiplicativity]\label{lem:bounds}
+  % mirrors [C] v1.16.0 lem:bounds (1)
+  \lean{GL2.Cosets.mnorm, GL2.Cosets.mnorm_nonneg, GL2.Cosets.abs_le_mnorm, GL2.Cosets.mnorm_le_iff,
+    GL2.Cosets.mnorm_mul, GL2.Cosets.mnorm_prod}
+  \leanok
+  $\|AB\|\le2\|A\|\|B\|$ for $\|A\|=\max|A_{ij}|$, and a product of $k+1$ matrices is bounded by $2^{k}\prod_t\|A_t\|$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  Each entry of $AB$ is a sum of two products; induction on the list.
+\end{proof}
+
+\begin{lemma}[Fixed input data and cocycles]\label{lem:bounds-23}
+  % mirrors [C] v1.16.0 lem:bounds (2) (s_j, s_j^{-1}, delta_j, g) and (3)
+  \lean{GL2.Cosets.fixed_data_bound, GL2.Cosets.hcoc_bound}
+  \leanok
+  \uses{lem:bounds, lem:cocycle-bound, lem:cocycle}
+  For $k<m$: $\|s_k\|,\|s_k^{-1}\|,\|\delta_k\|,\|g\|\le N$, and $\|h_k(\gamma)\|\le4N^2\|\gamma\|$. (The clause
+  $\|\gamma\|\le1$ on the generator multiset is a property of the fixed model, G2.)
+\end{lemma}
+\begin{proof}
+  \leanok
+  The second column of $s_k^{-1}$ has entries in $\{0,\pm1\}$, so scaling it by $N$ keeps the bound; (3) is (1) twice.
+\end{proof}
+
+\begin{lemma}[The Euclidean reduction (P2)]\label{lem:bounds-4}
+  % mirrors [C] v1.16.0 lem:bounds (4), for (P2)
+  \lean{GL2.Cosets.eucl_step_entry, GL2.Cosets.EuclStep, GL2.Cosets.eucl_step_bound, GL2.Cosets.eucl_run_bound}
+  \leanok
+  \uses{lem:bounds}
+  For $ad-bc=1$, $c\ne0$ and a nearest-integer $q$ ($2|a-qc|\le|c|$): $|b-qd|\le\max(|d|,2)$. Hence a step $T^{-q}$ or
+  $S^{-1}$ of (P2) never raises $\|M\|$ above $\max(\|M\|,2)$, and every intermediate of a run on $\gamma$ has
+  $\|M\|\le\max(\|\gamma\|,2)$. ((P3)'s variant with $\det=N$ is not stated; it is coset algebra and goes on the G2 intake list. \texttt{EuclStep} is an abstract step relation covering every run of such steps, hence implies the (P2) bound; it is not tied to the C++ routine.)
+\end{lemma}
+\begin{proof}
+  \leanok
+  $|b'||c|=|a'd-1|\le|a'||d|+1\le|c||d|/2+1$; induction along \texttt{Relation.ReflTransGen}.
+\end{proof}
+
+% ----------------------------------------------------------------------
+\section{The two routes and the middle map}
+
+\begin{proposition}[The two evaluation routes agree on the nose]\label{prop:tworoutes}
+  % mirrors [C] v1.16.0 prop:tworoutes (algebraic content; the cochain wrapping is G2)
+  \lean{GL2.Cosets.rhoR, GL2.Cosets.rhoR_mul, GL2.Cosets.rhoR_eq_map, GL2.Cosets.Term, GL2.Cosets.fusedRoute,
+    GL2.Cosets.directRoute, GL2.Cosets.tworoutes_term, GL2.Cosets.tworoutes}
+  \leanok
+  \uses{prop:cosets-5, prop:symconv}
+  $\delta_k\gamma=s_k^{-1}(g\gamma)$ in $\mathrm{Mat}_2(\mathbb Z)$, so $\rho_n(\delta_k\gamma)=\rho_n(s_k^{-1})\rho_n(g\gamma)$ as matrices
+  over every commutative ring $R$, term by term; for any stored datum $(n_t,\gamma_t,c_t)_{k,t}$ the fused route
+  $\sum_k\rho(s_k^{-1})\sum_tn_t\rho(g\gamma_t)c_t$ equals route 2 $\sum_k\sum_tn_t\rho(\delta_k\gamma_t)c_t$, with no hypothesis on
+  $\ell$. Reducing once at the end equals reducing the factors (\texttt{rhoR\_eq\_map}).
+\end{proposition}
+\begin{proof}
+  \leanok
+  Associativity in $\mathrm{Mat}_2(\mathbb Z)$ and Theorem~\ref{prop:symconv}; linearity of \texttt{mulVec}.
+\end{proof}
+
+\begin{proposition}[The middle cochain map $\mu_\bullet$: closed form and $\mu\alpha=\Xi_g$]\label{prop:mu}
+  % mirrors [C] v1.16.0 prop:mu (1) and (3), algebraic content; (2) and eq:evalone are G2
+  \lean{GL2.Cosets.mu_term, GL2.Cosets.xiSlot, GL2.Cosets.mu_alpha, GL2.Cosets.omega_mu_alpha}
+  \leanok
+  \uses{prop:tworoutes, def:cosetreps-t}
+  For $t\in\Gamma$: $g\gamma t^{-1}$ is integral of determinant $N\det\gamma$ and $\rho(g\gamma t^{-1})\rho(t)=\rho(g\gamma)$. Hence
+  for any choice of transporters $a(\gamma_t)$ (in particular $t_{1\cdot\gamma_t}$, Proposition~\ref{def:cosetreps-t}) and every
+  slot: $\sum_tn_t\rho(g\gamma_tt_{a_t}^{-1})\rho(t_{a_t})c_t=\sum_tn_t\rho(g\gamma_t)c_t$ ($\mu_\bullet\alpha_\bullet=\Xi_g$ entry for entry),
+  and $\omega_\bullet\mu_\bullet\alpha_\bullet$ is route 2 bit-identically.
+\end{proposition}
+\begin{proof}
+  \leanok
+  $(g\gamma t^{-1})t=g\gamma$ in $\mathrm{Mat}_2(\mathbb Z)$, then Proposition~\ref{prop:tworoutes}.
+\end{proof}
+
+% ----------------------------------------------------------------------
+\section{The boundary cosets}
+
+\begin{definition}[$\Gamma_\partial$ and $B_N$]\label{def:bdrycosets}
+  % mirrors [C] v1.16.0 prop:bdrycosets (setting), Gamma_partial = {+-T^k}
+  \lean{GL2.Cosets.GammaBd, GL2.Cosets.mem_GammaBd, GL2.Cosets.gammaBd_iff, GL2.Cosets.BN, GL2.Cosets.DC_det}
+  \leanok
+  \uses{prop:cosets}
+  $\Gamma_\partial$ is the subgroup of upper-triangular elements of $\Gamma$, and equals $\{\pm T^k\}$ (\texttt{gammaBd\_iff});
+  $B_N=\{\delta\in\Gamma g\Gamma:\delta\text{ upper triangular}\}$.
+\end{definition}
+\begin{proof}
+  \leanok
+  An upper-triangular element of $\mathrm{SL}_2(\mathbb Z)$ has diagonal $\pm(1,1)$.
+\end{proof}
+
+\begin{proposition}[Bijection with the bulk cosets; the count]\label{prop:bdrycosets}
+  % mirrors [C] v1.16.0 prop:bdrycosets (2), and (1)'s count for every nu
+  \lean{GL2.Cosets.bd_inj, GL2.Cosets.bd_surj, GL2.Cosets.bd_fibre, GL2.Cosets.bd_leftCosets}
+  \leanok
+  \uses{def:bdrycosets, prop:cosets-5}
+  $\delta\Gamma_\partial\mapsto\delta\Gamma$ is a bijection $B_N/\Gamma_\partial\to\Gamma g\Gamma/\Gamma$: if $\delta,\delta\gamma\in B_N$
+  then $\gamma\in\Gamma_\partial$, and every $\delta\Gamma$ meets $B_N$. For each $\delta\in\Gamma g\Gamma$ the $\gamma$ with
+  $\delta\gamma\in B_N$ form one left coset $\gamma_0\Gamma_\partial$ ([C]: ``$\gamma_j\cdot\infty=\delta_j^{-1}\cdot\infty$''), and for
+  any such choice $\gamma_k$ the $\delta_k\gamma_k$, $k<m$, represent $B_N/\Gamma_\partial$, each class once: $B_N$ is a disjoint
+  union of exactly $m$ left cosets of $\Gamma_\partial$, for every $\nu$.
+\end{proposition}
+\begin{proof}
+  \leanok
+  $(\delta\gamma)_{10}=\delta_{11}\gamma_{10}$ with $\delta_{11}\ne0$; surjectivity is Bézout on the bottom row; the count is
+  Proposition~\ref{prop:cosets-5}.
+\end{proof}
+
+\begin{proposition}[$\nu=1$: the left cosets and the $T$-identities]\label{prop:bdrycosets-1}
+  % mirrors [C] v1.16.0 prop:bdrycosets (1) at nu = 1
+  \lean{GL2.Cosets.dbd, GL2.Cosets.dbd_T_identities, GL2.Cosets.dbd_mem, GL2.Cosets.upper_right_unique,
+    GL2.Cosets.bd_leftCosets_nu_one}
+  \leanok
+  \uses{prop:bdrycosets}
+  $B_p=\delta^\partial_\infty\Gamma_\partial\sqcup\bigsqcup_{0\le t<p}\delta^\partial_t\Gamma_\partial$, each once, with
+  $\delta^\partial_\infty=g$, $\delta^\partial_t=\left(\begin{smallmatrix}p&t\\0&1\end{smallmatrix}\right)$; and
+  $T\delta^\partial_\infty=\delta^\partial_\infty T^p$, $T\delta^\partial_t=\delta^\partial_{t+1}$ ($t<p-1$),
+  $T\delta^\partial_{p-1}=\delta^\partial_0T$.
+\end{proposition}
+\begin{proof}
+  \leanok
+  Normalise the sign by $-I$ and $b$ modulo $a$ by $T^{-q}$ on the right; $a\mid p$. Uniqueness: the connecting element is
+  $T^x$ and $0\le b,b+ax<a$.
+\end{proof}
+
+\begin{proposition}[$\nu=1$: two double cosets]\label{prop:bdrycosets-3}
+  % mirrors [C] v1.16.0 prop:bdrycosets (3)
+  \lean{GL2.Cosets.bd_stabilisers, GL2.Cosets.bd_doubleCosets}
+  \leanok
+  \uses{prop:bdrycosets-1}
+  Every $u\in\Gamma_\partial$ has $u\delta^\partial_\infty\in\delta^\partial_\infty\Gamma_\partial$ (the intersection
+  $\Gamma_\partial\cap\delta^\partial_\infty\Gamma_\partial(\delta^\partial_\infty)^{-1}$ is $\Gamma_\partial$), and
+  $u\delta^\partial_0\in\delta^\partial_0\Gamma_\partial$ iff $p\mid u_{01}$ (the intersection is $\langle T^p\rangle\times\langle-I\rangle$, of
+  index $p$). $B_p=\Gamma_\partial\delta^\partial_\infty\Gamma_\partial\sqcup\Gamma_\partial\delta^\partial_0\Gamma_\partial$.
+\end{proposition}
+\begin{proof}
+  \leanok
+  Entry comparison; disjointness: $|\delta_{00}|$ is $1$ on the first double coset and $p$ on the second.
+\end{proof}
+
+\begin{proposition}[$\nu=1$: the right cosets are the wrong ones]\label{prop:bdrycosets-4}
+  % mirrors [C] v1.16.0 prop:bdrycosets (4)
+  \lean{GL2.Cosets.bd_rightCosets_nu_one}
+  \leanok
+  \uses{prop:cosets-1nu1, def:bdrycosets}
+  Every $\delta\in B_p$ is $u\beta$ with $u\in\Gamma_\partial$ for exactly one $\beta\in\{\beta_0,\dots,\beta_{p-1},\beta_\infty\}$: the
+  $\beta$'s represent $\Gamma_\partial\backslash B_p$. (That they give the $\det$-twisted operator is
+  Proposition~\ref{prop:bdrychar-2}.)
+\end{proposition}
+\begin{proof}
+  \leanok
+  Proposition~\ref{prop:cosets-1nu1} gives $\delta=\gamma\beta$; $\gamma=\delta\beta^{-1}$ is upper triangular.
+\end{proof}
+
+% ----------------------------------------------------------------------
+\section{The boundary characters}
+
+\begin{definition}[$\mathrm{Nm}$, $f_b$, the reduced representatives]\label{def:bdrychar}
+  % mirrors [C] v1.16.0 prop:bdrychar (setting)
+  \lean{GL2.Cosets.Nm, GL2.Cosets.fB, GL2.Cosets.chi, GL2.Cosets.Tm, GL2.Cosets.Tk, GL2.Cosets.dInf, GL2.Cosets.dT,
+    GL2.Cosets.bB, GL2.Cosets.bInf, GL2.Cosets.dbd_map, GL2.Cosets.betaMat_map, GL2.Cosets.natCast_pow_char,
+    GL2.Cosets.natCast_pow_sub_one, GL2.Cosets.pow_sub_mul_char}
+  \leanok
+  \uses{conv:symconv, prop:bdrycosets-1, prop:cosets-1nu1}
+  $R$ commutative of characteristic $\ell$ prime, $\ell\nmid p$. $\mathrm{Nm}=y^\ell-x^{\ell-1}y$ ([C]'s closed form of
+  $\prod_{c\in\mathbb F_\ell}(y+cx)$; the product form is not formalised), $f_b=x^{n-b\ell}\mathrm{Nm}^b$, $\chi_b(p)=p^b+p^{n+1-b}$; the
+  representatives reduced into $R$ are those of Propositions~\ref{prop:bdrycosets-1} and \ref{prop:cosets-1nu1}
+  (\texttt{dbd\_map}, \texttt{betaMat\_map}). Fermat: $k^\ell=k$, $p^{\ell-1}=1$, $p^{n-b\ell}=p^{n-b}$ in $R$.
+\end{definition}
+\begin{proof}
+  \leanok
+  Through \texttt{ZMod.castHom} $\mathbb Z/\ell\to R$.
+\end{proof}
+
+\begin{proposition}[The boundary characters, left cosets]\label{prop:bdrychar}
+  % mirrors [C] v1.16.0 prop:bdrychar (1): T-invariance of f_b and the eigenvalue chi_b (fibre level)
+  \lean{GL2.Cosets.subst_x, GL2.Cosets.subst_y, GL2.Cosets.subst_Tm_Nm, GL2.Cosets.subst_dInf_Nm,
+    GL2.Cosets.subst_dT_Nm, GL2.Cosets.fB_T_invariant, GL2.Cosets.bdrychar_left, GL2.Cosets.bdrychar_invariants_mem}
+  \leanok
+  \uses{def:bdrychar}
+  $T\cdot\mathrm{Nm}=\mathrm{Nm}$, $\delta^\partial_\infty\cdot\mathrm{Nm}=p\,\mathrm{Nm}$, $\delta^\partial_t\cdot\mathrm{Nm}=\mathrm{Nm}$; so
+  $R[x,\mathrm{Nm}]_n\subseteq V^T$ and, for $b\ell\le n$,
+  $\bigl(\rho(\delta^\partial_\infty)+\sum_{t<p}\rho(\delta^\partial_t)\bigr)f_b=\chi_b(p)f_b$. That this sum over $B_p/\Gamma_\partial$ is
+  $\Theta^\partial_g$ on $H^0(C^\bullet_\partial)$ is [C] \texttt{prop:bdryop}(2), G2.
+\end{proposition}
+\begin{proof}
+  \leanok
+  Frobenius $(u+v)^\ell=u^\ell+v^\ell$ in $R[x,y]$ and Fermat; $\delta^\partial_t$ contributes $p^{n-b\ell}=p^{n-b}$, $p$ times.
+\end{proof}
+
+\begin{theorem}[{{The invariants $V^T\subseteq R[x,\mathrm{Nm}]_n$}}]\label{prop:bdrychar-inv}
+  % mirrors [C] v1.16.0 prop:bdrychar (1), first sentence (the inclusion V^T in R[x,Nm]_n)
+  \lean{GL2.Cosets.bdrychar_invariants, GL2.Cosets.homog_eq_of_dehom_eq, GL2.Cosets.dehom_subst_Tm,
+    GL2.Cosets.const_of_comp_invariant, GL2.Cosets.comp_invariant_span}
+  \leanok
+  \uses{prop:bdrychar}
+  Every $T$-invariant homogeneous $f$ of degree $n$ is $\sum_{b\le\lfloor n/\ell\rfloor}a_bf_b$ ($R$ any commutative ring of
+  characteristic $\ell$).
+\end{theorem}
+\begin{proof}
+  \leanok
+  (L18-4; stated at L17-3.) Not [C]'s route (division by the monic $\mathrm{Nm}$ over $R[x]$), but L17-3's: dehomogenise
+  ($x\mapsto1$, injective on degree-$n$ forms); $T$ becomes $Y\mapsto Y+1$; divide by the monic $Y^\ell-Y$, which is
+  $Y\mapsto Y+1$ invariant, so by uniqueness of division quotient and remainder are invariant; an invariant remainder of degree
+  $<\ell$ is constant (its $Y^{d-1}$ coefficient after the shift is $d\cdot\mathrm{lc}$, $d$ a unit); recurse on the quotient
+  (degree drops by $\ell$); rehomogenise.
+\end{proof}
+
+\begin{proposition}[The $f_b$ are independent]\label{prop:bdrychar-indep}
+  % mirrors [C] v1.16.0 prop:bdrychar (1), the rank floor(n/ell)+1
+  \lean{GL2.Cosets.monic_pow_indep, GL2.Cosets.dehom, GL2.Cosets.dehom_fB, GL2.Cosets.monic_artinSchreier,
+    GL2.Cosets.bdrychar_invariants_indep}
+  \leanok
+  \uses{def:bdrychar}
+  The $f_b$, $b\le\lfloor n/\ell\rfloor$, are $R$-linearly independent; with Theorem~\ref{prop:bdrychar-inv} and
+  Proposition~\ref{prop:bdrychar}, $V^T$ is free of rank $\lfloor n/\ell\rfloor+1$.
+\end{proposition}
+\begin{proof}
+  \leanok
+  Dehomogenise ($x\mapsto1$): $f_b\mapsto(Y^\ell-Y)^b$, powers of a monic polynomial of degree $\ell\ge1$; read the coefficient of
+  $Y^{k\ell}$ from the top.
+\end{proof}
+
+\begin{proposition}[The right cosets give $\chi_{b+1}$; $M_\beta$ preserves $V^T$]\label{prop:bdrychar-2}
+  % mirrors [C] v1.16.0 prop:bdrychar (2)
+  \lean{GL2.Cosets.subst_bB_Nm, GL2.Cosets.subst_bInf_Nm, GL2.Cosets.bdrychar_right, GL2.Cosets.Tk_add,
+    GL2.Cosets.fixed_Tk_mul, GL2.Cosets.fixed_Tp_iff, GL2.Cosets.Mbeta_preserves}
+  \leanok
+  \uses{prop:bdrychar, prop:bdrycosets-4}
+  With $\beta_b,\beta_\infty$ in place of the left representatives, $f_b$ has eigenvalue $\chi_{b+1}(p)$: the two operators
+  differ. $M_\beta=\sum_{b'<p}\rho(\beta_{b'})+\rho(\beta_\infty)$ maps $V^T$ into itself, by $T\beta_b=\beta_bT^p$,
+  $T^p\beta_\infty=\beta_\infty T$ and $V^{T^p}=V^T$ ($\ell\nmid p$). It is asserted on $V^T$ only, as in [C].
+\end{proposition}
+\begin{proof}
+  \leanok
+  $\beta_{b'}\cdot\mathrm{Nm}=p\,\mathrm{Nm}$, $\beta_\infty\cdot\mathrm{Nm}=\mathrm{Nm}$. $V^{T^p}=V^T$: $\rho(T^k)$ depends on $k\bmod\ell$, and
+  $pa\equiv1\bmod\ell$ for some $a$.
+\end{proof}
+
+% ----------------------------------------------------------------------
+\section{The key model of $K^u$ (entry point of M2)}
+
+\begin{definition}[Transporter model, canonical key]\label{def:keymodel}
+  % NOTE: [GT]-only label (L16-4); not a [C] label. Holds relative to the groupoid axioms; \texttt{Rel} is the definition of same simplex; orientation sign not modelled.
+  % L16-4 limit 1; [C] def:primitives (P4), H4 (the model certificate)
+  \lean{GL2.Ku.KeyModel, GL2.Ku.Rel, GL2.Ku.KeyT, GL2.Ku.lexKey, GL2.Ku.cands, GL2.Ku.canon}
+  \leanok
+  A model datum on a type of simplices: an orbit representative $\hat\sigma$ and finite transporter sets
+  $S(\sigma_1,\sigma_2)\subseteq\Gamma$ forming a groupoid (identity, composition, inverses), with $S(\sigma,\hat\sigma)\ne\emptyset$ and
+  $\hat\sigma$ constant along $S$. A simplex $\gamma\iota(\sigma)$ of $K^u$ is a pair $(\gamma,\sigma)$ modulo
+  $(\gamma,\sigma)\sim(\gamma',\sigma')\iff\gamma^{-1}\gamma'\in S(\sigma,\sigma')$; its canonical key (P4) is
+  $(\hat\sigma,\min_{\mathrm{lex}}\{\gamma t:t\in S(\sigma,\hat\sigma)\})$, $\mathrm{lex}$ on $(a,b,c,d)$. The orientation sign is not modelled.
+\end{definition}
+\begin{proof}
+  \leanok
+  Definitions.
+\end{proof}
+
+\begin{theorem}[The canonical key is faithful]\label{thm:keymodel}
+  % L16-4 limit 1, discharged relative to the groupoid axioms (the content of validate_closure / [C] H4)
+  \lean{GL2.Ku.rel_equivalence, GL2.Ku.lexKey_injective, GL2.Ku.cands_nonempty, GL2.Ku.cands_eq, GL2.Ku.canon_faithful}
+  \leanok
+  \uses{def:keymodel}
+  $\sim$ is an equivalence relation, and $\mathrm{canon}(x)=\mathrm{canon}(y)\iff x\sim y$: canonical keys are a coordinate system on
+  the simplices of $K^u$. The connection to the dumped \texttt{TauData} of \S\ref{chk:tau} and the orientation sign are
+  Part G2 (\S\ref{thm:keymodel-tie}, \S\ref{thm:orkeymodel}; L18-1).
+\end{theorem}
+\begin{proof}
+  \leanok
+  Left translation by $\gamma^{-1}\gamma'$ is a bijection $S(\sigma',\rho)\to S(\sigma,\rho)$, so related pairs have the same
+  candidate set; conversely equal minima give $\gamma t=\gamma'u$, so $\gamma^{-1}\gamma'=tu^{-1}\in S(\sigma,\sigma')$.
+\end{proof}

@@ -1,0 +1,165 @@
+# 017_predictions.oc -- the two E6 PREDICTION units, `bernoulli_mod` and
+# `glover_factors`, bound from HeckeExt/RegisterHeckeExtensionVerbs.cpp
+# (slot-5 WP-10 item 1; the one deferral console C1b recorded, [WP4-5] Sec. 5
+# item 1 -- slot-4 WP-7 had not merged when C1b froze its transcripts).
+#
+# The two units are PURE in the sense that matters here: HeckePredictions
+# consumes only engine::ModCtx and GloverFactors does no modular arithmetic at
+# all, so this script pins PUBLISHED MATHEMATICS -- the Bernoulli numbers, the
+# irregular pairs of [E] Claim 1.8's Kummer list, the Glover / Ash-Stevens
+# composition factors -- and not golden objects, of which these units have
+# none.  Nothing here reads a list a sibling package could extend.
+#
+# THE det-TWIST CONVENTION `glover_factors` REPORTS IS THE PIPELINE'S OWN
+# ([WP4-7] F3, and what slot-5 WP-11 writes into [E] Sec. 2.3 item 6):
+# `Sym^n` is the symmetric power of the STANDARD module -- the one
+# `ComputeSymmetricPowerMatrixFM` acts on -- and not of its dual.  The dual
+# would shift every reported `det_twist` by -n, so the convention is part of
+# what the verb returns.
+
+include("prelude.oc");
+
+# ---------------------------------------------------------------------------
+# bernoulli_mod(w, ell) -- B_w in F_ell by the F_ell recursion
+# ([X] Sec. 2.1; von Staudt-Clausen makes B_w ell-integral for w < ell - 1).
+# ---------------------------------------------------------------------------
+#
+# Each pin is the RATIONAL B_w = sign * num / den, checked as
+# `bernoulli_mod(w, ell) * den == sign * num  (mod ell)` -- so what is frozen
+# here is the published Bernoulli number, never a copied residue.  The
+# right-hand side is folded into [0, ell) by hand, because `%` in this language
+# is C-truncated and a negative numerator would leave a negative remainder.
+
+BERN = [[0, 1, 1, 1], [1, -1, 1, 2], [2, 1, 1, 6], [4, -1, 1, 30],
+        [6, 1, 1, 42], [8, -1, 1, 30], [10, 1, 5, 66], [12, -1, 691, 2730],
+        [14, 1, 7, 6], [16, -1, 3617, 510], [18, 1, 43867, 798],
+        [20, -1, 174611, 330]];
+
+for ell in [131, 691, 134217757] {
+    for b in BERN {
+        w = b[0];
+        sign = b[1];
+        num = b[2];
+        den = b[3];
+        # Every w here is < ell - 1 at every ell of the list, so the residue is
+        # defined; den is prime to ell for the same reason (von Staudt-Clausen).
+        lhs = bernoulli_mod(w, ell) * den % ell;
+        rhs = num % ell;
+        if sign < 0 { rhs = (ell - rhs) % ell; }
+        assert(lhs == rhs,
+               "B_" + str(w) + " mod " + str(ell) + " is the published rational");
+    }
+}
+print(bernoulli_mod(0, 691), bernoulli_mod(1, 691), bernoulli_mod(2, 691),
+      bernoulli_mod(12, 691));
+
+# The recursion is valid EXACTLY on 0 <= w < ell - 1, and refuses outside it by
+# name rather than returning a wrong value ([X] Sec. 2.1: at w = ell - 1 von
+# Staudt-Clausen puts ell in the denominator and there is no residue to return).
+assert(bernoulli_mod(689, 691) + 1 > 0, "w = ell - 2 is inside the range");
+expect_error "von Staudt-Clausen" {
+    bernoulli_mod(690, 691)
+}
+
+# ---------------------------------------------------------------------------
+# [E] Claim 1.8's KUMMER LIST, derived rather than copied.
+# ---------------------------------------------------------------------------
+#
+# A cell (n, ell) is Kummer iff ell | num(B_k / k) with k = n + 2.  On every
+# cell of the list k < ell - 1, so ell does not divide den(B_k) and does not
+# divide k either; the condition is therefore exactly `B_k == 0 in F_ell`,
+# which is one `bernoulli_mod` call.  This is the predicate [E] cl:harder is
+# stated in, and the one HeckeExt/HeckeBoundary still reads off a PINNED table
+# limited to k <= 26 -- the pin this unit exists to retire.
+
+KUMMER = [[10, 691], [14, 3617], [16, 43867], [18, 283], [18, 617],
+          [20, 131], [20, 593], [22, 103], [22, 2294797], [24, 657931]];
+kummer_seen = 0;
+for cell in KUMMER {
+    n = cell[0];
+    ell = cell[1];
+    k = n + 2;
+    assert(k < ell - 1, "the Kummer cell (" + str(n) + ", " + str(ell) +
+                        ") is inside the recursion's range");
+    assert(bernoulli_mod(k, ell) == 0,
+           "ell = " + str(ell) + " divides num(B_" + str(k) + ")");
+    kummer_seen = kummer_seen + 1;
+}
+assert(kummer_seen == 10, "all ten Kummer cells of [E] Claim 1.8 were checked");
+print(kummer_seen, bernoulli_mod(12, 691), bernoulli_mod(22, 131),
+      bernoulli_mod(26, 657931));
+
+# The 'only if' direction: an irregular prime is irregular at its OWN index and
+# nowhere else in this range, and every regular prime is regular throughout.
+assert(bernoulli_mod(14, 691) != 0, "691 is irregular at k = 12 only");
+assert(bernoulli_mod(12, 131) != 0, "131 is irregular at k = 22 only");
+for ell in [5, 7, 11, 13, 17, 19, 23, 29, 31] {
+    k = 2;
+    for step in range(1, (ell - 3) / 2) {
+        assert(bernoulli_mod(k, ell) != 0,
+               "ell = " + str(ell) + " is a regular prime (k = " + str(k) + ")");
+        k = k + 2;
+    }
+}
+# and the smallest irregular pair of all, (37, 32).
+assert(bernoulli_mod(32, 37) == 0, "(37, 32) is the smallest irregular pair");
+assert(bernoulli_mod(30, 37) != 0, "and 37 is regular at every other index");
+
+# ---------------------------------------------------------------------------
+# glover_factors(n, ell) -- the composition factors of Sym^n(F_ell^2)
+# ([E] Sec. identities item 6; the theta-multiplication recursion).
+# ---------------------------------------------------------------------------
+
+# Below the Steinberg bound Sym^n is IRREDUCIBLE, with no det-twist -- which is
+# why the coefficient module of the flagship cell (10, 691) is simple, and why
+# its H^1 story is not a Glover statement at all.
+for cell in [[10, 691], [0, 5], [4, 5], [10, 13], [24, 691]] {
+    n = cell[0];
+    ell = cell[1];
+    G = glover_factors(n, ell);
+    assert(n <= ell - 1, "the cell is below the Steinberg bound");
+    assert(G.length == 1, "Sym^" + str(n) + " is irreducible at ell = " + str(ell));
+    assert(G.factors[0].sym == n, "and it is Sym^n itself");
+    assert(G.factors[0].det_twist == 0, "with no det-twist");
+    assert(G.dimension == n + 1, "the composition factors span the module");
+}
+
+# The first reducible case at each ell is n = ell, where the theta recursion
+# takes its first step: Sym^ell has the two factors of a principal series.
+for ell in [5, 7, 11] {
+    G = glover_factors(ell, ell);
+    assert(G.length == 2, "Sym^ell has two composition factors at ell = " + str(ell));
+    assert(G.dimension == ell + 1, "which span it");
+}
+
+# The structural invariants, over a range wide enough to exercise the recursion
+# several times: dimension n + 1, every factor inside [0, ell - 1], the
+# SL_2(F_ell) multiplicities summing to the Jordan-Hoelder length, and the
+# central-character congruence sym + 2*det_twist == n (mod ell - 1).
+for ell in [5, 7, 13] {
+    for n in range(0, 3 * ell) {
+        G = glover_factors(n, ell);
+        assert(G.dimension == n + 1, "dim Sym^n = n + 1");
+        total = 0;
+        for f in G.factors {
+            assert(f.sym <= ell - 1, "every factor is a restricted weight");
+            assert(f.multiplicity >= 1, "every listed factor occurs");
+            assert((f.sym + 2 * f.det_twist - n) % (ell - 1) == 0,
+                   "the central character forces sym + 2*det == n mod ell - 1");
+            total = total + f.multiplicity;
+        }
+        assert(total == G.length, "the multiplicities sum to the length");
+        sl2 = 0;
+        for m in G.sl2_multiplicities { sl2 = sl2 + m; }
+        assert(sl2 == G.length, "and so do the SL_2 multiplicities");
+    }
+}
+
+G = glover_factors(10, 5);
+print(G.text);
+print(G.sl2_multiplicities, G.dimension, G.length);
+G = glover_factors(24, 5);
+print(G.text);
+
+assert(fingerprint() == "0x0000000000000000", "the defaults are untouched");
+annotate("017_predictions: bernoulli_mod + glover_factors through HeckeExt/");

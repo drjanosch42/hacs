@@ -1,0 +1,42 @@
+# 059_s25_descent_module_z.oc -- H^1 over Z as a presented Hecke module: DescentRecord.module_Z() (slot-25 EXPORT-Z, step 1).
+#
+# (module_Z("local") is step 1; module_Z() is step 2, F exact over Z: script 061.)
+# A = H^1(Gamma_0(N); Sym^n Z^2) = T (+) L with T the torsion and L = Z^r.  In generators "torsion first, then lifts of a basis of
+# L" every T_p is the block matrix [[tau, M], [0, F]].  Step 1 assembles tau (block-diagonal over the torsion primes) and M (per
+# torsion prime ell, against the local free generators of module(ell, K)) from the per-ell exports, under the named splitting
+# export_retraction/v1.  The free block F over Z is step 2: until then module_Z() says so, free_block = "pending(step 2)".
+set coefficient_ring = "Z";
+#
+# (1) Level 1, n = 10 (weight 12): T = Z/2 + Z/4 + Z/3, r = 3, char_Z(T_2) = (X - 2049)(X + 24)^2.
+D = descent(1, 10, [2, 3]);
+Z = D.module_Z("local");
+print("module_Z:", Z.status, " splitting:", Z.splitting, " free_block:", Z.free_block, " split:", Z.split);
+print("  invariant factors d_i:", Z.invariant_factors, " free rank:", Z.free_rank, " largest torsion prime:", Z.largest_torsion_prime);
+for g in Z.torsion_generators {
+    print("  torsion generator: ell", g.ell, " exponent", g.exponent, " d", g.d);
+}
+print("  T_2: tau =", Z.ops[0].tau, " F:", Z.ops[0].F, " char_Z:", Z.ops[0].charpoly_Z);
+for b in Z.ops[0].M {
+    print("  T_2: M at ell", b.ell, "(K =", b.K, "):", b.matrix);
+}
+for x in Z.retractions {
+    print("  retraction at ell", x.ell, ":", x.route, " K =", x.K, " fnv", x.fnv);
+}
+assert(Z.free_block == "pending(step 2)" and Z.ops[0].F == "pending(step 2)", "F over Z is step 2, said explicitly");
+assert(len(Z.invariant_factors) == 3 and Z.free_rank == 3, "T = Z/2 + Z/4 + Z/3, r = 3");
+#
+# (2) Level 11, n = 0: H^1 = Hom(Gamma_0(11)^ab, Z) is torsion-free, so tau and M are empty and A = L = Z^3.
+E = descent(11, 0, [2]);
+Y = E.module_Z("local");
+print("level 11, n = 0:", Y.status, " d_i:", Y.invariant_factors, " free rank:", Y.free_rank, " tau:", Y.ops[0].tau);
+#
+# (3) Level 8, n = 10: T = (Z/2)^3 + Z/4 + (Z/8)^2 + Z/3, r = 22; the record's torsion canon is printed beside tau.
+G = descent(8, 10, [3]);
+W = G.module_Z("local");
+print("level 8, n = 10:", W.status, " d_i:", W.invariant_factors, " free rank:", W.free_rank);
+for c in W.torsion_canon {
+    print("  torsion canon at ell", c.ell, ":", c.ops[0].invariants);
+}
+# Every script leaves the mathematical settings at their defaults (ConsoleScriptValidation).
+set coefficient_ring = "F_ell";
+assert(fingerprint() == "0x0000000000000000", "back at the defaults");

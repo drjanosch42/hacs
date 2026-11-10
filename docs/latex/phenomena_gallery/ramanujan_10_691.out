@@ -1,0 +1,11 @@
+dim H^q = [0, 3, 0]
+B_12 mod 691 = 0
+p = 2  1 + p^11 mod 691 = 667  Jordan type of T_p - a_p: [2, 1]
+p = 3  1 + p^11 mod 691 = 252  Jordan type of T_p - a_p: [2, 1]
+p = 5  1 + p^11 mod 691 = 684  Jordan type of T_p - a_p: [2, 1]
+p = 7  1 + p^11 mod 691 = 531  Jordan type of T_p - a_p: [2, 1]
+p = 691  1 + p^11 mod 691 = 1  Jordan type of T_p - a_p: [2, 1]
+maximal ideals: 1
+m: dim 3  f = 1  witness X + 24 (mod 691)  final true
+T_m: dim 2  Hilbert function [1, 1]  Gorenstein true
+module H^1_m: [LoewyProfile on H1: loewy [2, 1], socle [2, 1], not cyclic]

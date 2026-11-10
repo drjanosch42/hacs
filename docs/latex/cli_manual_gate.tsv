@@ -1,0 +1,36 @@
+# cli_manual_gate.tsv -- the committed lists of CliManualCoverageValidation's checks (7) and (8) (slot-24 DOCS-CLI).
+# One row per line, tab-separated: <kind> <name> <reason>.  '#' starts a comment line.
+#
+#   example  <verb>   a registered verb that needs no worked example; the reason says why.  Check (7) requires every
+#                     other verb to be called in a numbered script the manual names.  An entry for a verb that HAS an
+#                     example, or is not registered, is STALE and fails: removing an entry is progress, adding one
+#                     needs a reason.
+#   lever    <NAME>   an environment lever outside the scanned prefixes (ENGINE_, HECKE_DESCENT_, L23_) that the
+#                     environment chapter of docs/latex/cli_manual.tex must name as \env{NAME}.  An entry that no
+#                     source reads is STALE and fails.
+#   env-exempt <NAME> a scanned name the environment chapter need not name (reason required).
+example	exit	ends the script; documented in the OC language section (sec:language); a script that calls it cannot be frozen past the call
+example	save_state	writes a file (not served); documented with resume (ex:settings)
+example	help_markdown	prints the whole console reference, which is docs/console/console.md itself
+example	campaign_spec	reads a spec file by path (not served); the same parser is shown by campaign_spec_text in 048_c5c_ring_campaign.oc
+lever	HECKE_U_ELL_LOW_RANK	U_ell memory lever (rollback arm)
+lever	HECKE_COSET_STREAM	U_ell memory lever (rollback arm)
+lever	HECKE_PARALLEL_SETUP	U_ell memory lever (rollback arm)
+lever	HECKE_RANK1_CLOSED_FORM	U_ell memory lever (rollback arm)
+lever	HECKE_TAU_WIDE	the wide tier of U_ell (rollback arm)
+lever	HECKE_RHO2_STREAM	streamed route 2 (rollback arm)
+lever	HECKE_MODULE_STREAM	Z/ell^k module route (rollback arm)
+lever	HECKE_MODULE_EVAL	Z/ell^k module route (rollback arm)
+lever	HECKE_RHO_SIMD	Z/ell^k module route (rollback arm)
+lever	HECKE_ROUTE2_SHARED_MEMO	Z/ell^k module route (rollback arm)
+lever	HECKE_MODULE_PARALLEL	Z/ell^k module route (rollback arm)
+lever	HECKE_MODULE_MT	Z/ell^k module route (rollback arm)
+lever	HECKE_MODULE_TILE_WORK	Z/ell^k module route (rollback arm)
+lever	HECKE_MODULE_LEAN_PEAK	Z/ell^k module route (rollback arm)
+lever	HECKE_PRECISION_REUSE	saturation / Loewy cells (rollback arm)
+lever	HECKE_SAT_PERF	saturation cells (rollback arm)
+lever	HECKE_FIELD_DIET	field cells (rollback arm)
+lever	HECKE_FORMS_FASTMUL	forms algebra (rollback arm)
+lever	HECKE_FORMS_NTT_CACHE	forms algebra (rollback arm)
+lever	HECKE_FORMS_NTT3	forms algebra (rollback arm)
+lever	HECKE_LEVEL_N_GEN_ORDER	level-N generator order (rollback arm)

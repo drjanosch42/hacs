@@ -1,0 +1,91 @@
+# SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
+# SPDX-License-Identifier: LGPL-3.0-only WITH LicenseRef-CUDA-exception
+
+# %% [md] 10 -- over Z: congruences and the torsion-by-free extension, as certified statements.
+# Tour 09 gave the Hecke operators over Z as matrices. hecke_structure(N, n) ([C] sec:recordschema, item 8) says what they do to
+# the Hecke algebra T over Z: T^fr is its image on L = H^1/torsion, and the record gives the congruences between the components of
+# T^fr and how the torsion sits against L. Every field is a certified value or a named status, and the record as a whole is
+# final or pending. The four records and the descent below take about two seconds and 0.25 GiB together.
+#
+# Level 1, n = 10 (weight 12). L has two components: Eisenstein, T_p -> 1 + p^11, and cuspidal, T_p -> tau(p) (T_2 gives 2049 and -24).
+# C_T is the algebra congruence module T^fr/(I_Eis + I_cusp) ([C] def:heckeZcong). The record prints certified:0x2b3, and 0x2b3 = 691.
+# It is cyclic, and T^fr = Z x_{Z/691} Z is the ring of pairs (a, b) with a = b mod 691 ([C] prop:heckeZcong(3), (4); fp=certified). The
+# pair of T_n is (sigma_11(n), tau(n)), so this one ring statement is Ramanujan's tau(n) = sigma_11(n) mod 691 (for T_2: 2049 + 24 = 3 * 691).
+# G2 at 691: one maximal ideal, residue X + 24 (polynomials low to high), through both components; its local ring is monogenic of
+# rank 2, embedding dimension 1, Gorenstein, Hilbert function 1,1, Loewy length 2. G3's second route, v_691(B_12/12) = 1, agrees.
+#
+# The torsion is Z/2 (+) Z/4 (+) Z/3 (tour 08). G5: at 2 and at 3 the torsion point is common_certified with a free system (route
+# T_ell_level1, [C] thm:heckeZdescent(5)(i)). G6 says split_on_P at both: the extension splits for T' = Z[computed T_p], here
+# T_2, T_3, T_5. split_on_P is a statement about T' only: split for all of T would need [C] rmk:heckeZcbthree, a conjecture.
+
+# %% Ramanujan over Z: the record of (1, 10)
+set coefficient_ring = "Z";
+R = hecke_structure(1, 10);
+display(R.status);
+display(R.C_T);
+display(R.signature);
+
+# %% The local type at 691, and the congruence module (G2 and G3 of the body)
+assert(R.body[118] == "G2.ell=691.m[0].residue_degree=1", "the body of (1,10) moved");
+for i in range(118, 151) { display(R.body[i]); }
+
+# %% The torsion at 2 and 3: glue bounds, relation to the free part, split verdict (G4, G5, G6 of the body)
+for i in range(151, 176) { display(R.body[i]); }
+
+# %% [md] Torsion-by-free extensions: where the torsion does not split off.
+# Fix ell; tors_ell is the ell-torsion of H^1, e_ell its exponent. For K >= e_ell let eps_K be the class of the Hecke-module sequence
+# 0 -> tors_ell -> H^1_ell/ell^K -> L_ell/ell^K -> 0; the class of H^1_ell itself splits iff eps_K does ([C] prop:heckeZglue(2)(a)).
+# In a basis adapted to the torsion, T_p = [[B_p, 0], [beta_p, c_p]] with B_p on L/ell^K and c_p on tors_ell; a complement of the torsion
+# is the graph of an h in Hom(L/ell^e_ell, tors_ell), and it is stable under the computed T_p iff h B_p - c_p h = beta_p for all of them.
+# Unsolvable for the computed subalgebra T' implies non-split for T ([C] prop:heckeZglue(2)(b)): a certificate.
+# So non_split at a torsion point means exactly this: at that point the system has no solution, and hence no complement of the torsion
+# is stable under T. It also certifies that this torsion system equals a free one for all p (prop:heckeZglue(4), thm:heckeZdescent(5)(ii);
+# in G5: common_certified, route nonsplit). It does not give a non-zero element of the glue J: split implies J_ell = 0 and the converse
+# fails (prop:heckeZglue(2)(c)), and G4 stays at bounds.
+#
+# These three records have overall status final (binary cf93a542, which has U_2 and U_3 over Z_(2) and Z_(3), plan card Z2). They are
+# non-reduced (redQ=non_reduced_certified, C1=refused(non_reduced)); generation at 2 and 3 reads open(sandwich), and C_T reads not_run.
+# (The card HZ-EISUP, the Eisenstein U_p systems, is for the records with (C1) certified, which these are not.)
+# The non_split verdict does not wait: the certificate uses only T_p with p not dividing N (T_3, T_5, T_7 at N = 16), U_p is not among
+# them, and [C] sec:recordschema, item 8, states that non_split and split_by_support are statements about T. split_on_P is not: at
+# (27, 2), ell = 2, and (8, 4), ell = 3, it stays a statement about T'.
+
+# %% Level 16, n = 2: non_split at 2
+R = hecke_structure(16, 2);
+display(R.status);
+display(R.C_T);
+display(R.signature);
+display(R.body);
+
+# %% Level 27, n = 2: non_split at 3, split_on_P at 2
+R = hecke_structure(27, 2);
+display(R.status);
+display(R.C_T);
+display(R.signature);
+
+# %% Level 8, n = 4: non_split at 2, split_on_P at 3
+R = hecke_structure(8, 4);
+display(R.status);
+display(R.C_T);
+display(R.signature);
+
+# %% [md] Against tour 09: the block M is not the verdict.
+# module_Z() of tour 09 prints T_p = [[tau, M], [0, F]] on H^1 = T (+) Z^r. M is the Hom(free, torsion) block, and it depends on the chosen
+# basis: moving to another complement changes M by pi_B F - tau pi_B (tour 09), the same shape as h B_p - c_p h above. So M != 0 proves
+# nothing, and module_Z() does not decide: its field split is "unknown". The HeckeZ record is what decides. At (1, 30) M of T_2 is
+# non-zero at 2, 3 and 29, and yet the record reads G6=[2.pt[0]=split_on_P;3.pt[0]=split_on_P;5.pt[0]=split_on_P;29.pt[0]=split_by_support].
+#
+# Two limits, plainly. No level-1 non_split occurs in HeckeZ edition 1: its 12 non_split lines are (8,4), (8,10), (16,2), (16,4), (27,2),
+# (27,4), each full and anemic. And a basis-free class in Ext^1 is not computed: the record stores the verdict, not the class
+# ([C] thm:descentcert(7)(a) leaves the extension class open).
+
+# %% module_Z at (1, 30): M of T_2 is printed, split is unknown
+D = descent(1, 30, [2, 3]);
+Z = D.module_Z();
+display(Z.split);
+display(Z.ops[0].M);
+
+# %% The record of the same cell decides
+R = hecke_structure(1, 30);
+display(R.status);
+display(R.signature);

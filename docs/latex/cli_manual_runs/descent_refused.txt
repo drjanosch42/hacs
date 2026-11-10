@@ -1,0 +1,5 @@
+$ hacs -c 'print(cohomology(symmetric_power(sl2z_model(), 12, 5)).dims)' --set coefficient_ring=Z
+<string>:1:18: not implemented in this build: symmetric_power(...) failed
+  caused by: hecke::NotImplementedInThisBuild: not_implemented_in_this_build: console verb symmetric_power: coefficient_ring=Z is not honoured by this object (coefficient_ring=Z is honoured by the integral descent only: the descent record, the console verb descent, the campaign's descent cells; [C] thm:descentcert)
+  print(cohomology(symmetric_power(sl2z_model(), 12, 5)).dims)
+[exit 5]

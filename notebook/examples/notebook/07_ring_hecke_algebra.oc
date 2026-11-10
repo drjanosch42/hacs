@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
+# SPDX-License-Identifier: LGPL-3.0-only WITH LicenseRef-CUDA-exception
+
+# %% [md] 07 -- from F_ell to Z/ell^K: the Hecke algebra over a ring.
+# hecke_ring_algebra(n, ell, kmax) runs the module route over Z/ell^K and reads, per block (one system of
+# Hecke eigenvalues mod ell), the lattice Lambda_m = Z_ell^f (+) (+)_i Z/ell^{e_i} (free_rank f, torsion
+# rendered as a sum of cyclic groups), the Hilbert functions of A_1 = T_m / ell and of A_K, and whether
+# the algebra is stable in K. At (48, 7) one block carries 7-torsion.
+
+# %% The module route over Z/7^2
+# The coefficient ring is the default F_ell, stated here so that the file runs in any order in one session (08 sets Z).
+set coefficient_ring = "F_ell";
+R = hecke_ring_algebra(48, 7, 2);
+
+# %% Blocks, lattices, Hilbert functions
+display(R);

@@ -1,0 +1,91 @@
+# 025_e8_console_surface.oc -- console phase C5a (hecke-extensions slot 9,
+# WP-12): the console under coefficient_ring = Z/ell^k, member by member, as
+# [E] v1.10.0-pre.1 sec:ring (h) fixes it.
+#
+#   * honoured (ell >= 5): symmetric_power, cohomology(L) and its listed
+#     members, hecke(H, p) at r = 1 (p = ell included: U_ell) with
+#     .coefficient_ring, .A(q), .charpoly_free;
+#   * the FIELD members of a ring Cohomology (dims, C, Z, B, H, P): the
+#     object's own named std::logic_error -- there is no dim over Z/ell^k;
+#   * everything else: hecke::NotImplementedInThisBuild (exit 5 outside
+#     expect_error), including every pipeline verb at ell in {2, 3}, where the
+#     console lifts nothing in slot 9.
+#
+# expect_error matches a substring of the error, so the refusals are pinned by
+# the text each one must carry; the transcript prints only values.
+
+include("prelude.oc");
+
+set coefficient_ring = "Z/ell^2";
+L = symmetric_power(MODEL, N_SYM, ELL);
+H = cohomology(L);
+print(H);
+print(H.coefficient_ring, H.lengths, H.q_max, H.truncated, H.q_max_source, H.degrees);
+
+# ---------------------------------------------------------------------------
+# (1) The K-mode and the ladic_level state.
+# ---------------------------------------------------------------------------
+assert(H.ladic_type_certified, "(10, 691) is certified at K = 2");
+print(H.ladic_type(0), H.ladic_type(1), H.ladic_type(2));
+S = state(H).resumable;
+assert(S.budget_setting == "coefficient_ring" and not S.resumable, "a certified level is a COMPLETE state");
+assert(S.progress.kind == "ladic_level" and S.progress.budget.K == 2, "kind ladic_level, budget {K = 2}");
+print(S.progress.reached, S.progress.complete);
+expect_error "is complete" { resume(H, "Z/ell^3") }
+
+# ---------------------------------------------------------------------------
+# (2) The Hecke action over Z/691^2: T_2 and U_691.
+# ---------------------------------------------------------------------------
+T = hecke(H, 2);
+assert(T.coefficient_ring == "Z/ell^2", "the operator is over the cohomology's ring");
+assert(len(T.A(1)) == 3 and len(T.A(1)[0]) == 3, "A^{(1)}(T_2) on the three cyclic summands of H^1");
+# The Eisenstein and the cuspidal eigenvalues, lifted: 2049 = 1 + 2^11 and
+# -24 = tau(2) (HeckeReductionValidation D6): charpoly_free = (x - 2049)(x + 24)^2
+# over Z/691^2, whose coefficients are these.
+C = T.charpoly_free;
+assert(C.precision == 2 and C.coeffs == [252219, 379705, 475480, 1], "charpoly_free of T_2");
+M2 = ELL * ELL;
+assert(C.coeffs[0] == (M2 - (2049 * 24 * 24) % M2) % M2, "c_0 = -2049 * 24^2 mod 691^2");
+U = hecke(H, ELL);
+print(U, U.charpoly_free);
+print(T.charpoly_free);
+
+# ---------------------------------------------------------------------------
+# (3) What does NOT honour the ring.
+# ---------------------------------------------------------------------------
+# The field members: the object's named logic_error (exit 3).
+expect_error "field (F_ell) accessor" { H.dims }
+expect_error "field (F_ell) accessor" { H.H(1) }
+expect_error "field (F_ell) accessor" { H.P(1) }
+# Members not on (h)'s list: exit 5, naming themselves.
+expect_error "Cohomology.ell" { H.ell }
+expect_error "Cohomology.dim_C" { H.dim_C(1) }
+expect_error "LocalSystem.relations" { L.relations }
+expect_error "HeckeOperator.cosets" { T.cosets }
+expect_error "HeckeOperator.Theta" { T.Theta(1) }
+# Verbs: exit 5 at dispatch.
+expect_error "hecke(H, p, r) at r = 2" { hecke(H, 2, 2) }
+expect_error "console pipeline verb family" { family(H) }
+expect_error "console pipeline verb decompose" { decompose(T, 1) }
+expect_error "console pipeline verb crosschecks" { crosschecks(T) }
+expect_error "console verb dual" { dual(L) }
+# ell in {2, 3}: nothing is lifted in slot 9.
+expect_error "the console lifts nothing at ell in {2, 3}" { symmetric_power(MODEL, 4, 2) }
+expect_error "the console lifts nothing at ell in {2, 3}" { symmetric_power(MODEL, 10, 3) }
+# A handle of one ring under another: refused, naming both.
+set coefficient_ring = "Z/ell^3";
+expect_error "the LocalSystem was built over Z/ell^2" { cohomology(L) }
+expect_error "the Cohomology was built over Z/ell^2" { hecke(H, 3) }
+set coefficient_ring = "F_ell";
+expect_error "the Cohomology was built over Z/ell^2" { hecke(H, 3) }
+expect_error "is not honoured in this build" { decompose(T, 1) }
+
+# The ring members of a FIELD handle: the object's own module-accessor error.
+HF = cohomology(symmetric_power(MODEL, N_SYM, ELL));
+assert(HF.coefficient_ring == "F_ell", "a field handle reports F_ell");
+assert(hecke(HF, 2).coefficient_ring == "F_ell", "and so does every HeckeOperator on it");
+expect_error "module" { HF.lengths }
+expect_error "module" { HF.bockstein_rank }
+
+assert(fingerprint() == "0x0000000000000000", "back at the defaults");
+annotate("025_e8_console_surface: [E] sec:ring (h), member by member");

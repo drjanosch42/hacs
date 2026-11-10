@@ -1,0 +1,17 @@
+#! oc-format 1
+(12, 5): k_max = 7  code = 0
+  item 1 eichler_shimura passed
+  item 2 commutation passed
+  item 3 d2_vanishes passed
+  item 4 p2_recursion passed
+  item 5 dickson_multiplication passed
+  item 6 residue_atlas passed
+  item 7 socle_loewy_pd passed
+(10, 691): k_max = 7  code = 0
+  item 1 eichler_shimura passed
+  item 2 commutation passed
+  item 3 d2_vanishes passed
+  item 4 p2_recursion passed
+  item 5 dickson_multiplication not_applicable
+  item 6 residue_atlas unavailable
+  item 7 socle_loewy_pd unavailable

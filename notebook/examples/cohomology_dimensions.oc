@@ -1,0 +1,27 @@
+# cohomology_dimensions.oc -- the dimensions of H^q(SL_2(Z); Sym^n F_ell^2), against Eichler--Shimura.
+# Phenomena gallery [PG] sec:pg-dims.  Cells (n, 691) for n = 0 .. 24 and (n, 5) for n = 0 .. 24.
+# Read_only verbs only (notebook-safe).  Cost: about 1 s, < 0.1 GB.
+M = sl2z_model();
+
+# (1) A large prime, ell = 691 > n + 1: dim H^1 = 2 dim S_k + 1 (k = n + 2), H^0 = H^2 = 0 for n > 0, and odd n gives 0.
+print("ell = 691");
+for n in range(0, 25) {
+    k = n + 2;
+    s = 0;
+    if (n % 2 == 0) {
+        s = (k - k % 12) / 12;
+        if (k % 12 == 2 and s > 0) { s = s - 1; }
+    }
+    H = cohomology(symmetric_power(M, n, 691));
+    e = 0;
+    if (n % 2 == 0 and n > 0) { e = 2 * s + 1; }
+    print("  n =", n, " k =", k, " dim H^q =", H.dims, " dim S_k =", s, " 2 dim S_k + 1 =", e);
+    if (n > 0) { assert(H.dims[1] == e, "Eichler--Shimura count"); }
+}
+
+# (2) A small prime, ell = 5: H^0 and H^2 appear exactly at the Dickson degrees n in 6 Z + 20 Z (the shadow of 5-torsion over Z).
+print("ell = 5");
+for n in range(0, 25, 2) {
+    H = cohomology(symmetric_power(M, n, 5));
+    print("  n =", n, " dim H^q =", H.dims);
+}

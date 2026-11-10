@@ -1,0 +1,70 @@
+# CMake files
+/build
+/build/
+/build*/
+/build-xconfig/
+/build-asan/
+/build-tsan/
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+cohomology_app
+/hacs
+
+
+# Visual Studio specific
+#*.sln
+#*.vcxproj
+#*.vcxproj.filters
+#*.vcxproj.user
+
+# Visual Studio
+*.user
+*.filters
+*.vspscc
+
+# Build and output folders
+/[Dd]ebug/
+/[Rr]elease/
+x64/
+Win32/
+[Bb]uild/
+.vs/
+
+# Compiled outputs
+*.obj
+*.o
+*.a
+*.lib
+*.exe
+*.dll
+*.pdb
+*.tlog
+*.idb
+*.ilk
+*.db
+*.ipch
+*.suo
+*~
+
+# CUDA
+*.cu.obj
+*.ptx
+*_generated.cu
+
+# Logs and temporary files
+*.log
+*.tlog
+*.lastbuildstate
+# In-source CMake-generated Makefile
+/Makefile
+
+# Generated Hecke reports
+hecke_report_*.json
+
+__pycache__/
+/docs-pdf/
+
+# Third-party papers (arXiv sources etc.): local reading copies only, never committed (no redistribution licence; open-source tree)
+/third_party_refs/

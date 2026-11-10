@@ -1,0 +1,40 @@
+dim H^q = [0, 3, 0]
+p = 2 split, 2x^2+xy+3y^2  tau(p) mod 23 = 22
+p = 3 split, 2x^2+xy+3y^2  tau(p) mod 23 = 22
+p = 5 inert         tau(p) mod 23 = 0
+p = 7 inert         tau(p) mod 23 = 0
+p = 11 inert         tau(p) mod 23 = 0
+p = 13 split, 2x^2+xy+3y^2  tau(p) mod 23 = 22
+p = 17 inert         tau(p) mod 23 = 0
+p = 19 inert         tau(p) mod 23 = 0
+p = 29 split, 2x^2+xy+3y^2  tau(p) mod 23 = 22
+p = 31 split, 2x^2+xy+3y^2  tau(p) mod 23 = 22
+p = 37 inert         tau(p) mod 23 = 0
+p = 41 split, 2x^2+xy+3y^2  tau(p) mod 23 = 22
+p = 43 inert         tau(p) mod 23 = 0
+p = 47 split, 2x^2+xy+3y^2  tau(p) mod 23 = 22
+p = 53 inert         tau(p) mod 23 = 0
+p = 59 split, x^2+xy+6y^2   tau(p) mod 23 = 2
+p = 61 inert         tau(p) mod 23 = 0
+p = 67 inert         tau(p) mod 23 = 0
+p = 71 split, 2x^2+xy+3y^2  tau(p) mod 23 = 22
+p = 73 split, 2x^2+xy+3y^2  tau(p) mod 23 = 22
+p = 79 inert         tau(p) mod 23 = 0
+p = 83 inert         tau(p) mod 23 = 0
+p = 89 inert         tau(p) mod 23 = 0
+p = 97 inert         tau(p) mod 23 = 0
+p = 101 split, x^2+xy+6y^2   tau(p) mod 23 = 2
+p = 103 inert         tau(p) mod 23 = 0
+p = 107 inert         tau(p) mod 23 = 0
+p = 109 inert         tau(p) mod 23 = 0
+p = 113 inert         tau(p) mod 23 = 0
+p = 127 split, 2x^2+xy+3y^2  tau(p) mod 23 = 22
+p = 131 split, 2x^2+xy+3y^2  tau(p) mod 23 = 22
+p = 137 inert         tau(p) mod 23 = 0
+p = 139 split, 2x^2+xy+3y^2  tau(p) mod 23 = 22
+p = 149 inert         tau(p) mod 23 = 0
+p = 151 split, 2x^2+xy+3y^2  tau(p) mod 23 = 22
+p = 157 inert         tau(p) mod 23 = 0
+p = 163 split, 2x^2+xy+3y^2  tau(p) mod 23 = 22
+p = 167 split, x^2+xy+6y^2   tau(p) mod 23 = 2
+p = 173 split, x^2+xy+6y^2   tau(p) mod 23 = 2

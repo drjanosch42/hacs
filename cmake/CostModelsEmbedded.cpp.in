@@ -1,0 +1,13 @@
+// SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
+// SPDX-License-Identifier: LGPL-3.0-only WITH LicenseRef-CUDA-exception
+
+// GENERATED at configure time by cmake/sources/Special.cmake (S25 FOLD; formerly cmake/slot25/NbConfirm.cmake) from
+// src/hacs/Console/cost/cost_models.tsv -- do not edit; edit the TSV.
+// (NBCONFIRM S3) Part of ConsoleCore; it includes nothing.
+
+namespace console {
+namespace cost {
+extern const char* const kEmbeddedCostModelsTsv;
+const char* const kEmbeddedCostModelsTsv = R"OCCOSTTSV(@OC_COST_MODELS_TEXT@)OCCOSTTSV";
+} // namespace cost
+} // namespace console

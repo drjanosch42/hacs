@@ -1,0 +1,28 @@
+# hacs device profile -- FROZEN TEST FIXTURE of ConsoleCostModelValidation (NBCONFIRM S3), not a real device.
+# Factors chosen to exercise the device-factor rule (slot 1 / mt, log-interpolation in T between 1 and threads_mt = 6).
+profile_version	2
+calib_set	calib/v1
+host	fixture
+machine	aarch64
+nproc	6
+threads_mt	6
+taskset	-
+startup_s	0.0500
+binary	/nonexistent/cohomology_app
+binary_size	1
+binary_mtime	1
+binary_build_id	-
+unavailable	zdesc,zrec
+created_utc	2026-11-07T00:00:00Z
+factor	zdesc	1	1	4.4700	nan	fallback
+factor	zdesc	mt	6	5.6200	nan	fallback
+factor	zrec	1	1	4.4700	nan	fallback
+factor	zrec	mt	6	5.6200	nan	fallback
+factor	u128	1	1	5.4500	6.4300	measured
+factor	u128	mt	6	5.4500	6.4300	measured
+factor	heil	1	1	4.4000	6.3600	measured
+factor	heil	mt	6	4.4000	6.3600	measured
+factor	ntt	1	1	3.4200	4.5100	measured
+factor	ntt	mt	6	3.4200	4.5100	measured
+factor	ladic	1	1	4.8700	24.6700	measured
+factor	ladic	mt	6	12.1900	24.5000	measured

@@ -1,0 +1,84 @@
+# 048_c5c_ring_campaign.oc -- console phase C5c (hecke-extensions slot 9,
+# WP-8c): a tiny ring campaign built entirely from the console --
+# campaign_spec_text / campaign_plan / run_campaign -- at one small E8 point
+# (coefficient_ring = Z/ell^2), first-freeze pin of the campaign surface
+# CLAUDE.md documents ([P] Sec. 10 C5, "C5c as built": Campaign/CampaignRing.h,
+# schema hecke_ring_report/v1).
+#
+# The point is (n, ell, k) = (6, 5, 2) -- the smallest of the seven E8 golden
+# grid points (GoldenHarness.cpp), certified, so the run is fast and every
+# object below is on the golden reference.
+#
+# The console has no verb to read a file's text (no campaign job JSON is
+# parsed here), so the pin works the way 024_e8_ring_points.oc already does:
+# the record's KEY VALUES are exactly the pipeline objects the job loop
+# builds (Campaign/CampaignRing.cpp dispatches to EquivariantCohomologyOnK /
+# HeckeOperatorOnK under the spec's ring, unchanged from the direct verbs --
+# CampaignRingValidation's arm (A) checks the record's carried objects against
+# these same golden entries in process). So after the campaign has actually
+# run (proving campaign_spec_text / campaign_plan / run_campaign reach the
+# ring job loop end to end, exit 0, both jobs ok), the SAME point is built
+# directly and its members are asserted against golden(...) where available.
+
+include("prelude.oc");
+
+N = 6;
+ELL = 5;
+K = 2;
+GP = "E8 ring=Z/" + str(ELL) + "^" + str(K) + " n=" + str(N) + " ell=" + str(ELL);
+
+# --- the golden entries, read FIRST, at the defaults (rule R19) -------------
+GL = [golden(GP, "lengths_H^0"), golden(GP, "lengths_H^1"), golden(GP, "lengths_H^2")];
+GI = [golden(GP, "invariant_factors_H^0"), golden(GP, "invariant_factors_H^1"),
+      golden(GP, "invariant_factors_H^2")];
+GK = [golden(GP, "r_K(d^0)"), golden(GP, "r_K(d^1)")];
+GC = golden(GP, "ladic_type_certified");
+GB = golden(GP, "bockstein_rank^0");
+GH = golden(GP, "higher_torsion_count");
+GF2 = golden(GP, "charpoly_A(T_p)^1_free_p2");
+GF3 = golden(GP, "charpoly_A(T_p)^1_free_p3");
+
+# --- the campaign surface: a spec built as TEXT, planned, then run ----------
+S = campaign_spec_text("coefficient_ring = Z/ell^" + str(K) + "\nn_sym = " + str(N) +
+                        "\nell = " + str(ELL) + "\np = 2,3\nr = 1\n");
+assert(S.jobs == 2, "campaign_spec_text: one n_sym, one ell, two primes -> two jobs");
+
+GROUPS = campaign_plan(S);
+PLANNED = 0;
+for g in GROUPS {
+    PLANNED = PLANNED + len(g.jobs);
+}
+assert(PLANNED == S.jobs, "campaign_plan: every planned job is in exactly one shape group");
+assert(len(GROUPS) >= 1, "campaign_plan: at least one shape group");
+
+OUT = "/tmp/oc_console_c5c_048_ring";
+R = run_campaign(S, output = OUT);
+assert(R.ran == 2 and R.failed == 0 and R.skipped == 0,
+       "run_campaign: both jobs of the ring campaign ran, none failed, none skipped");
+
+# --- the SAME point, direct: its hecke_ring_report/v1 values against golden -
+set coefficient_ring = "Z/ell^" + str(K);
+H = cohomology(symmetric_power(MODEL, N, ELL));
+assert(H.coefficient_ring == "Z/ell^" + str(K), GP + ": the handle is over Z/ell^k");
+for q in [0, 1, 2] {
+    assert(hash(H.lengths[q]) == GL[q].hash, GP + ": lengths_H^" + str(q) + " is golden");
+    assert(hash(H.invariant_factors(q)) == GI[q].hash,
+           GP + ": invariant_factors_H^" + str(q) + " is golden");
+}
+assert(hash(H.r_K(0)) == GK[0].hash and hash(H.r_K(1)) == GK[1].hash,
+       GP + ": r_K(d^0), r_K(d^1) are golden");
+assert(H.ladic_type_certified == (GC.value == 1), GP + ": ladic_type_certified is golden");
+assert(hash(H.bockstein_rank) == GB.hash and hash(H.higher_torsion_count) == GH.hash,
+       GP + ": bockstein_rank^0 and higher_torsion_count are golden");
+C2 = hecke(H, 2).charpoly_free;
+C3 = hecke(H, 3).charpoly_free;
+assert(len(C2.coeffs) == GF2.rows and C2.precision == GF2.cols,
+       GP + ": charpoly_A(T_p)^1_free_p2 has the golden shape");
+assert(len(C3.coeffs) == GF3.rows and C3.precision == GF3.cols,
+       GP + ": charpoly_A(T_p)^1_free_p3 has the golden shape");
+set coefficient_ring = "F_ell";
+
+assert(fingerprint() == "0x0000000000000000", "back at the defaults");
+print("run_campaign(", GP, "):", R.ran, "ran,", R.failed, "failed;", H.lengths, H.bockstein_rank,
+      H.higher_torsion_count);
+annotate("048_c5c_ring_campaign: campaign_spec_text / campaign_plan / run_campaign at one E8 ring point, pinned against golden(...)");

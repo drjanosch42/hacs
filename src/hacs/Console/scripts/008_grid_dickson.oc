@@ -1,0 +1,44 @@
+# 008_grid_dickson.oc -- golden-grid cell class 2: the DICKSON-EXCEPTIONAL
+# locus, where the ring of Dickson invariants of Sym^n(F_ell^2) is bigger than
+# the generic one and dim H^0 > 0.  Both loci the golden grid keeps are here:
+# (24, 5) from the regular grid and (32, 5), the extra cell kept for exactly
+# this reason (GoldenHarness.cpp kExtraCells).
+#
+# Same pin recipe as 007, plus the Dickson predicate itself against its golden
+# `dickson` entry -- which is what makes this a cell CLASS and not just two
+# more cells.
+
+include("prelude.oc");
+
+for cell in [[24, 5], [32, 5]] {
+    n = cell[0];
+    ell = cell[1];
+    pt = "n=" + str(n) + " ell=" + str(ell);
+    ptp = pt + " p=2 r=1";
+
+    assert(dickson_exceptional(n, ell) == true, pt + " is Dickson-exceptional");
+    assert(golden(pt, "dickson").value == 1, "the reference records the same verdict at " + pt);
+
+    H = cohomology(symmetric_power(MODEL, n, ell));
+    assert(len(H.dims) == golden(pt, "num_degrees").value, "num_degrees at " + pt);
+    T = hecke(H, 2);
+
+    for q in H.degrees {
+        assert(H.dims[q] == golden(pt, "dim_H^" + str(q)).value, "dim H^" + str(q) + " at " + pt);
+        assert(hash(T.A(q)) == golden(ptp, "A(T_p)^" + str(q)).hash,
+               "A(T_p)^" + str(q) + " at " + ptp);
+        if H.dims[q] > 0 {
+            D = decompose(T, q);
+            obj = "decomp_A(T_p)^" + str(q);
+            assert(D.certify() == golden(ptp, obj + "_certify").value,
+                   obj + "_certify at " + ptp);
+            assert(hash(D) == golden(ptp, obj + "_invariants").hash,
+                   obj + "_invariants at " + ptp);
+            assert(hash(D.U) == golden(ptp, obj + "_U").hash, obj + "_U at " + ptp);
+        }
+    }
+    # The exceptional locus is exactly where H^0 does not vanish.
+    assert(H.dims[0] > 0, "dim H^0 > 0 on the Dickson locus at " + pt);
+    print(pt, H.dims);
+}
+annotate("008_grid_dickson: 2 cells");

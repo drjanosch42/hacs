@@ -1,0 +1,16 @@
+R19-7 level2: ell=103 n=10506 W=9 r=3 Lfft=32768
+SELFTEST product FFT == Kronecker: True  maxerr=1.19e-07
+SELFTEST sigma_2 multiplicative: True
+LAMBDA2 lambda_2 = Lg/ell^4: products=52 maxerr=1.19e-07 content_val(y)=3 terms=3 sha=848b71076e769003 wall=1.1s
+P6 log(1+z) == (sigma_2 - 1) lambda_2: agree mod ell^5 (absolute; scaled digits 9/9)
+CLASS w=24: nu integral after e_w: True; Psi_k == (1-ell^(k-1))B_k/k mod ell^2 at 103/103 [exact]; affine=True; zeros mod ell: 103, mod ell^2: [228]; L_ell(1,omega^w) mod ell^2 = 4944; alpha mod ell^2 = 2266
+   P3_level1_right_mod_l=103; P3_level1_right_mod_l2=1; P7_eta_integral=True; P7_psi_eq_S_Psi=103; P7_psi_eq_S_bern=103; P7_zeros_mod_l2=[228]; x0_integral=True; x0_psi_units=103
+CLASS w=2: nu integral after e_w: True; Psi_k == (1-ell^(k-1))B_k/k mod ell^2 at 103/103 [exact]; affine=True; zeros mod ell: 0, mod ell^2: []; L_ell(1,omega^w) mod ell^2 = 3356; alpha mod ell^2 = None
+   P3_level1_right_mod_l=103; P3_level1_right_mod_l2=1; P7_eta_integral=True; P7_psi_eq_S_Psi=103; P7_psi_eq_S_bern=103; P7_zeros_mod_l2=[]; x0_integral=True; x0_psi_units=103
+CLASS w=4: nu integral after e_w: True; Psi_k == (1-ell^(k-1))B_k/k mod ell^2 at 103/103 [exact]; affine=True; zeros mod ell: 0, mod ell^2: []; L_ell(1,omega^w) mod ell^2 = 5041; alpha mod ell^2 = None
+   P3_level1_right_mod_l=103; P3_level1_right_mod_l2=1; P7_eta_integral=True; P7_psi_eq_S_Psi=103; P7_psi_eq_S_bern=103; P7_zeros_mod_l2=[]; x0_integral=True; x0_psi_units=103
+CLASS w=22: nu integral after e_w: True; Psi_k == (1-ell^(k-1))B_k/k mod ell^2 at 103/103 [exact]; affine=True; zeros mod ell: 0, mod ell^2: []; L_ell(1,omega^w) mod ell^2 = 7220; alpha mod ell^2 = None
+   P3_level1_right_mod_l=103; P3_level1_right_mod_l2=1; P7_eta_integral=True; P7_psi_eq_S_Psi=103; P7_psi_eq_S_bern=103; P7_zeros_mod_l2=[]; x0_integral=True; x0_psi_units=103
+CLASS w=3: nu integral after e_w: True; Psi_k == (1-ell^(k-1))B_k/k mod ell^2 at 103/103 [odd]; affine=None; zeros mod ell: 103, mod ell^2: [3, 105, 207, 309, 411, 513, 615, 717, 819, 921, 1023, 1125, 1227, 1329, 1431, 1533, 1635, 1737, 1839, 1941, 2043, 2145, 2247, 2349, 2451, 2553, 2655, 2757, 2859, 2961, 3063, 3165, 3267, 3369, 3471, 3573, 3675, 3777, 3879, 3981, 4083, 4185, 4287, 4389, 4491, 4593, 4695, 4797, 4899, 5001, 5103, 5205, 5307, 5409, 5511, 5613, 5715, 5817, 5919, 6021, 6123, 6225, 6327, 6429, 6531, 6633, 6735, 6837, 6939, 7041, 7143, 7245, 7347, 7449, 7551, 7653, 7755, 7857, 7959, 8061, 8163, 8265, 8367, 8469, 8571, 8673, 8775, 8877, 8979, 9081, 9183, 9285, 9387, 9489, 9591, 9693, 9795, 9897, 9999, 10101, 10203, 10305, 10407]
+DONE ell=103 products=3180 maxerr=1.49e-07 wall=254.8s
+TIME 254.88 s 120620 KB

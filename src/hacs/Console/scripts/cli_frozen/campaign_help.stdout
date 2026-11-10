@@ -1,0 +1,24 @@
+Usage: hacs --campaign <spec-file> [options]
+
+Runs a parameter sweep of (n_sym, ell, p, r, q) Hecke jobs through the same
+public API as `--bench hecke`, writing one streamed JSON per job plus
+index.json and summary.tsv. Spec grammar and worked examples:
+  docs/matrix-engine/campaign.md
+
+Options:
+  --output <dir>   override the spec's `output` directory
+  --jobs <n>       override `jobs`: concurrent jobs per shape group
+  --threads <n>    override `threads`: engine workers per concurrent job
+  --dry-run        print the plan (groups and jobs) and exit
+  --quiet          suppress per-job progress lines
+  --help           this text
+
+Spec example:
+  name    = t2_sweep
+  output  = out/t2_sweep
+  certify = sampled(every 10)
+  lean    = true
+  n_sym   = 0..200 step 2
+  ell     = 5,13,691,10007,134217757
+  p       = 2
+  r       = 1

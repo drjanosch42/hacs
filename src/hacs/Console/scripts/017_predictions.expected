@@ -1,0 +1,6 @@
+#! oc-format 1
+1 345 576 0
+10 0 0 0
+Sym^10(F_5^2) = Sym^2 + Sym^2(x)det^2 + Sym^4(x)det^1   [dim 11, length 3]
+[0, 0, 2, 0, 1] 11 3
+Sym^24(F_5^2) = 2* Sym^0 + Sym^0(x)det^2 + 2* Sym^2(x)det^1 + 2* Sym^2(x)det^3 + Sym^4 + Sym^4(x)det^2   [dim 25, length 9]

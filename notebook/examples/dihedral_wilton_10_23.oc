@@ -1,0 +1,29 @@
+# dihedral_wilton_10_23.oc -- tau(p) mod 23 is governed by K = Q(sqrt(-23)) (Wilton 1930): rhobar_Delta mod 23 is dihedral.
+# Phenomena gallery [PG] sec:pg-dihedral.  Cell (n, ell) = (10, 23).  Read_only verbs only (notebook-safe).
+# Cost: ~2 s, < 0.1 GB (the cosets of T_p grow like p).
+#
+#   p inert in K ((-23|p) = -1)                 :  tau(p) == 0   (mod 23)
+#   p = x^2 + xy + 6y^2 (split, principal class) :  tau(p) == 2
+#   p = 2x^2 + xy + 3y^2 (split, non-principal)  :  tau(p) == -1
+# tau(p) is read off H^1 basis-independently: trace T_p = 2 tau(p) + (1 + p^11) (two cusp classes, one Eisenstein).
+M = sl2z_model();
+H = cohomology(symmetric_power(M, 10, 23));
+print("dim H^q =", H.dims);
+for p in [2, 3, 5, 7, 11, 13, 17, 19, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173] {
+    # the principal form represents p iff 4p = (2x + y)^2 + 23 y^2 has a solution
+    principal = false;
+    for y in range(1, 6) {
+        r = 4 * p - 23 * y * y;
+        for s in range(0, 27) { if s * s == r { principal = true; } }
+    }
+    split = false;
+    for x in range(0, p) { if (x * x + 23) % p == 0 { split = true; } }
+    x11 = 1;
+    for i in range(0, 11) { x11 = (x11 * p) % 23; }
+    t = (trace(hecke(H, p).A(1)) - 1 - x11 + 3 * 23) % 23;
+    tau = (t * 12) % 23;
+    if not split { cls = "inert       "; want = 0; }
+    else { if principal { cls = "split, x^2+xy+6y^2 "; want = 2; } else { cls = "split, 2x^2+xy+3y^2"; want = 22; } }
+    print("p =", p, cls, " tau(p) mod 23 =", tau);
+    assert(tau == want, "Wilton's congruence");
+}

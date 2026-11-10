@@ -1,0 +1,23 @@
+Usage: hacs --bench micro <op> <args...> [--repeat k] [--backend legacy|engine|gpu]
+
+Ops (every <ell> defaults to 134217757, the benchmark prime of doc 03):
+  gemm      <n> [<k>] [<ell>]                 C = A*B, A: n x k, B: k x n; work = n*n*k
+  gemv      <n> [<ell>]                       y = A*x, A: n x n; work = n*n
+  rref      <rows> <cols> [<rank>] [<ell>]    RREF of a matrix of prescribed rank
+  kernel    <rows> <cols> [<rank>] [<ell>]    kernel() of the same matrix family
+  transpose <n> [<ell>]                       transpose of an n x n matrix
+  suite                                       the Phase-2 exit-criterion set + floors
+  cuda                                        the Phase-5 GPU throughput table (needs a device)
+
+<rank> omitted, 0, or >= min(rows,cols) means FULL rank (a plain random matrix,
+which is what doc 03 Sec. 7.3's reference elimination uses); a smaller <rank>
+builds L(rows x rank) * R(rank x cols) so rank-deficient inputs are covered.
+
+All inputs are fixed-seed (splitmix64 over the shape), so two runs -- and the two
+backends -- see byte-identical inputs; the reported FNV-1a-64 checksum of the
+result therefore doubles as a bit-identity check between backends.
+
+--backend engine selects the Phase-2 ModCtx/DenseBuf/Kernels layer (the default).
+--backend gpu selects the Phase-5 engine::cuda device kernels (gemm / gemv /
+transpose; rref / kernel stay CPU-driven and report "not available", exit 2).
+Without a usable CUDA device every gpu op reports "not available", exit 2.

@@ -1,0 +1,61 @@
+# 028_wide_band.oc -- the console's wide band 2^32 <= ell^k < 2^64 (hecke-
+# extensions slot 12, WP-17; [P] v3.9.3, Q9 decided (a) by the owner on
+# 2026-09-26).
+#
+# Under coefficient_ring = Z/ell^k at ell >= 5 the console now takes, per cell,
+# exactly the campaign job loop's route (Campaign/CampaignRing.cpp):
+#
+#   ell^k <  2^32          the native pipeline, uint32_t   (slot 9, C5a)
+#   2^32 <= ell^k < 2^64   the native pipeline, uint64_t   (slot 12, WP-17 -- was refused)
+#   ell^k >= 2^64          the digit route, Hecke/LadicCell (slot 11, WP-18c)
+#
+# At (10, 691) the band is Z/691^4 .. Z/691^6 (691^3 < 2^32 <= 691^4,
+# 691^6 < 2^64 <= 691^7).  The script builds the cohomology and T_2 on both
+# sides of the lower edge and checks the tower identities a reader expects:
+# the lengths are k times the free rank, the invariant factors are all k, and
+# the free characteristic polynomial of T_2 over Z/691^4 reduces mod 691^3 to
+# the one over Z/691^3 (the native uint32_t route); it is
+# (X - tau(2))^2 (X - (1 + 2^11)) mod 691^k, tau(2) = -24 (Delta, weight
+# n + 2 = 12, on both sign parts) and 2049 the Eisenstein eigenvalue.  The
+# digit-only member `.precision` stays refused (exit 5) on a band handle; it is
+# not read here.  ConsoleErrorValidation arm (Q9) pins the routing at all four
+# band edges and value identity with the campaign on seven band cells.
+
+include("prelude.oc");
+
+ELL_W = 691;
+N_W = 10;
+
+set coefficient_ring = "Z/ell^3";
+H3 = cohomology(symmetric_power(MODEL, N_W, ELL_W));
+C3 = hecke(H3, 2).charpoly_free;
+
+set coefficient_ring = "Z/ell^4";
+H4 = cohomology(symmetric_power(MODEL, N_W, ELL_W));
+T4 = hecke(H4, 2);
+C4 = T4.charpoly_free;
+
+assert(H4.coefficient_ring == "Z/ell^4", "the band handle is over Z/691^4");
+assert(H4.lengths == [0, 12, 0] and H3.lengths == [0, 9, 0], "lengths = k * free rank 3 in degree 1");
+assert(H4.invariant_factors(1) == [4, 4, 4], "H^1(Z/691^4) = (Z/691^4)^3");
+assert(H4.ladic_type_certified, "the K-mode certifies at K = 4");
+assert(C4.precision == 4 and C3.precision == 3, "the charpolys are to precision k");
+
+M3 = 691 * 691 * 691;
+M4 = M3 * 691;
+assert(M4 > 4294967296, "691^4 is above 2^32: the uint64_t route");
+for i in [0, 1, 2, 3] {
+    assert(C4.coeffs[i] % M3 == C3.coeffs[i], "charpoly over Z/691^4 reduces to the one over Z/691^3");
+}
+# (X + 24)^2 (X - 2049) = X^3 - 2001 X^2 - 97776 X - 1180224.
+assert(C4.coeffs == [M4 - 1180224, M4 - 97776, M4 - 2001, 1],
+       "charpoly = (X + 24)^2 (X - 2049) mod 691^4");
+A1 = T4.A(1);
+assert(A1[0][0] == M4 - 24 and A1[2][2] == 2049, "A^(1)(T_2) carries tau(2) = -24 and 2049 mod 691^4");
+
+set coefficient_ring = "F_ell";
+assert(fingerprint() == "0x0000000000000000", "back at the defaults");
+print("Z/691^3:", H3.lengths, C3.coeffs);
+print("Z/691^4:", H4.lengths, H4.invariant_factors(1), C4.coeffs);
+print("A^(1)(T_2) over Z/691^4:", A1);
+annotate("028_wide_band: Z/691^4 at (10, 691) served by the uint64_t native route; the tower identities with Z/691^3 hold");

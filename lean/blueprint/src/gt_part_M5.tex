@@ -1,0 +1,250 @@
+% gt_part_M5.tex -- [GT] Part M5: the elementary-divisor enumeration behind [C] eq:fullop, and the transport of FLT's heckeH1.
+% Slot 22, package M5 (docs/implementation/slot22/M5_cut.md, M5_report.md).  Read by lean_census.py (gt_part_*.tex).
+% Lean: lean/GL2/M5/{Smith,FullOp,Transport}.lean (namespace GL2.M5).  Every row is `proved` (no literature hypothesis).
+% Labels: [GT]-only labels (prefix m5-); each names the [C] v1.21.0 clause it backs, in a "% backs" line.
+% [C] eq:fullop keeps NO \LEAN marker (owner ruling Q5-4, 2026-10-05): the rows below back it, they do not mark it.
+% [C] thm:classical and eq:corconjres keep NO marker: the strong form (identification of the model's operator with the
+% genuine corestriction at a chosen transversal; independence proved for n = 0, 1 only) is not proved here (M5 cut, M5-C; M6).
+
+\chapter{Part M5. Double cosets of determinant \texorpdfstring{$p^\nu$}{p\textasciicircum nu}; the transport of \texttt{heckeH1}}\label{ch:m5}
+
+\paragraph{Setting.} As in Part M4 (\ref{def:m4-hecke}): $\Gamma=\mathrm{SL}_2(\mathbb Z)$, $\Delta$ the integral matrices of
+$\mathrm{GL}_2(\mathbb Q)$, the seven-vertex model, $6\in R^\times$ where stated, $c$ the scalar by which $\rho(pI)$ acts. The
+vendored Anthropic FLT modules (\texttt{lean/Vendor/AnthropicFLT}, byte-identical, Apache-2.0) supply the degree-$n$ cochain
+transfer \texttt{Cores.corFin} with \texttt{Cores.corFin\_d}, the degree-$1$ transfer \texttt{Cores.cor}$_1$, and the degree-$1$ double-coset
+operator \texttt{HeckeCohomology.heckeH1} with \texttt{heckeH1\_eq\_of\_section}.
+
+\section{The elementary-divisor enumeration}
+
+\begin{definition}[Elementary-divisor representatives; the double-coset relation]\label{def:m5-dmat}
+  % backs [C] v1.21.0 prop:fullassembly, proof, "The index set"
+  \lean{GL2.M5.dMat, GL2.M5.DCRel, GL2.M5.DCRel.refl, GL2.M5.DCRel.symm, GL2.M5.DCRel.trans, GL2.M5.dMat_zero,
+    GL2.M5.dMat_succ, GL2.M5.dMat_det}
+  \leanok
+  \uses{prop:cosets}
+  $\texttt{dMat}\,p\,j\,\mu=p^j\,\mathrm{diag}(1,p^\mu)\in M_2(\mathbb Z)$, of determinant $p^{2j+\mu}$; $A\sim B$
+  (\texttt{DCRel}) iff $A=\gamma_1B\gamma_2$ with $\gamma_1,\gamma_2\in\mathrm{SL}_2(\mathbb Z)$, an equivalence relation.
+\end{definition}
+\begin{proof}
+  \leanok
+  Definitions; reflexivity, symmetry, transitivity by $\gamma\mapsto\gamma^{-1}$ and products.
+\end{proof}
+
+\begin{lemma}[Classification: every matrix of determinant $p^\nu$ is $\sim p^j\mathrm{diag}(1,p^{\nu-2j})$]\label{lem:m5-dc-classify}
+  % backs [C] v1.21.0 prop:fullassembly, proof, "The index set" (existence)
+  \lean{GL2.M5.dc_classify, GL2.M5.dvd_entries_of_not_primitive, GL2.M5.eq_smul_of_dvd}
+  \leanok
+  \uses{def:m5-dmat, prop:cosets}
+  For $p$ prime and $\delta\in M_2(\mathbb Z)$ with $\det\delta=p^\nu$ there is $j$ with $2j\le\nu$ and
+  $\delta\sim p^j\,\mathrm{diag}(1,p^{\nu-2j})$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  Strong induction on $\nu$. If $\delta$ is primitive, \ref{prop:cosets} gives $\delta\in\Gamma\,\mathrm{diag}(1,p^\nu)\,\Gamma$
+  ($j=0$). Otherwise a non-unit $e$ divides every entry; a prime $q\mid e$ has $q^2\mid\det\delta=p^\nu$, so $q\mid p$ and $q$ is
+  associated with $p$; hence $\delta=p\,\delta'$ with $\det\delta'=p^{\nu-2}$ ($\nu\ge2$ from $p^2\mid p^\nu$), and the
+  induction hypothesis for $\delta'$ with $j\mapsto j+1$.
+\end{proof}
+
+\begin{lemma}[Distinctness]\label{lem:m5-dc-unique}
+  % backs [C] v1.21.0 prop:fullassembly, proof, "The index set" (the double cosets are pairwise distinct)
+  \lean{GL2.M5.dc_unique, GL2.M5.det_DCRel, GL2.M5.dvd_entries_DCRel, GL2.M5.dvd_entries_dMat}
+  \leanok
+  \uses{def:m5-dmat}
+  $p^j\mathrm{diag}(1,p^\mu)\sim p^{j'}\mathrm{diag}(1,p^{\mu'})$ implies $j=j'$ and $\mu=\mu'$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  $p^{j'}$ divides every entry of the right side, hence of the left (the content is $\Gamma$-biinvariant), whose $(1,1)$ entry is
+  $p^j$: $j'\le j$; symmetrically $j\le j'$. The determinants $p^{2j+\mu}=p^{2j+\mu'}$ give $\mu=\mu'$.
+\end{proof}
+
+\begin{theorem}[The double cosets of determinant $p^\nu$]\label{thm:m5-dc-enum}
+  % backs [C] v1.21.0 prop:fullassembly, proof, "The index set": {det = p^nu} = disjoint union of p^j I . Delta^prim_{p^{nu-2j}}
+  \lean{GL2.M5.dc_enum}
+  \leanok
+  \uses{lem:m5-dc-classify, lem:m5-dc-unique}
+  For $p$ prime: every $\delta\in M_2(\mathbb Z)$ with $\det\delta=p^\nu$ lies in $\Gamma\,p^j\mathrm{diag}(1,p^{\nu-2j})\,\Gamma$ for
+  exactly one $j$ with $0\le2j\le\nu$, and each of these representatives has determinant $p^\nu$. So the double cosets of
+  determinant $p^\nu$ are exactly $p^jI\cdot\Delta^{\mathrm{prim}}_{p^{\nu-2j}}$, $0\le2j\le\nu$, pairwise distinct
+  ($\lfloor\nu/2\rfloor+1$ of them).
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{lem:m5-dc-classify} and \ref{lem:m5-dc-unique}.
+\end{proof}
+
+\section{\texttt{eq:fullop} on the model}
+
+\begin{proposition}[$T_{\Gamma g\Gamma}$ depends only on the double coset]\label{prop:m5-tdc-dc}
+  % backs [C] v1.21.0 thm:welldef (c) for tau over R (the M4 operators); used by eq:fullop's index set
+  \lean{GL2.M5.cdDC, GL2.M5.ppDC, GL2.M5.act, GL2.M5.act_mul_apply, GL2.M5.act_repD, GL2.M5.act_repEps, GL2.M5.tauDC,
+    GL2.M5.heckeTildeR_DC, GL2.M5.TdcOf_DC}
+  \leanok
+  \uses{def:m4-hecke, thm:welldef-b, thm:welldef-c}
+  (The $\tau$-over-$R$ counterpart of \ref{thm:welldef-c}, which is stated for $\tau$ over $\mathbb Z$, for the M4 operators
+  \texttt{Tdc} / \texttt{TdcOf}; the representatives here are $\gamma_1s_i\gamma_1^{-1}$, there $\gamma_1s_i$: both represent
+  $\Gamma''_1\backslash\Gamma$.) Generic $(G,\Gamma,\Delta)$, $\gamma_1,\gamma_2\in\Gamma$: a coset datum $s_i$ and a $\tau$ for $g$ give the datum
+  $s'_i=\gamma_1s_i\gamma_1^{-1}$ (\texttt{cdDC}) and $\tau'=\gamma_2^{-1}\cdot\tau(\gamma_1^{-1}\cdot{-})$ (\texttt{tauDC}) for
+  $g'=\gamma_1g\gamma_2$, and $\widetilde T_{g'}=\widetilde T_g$ at cochain level, with no hypothesis on $R$
+  (\texttt{heckeTildeR\_DC}). On the model, $6\in R^\times$: $\texttt{TdcOf}\,(\gamma_1g\gamma_2)=\texttt{TdcOf}\,g$
+  (\texttt{TdcOf\_DC}).
+\end{proposition}
+\begin{proof}
+  \leanok
+  $\delta'_i=s_i'^{-1}g'=\gamma_1\delta_i\gamma_2$, so $\rho(\delta'_i)\rho(\gamma_2^{-1})=\rho(\gamma_1)\rho(\delta_i)$; $\tau'(s'_iy)=
+  \gamma_2^{-1}\tau(s_i\gamma_1^{-1}y)$ and the equivariance of $\varphi$ give
+  $(\widetilde T_{g'}\varphi)(y)=\rho(\gamma_1)(\widetilde T_g\varphi)(\gamma_1^{-1}y)=(\widetilde T_g\varphi)(y)$, the last step the
+  $\Gamma$-equivariance of $\widetilde T_g\varphi$. (T1) for $\tau'$: $\gamma_1^{-1}h\gamma_1\in\Gamma''(g)$ for $h\in\Gamma''(g')$
+  (\texttt{ppDC}) and $\gamma_2^{-1}(g^{-1}\gamma_1^{-1}h\gamma_1g)=(g'^{-1}hg')\gamma_2^{-1}$; (T2), (T3) because $\partial$ and
+  $\varepsilon$ are $\Gamma$-maps. Then \texttt{TdcOf\_eq} at both data.
+\end{proof}
+
+\begin{lemma}[The summands]\label{lem:m5-tdc-gd}
+  % backs [C] v1.21.0 prop:fullassembly (the summand, choice-free) and prop:diamond at p^j I
+  \lean{GL2.M5.gD, GL2.M5.coe_gD, GL2.M5.gD_mem, GL2.M5.TdcOf_gD}
+  \leanok
+  \uses{prop:fullassembly-model, prop:diamond-model}
+  For $6\in R^\times$, $z=pI$ with $\rho(z)=c$, and every family $\tau_\mu$:
+  $\texttt{TdcOf}\,(p^j\mathrm{diag}(1,p^\mu))=c^j\,T_{\Delta^{\mathrm{prim}}_{p^\mu}}$ (\texttt{Tprim}; $=c^j$ at $\mu=0$).
+\end{lemma}
+\begin{proof}
+  \leanok
+  $\mu\ge1$: \ref{prop:fullassembly-model}. $\mu=0$: $p^jI=z^j$ is scalar with $\rho(z^j)=c^j$, \ref{prop:diamond-model}.
+\end{proof}
+
+\begin{theorem}[{{[C]} \texttt{eq:fullop} equals the assembled full operator}]\label{thm:m5-fullop}
+  % backs [C] v1.21.0 def:operators (3) eq:fullop = eq:fullassembly (prop:fullassembly) on the model; eq:fullop keeps no marker
+  \lean{GL2.M5.fullop_eq_Tfull, GL2.M5.fullop_system, GL2.M5.fullop_canonical, GL2.M5.DCRel_of_GL, GL2.M5.GL_of_DCRel,
+    GL2.M5.int_det}
+  \leanok
+  \uses{thm:m5-dc-enum, prop:m5-tdc-dc, lem:m5-tdc-gd, def:m4-hecke}
+  For $6\in R^\times$, $p$ prime, $z=pI$ with $\rho(z)=c$, and every complete irredundant system $g_1,\dots,g_k\in\Delta$ of
+  representatives of the double cosets of determinant $p^\nu$ (every $\delta\in\Delta$ with $\det\delta=p^\nu$ lies in exactly one
+  $\Gamma g_i\Gamma$): $\sum_iT_{\Gamma g_i\Gamma}=\texttt{Tfull}=\sum_{0\le2j\le\nu}c^jT_{\Delta^{\mathrm{prim}}_{p^{\nu-2j}}}$.
+  Such a system exists: $g_j=p^j\mathrm{diag}(1,p^{\nu-2j})$, $0\le2j\le\nu$ (\texttt{fullop\_system}). So [C]'s full operator,
+  defined as the sum over all double cosets of determinant $p^\nu$, is [GT]'s \texttt{Tfull} (\ref{def:m4-hecke}, defined by the
+  assembled form).
+\end{theorem}
+\begin{proof}
+  \leanok
+  Each $g_i$ is an integral matrix $\sim p^{j_i}\mathrm{diag}(1,p^{\nu-2j_i})$ (\ref{lem:m5-dc-classify}), so
+  $T_{\Gamma g_i\Gamma}=c^{j_i}T_{\Delta^{\mathrm{prim}}_{p^{\nu-2j_i}}}$ (\ref{prop:m5-tdc-dc}, \ref{lem:m5-tdc-gd}). The map
+  $i\mapsto j_i$ is injective (irredundancy) and onto $\{j:2j\le\nu\}$ (completeness at $p^j\mathrm{diag}(1,p^{\nu-2j})$ and
+  \ref{lem:m5-dc-unique}); reindex the sum.
+\end{proof}
+
+\section{The transport of \texttt{heckeH1} to \texorpdfstring{$\mathrm{End}(H^n)$}{End(H\textasciicircum n)}}
+
+\begin{definition}[The corestriction in every degree]\label{def:m5-corH}
+  % backs [C] v1.21.0 eq:corconjres's cor^Gamma_{Gamma''} (Brown III.9) in group cohomology; eq:corconjres keeps no marker
+  \lean{GL2.M5.corFinL, GL2.M5.corCx, GL2.M5.corH, GL2.M5.cor₁_mem, GL2.M5.cor₁Z}
+  \leanok
+  For $H\le G$ of finite index and a transversal $\sigma$ ($\sigma(H)=1$): \texttt{corCx} is the cochain map
+  $C^\bullet(H;\mathrm{res}\,A)\to C^\bullet(G;A)$ of the vendored \texttt{Cores.corFin} (a cochain map by
+  \texttt{Cores.corFin\_d}), and $\mathrm{cor}=\texttt{corH}\colon H^n(H;\mathrm{res}\,A)\to H^n(G;A)$ the induced map, every $n$.
+  \texttt{cor}$_1$\texttt{Z}: the vendored degree-$1$ transfer $\texttt{cor}_1\,u\colon\gamma\mapsto\sum_q\sigma_q\,u(\lambda(\sigma_q^{-1}\gamma))$
+  maps cocycles to cocycles (\texttt{cor}$_2$\texttt{\_d}$_{12}$).
+\end{definition}
+\begin{proof}
+  \leanok
+  Definitions; linearity of \texttt{corFin} termwise.
+\end{proof}
+
+\begin{lemma}[The corestriction in degree $1$]\label{lem:m5-corH-one}
+  \lean{GL2.M5.corFin_one, GL2.M5.corH_H1π}
+  \leanok
+  \uses{def:m5-corH}
+  $\mathrm{cor}[u]=[\texttt{cor}_1\,u]$ on $H^1$ (mathlib's \texttt{H1}$\pi$).
+\end{lemma}
+\begin{proof}
+  \leanok
+  Through $C^1\cong\mathrm{Fun}(G,A)$: $\texttt{corFin}_1$ at $g$ is $\texttt{cor}_1$ at $g_0$, because the partial products are
+  $1$ and $g_0$ and $\lambda(\sigma_q^{-1})=1$; then \texttt{cyclesMap}, naturality of $\pi$, and injectivity of the cycle inclusion.
+\end{proof}
+
+\begin{lemma}[The corestriction in degree $0$]\label{lem:m5-corH-zero}
+  \lean{GL2.M5.corH_zero}
+  \leanok
+  \uses{def:m5-corH}
+  Through $H^0\cong$ invariants (mathlib's \texttt{H0Iso}): $\mathrm{cor}\,a=\sum_q\sigma_q\,a$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  Every class is $\pi$ of a $0$-cocycle; $\texttt{corFin}_0$ at the empty tuple is $\sum_q\sigma_q\,u(())$; naturality of $\pi$ and
+  \texttt{cocyclesIso}$_0$\texttt{\_hom\_comp\_f}.
+\end{proof}
+
+\begin{definition}[The classical operator on $H^n(\mathrm{SL}_2(\mathbb Z);V_L)$ and on the model]\label{def:m5-Tcls}
+  % backs [C] v1.21.0 eq:corconjres (the right-hand side, with the genuine cor at a chosen transversal; independence proved for n = 0, 1 only) and its transport to H^n of the model
+  \lean{GL2.M5.Spp_finiteIndex, GL2.M5.τS, GL2.M5.TclsT, GL2.M5.Tcls, GL2.M5.HmapOf_psi_phi, GL2.M5.HmapOf_phi_psi, GL2.M5.ΘE,
+    GL2.M5.ΘE_toLinearMap, GL2.M5.TclsM, GL2.M5.Θ_TclsM}
+  \leanok
+  \uses{def:m5-corH, def:m4-classical, thm:model7-rmkorbifold}
+  $\texttt{TclsT}\,g\,\sigma\,n=\mathrm{cor}_\sigma\circ(c_g)_*\circ\mathrm{res}$ on $H^n(\mathrm{SL}_2(\mathbb Z);V_L)$, with
+  \ref{def:m4-classical}'s $(c_g)_*$, $\mathrm{res}$ and the corestriction of \ref{def:m5-corH} for $\Gamma''$ (of finite index,
+  \texttt{Spp\_finiteIndex}) and a transversal $\sigma$; $\texttt{Tcls}\,g\,n$ is \texttt{TclsT} at the chosen transversal $\tau$\texttt{S}. $\Theta$ is an isomorphism ($\Theta$\texttt{E}: $\Psi$ on cohomology is invertible with inverse
+  $\Phi$, then \ref{thm:model7-rmkorbifold}; $6\in R^\times$), and $\texttt{TclsM}\,g\,n=\Theta^{-1}\circ\texttt{Tcls}\,g\,n\circ\Theta
+  \in\mathrm{End}_R(H^n)$ is the transport to the model; $\Theta\circ\texttt{TclsM}=\texttt{Tcls}\circ\Theta$.
+  \emph{Scope.} This defines the right-hand side of [C] \texttt{thm:classical} with the genuine corestriction at a chosen transversal (independence proved for $n=0,1$ only); it does
+  \emph{not} prove $\texttt{TclsM}\,g\,n=T_{\Gamma g\Gamma}$ (\ref{rmk:m5-open}).
+\end{definition}
+\begin{proof}
+  \leanok
+  Definitions; $\Psi\Phi=\mathrm{id}$, $\Phi\Psi=\mathrm{id}$ on cocycles (\texttt{psi\_phi}, \texttt{phi\_psi}).
+\end{proof}
+
+\begin{theorem}[FLT's \texttt{heckeH1} is the degree-$1$ member]\label{thm:m5-heckeH1}
+  % backs [C] v1.21.0 eq:corconjres in degree 1 against the vendored HeckeCohomology.heckeH1 (Anthropic FLT)
+  \lean{GL2.M5.isTwist, GL2.M5.TclsT_one, GL2.M5.Tcls_one, GL2.M5.TclsT_one_indep}
+  \leanok
+  \uses{lem:m5-corH-one, def:m5-Tcls}
+  For $g\in\Delta$: $\rho(g)$ is a twist for $x\mapsto g^{-1}xg\colon\Gamma''\to\Gamma'$ (FLT's \texttt{IsTwist}), and for
+  \emph{every} transversal $\sigma$, $\texttt{TclsT}\,g\,\sigma\,1=\texttt{HeckeCohomology.heckeH1}\ \Gamma'\ \Gamma''\ (c_g)\ V_L\ \rho(g)$;
+  in particular $\texttt{Tcls}\,g\,1$ is FLT's operator and does not depend on the transversal. Hence $\texttt{TclsM}\,g\,1$ is FLT's
+  \texttt{heckeH1} transported to $\mathrm{End}(H^1)$ of the model, and $\texttt{TclsM}\,g\,n$ extends it to every degree.
+\end{theorem}
+\begin{proof}
+  \leanok
+  On a class $[f]$: $\mathrm{res}$ and $(c_g)_*$ act on cocycles (mathlib \texttt{H1}$\pi$\texttt{\_comp\_map}), then \ref{lem:m5-corH-one}:
+  $\texttt{Tcls}[f]=[\gamma\mapsto\sum_q\sigma_q\rho(g)f(g^{-1}\lambda(\sigma_q^{-1}\gamma)g)]$. FLT's
+  \texttt{heckeH1\_eq\_of\_section} with the right-coset section $r(\Gamma''x)=\sigma(x^{-1}\Gamma'')^{-1}$ and
+  $\sigma'(Q,\gamma)=\lambda(\sigma(E\,Q)^{-1}\gamma)$, $E$ mathlib's \texttt{quotientRightRelEquivQuotientLeftRel}; the two sums
+  agree after reindexing by $E$.
+\end{proof}
+
+\begin{theorem}[FLT's \texttt{heckeInv} is the degree-$0$ member; the first $\delta$-step]\label{thm:m5-delta0}
+  % backs [C] v1.21.0 thm:classical's proof sketch in degree 0 (v -> sum_j s_j^{-1} g v), classical side only
+  \lean{GL2.M5.TclsT_zero, GL2.M5.TclsT_delta0}
+  \leanok
+  \uses{lem:m5-corH-zero, thm:m5-heckeH1}
+  Through $H^0\cong$ invariants, $\texttt{TclsT}\,g\,\sigma\,0$ is FLT's \texttt{heckeInv}
+  ($a\mapsto\sum_Q r_Q^{-1}\rho(g)a$ over the right cosets), every transversal. Consequently, for a short exact sequence
+  $V_{L,1}\to V_{L,2}\to V_{L,3}$ of the $\mathrm{SL}_2(\mathbb Z)$-modules of three $\Delta$-modules whose maps commute with
+  $\rho(g)$: $\texttt{TclsT}\,g\,\sigma\,1\circ\delta=\delta\circ\texttt{TclsT}\,g\,\sigma\,0$ on $H^0(V_{L,3})$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{lem:m5-corH-zero} and mathlib's \texttt{map\_H0Iso\_hom\_f}: $\texttt{TclsT}\,0\colon a\mapsto\sum_q\sigma_q\rho(g)a$. The vector
+  $\rho(g)a$ is $\Gamma''$-invariant (twist property, $a$ invariant), so the sum does not depend on the transversal: $r_Q^{-1}=
+  \sigma(E\,Q)\,h$ with $h\in\Gamma''$. The $\delta$-step is FLT's \texttt{heckeH1\_delta0} with \ref{thm:m5-heckeH1}.
+\end{proof}
+
+\begin{remark}[What stays open after M5]\label{rmk:m5-open}
+  \begin{itemize}
+    \item [C] \texttt{thm:classical} in [C]'s sense, $\Theta\circ T_{\Gamma g\Gamma}=\texttt{Tcls}\,g\,n\circ\Theta$ (equivalently
+      $T_{\Gamma g\Gamma}=\texttt{TclsM}\,g\,n$), every $n$: \textbf{open}; [C] \texttt{thm:classical} and \texttt{eq:corconjres} keep no
+      \texttt{\textbackslash LEAN} marker. \ref{thm:classical-model} (weak form, \texttt{proved\_mod\_lit}) is unchanged. The
+      $\delta$-functor route (Weibel 2.2.6) needs $\Theta$ natural in the coefficients and compatible with the connecting maps,
+      $\delta$-compatibility of $\widetilde T$ and of $\mathrm{cor}\circ(c_g)_*\circ\mathrm{res}$ in every degree (on the classical
+      side only $0\to1$ is proved, \ref{thm:m5-delta0}), effaceability in the category of $\Delta$-modules, and degree~$0$ through
+      $\Theta$ (M5 cut, M5-C): M6, with branch P. \emph{Slot 23 (M6-A):} proved for $\Theta_{\mathrm{can}}$ by resolution
+      transport, not by the $\delta$-functor route (\ref{thm:m6-classical}, \ref{thm:m6-classical-model}); M4's $\mathrm{Ext}$-built
+      $\Theta$ is \ref{rmk:m6-open} (A-$\Theta$).
+    \item $\mathrm{cor}\circ\mathrm{res}=[\Gamma:\Gamma'']$ and transversal-independence of \texttt{corH} in every degree (needs the
+      cochain homotopy $\texttt{corFin}\circ\texttt{resFin}\simeq[G:H]$, vendored only in degrees $2$, $3$): M6. \emph{Slot 23 (M6-A):}
+      proved in every degree (\ref{thm:m6-corH-indep}, \ref{thm:m6-cor-res-index}). In degree $1$
+      \texttt{Tcls} is transversal-independent by \ref{thm:m5-heckeH1} (FLT's \texttt{heckeH1} does not depend on one).
+    \item The ring homomorphism $\mathcal H(\Delta,\Gamma)\to\mathrm{End}(H^n)$ ([C] \texttt{obl:algebra}): not M5.
+  \end{itemize}
+\end{remark}

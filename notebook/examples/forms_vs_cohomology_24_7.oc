@@ -1,0 +1,14 @@
+# forms_vs_cohomology_24_7.oc -- the verb forms_algebra(k, ell): the forms side against the cohomology side.
+# Phenomena gallery [PG] sec:pg-forms.  S_24 over F_7 (dim 2) with T_2 from q-expansions (Miller basis), against T_2 on H^1(SL_2(Z); Sym^22 F_7^2):
+# by Eichler-Shimura ([C] thm:classical; no 7-torsion here, dim 5 = 2*2+1) the cohomology charpoly is (forms charpoly)^2 times (x - (1 + 2^23)), the Eisenstein class.
+# Read_only verbs only (notebook-safe).  Cost: < 1 s, < 0.2 GB.
+F = forms_algebra(24, 7, [2, 3], 6);
+print("S_24 over F_7: d =", F.d, " charpoly T_2 =", F.ops[0].charpoly, " charpoly T_3 =", F.ops[1].charpoly);
+M = sl2z_model();
+H = cohomology(symmetric_power(M, 22, 7));
+P = charpoly(hecke(H, 2).A(1));
+print("H^1: dim =", H.dims[1], " charpoly T_2 =", P);
+f = poly(7, F.ops[0].charpoly);
+e = poly(7, [(7 - (1 + 2^23) % 7) % 7, 1]);
+assert(P == mul(mul(f, f), e), "charpoly T_2 on H^1 = (forms charpoly)^2 (x - (1 + 2^23))");
+print("Eisenstein eigenvalue 1 + 2^23 mod 7 =", (1 + 2^23) % 7);

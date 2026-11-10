@@ -1,0 +1,23 @@
+% PDF build of [GT].  Driver only; the content is content.tex.
+\documentclass[a4paper]{report}
+
+\usepackage{geometry}
+\usepackage{expl3}
+\usepackage{amssymb, amsthm, mathtools}
+\usepackage[unicode,colorlinks=true,linkcolor=blue,urlcolor=magenta,citecolor=blue]{hyperref}
+\usepackage[warnings-off={mathtools-colon,mathtools-overbracket}]{unicode-math}
+
+\input{macros/common}
+\input{macros/print}
+
+\title{The Mathematics of Orbifold Cohomology of GL(2): Formal Ground Truth}
+\author{Fabian Januszewski\\ Universit\"at Paderborn\\ \texttt{fabian.januszewski@math.uni-paderborn.de}}
+\date{Version 0.1.0, 2026-11-07 (not yet binding; history in Appendix~\ref{app:gt-history})}
+
+\begin{document}
+\maketitle
+\chapter*{About this blueprint}
+\input{gt_intro}
+\input{content}
+\input{gt_history}
+\end{document}

@@ -1,0 +1,11 @@
+NVIDIA CUDA Toolkit exception (additional permission under Section 7 of the GNU GPL, version 3)
+
+As a special exception, the copyright holders of this project grant you additional
+permission under Section 7 of the GNU General Public License version 3 to link the code
+of this program with the NVIDIA CUDA Toolkit (including its proprietary libraries such as
+`libcudart`), and to convey the resulting linked combinations.
+
+You must comply with the GNU Lesser General Public License version 3 in all respects for
+all of the code used other than the NVIDIA CUDA Toolkit. If you modify this program, you
+may extend this exception to your version of the program, but you are not obligated to do
+so. If you do not wish to do so, delete this exception statement from your version.

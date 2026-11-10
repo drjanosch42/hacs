@@ -1,0 +1,18 @@
+# visible_congruence_48_7.oc -- a congruence that the mod-ell Hecke algebra already sees ("visible"), for contrast
+# with hidden_congruence_300_23.oc.  Phenomena gallery [PG] sec:pg-visible.  Cell (n, ell) = (48, 7), weight 50.
+# Read_only verbs only (notebook-safe).  Cost: ~1 s, < 0.1 GB.
+R = hecke_ring_algebra(48, 7, 2);
+print("primes", R.primes, " K_cls", R.K_cls, " blocks", len(R.blocks));
+for b in R.blocks {
+    print("system", b.system, " D", b.D, " A1", b.A1_hilbert, " AK/ell", b.AK_hilbert, " hidden", b.hidden, " verdict", b.verdict);
+}
+B0 = R.blocks[0];
+assert(B0.A1_hilbert == [1, 1] and B0.AK_hilbert == [1, 1] and not B0.hidden, "visible: A_1 = A_K/ell = F_7[x]/x^2");
+
+# The same non-reduced algebra straight from H^1 mod 7: the decomposition by the anemic T_p.
+R2 = ext_record(48, 7);
+for m in R2.ideals {
+    if m.group == "H1" {
+        print("ideal: dim", m.dim, " a_2 =", m.character(2), " T_m Hilbert", local_algebra(m).hilbert, " nu", m.nilpotency);
+    }
+}

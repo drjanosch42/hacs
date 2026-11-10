@@ -1,0 +1,12 @@
+$ hacs --bench hecke 48 134217757 2
+=== bench hecke (n=48 ell=134217757 p=2, repeat=1) ===
+    [A^(0)=0x0 A^(1)=7x7 A^(2)=0x0]
+    setup (K + model + relations)           0.0007 s
+    cohomology (all q)                      0.0204 s
+    coset tables                            0.0000 s
+    tau table (+ exact certification)       0.0004 s
+    operator assembly (Theta + A^(q))       0.0084 s
+    cohomology-level extraction             0.0000 s
+    TOTAL                                   0.0299 s
+BENCH mode=hecke n=48 ell=134217757 p=2 total_s=0.0299 rss_mb=31.5 dims=0,7,0 xcheck_rc=skipped
+[exit 0]

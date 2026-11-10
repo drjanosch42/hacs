@@ -1,0 +1,3 @@
+ETA_KAPPA ell=37 kappa=32: integral=True; psi_k(eta_kappa) == -ell (1-ell^(k-1))B_k/k mod ell^2 at 37/37; zeros mod ell^2: 37/37
+ETA_KAPPA ell=37 kappa=284: integral=True; psi_k(eta_kappa) == -ell (1-ell^(k-1))B_k/k mod ell^2 at 37/37; zeros mod ell^2: 37/37
+ETA_KAPPA ell=37 kappa=320: integral=True; psi_k(eta_kappa) == -ell (1-ell^(k-1))B_k/k mod ell^2 at 37/37; zeros mod ell^2: 37/37

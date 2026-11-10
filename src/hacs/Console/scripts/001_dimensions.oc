@@ -1,0 +1,41 @@
+# 001_dimensions.oc -- the preservation gate on dimensions.
+#
+# A console session that computes a golden object must reproduce its frozen
+# value.  Every pin is read from GoldenReference.inc through `golden(...)`
+# (plan Sec. 6: "never against a copied number"), so this script cannot drift
+# from the reference and cannot freeze anything of its own.
+
+include("prelude.oc");
+
+L = symmetric_power(MODEL, N_SYM, ELL);
+H = cohomology(L);
+
+assert(L.n == N_SYM, "the local system's n");
+assert(L.p == ELL, "the local system's ell");
+assert(L.d_V == N_SYM + 1, "d_V = n + 1");
+
+# The four PER-COMPLEX degree members (plan Sec. 3.6), all DERIVED.
+assert(H.q_max == len(H.dims) - 1, "q_max is derived from this complex's own degree count");
+assert(H.truncated == false, "a finite model is not truncated");
+assert(H.q_max_source == "derived", "q_max_source is 'set' only where truncated is true");
+assert(H.degrees == [0, 1, 2], "degrees = [0 .. q_max]");
+
+assert(len(H.dims) == golden(POINT_COH, "num_degrees").value, "num_degrees");
+
+for q in H.degrees {
+    assert(H.dims[q] == golden(POINT_COH, "dim_H^" + str(q)).value, "dim H^" + str(q));
+    assert(H.dim_C(q) == golden(POINT_COH, "dim_C_eq^" + str(q)).value, "dim C^" + str(q));
+    assert(len(H.Z(q)) == golden(POINT_COH, "dim_Z_eq^" + str(q)).value, "dim Z^" + str(q));
+    assert(len(H.B(q)) == golden(POINT_COH, "dim_B_eq^" + str(q)).value, "dim B^" + str(q));
+    assert(len(H.H(q)) == H.dims[q], "the H^q basis has dim H^q elements");
+}
+
+assert(dickson_exceptional(N_SYM, ELL) == false, "(10, 691) is not Dickson-exceptional");
+
+
+# (C1b) One printed line, so the frozen `.expected` of this script pins a
+# value and not just an empty transcript.  Every entry of it is asserted above
+# against `golden(...)`.
+print(H.dims, H.q_max, H.truncated, H.q_max_source);
+
+annotate("001_dimensions: dims = " + str(H.dims));

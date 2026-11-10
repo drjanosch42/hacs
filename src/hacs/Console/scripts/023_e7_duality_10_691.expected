@@ -1,0 +1,4 @@
+#! oc-format 1
+[0, 3, 0]
+X^3 + 72*X^2 + 346*X + 4 (mod 691)
+[true, true, true] {t0: true, t1: true, t2: true}

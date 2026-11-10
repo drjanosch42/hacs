@@ -1,0 +1,71 @@
+# 026_c5_leftovers_ring_members.oc -- the C5 leftovers (hecke-extensions slot
+# 10, WP-12; [S10] decision 6 (A); [E] v1.11.0-pre.1 sec:ring (h), [P]
+# v3.8-pre.1 Sec. 3.6): the five STRUCTURAL members of a Z/ell^k handle.
+#
+#   * LocalSystem.n, .d_V (= n + 1, the rank of the free module Sym^n(R^2)),
+#     .coefficient_ring (new in slot 10, on every handle) and HeckeOperator.p,
+#     .r (always 1 on a ring handle) honour on a ring handle, as reads of the
+#     handle's stored data: none forces a computation;
+#   * a member read follows the HANDLE's ring, not the ring in force;
+#   * every other unlisted member keeps refusing (exit 5 outside expect_error);
+#   * a verb handed a handle of another ring refuses it, naming both rings.
+#
+# expect_error matches a substring of the error; the transcript prints only
+# values.  (The member-getter error POSITIONS of decision 6 (i) cannot be
+# pinned by a transcript -- a script stops at its first error -- and are
+# pinned by ConsoleErrorValidation's arm (W).)
+
+include("prelude.oc");
+
+LF = symmetric_power(MODEL, N_SYM, ELL);
+print(LF.n, LF.d_V, LF.coefficient_ring, LF.p);
+
+set coefficient_ring = "Z/ell^2";
+L = symmetric_power(MODEL, N_SYM, ELL);
+H = cohomology(L);
+T = hecke(H, P_HECKE);
+U = hecke(H, ELL);
+
+# ---------------------------------------------------------------------------
+# (1) The five members on a ring handle, read before anything is computed.
+# ---------------------------------------------------------------------------
+print(L.n, L.d_V, L.coefficient_ring);
+print(T.p, T.r, U.p, U.r);
+assert(L.n == N_SYM and L.d_V == N_SYM + 1, "LocalSystem.n / .d_V on a ring handle");
+assert(L.coefficient_ring == "Z/ell^2", "LocalSystem.coefficient_ring on a ring handle");
+assert(T.p == P_HECKE and T.r == 1 and U.p == ELL and U.r == 1, "HeckeOperator.p / .r on a ring handle");
+print(state(L).state, state(H).state, state(T).state, state(U).state);
+assert(state(H).state == "declared" and state(T).state == "declared",
+       "the structural reads force no computation");
+# The coefficient_ring members agree along the chain L -> H -> T.
+assert(H.coefficient_ring == L.coefficient_ring and T.coefficient_ring == L.coefficient_ring,
+       "one ring along the chain");
+
+# ---------------------------------------------------------------------------
+# (2) Every other unlisted member keeps refusing, naming itself.
+# ---------------------------------------------------------------------------
+expect_error "LocalSystem.p" { L.p }
+expect_error "LocalSystem.relations" { L.relations }
+expect_error "Cohomology.ell" { H.ell }
+expect_error "Cohomology.d_V" { H.d_V }
+expect_error "HeckeOperator.cosets" { T.cosets }
+
+# ---------------------------------------------------------------------------
+# (3) A member read follows the handle's ring; a verb refuses another ring's
+#     handle, naming both.
+# ---------------------------------------------------------------------------
+print(LF.p, LF.coefficient_ring);
+set coefficient_ring = "Z/ell^3";
+expect_error "the Cohomology was built over Z/ell^2" { hecke(H, 3) }
+expect_error "the LocalSystem was built over Z/ell^2" { cohomology(L) }
+expect_error "the LocalSystem was built over F_ell" { cohomology(LF) }
+set coefficient_ring = "F_ell";
+print(L.n, L.d_V, L.coefficient_ring, T.p, T.r);
+expect_error "LocalSystem.p" { L.p }
+expect_error "F_ell is in force" { hecke(H, 2) }
+
+# A preset local system is over F_ell.
+print(s1_scalar(1, 5).coefficient_ring);
+
+assert(fingerprint() == "0x0000000000000000", "back at the defaults");
+annotate("026_c5_leftovers_ring_members: the five structural members of a Z/ell^k handle, the handle's own ring, the ring-mismatch rule");

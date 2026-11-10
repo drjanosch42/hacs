@@ -1,0 +1,69 @@
+# 012_report_schema.oc -- the record, frozen against hecke_report/v2.
+#
+# The E0b re-baseline (slot 2 WP-2) is what C1b waited for: it moved the schema
+# to `hecke_report/v2`, added the three per-block locality keys, the
+# `level_c.locality` object and the four PER-COMPLEX degree fields, and
+# corrected the multiplicity note -- 384 golden lines.  Freezing a report
+# transcript before that would have been freezing a schema about to change.
+#
+# This script asserts the SHAPE, key by key, and never the whole text: the
+# report's bytes are already pinned, tier A and tier B, as the golden objects
+# `report_canonical^q` / `report_full^q`, and a second frozen copy of them here
+# would only duplicate that pin at a second place that would have to move with
+# it.  What is NOT pinned anywhere else -- and what this script exists for --
+# is that the CONSOLE's `report(D)` produces that record at all, with its
+# degree fields DERIVED from the complex rather than written as a literal.
+
+include("prelude.oc");
+
+H = cohomology(symmetric_power(MODEL, N_SYM, ELL));
+T2 = hecke(H, P_HECKE);
+D = decompose(T2, 1);
+R = report(D);
+
+# The four per-complex degree fields ([C] sec:recordschema item 5): derived,
+# never a literal 2.
+assert(R.q_max == len(H.dims) - 1, "q_max is this complex's own top degree");
+assert(R.truncated == false, "a finite model is not truncated");
+assert(R.q_max_source == "derived", "q_max_source is 'set' only where truncated is true");
+assert(R.degrees == H.degrees, "degrees = [0 .. q_max]");
+assert(R.degree == 1, "the record is about the degree the decomposition was taken in");
+print(R.schema, R.q_max, R.truncated, R.q_max_source, R.degrees, R.degree, R.level_a);
+
+# The hecke_report/v2 keys, one assertion each.
+for key in ["schema", "ell", "n_sym", "degree", "q_max", "truncated", "q_max_source",
+            "degrees", "poly_coeff_order", "matrix_entry_order", "operators", "level_a",
+            "level_b", "level_c", "cohomology_dim", "locality", "mode", "budget", "source",
+            "complete", "splits", "blocks", "dim", "residue_degree",
+            "residue_degree_certified", "local", "multiplicity_note", "residue_witness",
+            "witness_poly", "coefficient_field", "w_hat_exponent", "P", "min_polys",
+            "char_polys", "jordan_partitions", "basis_columns", "change_of_basis",
+            "certified"] {
+    assert(R.has_key(key), "hecke_report/v2 carries the key '" + key + "'");
+}
+# Level (a) is opt-in: the key is always emitted, and is null unless asked for.
+assert(R.level_a == false, "level (a) is omitted unless asked for");
+RA = report(D, true);
+assert(RA.level_a == true, "level (a) is present when asked for");
+print(RA.level_a, RA.q_max);
+
+# THE STRONGEST PIN IN THE SET.  The golden object `report_full^1` is the FNV
+# of the whole record text; a console `report(D, level_a = true)` reproduces it
+# byte for byte -- so this one line certifies that the console assembles the
+# same HeckeReportInput the golden harness does (ell, n_sym, degree,
+# num_degrees, level (a) and level (b) per prime, level (c)), and not merely a
+# record with the right keys.
+assert(hash(RA.json) == golden(POINT_HECKE, "report_full^1").hash,
+       "report_full^1: the console record IS the golden record");
+
+# The record's own `source` at a DEFAULT session is `default`, never `console`:
+# installing a snapshot re-applies every setting, and a re-application of the
+# shipped value must not restamp it.
+assert(fingerprint() == "0x0000000000000000", "still at the defaults");
+# `P` is keyed by prime (the E0b block-key change): the character object of the
+# locality certificate is a map from the family's primes.
+for b in D.blocks {
+    assert(b.local, "the (10, 691) block is certified local");
+    print(b.witness_poly, b.w_hat_exponent, b.character(2));
+}
+annotate("012_report_schema: hecke_report/v2, " + str(len(R.degrees)) + " degrees");

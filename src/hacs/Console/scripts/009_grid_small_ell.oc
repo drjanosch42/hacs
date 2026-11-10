@@ -1,0 +1,37 @@
+# 009_grid_small_ell.oc -- golden-grid cell class 3: ell in {2, 3}, the regime
+# where the model is NOT group cohomology of SL(2,Z) (the order of the finite
+# stabilisers is divisible by ell) and H^2 need not vanish.
+#
+# The point of freezing it is precisely that: a script class whose asserted
+# facts differ from the classical ones (007), so a change that only holds for
+# large ell cannot pass unnoticed.
+
+include("prelude.oc");
+
+for cell in [[2, 2], [4, 3]] {
+    n = cell[0];
+    ell = cell[1];
+    pt = "n=" + str(n) + " ell=" + str(ell);
+    ptp = pt + " p=2 r=1";
+
+    H = cohomology(symmetric_power(MODEL, n, ell));
+    assert(len(H.dims) == golden(pt, "num_degrees").value, "num_degrees at " + pt);
+    T = hecke(H, 2);
+
+    for q in H.degrees {
+        assert(H.dims[q] == golden(pt, "dim_H^" + str(q)).value, "dim H^" + str(q) + " at " + pt);
+        assert(hash(T.A(q)) == golden(ptp, "A(T_p)^" + str(q)).hash,
+               "A(T_p)^" + str(q) + " at " + ptp);
+        if H.dims[q] > 0 {
+            D = decompose(T, q);
+            obj = "decomp_A(T_p)^" + str(q);
+            assert(D.certify() == golden(ptp, obj + "_certify").value,
+                   obj + "_certify at " + ptp);
+            assert(hash(D) == golden(ptp, obj + "_invariants").hash,
+                   obj + "_invariants at " + ptp);
+            assert(hash(D.U) == golden(ptp, obj + "_U").hash, obj + "_U at " + ptp);
+        }
+    }
+    print(pt, H.dims);
+}
+annotate("009_grid_small_ell: 2 cells");

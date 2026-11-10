@@ -1,0 +1,55 @@
+# 045_c5_pd_loewy_reversal.oc -- [S Stage 9] case 5 (slot-9 WP-13, console
+# phase C5b): D_k against M_k at one weight n >= ell -- the Poincare-duality
+# REVERSAL of the Loewy series.
+#
+# [E] Sec. 5.1 item 5 = E1 identity class 7 = [C] cl:pd(3): for
+# V = X_3 = H^1_c(Gamma; M_n) and W = H^1(Gamma; D_n), paired perfectly by the
+# cone-level Poincare-duality pairing (Hecke/HeckePairing),
+#
+#     rad^i(W) = (soc^i V)^perp        for every i >= 0,
+#
+# each series computed from its OWN operators (A_c(T_q) on V, the
+# contragredient operators on W).  HeckeIdentityCertificate carries it as
+# item 7; `check_identities(H, primes, [7])` assembles its inputs (the
+# contragredient cell, the pairing, the cone actions at q in {2, 3, 7}) and
+# runs the certificate.  [C] cl:pd itself stays OPEN: this is a TEST of it, at
+# one cell, as HeckeDualityCoverageSlowValidation is on 54.
+#
+# (22, 5) is the cell HeckeExtEndToEndValidation's negative control uses:
+# n = 22 >= ell, dim X_3 = 5.
+
+include("prelude.oc");
+
+H = cohomology(symmetric_power(MODEL, 22, 5));
+assert(H.dims == [0, 5, 0], "(22, 5): dim H^q = [0, 5, 0]");
+C = cone(H);
+assert(C.dims == [0, 5, 0], "(22, 5): dim X_3 = dim H^1_c = 5");
+
+X = check_identities(H, [2, 3], [7]);
+assert(X.k_max == 7, "the certificate defines seven items");
+it = X.items[6];
+assert(it.item == 7 and it.name == "socle_loewy_pd", "item 7 is socle <-> Loewy under PD");
+assert(it.status == "passed", "(22, 5): rad^i(W) = (soc^i V)^perp");
+print(it.item, it.name, it.status);
+print("   ", it.detail);
+assert(X.code == 0 and X.failed == 0, "and no applicable item fails");
+
+# At (22, 5) X_3 is semisimple (socle length 1), so the reversal is the
+# trivial one.  The same test at the flagship Kummer cell (10, 691) -- outside
+# the case's n >= ell, but where X_3 carries the non-split Eisenstein block --
+# shows it non-trivially: the socle series of V (0, 2, 3) is the radical
+# series of W (3, 1, 0) read backwards through the pairing.
+H691 = cohomology(symmetric_power(MODEL, N_SYM, ELL));
+Y = check_identities(H691, [2, 3], [7]);
+jt = Y.items[6];
+assert(jt.status == "passed", "(10, 691): rad^i(W) = (soc^i V)^perp");
+print(jt.item, jt.name, jt.status);
+print("   ", jt.detail);
+V = cone(H691);
+assert(V.dims == [0, 3, 0], "(10, 691): dim X_3 = 3");
+Tc = [V.A(2, 1), V.A(3, 1)];
+assert(socle_series(Tc).dims == [0, 2, 3], "(10, 691): soc^i V from A_c(T_2), A_c(T_3): (0, 2, 3)");
+assert(loewy(Tc).dims == [3, 1, 0], "(10, 691): and its Loewy series (3, 1, 0)");
+
+assert(fingerprint() == "0x0000000000000000", "every pin taken at the defaults");
+annotate("045_c5_pd_loewy_reversal: item 7 passed at (22, 5) and (10, 691)");

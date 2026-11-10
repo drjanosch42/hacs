@@ -1,0 +1,15 @@
+# level_n_old_forms_2_7.oc -- the verb level_n(N, n, ell): level N by Shapiro's lemma; old forms and degeneracy.
+# Phenomena gallery [PG] sec:pg-leveln.  H^1(Gamma_0(N); Sym^n F_ell) with the Heilbronn operators ([C] sec:levelN).  Delta of level 1 gives
+# two old forms of level 2 (f(z) and f(2z)); Gamma_0(2) has index 3 in SL_2(Z) and h^1 = 6 here, twice 3.  The operators T_p (p not dividing N)
+# and U_p (p | N) are listed in the record's ops.
+# Read_only verbs only (notebook-safe).  Cost: < 1 s, < 0.2 GB.
+A = level_n(1, 10, 7);
+B = level_n(2, 10, 7);
+print("level 1: index", A.index, " h1 =", A.h1, " dim S_12 =", A.dim_cusp_forms, " cusps =", A.cusps);
+print("level 1: operator", A.ops[0].label, " charpoly", A.ops[0].charpoly);
+print("level 2: index", B.index, " h1 =", B.h1, " dim S_12(Gamma_0(2)) =", B.dim_cusp_forms, " cusps =", B.cusps);
+for o in B.ops {
+    print("level 2: operator", o.label, " bad:", o.bad, " charpoly", o.charpoly);
+}
+assert(B.index == 3);
+assert(B.h1 == 2 * A.h1);

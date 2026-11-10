@@ -1,0 +1,8 @@
+#! oc-format 1
+7 3
+16 43867 u_ell_over_budget 8254.76 2048
+22 2294797 u_ell_over_budget 555729.09 2048
+24 657931 u_ell_over_budget 173541.16 2048
+24 5 5 none_at_cap 2 3 5
+28 7 7 none_at_cap 2 3 7
+off within_budget

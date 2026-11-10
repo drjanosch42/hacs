@@ -1,0 +1,7 @@
+#! oc-format 1
+{ell: 7, ambient_dim: 3, dim: 3, dim_radical: 2, components: 1, local: true, residue_degree: 1, radical_power_dims: [2, 1], nilpotency_index: 3, dim_tangent: 1, embdim: 1, dim_socle: 1, gorenstein: true, hilbert: [1, 1, 1]}
+HeckeAlgebra: dim 2 over F_691, f = 1, embdim 1, nu = 2, Gorenstein
+GF(7^3), C_{ell,r} = X^3 + X^2 + 1 (mod 7)
+[0,1,0] [0,0,1] [0,6,6]
+Atlas Sigma(5): 4 systems [2]
+L_* ranks [1, 1, 0]

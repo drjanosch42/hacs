@@ -1,0 +1,7 @@
+$ hacs --campaign orbifold_small.spec --dry-run
+orbifold campaign 'orbifold_small': 3 cells (orbifold_cell/v2, model c_i, fingerprint 0000000000000000)
+    orb_ell2_n10  ell=2 n=10 m_target=40
+    orb_ell2_n11  ell=2 n=11 m_target=40
+    orb_ell3_n10  ell=3 n=10 m_target=40
+  3 cells total
+[exit 0]

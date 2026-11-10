@@ -1,0 +1,78 @@
+# 042_c5_dickson_class_cone.oc -- [S Stage 9] case 2 (slot-9 WP-13, console
+# phase C5b): the FIRST Dickson class and its gluing in the cone.
+#
+#   ell = 5, 7, 11 and n = ell + 1 (the strategy's "k = p + 1" in Sym^k):
+#   (n, ell) = (6, 5), (8, 7), (12, 11)
+#
+# At n = ell + 1 the Dickson invariant L = x^ell y - x y^ell spans H^0 = M_n^Gamma
+# (dim 1), with the boundary character chi_1: T_q acts on it by q + q^n.  In
+# the long exact sequence of the pair (K, dK) -- the cone's --
+#
+#   0 -> H^0_c -> H^0 -r0-> H^0_bd -iota0-> H^1_c -pi1-> H^1 -r1-> H^1_bd -> H^2_c -> 0
+#
+# the class restricts to ONE of the two boundary lines, and H^1_c is the
+# cokernel: the OTHER boundary character, glued into X_3 = H^1_c through the
+# connecting map.  This script reads that off the console's BoundaryCohomology
+# and ConeCohomology, with the cone action A_c(T_2) built from the certified
+# pair homotopy eta over Z, and -- at (6, 5) -- the record's atlas labels
+# placing the Dickson character among the H^1 ideals.
+
+include("prelude.oc");
+
+for cell in [[6, 5], [8, 7], [12, 11]] {
+    n = cell[0];
+    ell = cell[1];
+    tag = "(" + str(n) + ", " + str(ell) + ")";
+    assert(n == ell + 1, tag + ": the first Dickson weight");
+    assert(dickson_count(n, ell) == 1, tag + ": one Dickson class");
+
+    H = cohomology(symmetric_power(MODEL, n, ell));
+    assert(H.dims == [1, 2, 0], tag + ": dim H^q = [1, 2, 0]");
+    for q in [2, 3] {
+        c = (q + q^n) % ell;
+        assert(hecke(H, q).A(0) == matrix(ell, [[c]]), tag + ": T_" + str(q) + " = chi_1(q) = q + q^n on H^0");
+    }
+    chi1_2 = (2 + 2^n) % ell;
+
+    B = boundary(H);
+    C = cone(H);
+    assert(B.dims == [2, 2] and C.dims == [0, 1, 0], tag + ": H^*_bd = [2, 2], H^*_c = [0, 1, 0]");
+    assert(C.les_exact and C.certificate == 0, tag + ": the LES is exact, the cone re-derives");
+    assert(rank(C.r(0)) == 1, tag + ": r^0 is injective on the Dickson class");
+    assert(rank(C.iota(0)) == 1, tag + ": the connecting map carries the other boundary line onto H^1_c");
+    assert(rank(C.pi(1)) == 0, tag + ": pi^1 = 0 -- H^1_c is glued from the boundary, not from H^1");
+    assert(C.H1_shriek == 0, tag + ": r^1 is injective: H^1_! = 0");
+
+    # The cone action at p = 2: A_c(T_2) on H^1_c is the OTHER eigenvalue of
+    # T_2^bd on H^0_bd, the one the Dickson class does not restrict to.
+    Ac = C.A(2, 1);
+    Tb = B.A(2, 0);
+    assert(trace(Tb) == (chi1_2 + trace(Ac)) % ell,
+           tag + ": tr T_2^bd | H^0_bd = chi_1(2) + A_c(T_2) | H^1_c");
+    assert(C.action_certificate(2) == 0, tag + ": the cone action at p = 2 re-derives");
+    E = C.pair_homotopy(2);
+    assert(E.certify == 0 and E.solve_regime == "Z" and E.integral, tag + ": eta certified over Z");
+    print(tag, "chi_1(2):", chi1_2, "A_c(T_2)|H^1_c:", Ac, "T_2^bd|H^0_bd:", Tb);
+}
+
+# The record at (6, 5): the Dickson ideal (in H0) and its character among H^1's
+# (the atlas label is in process at ell <= 13; one cell keeps the script cheap).
+n = 6;
+ell = 5;
+tag = "(6, 5)";
+R = ext_record(n, ell);
+dickson_system = -1;
+for m in R.ideals {
+    assert(m.local and m.label.type == "eisenstein", tag + ": every ideal local, Eisenstein-type");
+    if m.group == "H0" { dickson_system = m.label.system; }
+}
+assert(dickson_system >= 0, tag + ": the Dickson ideal is labelled");
+seen = 0;
+for m in R.ideals {
+    if m.group == "H1" and m.label.system == dickson_system { seen = seen + 1; }
+}
+assert(seen == 1, tag + ": the Dickson character occurs in H^1 exactly once more");
+print(tag, "Dickson system", dickson_system, "ideals", R.num_ideals);
+
+assert(fingerprint() == "0x0000000000000000", "every pin taken at the defaults");
+annotate("042_c5_dickson_class_cone: 3 first-Dickson cells, the class glued through the cone");

@@ -1,0 +1,30 @@
+# loewy4_258_37.oc -- a mod-37 Hecke algebra of Loewy length 4: T_m/37 = F_37[x]/x^4 at weight 260.
+# Phenomena gallery [PG] sec:pg-loewy4.  Cell (n, ell) = (258, 37), rhobar = omega (+) omega^6 (a = 1 in [L37]).
+# Read_only verbs only (notebook-safe).  Cost: ~65 s, 0.65 GB (part (2), the Z/37^2 route, is ~63 s of it).
+n = 258;
+ell = 37;
+
+# (1) The F_37 extension record: the 8-dimensional block, its algebra and its module structure.
+R = ext_record(n, ell);
+print("ideals", R.num_ideals, " operators", R.operators);
+BI = -1;
+for m in R.ideals { if m.dim == 8 { BI = m.id; } }
+m = R.ideal(BI);
+a2 = (2 + 2^6) % ell;
+print("block: dim", m.dim, " a_2 =", m.character(2), " (omega(2) + omega^6(2) =", a2, ")  U_37 =", m.character(37));
+T = local_algebra(m);
+P = m.modules[0];
+print("T_m/37: dim", T.dim, " Hilbert function", T.hilbert, " Gorenstein", T.gorenstein, " embdim", T.embdim);
+print("H^1_m: Loewy", P.loewy, " socle", P.socle, " Jordan type of n_2", P.jordan(2), " cyclic", P.cyclic);
+assert(T.hilbert == [1, 1, 1, 1], "T_m/37 = F_37[x]/x^4");
+assert(P.jordan(2) == [4, 3, 1], "H^1_m = A + A/x^3 + A/x");
+
+# (2) Saturation: the Z/37^2 Hecke-algebra route.  A_1 (the image mod 37) equals A_K/37: nothing is hidden.
+A = hecke_ring_algebra(n, ell, 2);
+for b in A.blocks {
+    if b.D == 8 {
+        print("Z/37^2 route: D", b.D, " free_rank", b.free_rank, " torsion", b.torsion, " A1", b.A1_hilbert, " AK/ell", b.AK_hilbert,
+              " hidden", b.hidden, " verdict", b.verdict, " (", b.stable_cert, ")");
+        assert(b.A1_hilbert == [1, 1, 1, 1] and not b.hidden, "saturated, Loewy length 4");
+    }
+}

@@ -1,0 +1,8 @@
+#! oc-format 1
+10 11 F_ell 691
+10 11 Z/ell^2
+2 1 691 1
+declared declared declared declared
+691 F_ell
+10 11 Z/ell^2 2 1
+F_ell

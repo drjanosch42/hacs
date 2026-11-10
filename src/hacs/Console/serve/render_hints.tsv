@@ -1,0 +1,49 @@
+# SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
+# SPDX-License-Identifier: LGPL-3.0-only WITH LicenseRef-CUDA-exception
+#
+# render_hints.tsv -- the render hints of the served console ([P] Sec. 18.5 "hint"; slot-24 NB-RENDER R1).
+# The twin of kHintRows in Console/Bindings/PrintJson.cpp: ConsoleReadOnlyTagValidation arm (H) checks that the
+# two agree row for row, in order.  A hint tells the notebook page what a List of Int / String IS
+# mathematically (a polynomial, a q-series, an abelian group, ...); it never changes a value or a canonical text.
+#
+# Columns (TAB-separated): name (a Record `schema` or a registered type name), path below it (`.` = key or
+# member, `[]` = every List element, `*` = any Record key, `m()` = the calls of a member-form object), kind,
+# attributes (space-separated key=value, `-` = none).  The coefficient order is checked per verb, never
+# assumed: the descent's char_Z is HIGH -> LOW, every other charpoly here LOW -> HIGH.
+#
+# kinds: poly (coefficients; order, var, ring), qexp (a_0, a_1, ... of a q-series; ring), abgroup
+# ({free_rank, torsion: [[p, k, mult], ...]}), hilbert (a Hilbert function), layers (Loewy / socle layer
+# dimensions), partition (a Jordan type); (slot-24 R3) cyclic (exponents e_i of (+)_i Z/ell^{e_i}; ell), eigen (a
+# character value P_p in the witness w of the residue field F_ell[w]/(pi_w) = F_{ell^f}; a Poly), lesmap (one map of
+# the Dickson long exact sequence, by its name `map`; n, n_up); (slot-24 NB-TOURFIX) factored (a product of polynomials
+# with multiplicities: a List of {coefficients, degree, multiplicity, irreducible}; order, var, ring).  An attribute `key=@name` is the Int field or member
+# `name`, resolved like the ring parameters (nearest enclosing Record first, then the object).
+#
+# name	path	kind	attrs
+level_n/v1	ops[].charpoly	poly	order=low_to_high var=X ring=F_ell
+nebentypus/v1	ops[].charpoly	poly	order=low_to_high var=X ring=F_ell
+forms_algebra/v1	ops[].charpoly	poly	order=low_to_high var=X ring=F_ell
+forms_algebra/v1	basis[]	qexp	ring=F_ell
+hida_lambda/v1	ops[].charpoly	poly	order=low_to_high var=X ring=Z/ell^W
+hida_tower/v1	levels[].charpoly.*	poly	order=low_to_high var=X ring=Z/ell^e
+hida_tower/v1	levels[].free_charpoly.*	poly	order=low_to_high var=X ring=Z/ell^e
+kummer_unit/v1	coefficients	poly	order=low_to_high var=zeta ring=Z
+lfunction/v1	coefficients	poly	order=low_to_high var=T ring=Z/ell^R
+DescentRecord	groups_inv[]	abgroup	-
+DescentRecord	pair_inv.*[]	abgroup	-
+DescentRecord	charpoly[].coefficients	poly	order=high_to_low var=X ring=Z
+DescentRecord	charpoly_factored[].factors	factored	order=high_to_low var=X ring=Z
+HeckeOperator	charpoly_free.coeffs	poly	order=low_to_high var=X ring=Z/ell^precision
+HeckeAlgebra	hilbert	hilbert	-
+LoewyProfile	loewy	layers	units=f
+LoewyProfile	socle	layers	units=f
+LoewyProfile	jordan()	partition	units=f
+hecke_ring_algebra/v1	blocks[].torsion	cyclic	ell=@ell
+hecke_ring_algebra/v1	blocks[].A1_hilbert	hilbert	-
+hecke_ring_algebra/v1	blocks[].AK_hilbert	hilbert	-
+MaximalIdeal	character()	eigen	var=w f=@residue_degree
+DicksonLES	maps.theta0	lesmap	map=theta0 n=@n n_up=@n_up
+DicksonLES	maps.pi0	lesmap	map=pi0 n=@n n_up=@n_up
+DicksonLES	maps.delta	lesmap	map=delta n=@n n_up=@n_up
+DicksonLES	maps.theta1	lesmap	map=theta1 n=@n n_up=@n_up
+DicksonLES	maps.pi1	lesmap	map=pi1 n=@n n_up=@n_up

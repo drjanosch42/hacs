@@ -1,0 +1,82 @@
+# coverage.oc -- the supplementary cell of ConsoleServeValidation (C2)
+# ([P] v3.10 Sec. 18.11; hecke-extensions slot 19, NB-2).
+#
+# (C2) requires every read_only-tagged overload to be CALLED at least once in
+# the conformance run, under RLIMIT_FSIZE = 0 in an empty working directory.
+# The numbered scripts of Console/scripts/ reach most of them; this cell calls
+# the rest, cheaply, as ONE served eval.  It is not a transcript (nothing here
+# is frozen); it must only run to its end (status ok).  A new tagged verb that
+# no script calls fails (C2) until it is called here.
+
+# --- core --------------------------------------------------------------------
+A = matrix(7, [[1, 2], [3, 4]]);
+show(A);
+display(A, 3);
+describe(A);
+s = repr(A);
+j = json(A);
+k = keys(settings());
+l = range(0, 10, 2);
+a = abs(-3);
+m = min(2, 5);
+t = type(A);
+v = vars();
+vb = verbs();
+ty = types();
+reset_settings();
+sa = script_args();
+
+# --- arithmetic ----------------------------------------------------------------
+x = Fp(7, 3);
+Y = X(7);
+f = poly(7, [1, 2, 1]);
+g = gcd(f, poly(7, [1, 1]));
+pm = powmod(Y, 5, f);
+e = eval(f, 3);
+R = rref(A);
+I = image(A);
+C = column_space(A);
+rv = random_vector(7, 4, 1);
+
+# --- pipeline ------------------------------------------------------------------
+mods = models();
+M = sl2z_model(mods[0]);
+S2 = sphere(2);
+Cy = cylinder();
+Mo = moebius();
+P2 = projective_plane();
+K = complex([[[0], [1], [2]], [[0, 1], [1, 2], [0, 2]]], "triangle");
+H = cohomology(symmetric_power(M, 4, 7));
+compute(H);
+expect_error "" { resume(H) }
+
+# --- reproducibility -------------------------------------------------------------
+hi = hash_int(5);
+gh = golden_has("n=10 ell=691", "nonexistent object");
+gs = golden_size();
+expect_error "" { save_state(H) }
+
+# --- harness ---------------------------------------------------------------------
+va = validations();
+vf = validations("fast");
+spec = campaign_spec_text("n_sym = 10\nell = 691\np = 2\nr = 1\n");
+plan = campaign_plan(spec);
+gsub = golden_subset([[10, 691]]);
+tm = timed(H);
+bench_line(tm);
+bench_line(tm, "timed");
+rs = rss();
+
+# --- reference / extension ---------------------------------------------------------
+hm = help_markdown();
+cf = canonical_field_polynomial(7, 2);
+F = GF(7, 2);
+d = gf_sub(F.gen, F.one);
+lf = lfunction(10, 691, 199);
+
+# --- (slot-24 D6) the integral descent record, under coefficient_ring = Z --------------
+set coefficient_ring = "Z";
+DR = descent(1, 4, [2]);
+dg = DR.groups;
+set coefficient_ring = "F_ell";
+print("coverage cell done");

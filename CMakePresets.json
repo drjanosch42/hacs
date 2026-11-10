@@ -1,0 +1,83 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": { "major": 3, "minor": 21, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "minimal",
+      "displayName": "Minimal (= a plain configure): CUDA on, docs off, notebook off",
+      "description": "The defaults of a plain `cmake -S . -B <dir>`: RelWithDebInfo, the CUDA layer at OC_CUDA_ARCHITECTURES=120, no TeX and no notebook (neither required nor probed).",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "OC_ENABLE_CUDA": "ON",
+        "OC_BUILD_DOCS": "OFF",
+        "OC_BUILD_NOTEBOOK": "OFF"
+      }
+    },
+    {
+      "name": "cpu-only",
+      "inherits": "minimal",
+      "displayName": "CPU-only: no CUDA toolkit needed",
+      "description": "OC_ENABLE_CUDA=OFF: nvcc / libcudart are never searched; EngineCuda is the CPU stub, ENGINE_DEVICE=cpu (the golden path) is the only device path, the device validations print [SKIP].",
+      "cacheVariables": {
+        "OC_ENABLE_CUDA": "OFF"
+      }
+    },
+    {
+      "name": "reference",
+      "displayName": "Reference machine (GCC 11.4, nvcc 13.0, RTX 5070 Ti sm_120): everything on",
+      "description": "The reference machine's configuration: CUDA sm_120, the LaTeX docs targets (`make docs`) and the notebook hooks.",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "OC_ENABLE_CUDA": "ON",
+        "OC_CUDA_ARCHITECTURES": "120",
+        "OC_BUILD_DOCS": "ON",
+        "OC_BUILD_NOTEBOOK": "ON"
+      }
+    },
+    {
+      "name": "jetson-orin",
+      "inherits": "minimal",
+      "displayName": "NVIDIA Jetson Orin (aarch64, CUDA sm_87)",
+      "description": "NVIDIA Jetson Orin (aarch64): CUDA at compute capability 8.7, docs and notebook off.",
+      "cacheVariables": {
+        "OC_CUDA_ARCHITECTURES": "87"
+      }
+    },
+    {
+      "name": "termux",
+      "inherits": "cpu-only",
+      "displayName": "Small device (Termux / phone / any CPU-only host): -O2, no -g, stripped, section-gc",
+      "description": "CPU-only, Release at -O2 (the code shape of record), no debug info, OC_SMALL_BINARY=ON (gc-sections, ICF where the linker has it) and OC_STRIP_BINARY=ON (-s). About 45 MB instead of ~800 MB for the default RelWithDebInfo. `make install/strip` gives the same.",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_FLAGS_RELEASE": "-O2 -DNDEBUG",
+        "OC_SMALL_BINARY": "ON",
+        "OC_STRIP_BINARY": "ON"
+      }
+    },
+    {
+      "name": "aarch64-cpu",
+      "inherits": "termux",
+      "displayName": "aarch64 Linux (Jetson, Graviton, ...), CPU-only, stripped",
+      "description": "The termux preset for an aarch64 Linux host (the CMakeLists adds -ffp-contract=off on aarch64)."
+    },
+    {
+      "name": "jetson-orin-cpu",
+      "inherits": "cpu-only",
+      "displayName": "NVIDIA Jetson Orin (aarch64), CPU-only",
+      "description": "NVIDIA Jetson Orin (aarch64), CPU-only: no CUDA toolkit used."
+    }
+  ],
+  "buildPresets": [
+    { "name": "minimal", "configurePreset": "minimal", "jobs": 8 },
+    { "name": "cpu-only", "configurePreset": "cpu-only", "jobs": 8 },
+    { "name": "reference", "configurePreset": "reference", "jobs": 8 },
+    { "name": "jetson-orin", "configurePreset": "jetson-orin", "jobs": 6 },
+    { "name": "termux", "configurePreset": "termux", "jobs": 4 },
+    { "name": "aarch64-cpu", "configurePreset": "aarch64-cpu", "jobs": 6 },
+    { "name": "jetson-orin-cpu", "configurePreset": "jetson-orin-cpu", "jobs": 6 }
+  ]
+}

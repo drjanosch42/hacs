@@ -1,0 +1,6 @@
+level 1: index 1  h1 = 3  dim S_12 = 1  cusps = 1
+level 1: operator T_2^(N)  charpoly [4, 0, 1, 1]
+level 2: index 3  h1 = 6  dim S_12(Gamma_0(2)) = 2  cusps = 2
+level 2: operator U_2^(N)  bad: true  charpoly [1, 2, 6, 5, 5, 1, 1]
+level 2: operator T_3^(N)  bad: false  charpoly [0, 0, 0, 0, 1, 2, 1]
+level 2: operator T_5^(N)  bad: false  charpoly [0, 0, 0, 0, 2, 6, 1]

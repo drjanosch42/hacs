@@ -1,0 +1,54 @@
+# 002_hecke_pins.oc -- the preservation gate on A(T_p) and Theta.
+#
+# `hash(x)` is the per-kind FNV-1a-64 of Golden/GoldenHarness.cpp over the one
+# src/ModArithmetic/Fnv.h; `golden(point, object)` reads the frozen
+# entry.  Their agreement is the statement that a console session reproduces the
+# golden objects -- which is what the C1a "preservation gate" is.
+
+include("prelude.oc");
+
+H = cohomology(symmetric_power(MODEL, N_SYM, ELL));
+T = hecke(H, P_HECKE);
+
+assert(T.p == P_HECKE, "the Hecke prime");
+assert(T.r == 1, "r = 1");
+
+# The two-route bit identity and the runtime assertions compute() ALREADY ran,
+# unconditionally, on every call -- a console T_p is as certified as a
+# `--bench hecke` one.
+assert(T.certificates.routes_bit_identical, "O12(a): the two evaluation routes agree bit for bit");
+assert(T.certificates.theta_eq_residual_max == 0, "A-N3: the exact Theta_eq residual is 0");
+
+for q in H.degrees {
+    assert(hash(T.A(q)) == golden(POINT_HECKE, "A(T_p)^" + str(q)).hash,
+           "A(T_p)^" + str(q));
+    assert(hash(charpoly(T.A(q))) == golden(POINT_HECKE, "charpoly_A(T_p)^" + str(q)).hash,
+           "charpoly A(T_p)^" + str(q));
+    assert(trace(T.A(q)) == golden(POINT_HECKE, "trace_A(T_p)^" + str(q)).value,
+           "trace A(T_p)^" + str(q));
+    assert(rank(T.A(q)) == golden(POINT_HECKE, "rank_A(T_p)^" + str(q)).value,
+           "rank A(T_p)^" + str(q));
+    assert(hash(T.Theta(q)) == golden(POINT_HECKE, "Theta_flat^" + str(q)).hash,
+           "Theta_flat^" + str(q));
+    assert(hash(T.Theta_eq(q)) == golden(POINT_HECKE, "Theta_eq^" + str(q)).hash,
+           "Theta_eq^" + str(q));
+    assert(rank(T.Theta(q)) == golden(POINT_HECKE, "rank_Theta_flat^" + str(q)).value,
+           "rank Theta_flat^" + str(q));
+}
+
+# The INDEPENDENT second route on a real cochain: Theta_flat's column b is
+# Theta applied to the b-th standard basis vector, both ways.
+Th1 = T.Theta(1);
+# The console has no in-place mutation, so e_0 is one column of the identity.
+e = columns(identity(ELL, Th1.rows), [0]);
+assert(hash(T.apply(1, e)) == hash(T.apply_route2(1, e)),
+       "the fused route and the matrix-free route agree on e_0");
+assert(hash(T.apply(1, e)) == hash(columns(Th1, [0])),
+       "Theta . e_0 is Theta's column 0");
+
+
+# (C1b) The frozen line of this script: the degree count and the A^{(1)} hash,
+# both of which the assertions above already pin through `golden(...)`.
+print(len(H.degrees), hash(T.A(1)));
+
+annotate("002_hecke_pins: " + str(len(H.degrees)) + " degrees pinned against " + POINT_HECKE);

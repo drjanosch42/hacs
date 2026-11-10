@@ -1,0 +1,8 @@
+#! oc-format 1
+s1_scalar(1) [1, 1]
+s1_scalar(2) [0, 0]
+s1_unipotent [1, 1]
+cylinder_scalar(1) [1, 1, 0]
+cylinder_unipotent [1, 1, 0]
+moebius_scalar(1) [1, 1, 0]
+moebius_unipotent [1, 1, 0]

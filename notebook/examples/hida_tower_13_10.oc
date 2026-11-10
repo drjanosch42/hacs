@@ -1,0 +1,12 @@
+# hida_tower_13_10.oc -- the verb hida_tower(n, ell, m): one cell of Hida's weight tower, both readings at once.
+# Phenomena gallery [PG] sec:pg-hidatower.  Class n = 10 mod 12, ell = 13, levels e = 1, 2 ([C] def:hidatower): the ordinary part of
+# H^1(SL_2(Z); Sym^n) over Z/13^e is free of rank 3 (Delta^+, Delta^-, Eisenstein), read on the reduction of the module over Z/13^K and on its free block.
+# Compare hida_control_13.oc, which computes the same characteristic polynomial by hand.
+# Read_only verbs only (notebook-safe).  Cost: ~1 s, < 0.2 GB.
+T = hida_tower(10, 13, 2);
+print("h =", T.h, " e_max =", T.e_max, " K =", T.K, " exps =", T.exps);
+for L in T.levels {
+    print("e =", L.e, " ord_rank =", L.ord_rank, " free_ord_rank =", L.free_ord_rank, " image_free:", L.image_free, " readings agree:", L.readings_agree, " charpoly T_2 =", L.charpoly["2"]);
+    assert(L.readings_agree);
+    assert(L.ord_rank == 3);
+}

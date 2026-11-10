@@ -1,0 +1,55 @@
+# 055_s24_language_tour.oc -- a tour of the small verbs of the core, arithmetic, pipeline and reproducibility groups
+# ([CLI] sec:language, sec:arith, sec:presets; [P] Sec. 3).  Everything here is exact and served (read_only).
+#
+# (1) Values, records and printing.
+r = math_settings();
+print("math_settings() is a Record with the keys", keys(r));
+print("abs(-7) =", abs(-7), " min(3, 5) =", min(3, 5));
+print("repr of a string:", repr("dim"), " json of a list:", json([1, "two", true]));
+print("script_args() without parameters:", script_args());
+x = 42;
+assert(vars().x == 42, "vars() is a Record of the bindings");
+assert(len(verbs()) > 100 and len(types()) > 20, "the registry enumerates its verbs and types");
+#
+# (2) F_p, polynomials and matrices.
+a = Fp(691, 1000);
+print("Fp(691, 1000) =", a);
+T = X(691);
+f = poly(691, [1, 2, 1]);
+g = poly(691, [690, 0, 1]);
+print("gcd(", f, ",", g, ") =", gcd(f, g));
+print("X =", T, " f(2) =", eval(f, 2), " X^691 mod (X^2 + 1) =", powmod(T, 691, poly(691, [1, 0, 1])));
+M = matrix(7, [[1, 2, 3], [2, 4, 6], [1, 0, 1]]);
+print("rref:", rref(M));
+assert(image(M) == column_space(M), "image and column_space are the same basis");
+print("rank 2 column space:", column_space(M));
+v = random_vector(7, 4, 2026);
+assert(v == random_vector(7, 4, 2026), "a seeded random vector is reproducible");
+#
+# (3) A finite field and its elements.
+F = GF(7, 2);
+u = F.elt([1, 2]);
+print("in", F, ": (1 + 2Y) - (1 + 2Y) is zero:", gf_sub(u, u) == F.zero);
+#
+# (4) Simplicial presets: the answers are theorems of topology (coefficients F_5, trivial monodromy).
+print("models():", models());
+for K in [sphere(1), sphere(2), sphere(3), moebius(), projective_plane()] {
+    print(K.name, ": dimension", K.dim, " simplex counts", K.dims, " Euler characteristic", K.euler);
+}
+C = complex([[[0], [1], [2]], [[0, 1], [1, 2], [0, 2]]], "triangle");
+print("a hand-made circle:", C.name, C.dims, C.euler);
+#
+# (5) Reproducibility: hashes and the golden reference.
+H = cohomology(symmetric_power(sl2z_model(), 10, 691));
+assert(hash_int(7) == hash_int(7), "hash_int is a function of the value");
+assert(golden_size() > 0, "the golden reference is present");
+print("golden_has(n=10 ell=691, dim_H^1):", golden_has("n=10 ell=691", "dim_H^1"));
+show(H.dims);
+# describe(x) (= ?x) on a pipeline handle also prints its settings snapshot, thread count included, so this tour describes plain values.
+describe(H.dims);
+#
+# (6) One extension-layer verb without a script of its own: the ell-adic L-function of the branch a = 199 at (10, 691)
+#     ([E] sec:lvlfunction); mu and lambda are its Iwasawa invariants.
+L = lfunction(10, 691, 199);
+print(L.schema, " k =", L.k, " ell =", L.ell, " a =", L.a, " mu =", L.mu, " lambda =", L.lambda);
+print("the first three coefficients of L_a(T):", [L.coefficients[0], L.coefficients[1], L.coefficients[2]]);

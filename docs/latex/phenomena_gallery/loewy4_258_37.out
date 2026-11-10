@@ -1,0 +1,5 @@
+ideals 10  operators [2, 3, 5, 7, 37]
+block: dim 8  a_2 = 29 (mod 37)  (omega(2) + omega^6(2) = 29 )  U_37 = 0 (mod 37)
+T_m/37: dim 4  Hilbert function [1, 1, 1, 1]  Gorenstein true  embdim 1
+H^1_m: Loewy [3, 2, 2, 1]  socle [3, 2, 2, 1]  Jordan type of n_2 [4, 3, 1]  cyclic false
+Z/37^2 route: D 8  free_rank 8  torsion []  A1 [1, 1, 1, 1]  AK/ell [1, 1, 1, 1]  hidden false  verdict stable  ( certified )

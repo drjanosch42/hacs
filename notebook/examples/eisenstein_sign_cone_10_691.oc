@@ -1,0 +1,33 @@
+# eisenstein_sign_cone_10_691.oc -- the involution iota^*, "Eisenstein = +", the boundary and the cone at (10, 691).
+# Phenomena gallery [PG] sec:pg-sign.  Read_only verbs only (notebook-safe).  Cost: < 1 s, < 0.1 GB.
+M = sl2z_model();
+H = cohomology(symmetric_power(M, 10, 691));
+
+# (1) The sign split H^1 = H^1_+ (+) H^1_-, and where the Eisenstein line lives.
+J = iota(H);
+print("dim H^q_+ =", J.dims_plus, " dim H^q_- =", J.dims_minus, " certificate", J.certificate);
+S = J.sign_split(1);
+print("Eisenstein line:", S.eisenstein);
+L = J.eisenstein_line(1);
+print("Eisenstein line in H^1_+:", contains(J.plus(1), L), "  in H^1_-:", contains(J.minus(1), L));
+assert(contains(J.plus(1), L), "the Eisenstein line lies in H^1_+ (the production sign iota^* = -iota^*_geo)");
+assert(J.dims_plus == [0, 2, 0] and J.dims_minus == [0, 1, 0], "Eisenstein + cusp in H^1_+, cusp alone in H^1_-");
+
+# (2) The +/- records: the Eisenstein-cuspidal gluing happens in H^1_+ only.
+R = ext_record(10, 691, cone = true, sign_split = true);
+for m in R.ideals_plus { print("plus :", m, m.modules); }
+for m in R.ideals_minus { print("minus:", m, m.modules); }
+
+# (3) The boundary circle sees only the Eisenstein character 1 + p^11.
+Bd = boundary(H);
+print("dim H^q_bd =", Bd.dims, " T_2 on H^0_bd:", Bd.A(2, 0), " on H^1_bd:", Bd.A(2, 1));
+
+# (4) The cone H^*_c = H^*(Cone(r)): its long exact sequence, H^1_! and the restriction r^1.
+C = cone(H);
+print("dim H^q_c =", C.dims, " rank r^1 =", rank(C.r(1)), " dim H^1_! =", C.H1_shriek, " LES exact:", C.les_exact);
+assert(C.H1_shriek == 2 and rank(C.r(1)) == 1, "r^1 has rank 1: one Eisenstein class reaches the boundary");
+
+# (5) The cone action A_c(T_2) is built from a certified pair homotopy eta over Z.
+E = C.pair_homotopy(2);
+print("eta at p = 2: regime", E.solve_regime, " integral", E.integral, " slots", E.slots, " certify", E.certify);
+print("ConeActionCertificate(2) =", C.action_certificate(2));

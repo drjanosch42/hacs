@@ -1,0 +1,61 @@
+# 013_presets.oc -- the LOCAL-SYSTEM presets of LocalSystemPresets.h:15-23,
+# i.e. the equivariant machinery AWAY from the SL(2,Z) model (plan Sec. 10,
+# Phase C1b: "a `presets` script over the S^1 / cylinder / Moebius local
+# systems").
+#
+# These are the only cells in the whole script set that are NOT on the golden
+# grid, so rule R10 forbids a hash pin here: what is asserted is
+# TOPOLOGY -- dimensions that are theorems about the space and the monodromy,
+# not frozen numbers.  Nothing in this script can move a golden value, and
+# nothing in it reads one.
+#
+# They also carry no tessellation model, which is what makes them the negative
+# control for `hecke` / `family` (exercised in 014).
+
+include("prelude.oc");
+
+ELL_P = 5;
+
+# --- S^1 ------------------------------------------------------------------
+# Trivial monodromy (scalar 1): H^*(S^1; F_ell) = F_ell in degrees 0 and 1.
+S1 = s1_scalar(1, ELL_P);
+assert(S1.d_V == 1, "the scalar local system has rank 1");
+assert(S1.p == ELL_P, "and its coefficient prime");
+H1 = cohomology(S1);
+assert(H1.dims == [1, 1], "H^*(S^1; F_5) with trivial monodromy");
+print("s1_scalar(1)", H1.dims);
+
+# A non-trivial scalar monodromy a != 1 kills both: the invariants and the
+# coinvariants of multiplication by a on F_ell are 0.
+S1b = s1_scalar(2, ELL_P);
+Hb = cohomology(S1b);
+assert(Hb.dims == [0, 0], "a non-trivial scalar monodromy kills H^*(S^1)");
+print("s1_scalar(2)", Hb.dims);
+
+# The rank-2 UNIPOTENT system: (M - I) has rank 1, so ker and coker are lines.
+S1u = s1_unipotent(ELL_P);
+assert(S1u.d_V == 2, "the unipotent local system has rank 2");
+Hu = cohomology(S1u);
+assert(Hu.dims == [1, 1], "the unipotent system on S^1 has a line in each degree");
+print("s1_unipotent", Hu.dims);
+
+# --- the cylinder (homotopy equivalent to S^1) -----------------------------
+CY = cohomology(cylinder_scalar(1, ELL_P));
+assert(CY.dims[0] == 1, "the cylinder is connected");
+assert(CY.dims[1] == 1, "and homotopy equivalent to S^1");
+print("cylinder_scalar(1)", CY.dims);
+CYU = cohomology(cylinder_unipotent(ELL_P));
+print("cylinder_unipotent", CYU.dims);
+
+# --- the Moebius band (also homotopy equivalent to S^1) --------------------
+MB = cohomology(moebius_scalar(1, ELL_P));
+assert(MB.dims[0] == 1, "the Moebius band is connected");
+print("moebius_scalar(1)", MB.dims);
+MBU = cohomology(moebius_unipotent(ELL_P));
+print("moebius_unipotent", MBU.dims);
+
+# The homotopy equivalence is visible: the cylinder and the Moebius band carry
+# the same trivial-monodromy cohomology as S^1 itself.
+assert(CY.dims[0] == H1.dims[0], "cylinder ~ S^1 in degree 0");
+assert(CY.dims[1] == H1.dims[1], "cylinder ~ S^1 in degree 1");
+annotate("013_presets: 7 preset local systems");

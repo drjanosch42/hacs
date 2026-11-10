@@ -1,0 +1,65 @@
+# 044_c5_multiplicity_two.oc -- [S Stage 9] case 4 (slot-9 WP-13, console
+# phase C5b): multiplicity two for Delta's system at weight w + ell^2 - 1.
+#
+#   ell = 5: w = 12, weight 36, n = 34      ell = 7: w = 12, weight 60, n = 58
+#
+# At weight w + ell^2 - 1 the system of Delta (weight 12) occurs twice in
+# H^1(Gamma; Sym^n (x) F_ell) -- once from Delta and once from theta^(ell-1)
+# Delta -- and tau(5) == 0 (mod 5), tau(7) == 0 (mod 7): the anemic operators
+# cannot tell the two copies apart, and whether U_ell does, and whether the
+# copies glue, is what the strategy asks.  [E] records the observed answer as
+# a CONJECTURE-level statement (HeckeExtSmallEllValidation's
+# SMALLELL_DELTA_SPLIT line); this script reads the same facts from the
+# ExtRecord and asserts them as observed values, not as theorems:
+#
+#   (34, 5): U_5 is in S_0 and SEPARATES the two copies -- two maximal ideals
+#            carry the same anemic system (the same atlas label) -- and both
+#            are split (nu = 1);
+#
+# CORRECTION (slot-22 S044, comment only; slot-21 S5 finding): the anemic system
+# shared by the two ideals counted below is NOT Delta's.  At (34, 5) the counted
+# ideals carry the E_36 system (the Eisenstein system of weight 36); the prose
+# above ("the system of Delta occurs twice") describes the strategy's motivation,
+# not what the assertions count.  The assertions are unchanged and read only the
+# atlas labels (`m.label.system`); the transcript is unchanged.  The (58, 7)
+# cell was not re-identified by S5: no system name is claimed for it here.
+#
+#   (58, 7): the two copies again separate under U_7; the non-split ideal of
+#            the cell (nu = 2) is a different system.
+
+include("prelude.oc");
+
+for cell in [[34, 5], [58, 7]] {
+    n = cell[0];
+    ell = cell[1];
+    tag = "(" + str(n) + ", " + str(ell) + ")";
+    assert(n + 2 == 12 + ell^2 - 1, tag + ": weight 12 + ell^2 - 1");
+    R = ext_record(n, ell);
+    assert(R.u_ell.included, tag + ": U_ell admitted");
+    has_u = false;
+    for p in R.operators { if p == ell { has_u = true; } }
+    assert(has_u, tag + ": U_ell is in S_0");
+    print(tag, "operators", R.operators, "S_sep", R.s_sep);
+    assert(R.verify == 0, tag + ": the record re-derives");
+
+    # Count, per anemic system, the H^1 ideals carrying it.
+    doubled = 0;
+    nonsplit = 0;
+    for m in R.ideals {
+        assert(m.local, tag + ": every ideal certified local");
+        if m.nilpotency > 1 { nonsplit = nonsplit + 1; }
+        same = 0;
+        for m2 in R.ideals {
+            if m2.group == "H1" and m.group == "H1" and m2.label.system == m.label.system {
+                same = same + 1;
+            }
+        }
+        if same == 2 and m.nilpotency == 1 { doubled = doubled + 1; }
+        print("  ", tag, m, m.group, "system", m.label.system, "nu", m.nilpotency);
+    }
+    assert(doubled == 2, tag + ": two SPLIT ideals share one anemic system -- U_ell separates them");
+    print(tag, "ideals", R.num_ideals, "doubled", doubled, "non-split", nonsplit);
+}
+
+assert(fingerprint() == "0x0000000000000000", "every pin taken at the defaults");
+annotate("044_c5_multiplicity_two: U_ell separates the two copies at (34, 5) and (58, 7)");

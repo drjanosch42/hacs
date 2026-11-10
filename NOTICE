@@ -1,0 +1,47 @@
+HACS — Harder Arithmetic Cohomology System (formerly Orbifold Cohomology of GL(2))
+Copyright (c) 2024-2026 Fabian Januszewski.
+
+Own code is licensed under LGPL-3.0-only with the NVIDIA CUDA Toolkit exception (LICENSE, LICENSE.GPL),
+lean/ (own files) under Apache-2.0 (lean/LICENSE), documentation under CC-BY-4.0 (docs/LICENSE).
+Overview: COPYRIGHT.md. Full inventory with obligations: docs/licence/THIRD_PARTY.md.
+This product includes the third-party material listed below.
+
+------------------------------------------------------------------------------------------------
+lean/Vendor/AnthropicFLT/
+  25 Lean modules from "Fermat's Last Theorem in Lean 4", https://github.com/anthropics/fermats-last-theorem,
+  commit 6e837e75355538c7f80bab5b956861e86c4eacc2. Copyright 2026 Anthropic, PBC.
+  Licensed under the Apache License, Version 2.0 (lean/Vendor/AnthropicFLT/LICENSE).
+  Upstream's NOTICE and ATTRIBUTION.md are kept unmodified beside the files (lean/Vendor/AnthropicFLT/NOTICE,
+  lean/Vendor/AnthropicFLT/ATTRIBUTION.md).
+  Definitions/Def_AbstractHeckeOperator.lean is adapted (by Anthropic) from the FLT project, Imperial College London,
+  https://github.com/ImperialCollegeLondon/FLT, FLT/AutomorphicForm/QuaternionAlgebra/HeckeOperators/Abstract.lean:
+  Copyright (c) 2025 Kevin Buzzard. Released under the Apache License, Version 2.0.
+  Authors: Kevin Buzzard, Andrew Yang, Matthew Jasper.
+  The files are unmodified; provenance, per-file sha256 and the list of files: lean/Vendor/AnthropicFLT/PROVENANCE.md,
+  lean/Vendor/AnthropicFLT/MANIFEST.tsv.
+
+------------------------------------------------------------------------------------------------
+lean/tools/ReplayExact.lean
+  The body of `replayFromImports` is copied verbatim from the Lean 4 toolchain's `LeanChecker.lean`
+  (leanprover/lean4 v4.33.0, https://github.com/leanprover/lean4). Lean 4: Copyright (c) Microsoft Corporation and
+  the Lean FRO / Lean 4 contributors, Apache License, Version 2.0.
+
+------------------------------------------------------------------------------------------------
+notebook/vendor/katex/
+  KaTeX 0.19.0, https://katex.org, npm package katex (tarball sha256 d8e49f2f..., PROVENANCE.txt). Unmodified.
+  katex.min.js, katex.min.css: MIT License, Copyright (c) 2013-2020 Khan Academy and other contributors
+  (notebook/vendor/katex/LICENSE).
+  fonts/*.woff2 (the KaTeX fonts): SIL Open Font License 1.1, Copyright (c) 2009-2010 Design Science, Inc. and
+  Copyright (c) 2014-2018 Khan Academy (text: LICENSES/OFL-1.1.txt and notebook/vendor/katex/FONTS-LICENSE-OFL.txt). The fonts are used unmodified and are not sold
+  by themselves.
+
+------------------------------------------------------------------------------------------------
+Dependencies fetched at build time and NOT distributed in this repository:
+  Lean 4 toolchain v4.33.0 (Apache-2.0); Mathlib `db584cd` and the Lake packages of lean/lake-manifest.json
+  (Apache-2.0 / their own licences); the NVIDIA CUDA Toolkit (proprietary, NVIDIA EULA; linked dynamically,
+  permitted by the exception in LICENSE); CMake, the C++ compiler, Python 3 standard library (build / tooling).
+
+------------------------------------------------------------------------------------------------
+Algorithms from the literature (implemented independently; no code copied): H. Cohen, "A Course in
+Computational Algebraic Number Theory", GTM 138 (LLL, POLRED, Hessenberg form); D. Knuth, TAOCP vol. 2
+(Algorithm D). Cited as sources in the code comments of NumberField/ and Hecke/.

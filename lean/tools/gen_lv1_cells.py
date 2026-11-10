@@ -1,0 +1,151 @@
+#!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
+# SPDX-License-Identifier: Apache-2.0
+"""LV-1 (slot 22): generate the F_2 cell modules of GL2.L23.TreeF2.
+
+The expected ranks come from an INDEPENDENT reference: rho_n(S), rho_n(U), rho_n(U^2) mod 2 from eq:rhondef via
+math.comb (cross-checked against the full double sum for n <= 40), and a Python elimination.  The Lean kernel
+recomputes everything from n (no literal matrix data) and refuses a wrong value.
+
+  gen_lv1_cells.py            write GL2/L23/CellsF2.lean, GL2/L23/CellsF2Dims.lean (n <= 64 and the medium cells)
+                              and cells/L23/LV1K<n>.lean, cells/L23/LV1Dims.lean (the large cells, lib L23Cells)
+  gen_lv1_cells.py --table    print n, d, h0, h^q, a, s for every generated cell
+"""
+import sys
+from math import comb
+from pathlib import Path
+
+SMALL = list(range(0, 65))
+MEDIUM = [100, 101, 128, 129, 255, 256]
+LARGE = [400, 401, 512, 513, 700, 701, 999, 1000]
+NEG = 46  # the negative-control cell
+
+HDR = "/-\nSPDX-FileCopyrightText: 2024-2026 Fabian Januszewski\nSPDX-License-Identifier: Apache-2.0\n-/\n"
+
+
+def rank(vs):
+    piv, r = {}, 0
+    for v in vs:
+        while v:
+            p = v.bit_length() - 1
+            if p in piv:
+                v ^= piv[p]
+            else:
+                piv[p] = v
+                r += 1
+                break
+    return r
+
+
+def rho_full(n, a, b, c, d):
+    cols = []
+    for j in range(n + 1):
+        v = 0
+        for s in range(n - j + 1):
+            for r in range(j + 1):
+                if comb(n - j, s) * a ** (n - j - s) * c ** s * comb(j, r) * b ** (j - r) * d ** r % 2:
+                    v ^= 1 << (s + r)
+        cols.append(v)
+    return cols
+
+
+def rho(n, shape):
+    cols = []
+    for j in range(n + 1):
+        v = 0
+        for t in range(n + 1):
+            if shape == 'S':
+                e = 1 if t == n - j else 0
+            elif shape == 'U':
+                e = comb(j, t - (n - j)) if t >= n - j else 0
+            else:
+                e = comb(n - j, t)
+            if e % 2:
+                v |= 1 << t
+        cols.append(v)
+    return cols
+
+
+for _n in range(41):
+    assert rho(_n, 'S') == rho_full(_n, 0, 1, 1, 0)
+    assert rho(_n, 'U') == rho_full(_n, 0, 1, 1, 1)
+    assert rho(_n, 'UU') == rho_full(_n, 1, 1, 1, 0)
+
+
+def cell(n):
+    d = n + 1
+    S, U, U2 = rho(n, 'S'), rho(n, 'U'), rho(n, 'UU')
+    oneS = [(1 << j) ^ S[j] for j in range(d)]
+    oneU = [(1 << j) ^ U[j] for j in range(d)]
+    n3 = [(1 << j) ^ U[j] ^ U2[j] for j in range(d)]
+    a = rank(oneS + n3)
+    s = rank([oneS[j] ^ (oneU[j] << d) for j in range(d)])
+    return dict(n=n, d=d, a=a, s=s, h0=d - s, h1=2 * d - a - s)
+
+
+def kernel_facts(c):
+    n, d = c['n'], c['d']
+    return (f"theorem ltA_{n} : rowsLtK {d} (colsA {n}) = true := by decide +kernel\n"
+            f"theorem ltS_{n} : rowsLtK ({d} + {d}) (colsSig {n}) = true := by decide +kernel\n"
+            f"theorem rkA_{n} : rankF2 (colsA {n}) = {c['a']} := by decide +kernel\n"
+            f"theorem rkS_{n} : rankF2 (colsSig {n}) = {c['s']} := by decide +kernel\n")
+
+
+def dims_fact(c):
+    n = c['n']
+    return (f"/-- `n = {n}`: `dim H⁰ = {c['h0']}`, `dim H^q = {c['h1']}` (q ≥ 1). -/\n"
+            f"theorem dims_{n} : finrank (ZMod 2) (groupCohomology (V2 {n}) 0) = {c['h0']} ∧\n"
+            f"    ∀ q, finrank (ZMod 2) (groupCohomology (V2 {n}) (q + 1)) = {c['h1']} :=\n"
+            f"  V2_dims_eq {n} {c['a']} {c['s']} {c['h0']} {c['h1']} ltA_{n} ltS_{n} rkA_{n} rkS_{n} (by norm_num) (by norm_num)\n")
+
+
+def kernel_module(cells, doc, neg=False):
+    out = HDR + "import GL2.L23.TreeF2Exec\n\n/-!\n" + doc + "\n-/\n\nnamespace GL2.L23.Cells\n\nopen GL2.L23.RankF2\n\n"
+    for c in cells:
+        out += kernel_facts(c) + "\n"
+    if neg:
+        c = cell(NEG)
+        out += ("/-! Negative controls: the kernel refuses a rank one too small (the refutation path works). -/\n"
+                f"theorem rkA_{NEG}_ne : rankF2 (colsA {NEG}) ≠ {c['a'] - 1} := by decide +kernel\n"
+                f"theorem rkS_{NEG}_ne : rankF2 (colsSig {NEG}) ≠ {c['s'] - 1} := by decide +kernel\n\n")
+    return out + "end GL2.L23.Cells\n"
+
+
+def dims_module(cells, imports, doc):
+    out = HDR + "".join(f"import {m}\n" for m in imports) + "import GL2.L23.TreeF2\n\n/-!\n" + doc + "\n-/\n\n"
+    out += "namespace GL2.L23.Cells\n\nopen GL2.L23.RankF2 GL2.L23.TreeF2 Module\n\n"
+    for c in cells:
+        out += dims_fact(c) + "\n"
+    return out + "end GL2.L23.Cells\n"
+
+
+def main():
+    here = Path(__file__).resolve().parent.parent
+    sm = [cell(n) for n in SMALL + MEDIUM]
+    lg = [cell(n) for n in LARGE]
+    if '--table' in sys.argv:
+        for c in sm + lg:
+            print(c['n'], c['d'], c['h0'], c['h1'], c['a'], c['s'])
+        return
+    doc_k = ("# LV-1 cells (kernel facts, Mathlib-free): `n ≤ 64` and n = " + ", ".join(map(str, MEDIUM)) + "\n\n"
+             "Generated by `lean/tools/gen_lv1_cells.py` (do not edit).  For each `n`: the width bounds of `colsA n` (`n + 1` bits)\n"
+             "and `colsSig n` (`2(n + 1)` bits) and their ranks over `F₂`, by `decide +kernel` (no `native_decide`, no literal\n"
+             "matrix data: the matrices are rebuilt from `n`).  `GL2.L23.Cells` in `CellsF2Dims.lean` turns them into\n"
+             "`dim H^q(SL₂(ℤ); Sym^n F₂²)` via `GL2.L23.TreeF2.V2_dims_eq`.")
+    (here / 'GL2/L23/CellsF2.lean').write_text(kernel_module(sm, doc_k, neg=True))
+    doc_d = ("# LV-1 cells: `dim_{F₂} H^q(SL₂(ℤ); Sym^n F₂²)`, every `q`, for `n ≤ 64` and n = " + ", ".join(map(str, MEDIUM)) +
+             "\n\nGenerated by `lean/tools/gen_lv1_cells.py` (do not edit).  Each `dims_n` is `V2_dims_eq` applied to the kernel facts\n"
+             "of `CellsF2.lean`; the values agree with the L23 census (`ell = 2`) and an independent Python reference.")
+    (here / 'GL2/L23/CellsF2Dims.lean').write_text(dims_module(sm, ['GL2.L23.CellsF2'], doc_d))
+    (here / 'cells/L23').mkdir(parents=True, exist_ok=True)
+    for c in lg:
+        doc = (f"# LV-1 large cell n = {c['n']} (kernel facts, Mathlib-free; lib `L23Cells`, not a default target)\n\n"
+               "Generated by `lean/tools/gen_lv1_cells.py` (do not edit).")
+        (here / f"cells/L23/LV1K{c['n']}.lean").write_text(kernel_module([c], doc))
+    doc = ("# LV-1 large cells: `dim_{F₂} H^q(SL₂(ℤ); Sym^n F₂²)` for n = " + ", ".join(map(str, LARGE)) +
+           " (lib `L23Cells`, not a default target)\n\nGenerated by `lean/tools/gen_lv1_cells.py` (do not edit).")
+    (here / 'cells/L23/LV1Dims.lean').write_text(dims_module(lg, [f"L23.LV1K{c['n']}" for c in lg], doc))
+
+
+if __name__ == '__main__':
+    main()

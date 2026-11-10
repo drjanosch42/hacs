@@ -1,0 +1,34 @@
+# 052_s22_level_n_nebentypus.oc -- level_n(N, n, ell) and nebentypus(N, m, n, ell), read_only verbs of the slot-22 WP-VERB package
+# ([PG] sec:pg-missing).
+#
+# level_n: H^1(Gamma_0(N); Sym^n F_ell) by Shapiro's lemma ([C] sec:levelN) with the Heilbronn operators T_p / U_p; nebentypus: the same
+# with the Dirichlet character of Conrey label N.m reduced into F_ell.  Level 1 first: h^1 = 2 dim S_{n+2} + 1 (the Eisenstein class), and
+# T_2 has the characteristic polynomial (x - tau(2))^2 (x - (1 + 2^11)) mod 7 for n = 10.
+A = level_n(1, 10, 7);
+print("level 1, n = 10, ell = 7: h1 =", A.h1, " dim S_12 =", A.dim_cusp_forms, " charpoly T_2 =", A.ops[0].charpoly);
+assert(A.h0 == 0);
+assert(A.h1 == 2 * A.dim_cusp_forms + A.cusps);
+assert(A.ops[0].charpoly == [4, 0, 1, 1]);
+# Level 11, weight 2: H^1 has the two cusp-form classes plus the Eisenstein classes of the two cusps (one of them is H^0).
+B = level_n(11, 0, 7);
+print("level 11, n = 0, ell = 7: h0 =", B.h0, " h1 =", B.h1, " index =", B.index, " cusps =", B.cusps);
+assert(B.h1 == 2 * B.dim_cusp_forms + B.cusps - B.h0);
+# The trivial character reproduces Gamma_0(N), operator by operator.
+C = nebentypus(11, 1, 0, 7);
+assert(C.h0 == B.h0);
+assert(C.h1 == B.h1);
+for i in range(0, 3) {
+    assert(C.ops[i].charpoly == B.ops[i].charpoly);
+}
+print("trivial character at (11, 0, 7) agrees with level_n: charpoly T_2 =", C.ops[0].charpoly);
+# A character of order 3 at level 7 (Conrey label 7.2), weight 4, over F_13.
+D = nebentypus(7, 2, 2, 13);
+print("7.2, n = 2, ell = 13: order =", D.order, " h0 =", D.h0, " h1 =", D.h1, " charpoly T_2 =", D.ops[0].charpoly);
+assert(D.order == 3);
+assert(D.parity_ok);
+assert(D.h1 == 4);
+# A negative control: 13.8 has order 4 and is odd, so with n = 4 it has the wrong parity and the cohomology vanishes.
+E = nebentypus(13, 8, 4, 17);
+print("13.8, n = 4, ell = 17: parity_ok =", E.parity_ok, " h1 =", E.h1);
+assert(not E.parity_ok);
+assert(E.h1 == 0);

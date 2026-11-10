@@ -1,0 +1,7 @@
+#! oc-format 1
+integral_hecke_structure/v1  ( 1 , 10 , full )
+  generation per ell: ["2:certified(saturation)", "3:certified(saturation)", "691:certified(saturation)"]
+  C_T: certified:0x2b3
+  (1,22) generation: ["2:certified(eis_single)", "3:certified(eis_single)", "5:certified(saturation)", "103:certified(saturation)", "144169:certified(saturation)", "2294797:certified(saturation)"]
+  (1,22) C_T: certified:0xe16a13b
+  (11,0) anemic: ["2:certified(saturation)", "5:certified(saturation)"]  C_T: certified:0x5

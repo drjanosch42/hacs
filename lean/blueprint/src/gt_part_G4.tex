@@ -1,0 +1,379 @@
+% gt_part_G4.tex -- [GT] Part G4: the projective reduction (T4 §5.1), mathlib's groupCohomologyIsoExt route.
+% Slot 18, stretch package L18-7 (created); slot 19, L19-2 appends the bridge (c), rmk:orbifold on the model and
+% lem:tauexists (2) on the model (M3-c, M3-d, M3-e first half).
+% Read by lean_census.py (gt_part_*.tex).  Lean: lean/GL2/Cone/ProjReduction.lean (namespace GL2.Cone.ProjRed),
+% lean/GL2/Model/Orbifold.lean (namespace GL2.Model), lean/GL2/Model/Bridge.lean (namespace GL2.Model.XBulk),
+% lean/GL2/Model/RmkOrbifold.lean (namespaces GL2.Cone.CochainCx, GL2.Model.XBulk, GL2.Model).
+% Labels: [GT]-only labels. No row here "mirrors" a whole [C] statement: each says which half of [C] rmk:orbifold /
+% lem:tauexists (2) it proves, and the bridge that is NOT proved (carried, docs/implementation/slot18/L18-7_report.md).
+
+\chapter{Part G4. The projective reduction}\label{ch:projred}
+
+\paragraph{Setting.} $k$ a commutative ring, $G$ a group, $\mathrm{Rep}\,k\,G$ mathlib's category of $k$-linear
+representations. [C] \texttt{rmk:orbifold} reduces $H^\bullet_{\mathrm{eq}}(K,\mathrm{Rel};L)\cong H^\bullet(\Gamma;V_R)$ under $6\in R^\times$ to
+three facts: (a) each $R[\Gamma/\Gamma_\sigma]$ is projective because $|\Gamma_\sigma|\in R^\times$; (b) a resolution of $R$ by
+such modules computes group cohomology; (c) $C_\bullet(K^u)\otimes R$ is such a resolution ($K^u\cong X_{\mathrm{bulk}}$
+contractible, H4). This Part proves (a) in general and on the model, and (b) through mathlib's
+\texttt{groupCohomologyIso} (\texttt{groupCohomologyIsoExt} composed with \texttt{ProjectiveResolution.isoExt}); and the
+abstract form of [C] \texttt{lem:tauexists}(2). Since slot 19 (L19-2) it also proves (c): the oriented chains
+$C_q(X_{\mathrm{bulk}})\otimes R$ as a \texttt{ChainComplex (Rep R SL(2,Z)) ℕ} whose terms are the $R[\mathrm{Simp}_q]$ (an
+orientation per orbit, H4(i)), quasi-isomorphic to $R$ for every acyclic descriptor with a vertex (H4(ii), proved for the
+model in Part G2, \texttt{model7\_acyclic}); hence [C] \texttt{rmk:orbifold} for every acyclic descriptor satisfying H4(iv) and
+on the 7-vertex model, with $6\in R^\times$, also in [C]'s $(G,\Gamma,\Delta,e,\rho)$ form (\S\ref{thm:model7-rmkorbifold}), and
+[C] \texttt{lem:tauexists}(2) on the model (\S\ref{lem:tauexists-2-model}), and [C] \texttt{thm:welldef}(b) on the model for $\tau$
+over $R$ (\S\ref{thm:welldef-b}). \textbf{Not here:} the remark for a $K$ outside the descriptor framework.
+
+% ----------------------------------------------------------------------
+\section{Permutation modules with invertible stabiliser orders}
+
+\begin{lemma}[Permutation modules are projective]\label{lem:permproj}
+  % [C] v1.17.0 rmk:orbifold, the sentence "each R[Gamma/Gamma_sigma] is projective relative to the trivial subgroup"
+  % (here: projective outright in Rep k G, which is what the comparison argument uses)
+  \lean{GL2.Cone.ProjRed.sum_single_coset, GL2.Cone.ProjRed.avgL, GL2.Cone.ProjRed.avgL_single,
+    GL2.Cone.ProjRed.avgL_single', GL2.Cone.ProjRed.avg, GL2.Cone.ProjRed.proj, GL2.Cone.ProjRed.permRetract,
+    GL2.Cone.ProjRed.projective_perm, GL2.Cone.ProjRed.orep, GL2.Cone.ProjRed.orep_smul,
+    GL2.Cone.ProjRed.exists_smul_orep, GL2.Cone.ProjRed.wit, GL2.Cone.ProjRed.wit_spec, GL2.Cone.ProjRed.stabFt,
+    GL2.Cone.ProjRed.sumAt, GL2.Cone.ProjRed.sumAt_eq, GL2.Cone.ProjRed.free_sumAt, GL2.Cone.ProjRed.projX,
+    GL2.Cone.ProjRed.projX_sumAt, GL2.Cone.ProjRed.secL, GL2.Cone.ProjRed.secL_single, GL2.Cone.ProjRed.secX,
+    GL2.Cone.ProjRed.permRetractX, GL2.Cone.ProjRed.projective_ofMulAction}
+  \leanok
+  (1) For a finite subgroup $S\le G$ with $|S|\in k^\times$, $k[G/S]$ is a retract of $k[G]$ in $\mathrm{Rep}\,k\,G$
+  ($r:g\mapsto gS$, $i:xS\mapsto|S|^{-1}\sum_{s\in S}xs$), hence projective. (2) More generally, for a $G$-set $X$ all of
+  whose stabilisers $G_x$ are finite with $|G_x|\in k^\times$, $k[X]$ is a retract of the free representation
+  $\bigoplus_X k[G]$, hence projective.
+\end{lemma}
+\begin{proof}
+  \leanok
+  $i$ is well defined and equivariant because $\sum_{s\in S}e_{as}$ depends only on $aS$ (re-index by $a^{-1}b\in S$);
+  $r\circ i=|S|^{-1}\cdot|S|\cdot\mathrm{id}$. For (2): $x\mapsto|G_{o(x)}|^{-1}\sum_{s\in G_{o(x)}}e_{(o(x),\,w(x)s)}$ with
+  $o(x)$ an orbit representative and $w(x)\,o(x)=x$; mathlib's \texttt{Retract.projective} and \texttt{Rep.free\_projective}.
+\end{proof}
+
+\begin{lemma}[Restriction along an injective homomorphism]\label{lem:permproj-res}
+  \lean{GL2.Cone.ProjRed.isUnit_natCast_of_dvd, GL2.Cone.ProjRed.projective_res_perm}
+  \leanok
+  \uses{lem:permproj}
+  If $f:H\to G$ is an injective group homomorphism and $X$ is as in Lemma~\ref{lem:permproj}(2), the restriction of
+  $k[X]$ along $f$ is projective in $\mathrm{Rep}\,k\,H$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  $H_x=f^{-1}(G_x)$ embeds in $G_x$, so it is finite and $|H_x|$ divides $|G_x|$, a unit; apply \ref{lem:permproj}(2) to
+  $H$ acting through $f$.
+\end{proof}
+
+\begin{lemma}[On $X_{\mathrm{bulk}}$ and on the $7$-vertex model]\label{lem:xbulk-permproj}
+  % [C] v1.17.0 rmk:orbifold ("|Gamma_sigma| divides 12", "if moreover 6 in R^x then |Gamma_sigma| in R^x") and H3
+  \lean{GL2.Model.isUnit_of_dvd_twelve, GL2.Model.XBulk.card_stab_mk, GL2.Model.XBulk.finite_stab,
+    GL2.Model.XBulk.isUnit_card_stab, GL2.Model.XBulk.perm_projective, GL2.Model.model7_dvd,
+    GL2.Model.model7_perm_projective}
+  \leanok
+  \uses{lem:permproj, prop:model7h4-i, prop:model7h4-iii, prop:model7h4-iv}
+  If $6\in k^\times$, every divisor of $12$ is a unit of $k$. For an $X_{\mathrm{bulk}}$ descriptor whose representative
+  stabilisers $S(\sigma,\sigma)$ have order dividing $12$, every permutation representation $k[\mathrm{Simp}_q]$ on the
+  $q$-simplices is projective in $\mathrm{Rep}\,k\,\mathrm{SL}_2(\mathbb Z)$ once $6\in k^\times$. For
+  \texttt{model7} the orders are $6,6,4$ at $v_4,v_5,v_6$ and $2$ elsewhere (\texttt{model7\_stab}), so
+  \texttt{model7\_perm\_projective} needs only $6\in k^\times$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  $|\mathrm{Stab}(\gamma\iota\sigma)|=|\mathrm{Stab}(\iota\sigma)|=|S(\sigma,\sigma)|$ (conjugation, \texttt{mem\_stab\_iff}),
+  every simplex is some $\gamma\iota\sigma$ with $\sigma$ a representative (\texttt{fundDomain}); then \ref{lem:permproj}(2).
+\end{proof}
+
+% ----------------------------------------------------------------------
+\section{The reduction}
+
+\begin{theorem}[A projective resolution computes group cohomology]\label{thm:projred}
+  % [C] v1.17.0 rmk:orbifold, the step "the standard comparison arguments ... apply verbatim, giving
+  % H_eq ~ H(Gamma; V_R)", in the form: Hom_G(C, A) for a projective resolution C of k
+  \lean{GL2.Cone.ProjRed.projRes, GL2.Cone.ProjRed.projRed, GL2.Cone.ProjRed.projRedPerm}
+  \leanok
+  \uses{lem:permproj}
+  Let $C$ be a chain complex in $\mathrm{Rep}\,k\,G$ (degrees $\ge0$) with a quasi-isomorphism $C\to k$ (trivial
+  representation in degree $0$). If every $C_n$ is projective, then for every representation $A$ and every $n$,
+  $H^n(\mathrm{Hom}_G(C,A))\cong H^n(G;A)$. In particular this holds when every $C_n$ is isomorphic to a permutation
+  representation $k[X_n]$ with all stabilisers finite of order in $k^\times$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $C$ is a \texttt{ProjectiveResolution} of $k$; mathlib's \texttt{groupCohomologyIso} $=$
+  \texttt{groupCohomologyIsoExt} $\circ$ \texttt{ProjectiveResolution.isoExt}. The permutation form is
+  \ref{lem:permproj}(2) and \texttt{Projective.of\_iso}.
+\end{proof}
+
+\begin{lemma}[Restricted resolution]\label{lem:resprojres}
+  \lean{GL2.Cone.ProjRed.resProjRes}
+  \leanok
+  \uses{lem:permproj-res, thm:projred}
+  A permutation resolution $P$ of $k$ over $G$ (terms $k[X_n]$, stabilisers finite of order in $k^\times$) restricts along
+  an injective $f:H\to G$ to a projective resolution over $H$ of the restriction of $k$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  Restriction is exact (it preserves limits and colimits); projectivity of the terms is \ref{lem:permproj-res}.
+\end{proof}
+
+\begin{theorem}[Existence and homotopy uniqueness of twisted chain maps, abstract form]\label{lem:tauexists-2-abs}
+  % abstract form of [C] v1.17.0 lem:tauexists (2) (and the existence over k of (1)) with 6 in k^x: NOT the concrete
+  % statement on K^u, which needs the bridge (c) of this Part's preamble
+  \lean{GL2.Cone.ProjRed.lift_exists, GL2.Cone.ProjRed.homotopic_of_aug,
+    GL2.Cone.ProjRed.twisted_exists_unique_upto_homotopy}
+  \leanok
+  \uses{lem:resprojres}
+  For projective resolutions $P,Q$ of the same object, a chain map $P\to Q$ compatible with the augmentations exists and
+  any two are chain homotopic. Hence, for a permutation resolution $P$ of $k$ over $G$ as in \ref{lem:resprojres} and two
+  injective $f_1,f_2:H\to G$ (for a $g$-twisted map: $f_1$ the inclusion $\Gamma''\le\Gamma$, $f_2:h\mapsto g^{-1}hg$), an
+  $H$-chain map $\mathrm{res}_{f_1}P\to\mathrm{res}_{f_2}P$ over $\mathrm{id}_k$ exists and any two are homotopic.
+  \emph{Restatement.} [C]'s (2) asks the homotopy to satisfy (T1), i.e.\ to be $\Gamma''$-equivariant into the twisted
+  target: that is exactly a homotopy of $H$-chain maps here. Applying it to $\tau,\tau'$ on $K^u$ needs (c).
+\end{theorem}
+\begin{proof}
+  \leanok
+  Mathlib's \texttt{ProjectiveResolution.lift} and \texttt{liftHomotopy} over $\mathrm{id}$; the two restrictions of
+  $k$ are both the trivial representation of $H$ (definitionally).
+\end{proof}
+
+% ----------------------------------------------------------------------
+\section{The bridge: \texorpdfstring{$C_\bullet(X_{\mathrm{bulk}})\otimes R$}{C(X\_bulk) (x) R} as a resolution (slot 19, L19-2)}
+
+\begin{lemma}[The oriented chains are the permutation module]\label{lem:xbulk-orient}
+  % mirrors [C] v1.18.0 rmk:orbifold, the sentence "C_q(K^u) (x) R is a direct sum of the R[Gamma/Gamma_sigma]"
+  % (with the orientation of each orbit fixed by H4(i)); over Z, before base change
+  \lean{GL2.Model.XBulk.tRep, GL2.Model.XBulk.tRep_mem, GL2.Model.XBulk.rep_rep, GL2.Model.XBulk.orientF,
+    GL2.Model.XBulk.orientF_rel, GL2.Model.XBulk.orient, GL2.Model.XBulk.orient_mk, GL2.Model.XBulk.orient_smul,
+    GL2.Model.XBulk.sgnRep, GL2.Model.XBulk.sgnRep_sq, GL2.Model.XBulk.sgnRep_rep, GL2.Model.XBulk.genQ_eq_orient,
+    GL2.Model.XBulk.toChains, GL2.Model.XBulk.toChains_single, GL2.Model.XBulk.ofFree, GL2.Model.XBulk.ofFree_single,
+    GL2.Model.XBulk.sgnRep_transport, GL2.Model.XBulk.relSub_le_ofFree, GL2.Model.XBulk.ofChains,
+    GL2.Model.XBulk.ofChains_genQ, GL2.Model.XBulk.ofChains_orient, GL2.Model.XBulk.toChains_ofChains,
+    GL2.Model.XBulk.ofChains_toChains, GL2.Model.XBulk.chainsEquivPerm, GL2.Model.XBulk.chainsEquivPerm_symm_single,
+    GL2.Model.XBulk.toChains_smul, GL2.Model.XBulk.ofChains_smul}
+  \leanok
+  \uses{prop:model7h4-i, prop:model7h4-iii}
+  For every $X_{\mathrm{bulk}}$ descriptor and every $q$, fix for each model simplex $\sigma$ a transporter
+  $t_\sigma\in S(\sigma,\hat\sigma)$ to its orbit representative. Then $\mathrm{orient}(\gamma\iota\sigma)=[\gamma t_\sigma,\hat\sigma]$
+  is a well-defined oriented generator of each $q$-simplex, $\mathrm{orient}(\delta s)=\delta\,\mathrm{orient}(s)$, and
+  $[\gamma,\sigma]=\mathrm{sgn}(\sigma,\hat\sigma,t_\sigma)\,\mathrm{orient}(\gamma\iota\sigma)$. Consequently
+  $e_s\mapsto\mathrm{orient}(s)$ is an $\mathrm{SL}_2(\mathbb Z)$-equivariant isomorphism
+  $\mathbb Z[\mathrm{Simp}_q]\cong C_q(X_{\mathrm{bulk}})$ (\texttt{chainsEquivPerm}).
+\end{lemma}
+\begin{proof}
+  \leanok
+  Well defined: if $(\gamma,\sigma)\sim(\gamma',\sigma')$ then $\hat\sigma=\hat\sigma'$ and
+  $u=(\gamma t_\sigma)^{-1}\gamma' t_{\sigma'}\in S(\hat\sigma,\hat\sigma)$, whose sign is $1$ by H4(i) (\texttt{noInv}). The
+  inverse sends $[\gamma,\sigma,\varepsilon]$ to $\varepsilon\,\mathrm{sgn}(\sigma,\hat\sigma,t_\sigma)e_{\gamma\iota\sigma}$; it kills the
+  oriented relations because $\mathrm{sgn}(\sigma,\hat\sigma,t_\sigma)=\mathrm{sgn}(\sigma,\sigma',u)\,\mathrm{sgn}(\sigma',\hat\sigma,t_{\sigma'})$
+  (multiplicativity and H4(i)). The sign is read off the oriented relation, not chosen.
+\end{proof}
+
+\begin{lemma}[A contracting homotopy over $\mathbb Z$]\label{lem:xbulk-contractz}
+  % mirrors [C] v1.18.0 rmk:orbifold ("K^u ~ X_bulk is contractible", H4(ii)) in the form the comparison uses:
+  % the augmented chain complex of free Z-modules is split exact
+  \lean{GL2.Model.XBulk.dZ, GL2.Model.XBulk.augZ, GL2.Model.XBulk.dZ_dZ, GL2.Model.XBulk.augZ_dZ,
+    GL2.Model.XBulk.dZ_smul, GL2.Model.XBulk.augZ_smul, GL2.Model.XBulk.aug_genQ, GL2.Model.XBulk.augZ_single,
+    GL2.Model.XBulk.exactZ0, GL2.Model.XBulk.exactZ1, GL2.Model.XBulk.exactZ2, GL2.Model.XBulk.ContractZ,
+    GL2.Model.XBulk.contractZ}
+  \leanok
+  \uses{lem:xbulk-orient, def:xbulk-acyclic}
+  Transport $\partial$ and $\varepsilon$ to $\mathbb Z[\mathrm{Simp}_\bullet]$ through \ref{lem:xbulk-orient}. If
+  $X_{\mathrm{bulk}}$ is acyclic (\texttt{Acyclic}) and has a vertex $v$, there are $z=e_{\iota v}$ and $\mathbb Z$-linear
+  $s_0,s_1$ with $\varepsilon z=1$, $\partial s_0=1-z\varepsilon$, $\partial s_1=1-s_0\partial$ and $s_1\partial=1$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  Exactness at each spot is \texttt{Acyclic}; $s_0$ and $s_1$ are lifts through the surjections onto the images of
+  $\partial$, which exist because $\mathbb Z[\mathrm{Simp}_q]$ is free (\texttt{Module.projective\_lifting\_property});
+  $s_1\partial=1$ because $\partial(x-s_1\partial x)=0$ and $\partial$ is injective in degree $2$.
+\end{proof}
+
+\begin{lemma}[Base change $\mathbb Z\to R$ of maps between permutation modules]\label{lem:xbulk-basechange}
+  \lean{GL2.Model.XBulk.castF, GL2.Model.XBulk.castF_single, GL2.Model.XBulk.castF_mapDomain, GL2.Model.XBulk.bcF,
+    GL2.Model.XBulk.bcF_single, GL2.Model.XBulk.castF_zsmul, GL2.Model.XBulk.bcF_castF, GL2.Model.XBulk.bcF_comp,
+    GL2.Model.XBulk.bcF_id, GL2.Model.XBulk.bcF_sub, GL2.Model.XBulk.bcF_zero, GL2.Model.XBulk.bcA,
+    GL2.Model.XBulk.bcA_single, GL2.Model.XBulk.bcA_castF, GL2.Model.XBulk.bcA_zero, GL2.Model.XBulk.bcA_comp,
+    GL2.Model.XBulk.bcF_smulRight, GL2.Model.XBulk.bcF_mapDomain, GL2.Model.XBulk.bcA_mapDomain,
+    GL2.Model.XBulk.repMap, GL2.Model.XBulk.repMap_hom_apply, GL2.Model.XBulk.repAugMap,
+    GL2.Model.XBulk.repAugMap_hom_apply}
+  \leanok
+  For a $\mathbb Z$-linear $f:\mathbb Z[S]\to\mathbb Z[T]$, $f_R(e_s)=f(e_s)\otimes1$ defines an $R$-linear
+  $R[S]\to R[T]$ with $(gf)_R=g_Rf_R$, $1_R=1$, $(f-f')_R=f_R-f'_R$, $f_R(x\otimes1)=f(x)\otimes1$; likewise for
+  $\mathbb Z$-linear forms. If $f$ is $G$-equivariant, so is $f_R$, which is then a morphism of permutation
+  representations.
+\end{lemma}
+\begin{proof}
+  \leanok
+  Check on the basis $e_s$; $f_R(x\otimes1)=f(x)\otimes1$ by induction over $x$.
+\end{proof}
+
+\begin{definition}[The complex of permutation representations]\label{def:xbulk-repcx}
+  % mirrors [C] v1.18.0 rmk:orbifold, "C_bullet(K^u) (x) R", as a complex in Rep R Gamma
+  \lean{GL2.Model.XBulk.repX, GL2.Model.XBulk.repD, GL2.Model.XBulk.repD_repD, GL2.Model.XBulk.repCx,
+    GL2.Model.XBulk.repCx_iso_perm, GL2.Model.XBulk.repCx_d, GL2.Model.XBulk.repEps, GL2.Model.XBulk.repD_repEps,
+    GL2.Model.XBulk.repAug, GL2.Model.XBulk.repAug_f_zero}
+  \leanok
+  \uses{lem:xbulk-orient, lem:xbulk-basechange}
+  $\mathtt{repCx}\,D\,R$ is the chain complex $\cdots\to R[\varnothing]\to R[\mathrm{Simp}_2]\to R[\mathrm{Simp}_1]\to R[\mathrm{Simp}_0]$
+  (in degrees $\ge3$ the term is $R[\mathrm{Simp}_q]=R[\varnothing]\cong0$, not literally $0$: \texttt{dim2}; F3-19 MINOR 8) in
+  $\mathrm{Rep}\,R\,\mathrm{SL}_2(\mathbb Z)$ whose differentials are the base changes of $\partial$ (\ref{lem:xbulk-contractz});
+  its terms are the permutation representations by construction (\texttt{repCx\_iso\_perm} is the identity), and
+  $\mathtt{repAug}:\mathtt{repCx}\to R$ is the base change of $\varepsilon$.
+\end{definition}
+\begin{proof}
+  \leanok
+  Definition; $\partial_R\partial_R=(\partial\partial)_R=0$ and $\varepsilon_R\partial_R=(\varepsilon\partial)_R=0$ by
+  \ref{lem:xbulk-basechange}.
+\end{proof}
+
+\begin{theorem}[The augmentation is a quasi-isomorphism]\label{thm:xbulk-repaug}
+  % mirrors [C] v1.18.0 rmk:orbifold, "C_bullet(K^u) (x) R -> R is a resolution" (K^u contractible, H4(ii)),
+  % over any commutative ring R; and the resulting projective resolution on the model for 6 in R^x
+  \lean{GL2.Model.XBulk.contractR, GL2.Model.XBulk.exact_zero, GL2.Model.XBulk.exact_succ_core,
+    GL2.Model.XBulk.repEps_surjective, GL2.Model.XBulk.exact_succ, GL2.Model.XBulk.repAug_quasiIso, GL2.Model.model7_repAug_quasiIso,
+    GL2.Model.model7_projRes, GL2.Model.model7_projRes_complex}
+  \leanok
+  \uses{lem:xbulk-contractz, def:xbulk-repcx, prop:model7h4-ii, lem:xbulk-permproj, thm:projred}
+  For an acyclic $X_{\mathrm{bulk}}$ descriptor with a vertex and any commutative ring $R$, $\mathtt{repAug}$ is a
+  quasi-isomorphism. On the 7-vertex model (\texttt{model7\_acyclic}) and with $6\in R^\times$,
+  $C_\bullet(\mathtt{model7})\otimes R\to R$ is a projective resolution of the trivial representation
+  (\texttt{model7\_projRes}).
+\end{theorem}
+\begin{proof}
+  \leanok
+  The base change of the contracting homotopy of \ref{lem:xbulk-contractz} satisfies the same identities over $R$
+  (\ref{lem:xbulk-basechange}), so the augmented $R$-complex is exact; exactness in $\mathrm{Rep}$ is checked on underlying
+  modules (\texttt{reflects\_exact\_of\_faithful}); in degrees $\ge3$ the terms are $0$. Projectivity is
+  \ref{lem:xbulk-permproj}.
+\end{proof}
+
+\begin{theorem}[\texttt{lem:tauexists}(2) on the model]\label{lem:tauexists-2-model}
+  % mirrors [C] v1.18.0 lem:tauexists (2) on the 7-vertex model with 6 in R^x, as homotopy uniqueness of
+  % augmentation-compatible H-chain maps res_{f1} C(model7) (x) k -> res_{f2} C(model7) (x) k (and existence over k)
+  \lean{GL2.Model.model7_tauexists_2}
+  \leanok
+  \uses{thm:xbulk-repaug, lem:tauexists-2-abs}
+  Let $6\in k^\times$ and $f_1,f_2:H\to\mathrm{SL}_2(\mathbb Z)$ injective (for a $g$-twisted map: the inclusion of
+  $\Gamma''$ and $h\mapsto g^{-1}hg$). An $H$-chain map $\mathrm{res}_{f_1}(C_\bullet(\mathtt{model7})\otimes k)\to
+  \mathrm{res}_{f_2}(C_\bullet(\mathtt{model7})\otimes k)$ over $\mathrm{id}_k$ exists, and any two are chain homotopic.
+  \emph{Restatement.} This is [C]'s (2) for maps over $k$; the passage from a $\tau$ on $\mathbb Z$-chains to its
+  base change, and the consequence [C] \texttt{thm:welldef}(b) on cohomology, are \S\ref{thm:welldef-b}.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{lem:tauexists-2-abs} on \texttt{model7\_projRes}, with the terms $k[\mathrm{Simp}_n]$ (stabilisers finite, of order
+  dividing $12$).
+\end{proof}
+
+% ----------------------------------------------------------------------
+\section{\texttt{rmk:orbifold} on the model (slot 19, L19-2)}
+
+\begin{lemma}[Cohomology of the cone layer's complexes]\label{lem:cochaincx-homology}
+  \lean{GL2.Cone.CochainCx.toNat, GL2.Cone.CochainCx.toNat_d, GL2.Cone.CochainCx.toNat_d_zero,
+    GL2.Cone.CochainCx.scMk, GL2.Cone.CochainCx.homologyMk, GL2.Cone.CochainCx.comap_B_succ,
+    GL2.Cone.CochainCx.comap_B_zero, GL2.Cone.CochainCx.homologyEquivSucc, GL2.Cone.CochainCx.homologyEquivZero,
+    GL2.Cone.CochainCx.homologyEquiv}
+  \leanok
+  For a $\mathbb Z$-graded cochain complex $C$ of the cone layer with $C^{-1}=0$, its non-negative part is a mathlib
+  \texttt{CochainComplex (ModuleCat R) ℕ} and $H^n(C)=Z^n/B^n$ is isomorphic to its homology in degree $n$, for every
+  $n\ge0$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  \texttt{homologyIsoSc'} and \texttt{moduleCatHomologyIso} identify mathlib's homology with
+  $\ker d^n/\operatorname{im}d^{n-1}$; in degree $0$ the incoming map is $0$ and $B^0=0$ because $C^{-1}=0$.
+\end{proof}
+
+\begin{lemma}[Equivariant cochains on chains and on the permutation modules]\label{lem:xbulk-homeqv}
+  % mirrors [C] v1.18.0 thm:explicit_complex_equiv (1) composed with Hom_Gamma(C_q(K^u), V) = Hom_Gamma(R[Simp_q], V)
+  \lean{GL2.Model.XBulk.ρA, GL2.Model.XBulk.hTop, GL2.Model.XBulk.EqCA, GL2.Model.XBulk.relCxA,
+    GL2.Model.XBulk.ρL_A, GL2.Model.XBulk.isEqv_A, GL2.Model.XBulk.homFwdL, GL2.Model.XBulk.homFwdL_castF,
+    GL2.Model.XBulk.homFwdL_bcF_dZ, GL2.Model.XBulk.homFwd, GL2.Model.XBulk.homFwd_apply, GL2.Model.XBulk.homBwdF,
+    GL2.Model.XBulk.homBwdF_apply, GL2.Model.XBulk.homBwdF_mem, GL2.Model.XBulk.homEqv, GL2.Model.XBulk.homEqv_d,
+    GL2.Model.XBulk.relHomEqv, GL2.Model.XBulk.relCxA_subsingleton, GL2.Model.XBulk.homEqv_iso}
+  \leanok
+  \uses{lem:xbulk-orient, def:xbulk-repcx, thm:psi, lem:cochaincx-homology}
+  For a representation $A$ of $\mathrm{SL}_2(\mathbb Z)$ over $R$ (as the local system with $\Gamma=\Delta=G=\mathrm{SL}_2(\mathbb Z)$),
+  $\mathrm{Hom}_\Gamma(C_q(X_{\mathrm{bulk}}),A)\cong\mathrm{Hom}_{\mathrm{Rep}}(R[\mathrm{Simp}_q],A)$ compatibly with the
+  coboundaries; with $\Psi$ this is an isomorphism of cochain complexes
+  $C^\bullet_{\mathrm{eq}}(K,\mathrm{Rel};A)\cong\mathrm{Hom}(\mathtt{repCx},A)$ in degrees $\ge0$ (\texttt{homEqv\_iso}).
+\end{lemma}
+\begin{proof}
+  \leanok
+  $\varphi\mapsto(e_s\mapsto\varphi(\mathrm{orient}\,s))$ with inverse $f\mapsto f\circ(\text{\ref{lem:xbulk-orient}}\otimes R)$;
+  compatibility with $d$ on the basis: $\varphi(\partial\,\mathrm{orient}\,s)=\varphi_R(\partial_R e_s)$. Then compose with
+  $\Psi^{-1}$ (\texttt{phi\_isChainMap}).
+\end{proof}
+
+\begin{theorem}[\texttt{rmk:orbifold} for acyclic descriptors; on the 7-vertex model]\label{thm:model7-rmkorbifold}
+  % mirrors [C] v1.18.0 rmk:orbifold, the clause "if 6 in R^x, H_eq(K, Rel; L) = H(Gamma; V_R)", for every X_bulk
+  % descriptor satisfying H4(ii) (as Acyclic) and H4(iv), and on the 7-vertex model (F3-19 MINOR 2, 3); the remark's K
+  % outside the descriptor framework, and its proof route, are not claimed
+  \lean{GL2.Model.rmkOrbifold, GL2.Model.model7_rmkOrbifold, GL2.Model.ρLRep, GL2.Model.relCx_eq_relCxA,
+    GL2.Model.rmkOrbifoldL, GL2.Model.model7_rmkOrbifoldL}
+  \leanok
+  \uses{thm:xbulk-repaug, lem:xbulk-homeqv, lem:cochaincx-homology, thm:projred, lem:xbulk-permproj, prop:model7h4-ii}
+  Let $D$ be an $X_{\mathrm{bulk}}$ descriptor that is acyclic in the form \texttt{eq:contractibleuse} (\texttt{Acyclic}, H4(ii)),
+  has a vertex, and whose representative stabiliser orders divide $12$ (H4(iv)); let $6\in k^\times$ and $A$ a representation of
+  $\mathrm{SL}_2(\mathbb Z)$ over $k$. For every $n\ge0$, $H^n(C^\bullet_{\mathrm{eq}}(K,\mathrm{Rel};A))\cong
+  H^n(\mathrm{SL}_2(\mathbb Z);A)$ (\texttt{rmkOrbifold}); on the 7-vertex model this is \texttt{model7\_rmkOrbifold}. In [C]'s
+  $(G,\Gamma,\Delta,e,\rho)$ form: for a $\Delta$-module $L=(V,\rho)$, $\Gamma\subseteq\Delta\subseteq G$, $e:\Gamma\cong\mathrm{SL}_2(\mathbb Z)$,
+  the relative complex depends on $\rho$ only through $\rho_L=\rho\circ e^{-1}$ and \emph{is} the one with coefficients in the
+  representation $V_L=(V,\rho_L)$ (\texttt{relCx\_eq\_relCxA}, definitionally), so
+  $H^n(C^\bullet_{\mathrm{eq}}(K,\mathrm{Rel};L))\cong H^n(\mathrm{SL}_2(\mathbb Z);V_L)$ (\texttt{rmkOrbifoldL},
+  \texttt{model7\_rmkOrbifoldL}).
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{lem:cochaincx-homology}, then the homology of \texttt{homEqv\_iso} (\ref{lem:xbulk-homeqv}), then
+  \ref{thm:projred} on the projective resolution $(\mathtt{repCx}\,D\,k,\mathtt{repAug})$ (\ref{thm:xbulk-repaug},
+  \ref{lem:xbulk-permproj}); on the model at \texttt{model7\_acyclic}, \texttt{model7\_dvd} and $v_0$. The $(G,\Gamma,\Delta,e,\rho)$
+  form is the case $A=V_L$.
+\end{proof}
+
+\begin{theorem}[\texttt{thm:welldef}(b) on the 7-vertex model]\label{thm:welldef-b}
+  % mirrors [C] v1.18.0 thm:welldef (b) ("T_g on H^n does not depend on tau"), with lem:tauexists (2), on the 7-vertex
+  % model, coefficients over R with 6 in R^x; the coset data are held fixed ((a) is thm:welldef-lean)
+  \lean{GL2.Model.XBulk.Γpp, GL2.Model.XBulk.conjHom, GL2.Model.XBulk.coe_conjHom, GL2.Model.XBulk.fIncl,
+    GL2.Model.XBulk.fConj, GL2.Model.XBulk.fIncl_injective, GL2.Model.XBulk.fConj_injective, GL2.Model.XBulk.τc,
+    GL2.Model.XBulk.τc_twist, GL2.Model.XBulk.τc_bd, GL2.Model.XBulk.τc_aug, GL2.Model.XBulk.τZ,
+    GL2.Model.XBulk.τZ_apply, GL2.Model.XBulk.τZ_ofChains, GL2.Model.XBulk.τZ_twist, GL2.Model.XBulk.dZ_τZ,
+    GL2.Model.XBulk.augZ_τZ, GL2.Model.XBulk.bcF_mapDomain', GL2.Model.XBulk.τRep, GL2.Model.XBulk.τRep_hom_apply,
+    GL2.Model.XBulk.P₁, GL2.Model.XBulk.P₂, GL2.Model.XBulk.P₁_d, GL2.Model.XBulk.P₂_d, GL2.Model.XBulk.τCx,
+    GL2.Model.XBulk.eps_τRep, GL2.Model.XBulk.eps_τRep_sub, GL2.Model.XBulk.τCx_sub_comm, GL2.Model.XBulk.htpy,
+    GL2.Model.XBulk.hL, GL2.Model.XBulk.hL_add, GL2.Model.XBulk.hL_smul, GL2.Model.XBulk.hL_twist,
+    GL2.Model.XBulk.htpy_zero, GL2.Model.XBulk.htpy_succ, GL2.Model.XBulk.embR, GL2.Model.XBulk.embR_add,
+    GL2.Model.XBulk.linR, GL2.Model.XBulk.linR_zero, GL2.Model.XBulk.linR_castF, GL2.Model.XBulk.linR_embR,
+    GL2.Model.XBulk.embR_bd, GL2.Model.XBulk.linR_bcF, GL2.Model.XBulk.embR_smul, GL2.Model.XBulk.permCx,
+    GL2.Model.XBulk.linR_mem, GL2.Model.XBulk.embR_τ, GL2.Model.XBulk.hF, GL2.Model.XBulk.hF_t1,
+    GL2.Model.XBulk.hTilde, GL2.Model.XBulk.cocycle_diff, GL2.Model.XBulk.cocycle_diff_zero,
+    GL2.Model.XBulk.heckeTilde_indep_tau, GL2.Model.XBulk.TauR.twist, GL2.Model.XBulk.TauR.σ, GL2.Model.XBulk.TauR.eps_sub,
+    GL2.Model.XBulk.TauR.sub_comm, GL2.Model.XBulk.htpyR, GL2.Model.XBulk.hLR, GL2.Model.XBulk.hLR_twist,
+    GL2.Model.XBulk.htpyR_zero, GL2.Model.XBulk.htpyR_succ, GL2.Model.XBulk.linR_add, GL2.Model.XBulk.linR_smul,
+    GL2.Model.XBulk.FR, GL2.Model.XBulk.FR_t1, GL2.Model.XBulk.linR_FR_bd, GL2.Model.XBulk.heckeTildeR_isChainMap,
+    GL2.Model.XBulk.hFR, GL2.Model.XBulk.hFR_t1, GL2.Model.XBulk.hTildeR, GL2.Model.XBulk.cocycle_diffR,
+    GL2.Model.XBulk.cocycle_diffR_zero, GL2.Model.XBulk.heckeTildeR_indep_tau, GL2.Model.XBulk.heckeTilde_indep_tau',
+    GL2.Model.isChainMap_comp, GL2.Model.HmapOf_comp, GL2.Model.HmapOf_congr, GL2.Model.XBulk.heckeRel_indep_tau}
+  \leanok
+  \uses{thm:welldef-lean, lem:tauexists-2-model, thm:xbulk-repaug, lem:xbulk-basechange, lem:xbulk-homeqv}
+  Let $\Gamma\le G$ with $e:\Gamma\cong\mathrm{SL}_2(\mathbb Z)$, $g\in G$, coset data for $\Gamma g\Gamma$, and $V$ an $R$-module
+  with $\rho:\Delta\to\mathrm{End}_R V$, $6\in R^\times$. For two $g$-twisted chain data $\tau,\tau'$ on $C_\bullet(\mathtt{model7})$
+  ((T1)--(T3)) \textbf{over $R$} (\texttt{TauR}, \ref{def:heckeP}; F3-19 MINOR 1), $\widetilde T_\tau$ and $\widetilde T_{\tau'}$
+  (\texttt{heckeTildeR}) induce the same map on $H^n(\mathrm{Hom}_\Gamma(C_\bullet,V))$ for every $n\ge0$
+  (\texttt{heckeTildeR\_indep\_tau}). A $\tau$ over $\mathbb Z$, base-changed, is the instance \texttt{TauR.ofTau}
+  (\texttt{heckeTilde\_indep\_tau}, re-derived as \texttt{heckeTilde\_indep\_tau'}). The same holds on the relative complex
+  $H^n_{\mathrm{eq}}(K,\mathrm{Rel};L)$ itself, for the $\Psi$-transport \texttt{heckeRel} (\texttt{heckeRel\_indep\_tau}, through
+  \texttt{HmapOf\_comp}; F3-19 MINOR 4).
+\end{theorem}
+\begin{proof}
+  \leanok
+  Base-change $\tau,\tau'$ to chain maps $\tau_R,\tau'_R:\mathrm{res}_{f_1}(C_\bullet\otimes R)\to\mathrm{res}_{f_2}(C_\bullet\otimes R)$
+  of representations of $\Gamma''$ ($f_1$ the inclusion, $f_2:h\mapsto g^{-1}hg$; (T1) is the equivariance, (T2) the chain
+  map property). By (T3) $\tau_R-\tau'_R$ lies over $0$, and the source is a projective resolution
+  (\ref{lem:tauexists-2-model}), so $\tau_R-\tau'_R=\partial h+h\partial$ with $h$ a $\Gamma''$-map into the twisted target
+  (mathlib's \texttt{liftHomotopyZero}). For a cocycle $z$ in degree $n$, extend $z$ $R$-linearly to $z_R$; then
+  $z(\tau c)-z(\tau'c)=z_R(h\,\partial c)+(z\circ\partial)_R(h c)=z_R(h\,\partial c)$, so
+  $\widetilde T_\tau z-\widetilde T_{\tau'}z=d(\tilde h z)$ with $\tilde h z=\sum_j\rho(\delta_j)z_R(h(s_j\,\cdot))$, which is
+  $\Gamma$-equivariant by \texttt{transport\_equivariant}; in degree $0$ the difference is $0$. For $\tau$ over $R$ the same
+  argument runs on the given $\tau_R$ directly (\texttt{htpyR}, \texttt{cocycle\_diffR}); \texttt{heckeTildeR} is a cochain map by
+  (T2) (\texttt{linR\_FR\_bd}: $\varphi_R(\tau_R\partial y)=(\varphi\circ\partial)_R(\tau_Ry)$; in negative degrees $C_q=0$). On the
+  relative complex: $\texttt{heckeRel}=\Psi\circ\widetilde T\circ\Phi$ and $H^n$ of a composite is the composite.
+\end{proof}

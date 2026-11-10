@@ -1,0 +1,55 @@
+# 006_flagship.oc -- the plan's Sec. 2 C1 flagship example, end to end.
+#
+# This is the workflow the console exists for: model -> local system ->
+# cohomology -> Hecke operator -> decomposition -> report, at the cell
+# (n, ell) = (10, 691), which is on the golden grid AND is [E] Claim 1.8's
+# first Kummer cell.  Every number it freezes is either read back from
+# GoldenReference.inc through `golden(...)` or is the printed canonical form of
+# an object that IS pinned that way.
+
+include("prelude.oc");
+
+L = symmetric_power(MODEL, N_SYM, ELL);
+H = cohomology(L);
+print(H.dims);
+assert(H.dims[1] == golden(POINT_COH, "dim_H^1").value, "dim H^1 at (10, 691)");
+
+T2 = hecke(H, P_HECKE);
+A = T2.A(1);
+print(charpoly(A));
+assert(hash(A) == golden(POINT_HECKE, "A(T_p)^1").hash, "golden A^(1)");
+
+# The decomposition of H^1 over the single operator T_2, and its four golden
+# objects: the invariants hash, the certificate, the change of basis and the
+# residue-witness data.
+D = decompose(T2, 1);
+print(D.num_blocks);
+for b in D.blocks {
+    print(b.dim, b.residue_degree, b.min_poly(2), b.jordan(2));
+}
+assert(D.certify() == golden(POINT_HECKE, "decomp_A(T_p)^1_certify").value,
+       "the decomposition certificate re-derives");
+assert(hash(D) == golden(POINT_HECKE, "decomp_A(T_p)^1_invariants").hash,
+       "decomp_A(T_p)^1_invariants");
+assert(hash(D.U) == golden(POINT_HECKE, "decomp_A(T_p)^1_U").hash,
+       "decomp_A(T_p)^1_U");
+assert(D.witness_hash == golden(POINT_HECKE, "decomp_A(T_p)^1_witness").hash,
+       "decomp_A(T_p)^1_witness");
+assert(D.num_blocks == golden(POINT_HECKE, "decomp_A(T_p)^1_invariants").rows,
+       "the reference records the block COUNT in its rows field");
+
+# U^{-1} A U is block diagonal with the reported block sizes -- the pipeline
+# re-derives that itself and throws if it is not, so reaching this line is the
+# assertion.
+CONJ = D.conjugated(P_HECKE);
+assert(rank(CONJ) == rank(A), "conjugation is invertible");
+
+# Every block of this cell is CERTIFIED LOCAL (the E0b verdict on the whole
+# golden grid), by the loop's own certificate and not by a copied claim.
+for b in D.blocks { assert(b.local, "every block of (10, 691) is certified local"); }
+print(D.locality.complete, D.locality.splits, D.locality.phase_reached);
+
+R = report(D);
+print(R.q_max, R.truncated, R.q_max_source, R.degrees);
+assert(R.has_key("schema"), "the record names its schema");
+annotate("006_flagship: " + str(D.num_blocks) + " block(s) at (10, 691)");

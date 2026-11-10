@@ -1,0 +1,54 @@
+# 049_lv3_iota_ring.oc -- iota^* over Z/ell^k (hecke-extensions slot 20, WP-LV3 (d); [E] sec:ring (h)).
+#
+# Until slot 20, `iota(H)` refused a Z/ell^k Cohomology at dispatch (exit 5, NotImplementedInThisBuild).  It now
+# HONOURS the ring (ell >= 5): the same cochain formula as the field object, iota^* = -iota^*_geo ([C] def:iota(iv)),
+# applied to the module basis of H^q = (+)_i Z/ell^{e_i} (Hecke/HeckeInvolution.h BuildRingInvolution); H^q_+- are
+# the images of (1 +- iota^*)/2, read as modules (invariant_factors_plus / _minus, lengths_plus / _minus).  There is no
+# dim over Z/ell^k: the field members (dims, dims_plus, dims_minus) are the object's named logic_error (exit 3); the
+# field methods (matrix, plus, minus, sign_split, eisenstein_line) keep refusing (exit 5).
+#
+# Cells:
+#   (30, 37) over Z/37^3 -- the depth-1 Eisenstein cell of [E] rmk:lvgates (k = 32): H^1 free of rank 2 d_k - 1 = 5,
+#            H^1_+ = (Z/37^3)^3 (the Eisenstein side), H^1_- = (Z/37^3)^2; F_37 (k = 1) gives the same split as dims;
+#   (38, 37) over Z/37^3 -- a torsion cell: H^0 = Z/37 lies on +, the torsion summand of H^1 too.
+# The depth-2 rung (282, 37) is NOT read here: its Z/37^k cohomology costs ~25 s per run (the field one ~4 s), and every
+# numbered script runs twice in ConsoleDeterminismValidation (threads = 1, threads = 16) and again in ConsoleValidation;
+# ConsoleDet's standing 45 s stop threshold would break (+~50 s).  The same reading (iota on H^1(Sym^282, Z/37^3): 24 / 23 free
+# summands) runs in HeckeLValueValidation's HECKE_LVALUE_HEAVY=1 arm (LV3-I heavy) through the same BuildRingInvolution.
+
+include("prelude.oc");
+
+# --- (30, 37): F_37 first, then Z/37^3 ---------------------------------------------------------------------
+L30 = symmetric_power(MODEL, 30, 37);
+J1 = iota(cohomology(L30));
+assert(J1.coefficient_ring == "F_ell", "(30, 37) F_37: the field involution");
+assert(J1.dims_plus == [0, 3, 0] and J1.dims_minus == [0, 2, 0], "(30, 37) F_37: H^1 = 3 (+) 2");
+assert(J1.invariant_factors_plus(1) == [1, 1, 1] and J1.lengths_minus == [0, 2, 0],
+       "(30, 37) F_37: the module members read F_37 = Z/37^1");
+
+set coefficient_ring = "Z/ell^3";
+H30 = cohomology(symmetric_power(MODEL, 30, 37));
+J = iota(H30);
+assert(J.coefficient_ring == "Z/ell^3", "(30, 37): iota honours Z/ell^3");
+assert(J.certificate == 0, "(30, 37): iota^2 = id and H = H^+ (+) H^- (Z/37^3)");
+assert(J.invariant_factors_plus(1) == [3, 3, 3] and J.invariant_factors_minus(1) == [3, 3],
+       "(30, 37) Z/37^3: H^1_+ = (Z/37^3)^3, H^1_- = (Z/37^3)^2 (+ is the Eisenstein side)");
+assert(J.lengths_plus == [0, 9, 0] and J.lengths_minus == [0, 6, 0], "(30, 37) Z/37^3: lengths 9 + 6 = 15");
+expect_error "there is no dim" { J.dims_plus }
+expect_error "Involution.matrix" { J.matrix(1) }
+expect_error "Involution.sign_split" { J.sign_split(1) }
+print(J);
+
+# --- (38, 37): torsion ----------------------------------------------------------------------------------------
+J38 = iota(cohomology(symmetric_power(MODEL, 38, 37)));
+assert(J38.invariant_factors_plus(0) == [1] and J38.invariant_factors_minus(0) == [],
+       "(38, 37): H^0 = Z/37 lies on +");
+assert(J38.invariant_factors_plus(1) == [3, 3, 3, 3, 1] and J38.invariant_factors_minus(1) == [3, 3, 3],
+       "(38, 37) Z/37^3: H^1 = (Z/37^3)^7 (+) Z/37, split 4 + torsion on +, 3 on -");
+
+# --- a mismatch between the ring in force and the handle's is refused at dispatch (exit 5) -----------------------
+set coefficient_ring = "F_ell";
+expect_error "the Cohomology was built over Z/ell^3" { iota(H30) }
+
+assert(fingerprint() == "0x0000000000000000", "back at the defaults");
+annotate("049_lv3_iota_ring: iota^* over Z/ell^k (WP-LV3 (d)): (30, 37) and the torsion cell (38, 37)");

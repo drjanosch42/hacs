@@ -1,0 +1,4 @@
+$ ENGINE_DEVICE=gpu ENGINE_GPU_SMITH2K_MIN=0 hacs -c 'print(descent(1, 30).groups[1])' --set coefficient_ring=Z
+EFFECTIVE GPU_SMITH2K mode=on policy_gpu_calls=7 device=7 resident=7 tiled=0 slabs=0 replays=0 fallbacks=0 declined_vram=0 declined_host=0 panels=7 lookahead=0 verified=0 min_entries=0 t_s=open:0.01,fetch:0.00,panel:0.00,step:0.00,host:0.00,close:0.00
+Z^5 + Z/2 + Z/2 + Z/2 + Z/2^2 + Z/2^2 + Z/2^2 + Z/3 + Z/3 + Z/3^2 + Z/5^2 + Z/29
+[exit 0]

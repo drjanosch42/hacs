@@ -1,0 +1,27 @@
+# kummer_ribet_30_37.oc -- irregular primes, Bernoulli numbers and the Eisenstein ideal (Herbrand-Ribet, Mazur).
+# Phenomena gallery [PG] sec:pg-kummer.  Read_only verbs only (notebook-safe).  Cost: ~1 s, < 0.1 GB.
+#
+# zeta(1 - k) = -B_k / k.  An irregular pair (ell, k): ell | B_k, 2 <= k <= ell - 3, k even.
+for ell in [37, 59, 67, 101, 103, 691] {
+    irr = "";
+    for k in range(2, ell - 2, 2) {
+        if bernoulli_mod(k, ell) == 0 { irr = irr + " " + str(k); }
+    }
+    print("ell =", ell, " irregular indices k:", irr);
+}
+
+# At ell = 37 the irregular index is k = 32 (cell n = 30).  Compare with the regular weight k = 12 (cell n = 10).
+M = sl2z_model();
+for n in [10, 30] {
+    k = n + 2;
+    x = 1;
+    for i in range(0, k - 1) { x = (x * 2) % 37; }
+    e2 = (1 + x) % 37;
+    R = ext_record(n, 37);
+    print("(n, ell) = (" + str(n) + ", 37), k =", k, " B_k mod 37 =", bernoulli_mod(k, 37), " Eisenstein a_2 = 1 + 2^(k-1) =", e2);
+    for m in R.ideals {
+        tag = "";
+        if m.character(2) == poly(37, [e2]) { tag = "  <- Eisenstein ideal"; }
+        print("   ideal: dim", m.dim, " a_2 =", m.character(2), " Loewy", m.modules[0].loewy, " T_m Hilbert", local_algebra(m).hilbert, tag);
+    }
+}

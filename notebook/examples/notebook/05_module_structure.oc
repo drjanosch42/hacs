@@ -1,0 +1,21 @@
+# SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
+# SPDX-License-Identifier: LGPL-3.0-only WITH LicenseRef-CUDA-exception
+
+# %% [md] 05 -- how H_m sits over T_m: Loewy layers, socle layers, Jordan types.
+# module_structure(m) is the LoewyProfile of the block H^1_m over the local algebra T_m. Its Loewy layers
+# (the radical filtration) and socle layers are dimensions in units of f; jordan(p) is the Jordan type of
+# T_p - a_p on the block. At (10, 691) the block is 3-dimensional with Loewy layers 2 | 1 and Jordan type
+# (2, 1): T_p - (1 + p^11) is nilpotent but not zero -- a non-split extension of Eisenstein by cusp.
+
+# %% Setting and the maximal ideal
+# The coefficient ring is the default F_ell, stated here so that the file runs in any order in one session (08 sets Z).
+set coefficient_ring = "F_ell";
+R = ext_record(10, 691);
+m = R.ideal(0);
+
+# %% The Loewy profile
+P = module_structure(m);
+display(P);
+
+# %% The Jordan type of T_2
+display(P.jordan(2));

@@ -1,0 +1,5 @@
+ell = 37  i = 12  v_pi = 12  ell | B_i: false  eta not an ell-th power: true  oracle agrees: true
+ell = 37  i = 30  v_pi = 30  ell | B_i: false  eta not an ell-th power: true  oracle agrees: true
+ell = 37  i = 32  v_pi = 38  ell | B_i: true  eta not an ell-th power: true  oracle agrees: true
+ell = 59  i = 20  v_pi = 20  ell | B_i: false  eta not an ell-th power: true  oracle agrees: true
+ell = 59  i = 44  v_pi = 60  ell | B_i: true  eta not an ell-th power: true  oracle agrees: true

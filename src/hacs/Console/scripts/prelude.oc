@@ -1,0 +1,24 @@
+# prelude.oc -- shared definitions for the C1a smoke scripts.
+#
+# `include("prelude.oc")` resolves relative to the INCLUDING file (plan Sec. 3.2)
+# and runs in the same global frame, so everything bound here is visible to the
+# script that included it.
+#
+# The cell (n, ell) = (10, 691) is on the golden grid (GoldenHarness.cpp:169-170)
+# AND is the plan's own flagship example (Sec. 2 C1), which is why every pin
+# below can be taken through `golden(...)` rather than copied.
+
+N_SYM = 10;
+ELL = 691;
+P_HECKE = 2;
+
+POINT_COH = "n=10 ell=691";
+POINT_HECKE = "n=10 ell=691 p=2 r=1";
+
+# Every pin in this script set is taken at the DEFAULT mathematical
+# configuration (plan Sec. 6, rule R19): the golden objects pin the defaults and
+# nothing else, so a non-zero fingerprint would make the comparison meaningless.
+assert(fingerprint() == "0x0000000000000000",
+       "the smoke scripts pin the DEFAULT mathematical configuration");
+
+MODEL = sl2z_model();

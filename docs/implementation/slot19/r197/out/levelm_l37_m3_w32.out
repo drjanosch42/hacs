@@ -1,0 +1,7 @@
+R19-7 levelm: ell=37 m=3 w=32 n=49284 W=12 r=4 Lfft=131072
+LAMBDA_m lambda_3 = Lg/ell^6: products=48 maxerr=7.45e-08 content_val(y)=4 terms=3 sha=bfe0068dbec3fba7 wall=1.3s
+CLASS w=32 m=3: nu integral after e_w: True; Psi_k == (1-ell^(k-1))B_k/k mod ell^3 at 1369/1369 (exact rows 83, Kummer-law rows 1286; law checked on 80/80 further exact weights)
+  alpha mod ell^3 (read back: x_k at the unique zero) = 28305
+  zeros: mod ell^1: 1369; mod ell^2: 37; mod ell^3: 1 [37580]
+  level-2 control: integral True; right mod ell^2 at 1369/1369, mod ell^3 at 37/1369
+DONE ell=37 m=3 products=48 maxerr=7.45e-08 wall=2.7s

@@ -1,0 +1,13 @@
+# kummer_unit_37_59.oc -- the verb kummer_unit(ell, i): the cyclotomic unit eta_i and Kummer's ell-th-power test.
+# Phenomena gallery [PG] sec:pg-kummerunit.  v_pi(eta_i^(ell-1) - 1) > i exactly when ell divides the Bernoulli number B_i
+# ([E] sec:lvnf); the record's oracle_agrees compares this with a direct Bernoulli computation.  ell = 37 is irregular at i = 32,
+# ell = 59 at i = 44; the other indices are regular.
+# Read_only verbs only (notebook-safe).  Cost: ~1 s, < 0.2 GB.
+for c in [[37, 12], [37, 30], [37, 32], [59, 20], [59, 44]] {
+    ell = c[0];
+    i = c[1];
+    K = kummer_unit(ell, i);
+    print("ell =", ell, " i =", i, " v_pi =", K.v_pi, " ell | B_i:", K.ell_divides_Bi, " eta not an ell-th power:", K.not_lth_power, " oracle agrees:", K.oracle_agrees);
+    assert(K.oracle_agrees);
+    assert((K.v_pi > i) == K.ell_divides_Bi);
+}

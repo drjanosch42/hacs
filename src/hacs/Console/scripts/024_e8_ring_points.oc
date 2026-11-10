@@ -1,0 +1,115 @@
+# 024_e8_ring_points.oc -- console phase C5a (hecke-extensions slot 9, WP-12):
+# E8's cohomology over Z/ell^k at the SEVEN E8 points of the golden harness
+# (GoldenHarness.cpp kGridE8), through the ring lift of [E] sec:ring (h).
+#
+# Two oracles, both independent of the console:
+#   * the values HeckeReductionValidation prints for the same points (its
+#     (C)(T)(P) and (R)(B) lines): the invariant factors, r_K(d^0), r_K(d^1),
+#     the certification of the K-mode, the free charpolys of T_2 and T_3, the
+#     Bockstein bookkeeping -- written below as literals;
+#   * the golden reference: every E8 object whose recipe the console can
+#     reproduce is compared BY HASH, byte for byte -- lengths_H^q (a scalar),
+#     invariant_factors_H^q (a list: its length, then its entries), r_K(d^q),
+#     bockstein_rank^0, higher_torsion_count, and the tier-B red_H^q (a
+#     matrix).  ladic_type^q and the free charpolys prefix their precision /
+#     free rank to the list, a recipe no console value has, so for those the
+#     golden entry's shape (rows, cols) is compared and the values are the
+#     literals of the first oracle.
+#
+# Rule R19: golden(...) refuses at a non-zero fingerprint, and a non-default
+# coefficient_ring IS one.  So each point's golden entries are read FIRST, at
+# the defaults, and the ring is set after -- and the refusal itself is shown.
+
+include("prelude.oc");
+
+# [n, ell, k, primes, invariant factors per q, r_K(d^0), r_K(d^1), certified,
+#  free charpolys per prime (low -> high), their precision, bockstein_rank^0,
+#  higher_torsion_count]
+POINTS = [
+    [10, 691, 2, [2, 3, 5], [[], [2, 2, 2], []], 41, 55, true,
+     [[252219, 379705, 475480, 1], [323249, 57149, 299829, 1], [82572, 23641, 342757, 1]], 2, 0, 0],
+    [6, 5, 2, [2, 3], [[1], [2, 1], []], 27, 35, true, [[1, 1], [2, 1]], 1, 1, 0],
+    [16, 5, 2, [2, 3], [[], [2, 2, 2], []], 65, 85, true, [[18, 21, 8, 1], [16, 4, 4, 1]], 2, 0, 0],
+    [30, 5, 2, [2, 3], [[2], [2, 2, 2, 2, 2, 2], []], 118, 155, false, [], 0, 0, 1],
+    [30, 5, 3, [2, 3], [[2], [3, 3, 3, 3, 3, 2], []], 119, 155, true,
+     [[1, 1, 3, 3, 1, 1], [2, 1, 4, 2, 2, 1]], 1, 0, 1],
+    [60, 5, 2, [2, 3], [[2, 1], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1], []], 234, 305, false, [], 0, 1, 1],
+    [60, 5, 3, [2, 3], [[2, 1], [3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 1], []], 235, 305, true,
+     [[2, 1, 3, 4, 2, 1, 3, 4, 2, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]], 1, 1, 1],
+];
+
+for P in POINTS {
+    n = P[0];
+    ell = P[1];
+    k = P[2];
+    GP = "E8 ring=Z/" + str(ell) + "^" + str(k) + " n=" + str(n) + " ell=" + str(ell);
+
+    # --- the golden entries, read at the defaults (R19) ---------------------
+    set coefficient_ring = "F_ell";
+    GL = [golden(GP, "lengths_H^0"), golden(GP, "lengths_H^1"), golden(GP, "lengths_H^2")];
+    GI = [golden(GP, "invariant_factors_H^0"), golden(GP, "invariant_factors_H^1"),
+          golden(GP, "invariant_factors_H^2")];
+    GR = [golden(GP, "red_H^0"), golden(GP, "red_H^1"), golden(GP, "red_H^2")];
+    GK = [golden(GP, "r_K(d^0)"), golden(GP, "r_K(d^1)")];
+    GC = golden(GP, "ladic_type_certified");
+    GB = golden(GP, "bockstein_rank^0");
+    GH = golden(GP, "higher_torsion_count");
+    # At a certified level only: ladic_type^q and the free charpolys (M-1).
+    GT = [];
+    GF = [];
+    if GC.value == 1 {
+        GT = [golden(GP, "ladic_type^0"), golden(GP, "ladic_type^1"), golden(GP, "ladic_type^2")];
+        CP = "charpoly_A(T_p)^1_free_p";
+        GF = [golden(GP, CP + str(P[3][0])), golden(GP, CP + str(P[3][1]))];
+        if len(P[3]) == 3 {
+            GF = [GF[0], GF[1], golden(GP, CP + str(P[3][2]))];
+        }
+    }
+
+    # --- the ring, and the object over it -----------------------------------
+    set coefficient_ring = "Z/ell^" + str(k);
+    expect_error "pins the default configuration only" { golden(GP, "lengths_H^1") }
+    H = cohomology(symmetric_power(MODEL, n, ell));
+    assert(H.coefficient_ring == "Z/ell^" + str(k), GP + ": the handle is over Z/ell^k");
+    assert(H.degrees == [0, 1, 2] and H.q_max == 2, GP + ": the per-complex degree members");
+    for q in [0, 1, 2] {
+        assert(H.invariant_factors(q) == P[4][q], GP + ": invariant_factors_H^" + str(q));
+        assert(hash(H.invariant_factors(q)) == GI[q].hash, GP + ": invariant_factors_H^" + str(q) + " is golden");
+        assert(hash(H.lengths[q]) == GL[q].hash, GP + ": lengths_H^" + str(q) + " is golden");
+        assert(hash(H.red(q)) == GR[q].hash, GP + ": red_H^" + str(q) + " is golden (tier B)");
+    }
+    assert([H.r_K(0), H.r_K(1)] == [P[5], P[6]], GP + ": r_K(d^0), r_K(d^1)");
+    assert(hash(H.r_K(0)) == GK[0].hash and hash(H.r_K(1)) == GK[1].hash, GP + ": r_K is golden");
+    assert(H.ladic_type_certified == P[7], GP + ": the K-mode certification");
+    assert(H.ladic_type_certified == (GC.value == 1), GP + ": ladic_type_certified is golden");
+    assert([H.bockstein_rank, H.higher_torsion_count] == [P[10], P[11]], GP + ": the Bockstein bookkeeping");
+    assert(hash(H.bockstein_rank) == GB.hash and hash(H.higher_torsion_count) == GH.hash,
+           GP + ": bockstein_rank^0 and higher_torsion_count are golden");
+
+    if H.ladic_type_certified {
+        # ladic_type^q: the golden entry's shape is (1 + #torsion) x 1.
+        for q in [0, 1, 2] {
+            T = H.ladic_type(q);
+            assert(len(T.torsion) + 1 == GT[q].rows and GT[q].cols == 1,
+                   GP + ": ladic_type^" + str(q) + " has the golden shape");
+        }
+        # The free charpolys, one Hecke operator per golden prime; the golden
+        # entry's shape is (#coefficients) x (precision).
+        i = 0;
+        for p in P[3] {
+            C = hecke(H, p).charpoly_free;
+            assert(C.coeffs == P[8][i] and C.precision == P[9], GP + ": the free charpoly of T_" + str(p));
+            assert(len(C.coeffs) == GF[i].rows and C.precision == GF[i].cols,
+                   GP + ": charpoly_A(T_p)^1_free_p" + str(p) + " has the golden shape");
+            i = i + 1;
+        }
+    } else {
+        expect_error "logic_error" { H.ladic_type(1) }
+        assert(state(H).resumable.resumable, GP + ": an uncertified level is a resumable ladic_level state");
+    }
+    print(GP, H.lengths, H.ladic_type_certified, H.bockstein_rank, H.higher_torsion_count);
+}
+
+set coefficient_ring = "F_ell";
+assert(fingerprint() == "0x0000000000000000", "back at the defaults");
+annotate("024_e8_ring_points: 7 E8 points, their golden objects compared by hash");

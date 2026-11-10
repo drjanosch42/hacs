@@ -1,0 +1,15 @@
+# 056_s24_display.oc -- the verb display(x, ...) ([CLI] sec:printing; [P] Sec. 4.3 / 18.4; slot-24 NB-R34).
+# display forces each declared handle (as compute does) and shows each argument on a line of its own: here, in a
+# script, the full canonical form (show's text); in a served notebook a rendered value (one value frame each).
+#
+# (1) A declared handle is forced by display, not by an expression statement.
+M = sl2z_model();
+H = cohomology(symmetric_power(M, 10, 691));
+H
+assert(state(H).state == "declared", "an expression statement does not force");
+display(H);
+assert(state(H).state == "computed", "display forced the handle");
+# (2) Several arguments, one line each; builtins are shown as they are.
+display(H.dims, 691, "dim H^1 = 2 dim S_12 + 1");
+# (3) A Record is one argument, shown in full.
+display(dickson_les(16, 7).dims);

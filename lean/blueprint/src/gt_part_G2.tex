@@ -1,0 +1,806 @@
+% gt_part_G2.tex -- [GT] Part G2: the combinatorial X_bulk, the TauData tie, H4 over the model (T0).
+% Slot 18, package L18-1 (created); L18-2 appends (Psi, thm:welldef); slot 19 L19-4 appends the X_bd section.
+% Read by lean_census.py (gt_part_*.tex).  Lean: lean/GL2/Model/ (namespaces GL2.Ku, GL2.TauChk, GL2.Model),
+% lean/GL2/Checkers/TauP2Key.lean, lean/GL2/Cosets/Intake.lean.
+% Labels: [GT]-only labels unless a "% mirrors [C] v1.17.0 <label>" line says otherwise; a clause split off a [C] label
+% gets a suffix (-i, -iii, ...).
+% Versions (WP-17, F3-18 MINOR 8): every "mirrors [C] v1.17.0" statement is unchanged through [C] v1.18.0-pre.2, except
+% the two sentences added there for Lean (def:pair "j commutes with the augmentations", thm:welldef (c) erratum).
+
+\chapter{Part G2. The combinatorial \texorpdfstring{$X_{\mathrm{bulk}}$}{X\_bulk} and H4 over the model}\label{ch:xbulk}
+
+\paragraph{Setting and the MP rule.} $\Gamma=\mathrm{SL}_2(\mathbb Z)$. $X_{\mathrm{bulk}}$ is a \emph{descriptor}: per degree
+$q\in\mathbb Z$ a finite type of model simplices with an oriented transporter model, finite face slots and signed faces.
+Nothing hard-wires the $7$-vertex model, a trivial centre or $\ell$; the $7$-vertex model is one instance
+(\S\ref{def:model7-lean}), built from the real $p=2$ dump of \texttt{HECKE\_DUMP\_TAU} and checked against [C]
+\texttt{def:model7} by hand.
+
+\paragraph{Scope.} M2-a \ldots{} M2-d of \texttt{L18-0\_velocity.md}. [C] \texttt{H4}(ii) (acyclicity) is topological in [C];
+here it is proved combinatorially, field by field (\S\ref{prop:model7h4-ii}, L19-3, M3-b); it enters the cone chapter
+only through \texttt{XBulk.Acyclic} and the bridge \S\ref{thm:pairhyp-of-acyclic}. The boundary $X_\partial$ is a sub-descriptor
+(\S\ref{def:xbdry}, L19-4); with it \texttt{PairHyp} holds for the model with no hypothesis left (\S\ref{thm:model7-pairhyp}).
+The [C] statements mirrored here are those of v1.17.0; they are unchanged through v1.18.0-pre.2 except the two sentences
+added there for Lean (\texttt{def:pair}, \texttt{thm:welldef}(c)).
+
+% ----------------------------------------------------------------------
+\section{The oriented key model (M2-b)}
+
+\begin{definition}[Oriented transporter model, oriented canonical key]\label{def:orkeymodel}
+  % mirrors [C] v1.17.0 H4 (i) (orientation half), def:primitives (P4)
+  \lean{GL2.Ku.OrKeyModel, GL2.Ku.pick, GL2.Ku.orCanon}
+  \leanok
+  \uses{def:keymodel}
+  A key model (\S\ref{def:keymodel}) with a sign $\mathrm{sgn}(\sigma,\sigma',t)\in\mathbb Z^\times$ for $t\in S(\sigma,\sigma')$
+  (the parity of the vertex correspondence of $\iota(\sigma)=t\,\iota(\sigma')$), multiplicative along the groupoid, and
+  $\mathrm{sgn}(\sigma,\sigma,t)=1$ for $t\in S(\sigma,\sigma)$ (\emph{no inversions}, H4(i)). The oriented canonical key of
+  $(\gamma,\sigma)$ is $(\mathrm{canon}(\gamma,\sigma),\,\mathrm{sgn}(\sigma,\hat\sigma,t_{\min}))$, $t_{\min}$ a transporter
+  realising the lexicographic minimum.
+\end{definition}
+\begin{proof}
+  \leanok
+  Definitions.
+\end{proof}
+
+\begin{theorem}[The oriented canonical key is faithful]\label{thm:orkeymodel}
+  \lean{GL2.Ku.OrKeyModel.sgn_one, GL2.Ku.OrKeyModel.sgn_inv, GL2.Ku.exists_pick, GL2.Ku.pick_mem, GL2.Ku.pick_key,
+    GL2.Ku.orCanon_faithful}
+  \leanok
+  \uses{def:orkeymodel, thm:keymodel}
+  The key part of $\mathrm{orCanon}$ is a complete invariant of the simplex ($\mathrm{canon}(x)=\mathrm{canon}(y)\iff x\sim y$),
+  and for $x\sim y$ the signs satisfy $\mathrm{orCanon}(x)_2=\mathrm{sgn}(\sigma_x,\sigma_y,\gamma_x^{-1}\gamma_y)\cdot
+  \mathrm{orCanon}(y)_2$: the oriented generator $[\gamma,\sigma]=\pm[\gamma t_{\min},\hat\sigma]$ does not depend on the pair.
+\end{theorem}
+\begin{proof}
+  \leanok
+  Equal minima give $\gamma_x t_x=\gamma_y t_y$, so $t_x=(\gamma_x^{-1}\gamma_y)t_y$, and $\mathrm{sgn}$ is multiplicative.
+\end{proof}
+
+% ----------------------------------------------------------------------
+\section{The \texttt{TauData} tie (M2-a)}
+
+\begin{definition}[The stored model of a $\tau$-dump]\label{def:keymodel-tie}
+  % L16-4 limit 1; [C] def:primitives (P4), H4 (the model certificate validate_closure)
+  \lean{GL2.TauChk.M22.toMat, GL2.TauChk.M22.toSL, GL2.TauChk.M22.lexKeyM, GL2.TauChk.unitOf, GL2.TauChk.ofPerm,
+    GL2.TauChk.TauData.idxL, GL2.TauChk.TauData.idxF, GL2.TauChk.TauData.Vz, GL2.TauChk.TauData.trZ,
+    GL2.TauChk.TauData.trSetZ, GL2.TauChk.TauData.repZ, GL2.TauChk.TauData.KeyAx, GL2.TauChk.TauData.keyModelB,
+    GL2.TauChk.TauData.Sset, GL2.TauChk.TauData.sgnZ, GL2.TauChk.TauData.toKeyModel, GL2.TauChk.TauData.pickStep,
+    GL2.TauChk.TauData.PickInv}
+  \leanok
+  \uses{def:orkeymodel, chk:tau}
+  For a dump $D$ and a degree $q$: the stored $q$-simplices, transporter lists $S(a,b)$ (with vertex correspondences), orbit
+  representatives; $\texttt{KeyAx}\,D\,q$ is the conjunction of the oriented-key-model axioms on that finite data (identity,
+  composition with $\mathrm{permSign}$ multiplicative, inverse via the adjugate, determinant one, representative constant
+  along $S$ and attained, sign consistency of equal matrices, no inversions); \texttt{keyModelB} decides it.
+  \texttt{toKeyModel} is the model on the stored data ($S$ through \texttt{M22.toSL}, signs through \texttt{permSign}).
+\end{definition}
+\begin{proof}
+  \leanok
+  Definitions.
+\end{proof}
+
+\begin{lemma}[Dumped matrices are elements of $\mathrm{SL}_2(\mathbb Z)$; \texttt{lexLt} is the key order]\label{lem:m22-sl}
+  \lean{GL2.TauChk.M22.det_toMat, GL2.TauChk.M22.mul_def, GL2.TauChk.M22.toMat_mul, GL2.TauChk.M22.det_mul,
+    GL2.TauChk.M22.toMat_injective, GL2.TauChk.M22.toSL_coe, GL2.TauChk.M22.toSL_mul, GL2.TauChk.M22.toSL_injOn,
+    GL2.TauChk.M22.det_adj, GL2.TauChk.M22.toSL_adj, GL2.TauChk.M22.toSL_one, GL2.TauChk.M22.toSL_negOne,
+    GL2.TauChk.M22.lexKey_toSL, GL2.TauChk.M22.lexKeyM_injective, GL2.TauChk.M22.lexLt_iff}
+  \leanok
+  \uses{def:keymodel-tie}
+  On determinant-one matrices \texttt{toSL} is multiplicative and injective, sends the adjugate to the inverse,
+  $\mathrm{lexKey}(\mathtt{toSL}\,x)=\mathtt{lexKeyM}\,x$, and $\mathtt{lexLt}\,x\,y\iff\mathtt{lexKeyM}\,x<\mathtt{lexKeyM}\,y$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  Entrywise; \texttt{Prod.Lex.toLex\_lt\_toLex}.
+\end{proof}
+
+\begin{theorem}[\texttt{permSign} is the sign of the permutation]\label{thm:permsign}
+  \lean{GL2.TauChk.permSign_cases, GL2.TauChk.permSign_zero, GL2.TauChk.permSign_eq_sign, GL2.TauChk.permSign_mul,
+    GL2.TauChk.unitOf_val, GL2.TauChk.unitOf_mul, GL2.TauChk.unitOf_one}
+  \leanok
+  \uses{def:keymodel-tie}
+  For $q\le2$ and $\sigma\in S_{q+1}$, the inversion-count parity $\mathrm{permSign}$ of the slot list of $\sigma$ is
+  $\mathrm{sign}(\sigma)$; hence it is multiplicative. (The model's simplices have dimension $\le2$; the general $q$ is not
+  needed.)
+\end{theorem}
+\begin{proof}
+  \leanok
+  \texttt{decide} over $S_1,S_2,S_3$, then \texttt{Equiv.Perm.sign\_mul}.
+\end{proof}
+
+\begin{theorem}[The checker's keys are the key model's keys]\label{thm:keymodel-tie}
+  % L16-4 limit 1 becomes a theorem relative to the decidable KeyAx
+  \lean{GL2.TauChk.TauData.mem_idxF, GL2.TauChk.TauData.mem_trSetZ, GL2.TauChk.TauData.mem_trZ,
+    GL2.TauChk.TauData.trZ_of_trSetZ, GL2.TauChk.TauData.mem_Sset, GL2.TauChk.TauData.sgnZ_eq,
+    GL2.TauChk.TauData.keyModelB_sound, GL2.TauChk.TauData.permSign_eq_sgn, GL2.TauChk.TauData.pickInv_foldl,
+    GL2.TauChk.TauData.canon_eq_fold, GL2.TauChk.TauData.trSet_eq, GL2.TauChk.TauData.canon_eq_canon}
+  \leanok
+  \uses{def:keymodel-tie, lem:m22-sl, thm:permsign, thm:orkeymodel}
+  If \texttt{keyModelB}\,$D\,q$ holds, the stored representatives, transporter sets and signs \emph{are} an oriented key
+  model (\texttt{keyModelB\_sound}); the model's sign of a stored transporter is its \texttt{permSign}; and for
+  $\det\gamma=1$, \texttt{D.canon}\,$\gamma\,q\,\sigma$ has the representative, the lexicographic minimum and the orientation
+  sign of $\mathrm{orCanon}(\mathtt{toSL}\,\gamma,\sigma)$ (\texttt{canon\_eq\_canon}).
+\end{theorem}
+\begin{proof}
+  \leanok
+  The fold of \texttt{canon} keeps the lexicographic minimum (invariant \texttt{PickInv}); its key is $\min'$ of the candidate
+  set, and the picked transporter is the stored one by injectivity of \texttt{lexKey}.
+\end{proof}
+
+\begin{theorem}[The real $p=2$ dump is an oriented key model]\label{chk:tau-p2-key}
+  \lean{GL2.TauChk.Data.tauP2_keyModelB0, GL2.TauChk.Data.tauP2_keyModelB1, GL2.TauChk.Data.tauP2_keyModelB2,
+    GL2.TauChk.Data.tauP2_keyModelB, GL2.TauChk.Data.tauP2_canon_eq_canon}
+  \leanok
+  \uses{thm:keymodel-tie, chk:tau-p2}
+  \texttt{keyModelB tauP2} $q$ for $q=0,1,2$ (\texttt{decide +kernel}); so the keys of the checked table are
+  $\mathrm{orCanon}$-keys of the dumped model.
+\end{theorem}
+\begin{proof}
+  \leanok
+  Kernel evaluation.
+\end{proof}
+
+% ----------------------------------------------------------------------
+\section{\texorpdfstring{$X_{\mathrm{bulk}}$}{X\_bulk} and its chain complex (M2-c)}
+
+\begin{definition}[The $X_{\mathrm{bulk}}$ descriptor and its oriented chains]\label{def:xbulk}
+  % mirrors [C] v1.17.0 H4, def:model7, rmk:twosettings (K^u = X_bulk)
+  \lean{GL2.Model.OrPt, GL2.Model.OrPt.lt, GL2.Model.OrPt.tr, GL2.Model.OrPt.neg, GL2.Model.OrPt.comp2, GL2.Model.OrRel,
+    GL2.Model.XBulkDatum, GL2.Model.XBulk.gen, GL2.Model.XBulk.relSub, GL2.Model.XBulk.Ch, GL2.Model.XBulk.actF,
+    GL2.Model.XBulk.actQ, GL2.Model.XBulk.instAct, GL2.Model.XBulk.SimpM, GL2.Model.XBulk.SimpM.mk,
+    GL2.Model.XBulk.instSimpAct, GL2.Model.XBulk.Simp, GL2.Model.XBulk.chains, GL2.Model.XBulk.bdF, GL2.Model.XBulk.bd,
+    GL2.Model.XBulk.augF, GL2.Model.XBulk.aug, GL2.Model.XBulk.toGChainCxOn, GL2.Model.XBulk.toGChainCx}
+  \leanok
+  \uses{def:orkeymodel}
+  An \texttt{XBulkDatum}: per $q\in\mathbb Z$ a finite type $V_q$ with an oriented key model $M_q$, finite face slots $F_q$ and
+  signed faces $\partial_j\iota(\tau)=\varepsilon\,h\,\iota(\sigma)$, subject to: transporters permute faces compatibly with the
+  signs; the double faces of each $\tau$ cancel in pairs under an involution; vertices carry no orientation; the signed faces of
+  an edge sum to $0$; no simplices outside degrees $0,1,2$. $\mathrm{Simp}_q=(\Gamma\times V_q)/\!\sim$ with the left
+  $\Gamma$-action; $C_q=\mathbb Z[\Gamma\times V_q]$ modulo $[\gamma,\sigma,\varepsilon]=[\gamma',\sigma',\varepsilon']$ when
+  $\gamma^{-1}\gamma'\in S(\sigma,\sigma')$, $\varepsilon=\mathrm{sgn}\cdot\varepsilon'$; $\partial$ is the signed face sum,
+  $\varepsilon$ counts vertices; \texttt{toGChainCxOn}\,$H$ is the cone layer's \texttt{GChainCx} for any $H\le\Gamma$.
+\end{definition}
+\begin{proof}
+  \leanok
+  Definitions.
+\end{proof}
+
+\begin{theorem}[$C_\bullet(X_{\mathrm{bulk}})$ is a $\Gamma$-chain complex]\label{thm:xbulk-cx}
+  \lean{GL2.Model.quot_mk_sum, GL2.Model.OrPt.lt_tr, GL2.Model.XBulk.orRel_lt, GL2.Model.XBulk.not_orRel_neg,
+    GL2.Model.XBulk.mk_gen_eq, GL2.Model.XBulk.gen_tr, GL2.Model.XBulk.gen_neg, GL2.Model.XBulk.actF_gen,
+    GL2.Model.XBulk.actF_single, GL2.Model.XBulk.relSub_le_actF, GL2.Model.XBulk.actF_one, GL2.Model.XBulk.actF_mul,
+    GL2.Model.XBulk.smul_mk, GL2.Model.XBulk.rel_lt, GL2.Model.XBulk.smul_simpMk, GL2.Model.XBulk.simpMk_eq_iff,
+    GL2.Model.XBulk.bdF_single, GL2.Model.XBulk.bdF_gen, GL2.Model.XBulk.sgn_sq, GL2.Model.XBulk.relSub_le_bdF,
+    GL2.Model.XBulk.bd_mk, GL2.Model.XBulk.bd_equiv, GL2.Model.XBulk.bdF_bdF_mem, GL2.Model.XBulk.bd_bd,
+    GL2.Model.XBulk.augF_gen, GL2.Model.XBulk.relSub_le_augF, GL2.Model.XBulk.aug_bd, GL2.Model.XBulk.aug_equiv}
+  \leanok
+  \uses{def:xbulk}
+  $\partial$ and $\varepsilon$ are well defined on the quotient, $\Gamma$-equivariant, $\partial\partial=0$ and
+  $\varepsilon\partial=0$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  Well-definedness of $\partial$: reindex the faces by the transporter's $\pi$; $\mathrm{sgn}^2=1$. $\partial\partial=0$:
+  \texttt{Finset.sum\_involution} on the double faces; the involution has no fixed point because no oriented simplex equals its
+  reversal.
+\end{proof}
+
+% ----------------------------------------------------------------------
+\section{H4 over the model (M2-d)}
+
+\begin{proposition}[H4(i): no inversions, finite stabilisers]\label{prop:model7h4-i}
+  % mirrors [C] v1.17.0 H4 (i), prop:model7h4 (i)
+  \lean{GL2.Model.XBulk.genQ, GL2.Model.XBulk.smul_genQ, GL2.Model.XBulk.noInv, GL2.Model.XBulk.mem_stab_iff,
+    GL2.Model.XBulk.finiteStab}
+  \leanok
+  \uses{thm:xbulk-cx}
+  For every descriptor: an element fixing a simplex $\gamma\iota(\sigma)$ fixes its oriented generator; the stabiliser of
+  $\gamma\iota(\sigma)$ is $\gamma S(\sigma,\sigma)\gamma^{-1}$, hence finite.
+\end{proposition}
+\begin{proof}
+  \leanok
+  \texttt{noInv} of the key model; $S(\sigma,\sigma)$ is a \texttt{Finset}.
+\end{proof}
+
+\begin{proposition}[H4(iii): fundamental domain]\label{prop:model7h4-iii}
+  % mirrors [C] v1.17.0 H4 (iii) (FD1 + FD2), prop:model7h4 (iii)
+  \lean{GL2.Model.XBulk.fundDomain, GL2.Model.XBulk.fundDomain_strict, GL2.Model.XBulk.fundDomain_unique}
+  \leanok
+  \uses{thm:xbulk-cx}
+  (FD2) Every simplex of $X_{\mathrm{bulk}}$ is $\gamma\cdot\iota(\sigma)$ with $\sigma$ a model orbit representative
+  ($\hat\sigma=\sigma$). (FD1) Distinct representatives are inequivalent: $\gamma\,\iota(\sigma)=\gamma'\iota(\sigma')$ with
+  $\hat\sigma=\sigma$, $\hat\sigma'=\sigma'$ forces $\sigma=\sigma'$. (The clauses FD3 and the presentation clause FD4 of [C]
+  \texttt{H4}(iii) are not formalised here.)
+\end{proposition}
+\begin{proof}
+  \leanok
+  $(\gamma,\sigma)\sim(\gamma t,\hat\sigma)$ for $t\in S(\sigma,\hat\sigma)$, and $\hat{\hat\sigma}=\hat\sigma$. FD1: $S(\sigma,\sigma')\neq\emptyset$
+  implies $\hat\sigma=\hat\sigma'$.
+\end{proof}
+
+\begin{definition}[H4(ii) as the cone layer uses it]\label{def:xbulk-acyclic}
+  % mirrors [C] v1.17.0 H4 (ii), eq:contractibleuse
+  \lean{GL2.Model.XBulk.Acyclic}
+  \leanok
+  \uses{def:xbulk, def:pairhomotopy}
+  \texttt{Acyclic}: exactly the contraction clauses \texttt{contract0/1/2} of \texttt{PairHyp} for $C_\bullet(X_{\mathrm{bulk}})$.
+\end{definition}
+\begin{proof}
+  \leanok
+  Definition.
+\end{proof}
+
+\begin{lemma}[H4(ii), the dimension half]\label{prop:model7h4-ii-dim}
+  % mirrors [C] v1.17.0 H4 (ii) ("2-dimensional")
+  \lean{GL2.Model.XBulk.subsingleton_of_isEmpty, GL2.Model.XBulk.subsingleton_neg, GL2.Model.XBulk.subsingleton_dim}
+  \leanok
+  \uses{def:xbulk}
+  $C_q(X_{\mathrm{bulk}})=0$ for $q<0$ and $q\ge3$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  No generators.
+\end{proof}
+
+\begin{theorem}[The bridge to the cone layer]\label{thm:pairhyp-of-acyclic}
+  \lean{GL2.Model.XBulk.pairHyp_of_acyclic}
+  \leanok
+  \uses{def:xbulk-acyclic, prop:model7h4-ii-dim, def:pairhomotopy}
+  For any $H\le\Gamma$ and any boundary complex with its own \texttt{PairHyp} fields (negative degrees, dimension $\le1$, the
+  (T1)-extension property), \texttt{Acyclic} gives \texttt{PairHyp} for the pair $(X_{\mathrm{bulk}},X_\partial)$: [C]'s
+  H4(ii) enters the cone chapter exactly as \texttt{Acyclic}.
+\end{theorem}
+\begin{proof}
+  \leanok
+  Field by field.
+\end{proof}
+
+% ----------------------------------------------------------------------
+\section{The seven-vertex model}
+
+\begin{definition}[$X_{\mathrm{bulk}}$ of a $\tau$-dump; the model \texttt{model7}]\label{def:model7-lean}
+  % mirrors [C] v1.17.0 def:model7, def:model7rel
+  \lean{GL2.TauChk.nf, GL2.TauChk.iotaN, GL2.TauChk.iotaF, GL2.TauChk.listPerm, GL2.TauChk.TauData.XAx,
+    GL2.TauChk.TauData.xbulkB, GL2.TauChk.TauData.faceZ, GL2.TauChk.TauData.toXBulk, GL2.TauChk.Data.model7Simplices,
+    GL2.Model.model7}
+  \leanok
+  \uses{def:xbulk, def:keymodel-tie}
+  \texttt{XAx}\,$D$: dimensions $\le2$, \texttt{KeyAx} in degrees $0,1,2$, faces closed, each transporter permutes the faces
+  through its stored vertex correspondence with the matching signs, and the double faces cancel under
+  $(j,i)\mapsto(i,j-1)$ ($i<j$), $(i+1,j)$ ($i\ge j$). \texttt{toXBulk} turns an accepted dump into a descriptor with faces
+  $\partial_j\iota(\tau)=(-1)^j\iota(\partial_j\tau)$; \texttt{model7} is \texttt{toXBulk tauP2}. \texttt{model7Simplices} is
+  [C] \texttt{def:model7} typed by hand.
+\end{definition}
+\begin{proof}
+  \leanok
+  Definitions.
+\end{proof}
+
+\begin{theorem}[{An accepted dump is an $X_{\mathrm{bulk}}$; the dump is the model of {[C]}}]\label{thm:model7-lean}
+  \lean{GL2.TauChk.nf_pos, GL2.TauChk.iotaF_val, GL2.TauChk.iotaN_iotaN, GL2.TauChk.iotaF_involutive,
+    GL2.TauChk.listPerm_apply, GL2.TauChk.sgnPow_cases, GL2.TauChk.unitOf_neg, GL2.TauChk.TauData.mem_idxL,
+    GL2.TauChk.TauData.keyAx_of_empty, GL2.TauChk.TauData.keyAx_all, GL2.TauChk.TauData.face_mem,
+    GL2.TauChk.TauData.faceZ_transport, GL2.TauChk.TauData.faceZ_simplicial, GL2.TauChk.TauData.sgn0Z,
+    GL2.TauChk.TauData.dim2Z, GL2.TauChk.TauData.card_Sset, GL2.TauChk.Data.tauP2_simplices,
+    GL2.TauChk.Data.tauP2_xbulkB}
+  \leanok
+  \uses{def:model7-lean, thm:keymodel-tie}
+  \texttt{XAx}\,$D$ implies every axiom of \texttt{XBulkDatum} for \texttt{toXBulk}; \texttt{xbulkB tauP2} holds
+  (\texttt{decide +kernel}); the dump's simplex list is \texttt{model7Simplices}.
+\end{theorem}
+\begin{proof}
+  \leanok
+  Reflection from the stored finite data; kernel evaluation on the dump.
+\end{proof}
+
+\begin{proposition}[H4(iv) on the model; H4(i), (iii) at \texttt{model7}]\label{prop:model7h4-iv}
+  % mirrors [C] v1.17.0 H4 (iv), lem:model7coincidences (1), prop:model7h4 (i), (iv)
+  \lean{GL2.TauChk.Data.stabOrd, GL2.TauChk.Data.tauP2_negI_check, GL2.TauChk.Data.tauP2_ord_check,
+    GL2.TauChk.Data.tauP2_gen_check, GL2.Model.model7_stab, GL2.Model.model7_h4_i_iii}
+  \leanok
+  \uses{thm:model7-lean, prop:model7h4-i, prop:model7h4-iii}
+  The stabiliser of $\iota(\sigma)$ is $S(\sigma,\sigma)$; it contains $-I$ for every simplex; its order is $6,6,4$ at
+  $v_4,v_5,v_6$, where it contains $ST$, $TS$, $S$, and $2$ elsewhere (so it is $\{\pm I\}$). (The cyclic generation
+  $\langle ST\rangle$ etc.\ follows from order and membership; it is not stated separately.)
+\end{proposition}
+\begin{proof}
+  \leanok
+  \texttt{decide +kernel} on the dump; $\mathtt{toSL}$ is injective on determinant-one matrices.
+\end{proof}
+
+\begin{proposition}[The coincidences of the model and the relation rows]\label{prop:model7coincidences-2}
+  % mirrors [C] v1.17.0 lem:model7coincidences (2), def:model7rel (the eight listed rows); F3-18 MINOR 3 (WP-17)
+  \lean{GL2.TauChk.Data.coincPairs, GL2.TauChk.Data.tauP2_pairs_check, GL2.TauChk.Data.model7RelRows,
+    GL2.TauChk.Data.tauP2_rel_check, GL2.Model.model7_coincidences}
+  \leanok
+  \uses{thm:model7-lean}
+  For distinct simplices $\sigma\neq\sigma'$ of one dimension, $S(\sigma,\sigma')\neq\emptyset$ exactly for the four
+  unordered pairs $\{v_0,v_3\}$, $\{v_4,v_5\}$, $\{\{v_0,v_4\},\{v_3,v_5\}\}$, $\{\{v_4,v_6\},\{v_5,v_6\}\}$; and each of
+  the eight listed rows $(\sigma_{\mathrm{lhs}},\sigma_{\mathrm{rhs}},\gamma)$ of [C] \texttt{def:model7rel} has
+  $\gamma\in S(\sigma_{\mathrm{lhs}},\sigma_{\mathrm{rhs}})$ carrying the stored orientation to the stored orientation.
+\end{proposition}
+\begin{proof}
+  \leanok
+  \texttt{decide +kernel} on the dump; \texttt{mem\_Sset}.
+\end{proof}
+
+\begin{lemma}[H4(ii)-(0) for the model: $X_{\mathrm{bulk}}$ is connected]\label{prop:model7h4-ii-0}
+  % mirrors [C] v1.17.0 prop:model7h4 (ii), the contract0 clause of eq:contractibleuse (L19-3)
+  \lean{GL2.Model.model7_contract0}
+  \leanok
+  \uses{def:xbulk-acyclic, def:model7-lean}
+  Every $0$-chain of augmentation $0$ is a boundary.
+\end{lemma}
+\begin{proof}
+  \leanok
+  Paths inside $K$ join every vertex to $v_0$; $T\,v_0=v_3$ and $S\,v_6=v_6$ join $v_0$ to $Sv_0$ and $Tv_0$; induction over
+  the generators $S,T$ of $\mathrm{SL}_2(\mathbb Z)$ (mathlib \texttt{SL2Z\_generators}, \texttt{Subgroup.closure\_induction}),
+  the boundaries being $\Gamma$-stable.
+\end{proof}
+
+\begin{lemma}[H4(ii)-(1) for the model: $H_1(X_{\mathrm{bulk}})=0$]\label{prop:model7h4-ii-1}
+  % mirrors [C] v1.17.0 prop:model7h4 (ii), the contract1 clause of eq:contractibleuse (L19-3)
+  \lean{GL2.Model.model7_contract1}
+  \leanok
+  \uses{def:xbulk-acyclic, def:model7-lean}
+  Every $1$-cycle is a boundary.
+\end{lemma}
+\begin{proof}
+  \leanok
+  (A) Across the five triangles every $1$-chain is homologous to a chain on $Y'$: the Serre tree (the edges
+  $\gamma\{v_4,v_6\}$) with one hair $\gamma\{v_0,v_4\}$, $\gamma\{v_1,v_6\}$, $\gamma\{v_2,v_6\}$ at each horocycle vertex.
+  (B) $Y'$ carries no non-zero cycle. Write $u,w$ for the columns of $\gamma$ and $Q(x,y)=x^2+xy+y^2$. The height of
+  $\gamma v_4$ (a superbase of Conway's topograph) is $2(Q(u)+Q(w)+Q(w-u))$, that of $\gamma v_6$ (a base) is $4(Q(u)+Q(w))$,
+  and a hair vertex lies one above its foot (the heights are defined on $Y'$'s vertex set $\{v_0,v_1,v_2,v_4,v_6\}$ only,
+  \texttt{hgt}). The heights of $\gamma v_4$ and $\gamma v_6$ are invariant under the stored stabilisers $S(v_4,v_4)$,
+  $S(v_6,v_6)$ (\texttt{Hn\_inv4}, \texttt{Hn\_inv6}); the hair stabilisers are $\{\pm I\}$, under which every height is
+  invariant because it is even in $\gamma$ (no lemma needed; F3-19 MINOR 7). At every vertex at most
+  one edge class of $Y'$ goes to a vertex not above it: at $\gamma v_4$ two such would give $Q\le0$ on a column, at
+  $\gamma v_6$ they would give $Q(u+w)=Q(w-u)$, i.e.\ $2B(u,w)=0$, impossible because $2B(u,w)\equiv\det\gamma=1\pmod 2$. At
+  the top vertex of a non-zero cycle only one edge class with a non-zero coefficient therefore meets it, and the cycle
+  condition fails there. The coefficients are read through the oriented canonical key (\S\ref{def:orkeymodel}): a chain all
+  of whose class coefficients vanish is $0$.
+\end{proof}
+
+\begin{lemma}[H4(ii)-(2) for the model: $Z_2(X_{\mathrm{bulk}})=0$]\label{prop:model7h4-ii-2}
+  % mirrors [C] v1.17.0 prop:model7h4 (ii), the contract2 clause of eq:contractibleuse (L19-3)
+  \lean{GL2.Model.model7_contract2}
+  \leanok
+  \uses{def:xbulk-acyclic, def:model7-lean}
+  A $2$-chain with boundary $0$ is $0$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  The horocycle edges $\{v_0,v_1\}$, $\{v_1,v_2\}$, $\{v_2,v_3\}$ lie in one triangle class each, so the coefficients of
+  $\{v_0,v_1,v_4\}$, $\{v_1,v_2,v_6\}$, $\{v_2,v_3,v_5\}$ vanish in a $2$-cycle; then $\{v_1,v_4\}$ and $\{v_2,v_5\}$ lie
+  only in $\{v_0,v_1,v_4\},\{v_1,v_4,v_6\}$ and $\{v_2,v_3,v_5\},\{v_2,v_5,v_6\}$, which kills the remaining two. Local
+  coface tables of the dump, \texttt{decide +kernel}.
+\end{proof}
+
+\begin{proposition}[H4(ii) for the model: acyclicity]\label{prop:model7h4-ii}
+  % mirrors [C] v1.17.0 prop:model7h4 (ii) (contractibility, used through eq:contractibleuse)
+  % L19-3 (slot 19, M3-b): proved combinatorially, field by field (-ii-0, -ii-1, -ii-2); [C]'s proof is topological
+  % (the Gamma-equivariant horoball retraction of the upper half plane onto X_bulk).
+  \lean{GL2.Model.model7_acyclic}
+  \leanok
+  \uses{def:xbulk-acyclic, def:model7-lean, prop:model7h4-ii-0, prop:model7h4-ii-1, prop:model7h4-ii-2}
+  \texttt{XBulk.Acyclic model7}.
+\end{proposition}
+\begin{proof}
+  \leanok
+  Lemmas~\ref{prop:model7h4-ii-0}, \ref{prop:model7h4-ii-1}, \ref{prop:model7h4-ii-2}; \texttt{GL2/Model/Acyclic.lean}.
+\end{proof}
+
+% ----------------------------------------------------------------------
+\section{The G2 intake (partial)}
+
+\begin{proposition}[$\Gamma_0(N)\cong\Gamma^0(N)$ by conjugation]\label{prop:cosets-3-iso}
+  % mirrors [C] v1.17.0 prop:cosets (3), the group-isomorphism clause (L17-3 MINOR 2)
+  \lean{GL2.Cosets.gMat_mul_cancel, GL2.Cosets.mul_gMat_cancel, GL2.Cosets.conj_exists, GL2.Cosets.conjFun,
+    GL2.Cosets.conjFun_spec, GL2.Cosets.conjFun_mem, GL2.Cosets.conjFun_eq, GL2.Cosets.conjHom,
+    GL2.Cosets.conj_Gamma0_mulEquiv, GL2.Cosets.conj_Gamma0_mulEquiv_spec}
+  \leanok
+  \uses{prop:cosets-3}
+  For $N\ne0$, $\gamma\mapsto g^{-1}\gamma g$ (written $\gamma g=g\,\varphi(\gamma)$) is a group isomorphism
+  $\Gamma_0(N)\cong\Gamma^0(N)$.
+\end{proposition}
+\begin{proof}
+  \leanok
+  $g$ cancels on either side when $N\ne0$; surjectivity is the converse direction of Proposition~\ref{prop:cosets-3}.
+\end{proof}
+
+\begin{theorem}[\texttt{prop:cosets}(5) for any transversal]\label{prop:cosets-5-any}
+  % mirrors [C] v1.17.0 prop:cosets (5), for an arbitrary transversal s_1..s_m (F3 finding 9)
+  \lean{GL2.Cosets.leftCosets_any}
+  \leanok
+  \uses{prop:cosets-3}
+  If $s:\mathrm{Fin}\,m\to\Gamma$ meets every coset $\Gamma_0(N)\gamma$ exactly once, every $\delta\in\Gamma g\Gamma$ lies in
+  $s_i^{-1}g\,\Gamma$ for exactly one $i$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  As for the fixed $s_k$, with the transversal's uniqueness in place of \texttt{cls}.
+\end{proof}
+
+% ======================================================================
+% L18-2 (slot 18): Psi and thm:welldef over the descriptor (M2-e, M2-f).
+% Lean: lean/GL2/Model/Psi.lean, lean/GL2/Model/WellDef.lean.
+\section{\texorpdfstring{$\Psi$}{Psi}: the equivariant cochains are the relative cochains (M2-e)}
+
+\paragraph{Setting.} $G$ a group, $\Gamma\le G$ with $e:\Gamma\cong\mathrm{SL}_2(\mathbb Z)$, $\Delta\supseteq\Gamma$ a submonoid acting
+on an $R$-module $V$ by $\rho$ (the cone layer's conventions); $\rho_L(t)=\rho(e^{-1}t)$. $C_\bullet(X_{\mathrm{bulk}})$ carries the
+$\Gamma$-action through $e$ (\texttt{toGChainCxVia}; \texttt{toGChainCxOn}\,$H$ is the case $e=H\hookrightarrow\Gamma$). The
+subgroup case $H<\mathrm{SL}_2(\mathbb Z)$ is \emph{not} a $\Psi$ statement: $K$ is a fundamental domain for $\mathrm{SL}_2(\mathbb Z)$
+only, and level $N$ goes through Shapiro (not in M2).
+
+\begin{definition}[The relative complex over the descriptor]\label{def:relcx}
+  % mirrors [C] v1.17.0 def:naivecochains, def:eq_cochains (eq:equivariance), lem:eqgroupoid
+  \lean{GL2.Model.XBulk.toGChainCxVia, GL2.Model.XBulk.Yc, GL2.Model.XBulk.ρL, GL2.Model.XBulk.EqC, GL2.Model.XBulk.IsEqv,
+    GL2.Model.XBulk.relSubm, GL2.Model.XBulk.dF, GL2.Model.XBulk.relCx}
+  \leanok
+  \uses{def:xbulk, def:pair}
+  $C^q_{\mathrm{eq}}$ is the module of $f:V_q\to V$ with $f(\sigma)=\mathrm{sgn}(\sigma,\sigma',t)\,\rho_L(t)f(\sigma')$ for
+  \emph{every} transporter $t\in S(\sigma,\sigma')$, and $(df)(\tau)=\sum_j\varepsilon_j\rho_L(h_j)f(\sigma_j)$ for the signed
+  faces $\partial_j\iota(\tau)=\varepsilon_jh_j\iota(\sigma_j)$.
+  \emph{Restatement.} [C] \texttt{eq:naivecoboundary} has $h_j=1$ (faces of $K$ lie in $K$); the descriptor allows a translate,
+  hence the factor $\rho_L(h_j)$ (for \texttt{model7}, $h_j=1$). The descriptor's $S(\sigma,\sigma')$ is the full coincidence
+  groupoid, so [C]'s FD4 / \texttt{lem:eqgroupoid} is built in, and the orientation sign is [C]'s stored orientation.
+\end{definition}
+\begin{proof}
+  \leanok
+  Definitions.
+\end{proof}
+
+\begin{theorem}[$\Psi$ is an isomorphism of cochain complexes, natural in $L$]\label{thm:psi}
+  % mirrors [C] v1.17.0 thm:explicit_complex_equiv (1), eq:psiinverse, lemma:d_maps_C_eq
+  \lean{GL2.Model.XBulk.toGChainCxOn_eq, GL2.Model.XBulk.chains_hom_ext, GL2.Model.XBulk.mk_gen_eq_smul,
+    GL2.Model.XBulk.genQ_eq_smul, GL2.Model.XBulk.ρΓ_mul', GL2.Model.XBulk.ρΓ_one', GL2.Model.XBulk.ρL_mul,
+    GL2.Model.XBulk.ρL_one, GL2.Model.XBulk.ρL_apply_e, GL2.Model.XBulk.mem_eqHom_iff, GL2.Model.XBulk.isEqv_gen,
+    GL2.Model.XBulk.dF_apply, GL2.Model.XBulk.psiF, GL2.Model.XBulk.psiF_mem, GL2.Model.XBulk.psiF_d,
+    GL2.Model.XBulk.phiFree, GL2.Model.XBulk.phiFree_gen, GL2.Model.XBulk.relSub_le_phiFree, GL2.Model.XBulk.phiF,
+    GL2.Model.XBulk.phiF_genQ, GL2.Model.XBulk.phiF_isEqv, GL2.Model.XBulk.psiF_phiF, GL2.Model.XBulk.phiF_psiF,
+    GL2.Model.XBulk.isEqv_comp_bd, GL2.Model.XBulk.dF_mem, GL2.Model.XBulk.dF_dF, GL2.Model.XBulk.eqC_isEqv,
+    GL2.Model.XBulk.psi_mem,
+    GL2.Model.XBulk.psi, GL2.Model.XBulk.phi, GL2.Model.XBulk.psi_isChainMap, GL2.Model.XBulk.psi_phi,
+    GL2.Model.XBulk.phi_psi, GL2.Model.XBulk.psiEquiv, GL2.Model.XBulk.phi_isChainMap, GL2.Model.XBulk.IsLSHom,
+    GL2.Model.XBulk.IsLSHom.ρL_comm, GL2.Model.XBulk.eqPost, GL2.Model.XBulk.relPost,
+    GL2.Model.XBulk.eqPost_isChainMap, GL2.Model.XBulk.relPost_isChainMap, GL2.Model.XBulk.psi_natural,
+    GL2.Model.psiEquivModel7}
+  \leanok
+  \uses{def:relcx, thm:xbulk-cx}
+  $\Psi\varphi=(\sigma\mapsto\varphi(\iota\sigma))$ maps $\mathrm{Hom}_\Gamma(C_q(X_{\mathrm{bulk}}),V)$ into $C^q_{\mathrm{eq}}$, commutes
+  with $d$, and is bijective with inverse $\Phi f(\gamma\iota\sigma)=\rho_L(\gamma)f(\sigma)$ (\texttt{eq:psiinverse}); both are
+  $R$-linear cochain maps (\texttt{psiEquiv}); a morphism $u$ of local systems commutes with $\Psi$ (\texttt{psi\_natural}). As a
+  consequence $d$ preserves $C^\bullet_{\mathrm{eq}}$ and $d^2=0$ there ([C] \texttt{lemma:d\_maps\_C\_eq}). No freeness,
+  contractibility or field hypothesis. \texttt{psiEquivModel7} is the instance $X_{\mathrm{bulk}}=\texttt{model7}$,
+  $G=\Gamma=\Delta=\mathrm{SL}_2(\mathbb Z)$. Part (2) of [C]'s theorem (free and contractible $\Rightarrow$ group cohomology) is G4,
+  not here.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $\Psi$ lands in $C_{\mathrm{eq}}$: $[1,\sigma]=[t,\sigma',\mathrm{sgn}]$ in the chains. $\Phi$ is well defined: it kills the
+  oriented relations because $f$ satisfies the constraint for every transporter and $\mathrm{sgn}^2=1$. Both composites are the
+  identity on generators (\texttt{chains\_hom\_ext}); $d$ on $C_{\mathrm{eq}}$ is transported from $\varphi\mapsto\varphi\circ\partial$.
+\end{proof}
+
+% ----------------------------------------------------------------------
+\section{\texttt{thm:welldef} over the descriptor (M2-f)}
+
+\begin{definition}[$\widetilde T$ on $X_{\mathrm{bulk}}$; the level-$p^\nu$ coset datum]\label{def:heckeP}
+  % mirrors [C] v1.17.0 def:hecke (eq:heckechain), def:cosetreps, prop:cosets (3), (5)
+  \lean{GL2.Model.XBulk.heckeTilde, GL2.Model.XBulk.heckeTilde_apply, GL2.Model.XBulk.heckeRel, GL2.Model.GLQ,
+    GL2.Model.κ, GL2.Model.κ_injective, GL2.Model.coe_mapGL, GL2.Model.ΓQ, GL2.Model.mapGL_inj, GL2.Model.eQ,
+    GL2.Model.coe_eQ_symm, GL2.Model.coe_ΓQ, GL2.Model.ΔQ, GL2.Model.ΓQ_le_ΔQ, GL2.Model.gQ, GL2.Model.coe_gQ,
+    GL2.Model.pν_ne, GL2.Model.gP, GL2.Model.delta_mem, GL2.Model.mem_Gamma0_pν, GL2.Model.cdP, GL2.Model.heckeP,
+    GL2.Model.XBulk.TauR, GL2.Model.XBulk.τRep_t2, GL2.Model.XBulk.TauR.ofTau, GL2.Model.XBulk.heckeTildeR,
+    GL2.Model.XBulk.heckeTildeR_apply, GL2.Model.XBulk.heckeTildeR_ofTau}
+  \leanok
+  \uses{thm:psi, def:cosettransport, def:cosetreps, lem:cocycle, prop:cosets-3}
+  $\widetilde T\varphi=\sum_j\rho(\delta_j)\varphi(\tau(s_j\,\cdot))$ is the cone layer's $\Theta_g$ (\texttt{thetaG}) on
+  $C_\bullet(X_{\mathrm{bulk}})$, for any coset datum and any $g$-twisted chain datum $\tau$; \texttt{heckeRel} is its transport to
+  $C^\bullet_{\mathrm{eq}}$ by $\Psi$. Here $\tau$ is over $\mathbb Z$ (the cone layer's \texttt{TwistedChainDatum}), the coefficients
+  over $R$. \emph{$\tau$ over $R$} (F3-19 MINOR 1), as [C] \texttt{def:tau} admits: on the 7-vertex model \texttt{TauR} is a family
+  of maps $\tau_q:\mathrm{res}_{f_1}R[\mathrm{Simp}_q]\to\mathrm{res}_{f_2}R[\mathrm{Simp}_q]$ of representations of $\Gamma''$
+  ((T1)) commuting with $\partial$ ((T2)) and with $\varepsilon$ ((T3)), and \texttt{heckeTildeR} is
+  $\widetilde T\varphi=\sum_j\rho(\delta_j)\varphi_R(\tau_R(s_j\,\cdot))$ ($\varphi_R$ the $R$-linear extension); for a $\tau$ over
+  $\mathbb Z$, base-changed (\texttt{TauR.ofTau}), it is \texttt{heckeTilde} (\texttt{heckeTildeR\_ofTau}). For $T_{p^\nu}$: $G=\mathrm{GL}_2(\mathbb Q)$, $\Gamma=\mathrm{SL}_2(\mathbb Z)$ (as
+  \texttt{ΓQ}), $\Delta$ the integral matrices, $g=\mathrm{diag}(1,p^\nu)$; \texttt{cdP} is the coset datum of L17-3's
+  $s_k=\texttt{sSL}\,p\,\nu\,k$, its coset decomposition being \texttt{cls} together with
+  $g^{-1}hg\in\Gamma\iff h\in\Gamma_0(p^\nu)$.
+\end{definition}
+\begin{proof}
+  \leanok
+  Definitions; the coset field of \texttt{cdP} is \texttt{cls\_spec} / \texttt{cls\_eq} and \texttt{conj\_mem\_ΓQ\_iff}.
+\end{proof}
+
+\begin{lemma}[{{[C] \texttt{prop:cosets}(3) in $\mathrm{GL}_2(\mathbb Q)$; $\delta_k$ is \texttt{deltaMat}}}]\label{lem:conj-glq}
+  % mirrors [C] v1.17.0 prop:cosets (3) (Gamma'' = Gamma_0(N)), prop:cosets (5) (delta_j = s_j^{-1} g)
+  \lean{GL2.Model.conj_mem_ΓQ_iff, GL2.Model.cdP_delta}
+  \leanok
+  \uses{def:heckeP, prop:cosets-3}
+  For $N\ne0$ and $h\in\mathrm{SL}_2(\mathbb Z)$: $g^{-1}hg\in\mathrm{SL}_2(\mathbb Z)\iff N\mid c(h)$. The $\delta_k=s_k^{-1}g$ of
+  \texttt{cdP} is \texttt{deltaMat}\,$p\,\nu\,k$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  \texttt{conj\_Gamma0\_iff} after the injective entrywise cast $\mathbb Z\to\mathbb Q$.
+\end{proof}
+
+\begin{theorem}[\texttt{thm:welldef}: equivariance, chain map, and (a) with $\tau$ fixed]\label{thm:welldef-lean}
+  % mirrors [C] v1.17.0 thm:welldef (the "no hypothesis on ell" clause and (a)); NOT (b) (needs lem:tauexists(2), G4)
+  \lean{GL2.Model.thetaG_isChainMap, GL2.Model.thetaG_indep_reps, GL2.Model.XBulk.heckeTilde_equivariant,
+    GL2.Model.XBulk.heckeTilde_isChainMap, GL2.Model.XBulk.heckeTilde_indep_reps, GL2.Model.XBulk.heckeRel_isChainMap,
+    GL2.Model.heckeP_isChainMap, GL2.Model.heckeP_summand, GL2.Model.CosetData.reindex, GL2.Model.thetaG_indep_cd,
+    GL2.Model.XBulk.heckeTilde_indep_cd}
+  \leanok
+  \uses{def:heckeP, lem:conj-glq, lem:cosettransport, lem:cosettransport-24}
+  With no hypothesis on $\ell$: $\widetilde T$ carries $\Gamma$-equivariant cochains to $\Gamma$-equivariant cochains and commutes
+  with $d$ (so does its $\Psi$-transport); and (a) at cochain level: for $\tau$ held fixed, $s_j\mapsto h_js_j$ ($h_j\in\Gamma''$,
+  any re-indexing) leaves the cochain map literally unchanged; since any two coset data for $\Gamma g\Gamma$ differ in exactly this
+  way (\texttt{CosetData.reindex}), $\widetilde T$ is the same cochain map for \emph{every} coset datum (\texttt{thetaG\_indep\_cd},
+  \texttt{heckeTilde\_indep\_cd}; F3-19 MINOR 4). For \texttt{cdP}, [C]'s summand identity
+  $\rho(\delta_k)\varphi(\tau(s_k\gamma x))=\rho(\gamma)\rho(\delta_{k\cdot\gamma})\varphi(\tau(s_{k\cdot\gamma}x))$ holds with
+  $h_k(\gamma)=\texttt{hcoc}$ (\texttt{heckeP\_summand}).
+  \emph{Restatement.} Equivariance is proved for any coset datum from the transversal property (\texttt{transport\_equivariant});
+  the cocycle of \texttt{lem:cocycle} enters \texttt{cdP} through \texttt{cls} and is displayed in \texttt{heckeP\_summand}.
+  (b) (independence of $\tau$) needs \texttt{lem:tauexists}(2) and is not claimed here: on the 7-vertex model with
+  $6\in R^\times$ it is Part G4, \texttt{thm:welldef-b}.
+\end{theorem}
+\begin{proof}
+  \leanok
+  Chain map: \texttt{transport\_bd} and (T2). (a): reindex by $\pi$; $\tau(h_js_jx)=(g^{-1}h_jg)\tau(s_jx)$ by (T1),
+  and $\rho(s_j^{-1}h_j^{-1}g)\rho(g^{-1}h_jg)=\rho(s_j^{-1}g)$. \texttt{CosetData.reindex}: $s_i=h_i\,s'_{\pi i}$ by the coset
+  property of $\{s'_j\}$; $\pi$ is injective by uniqueness in the coset property of $\{s_j\}$ and surjective by that of $\{s'_j\}$.
+\end{proof}
+
+\begin{theorem}[\texttt{thm:welldef}(c): the transported choices; in general on the model]\label{thm:welldef-c}
+  % mirrors [C] v1.17.0 thm:welldef (c), the unconditional "transported choices" half (L18-2 tail item 1).
+  % ERRATUM CANDIDATE for [C]: the proof of (c) names {s_j gamma_1^{-1}} as representatives of Gamma''_1\Gamma; the
+  % correct transported representatives are {gamma_1 s_j} (see the restatement below). Reported to the owner (Q5).
+  \lean{GL2.Model.transportedTau, GL2.Model.transportedCd, GL2.Model.thetaG_transported,
+    GL2.Model.XBulk.heckeTilde_indep_g}
+  \leanok
+  \uses{thm:welldef-lean, thm:welldef-b}
+  For $g_1=\gamma_1g\gamma_2$ ($\gamma_1,\gamma_2\in\Gamma$), $\tau_1=\gamma_2^{-1}\cdot\tau(\gamma_1^{-1}\cdot-)$ is $g_1$-twisted,
+  $\{\gamma_1s_j\}$ is a coset datum for $\Gamma g_1\Gamma$ with $\delta'_j=\delta_j\gamma_2$, and the operator of
+  $(g_1,\{\gamma_1s_j\},\tau_1)$ \emph{is} the operator of $(g,\{s_j\},\tau)$, at cochain level and with no hypothesis on $\ell$.
+  \emph{Restatement.} [C] writes the transported representatives as $\{s_j\gamma_1^{-1}\}$. With
+  $\Gamma''_1=\gamma_1\Gamma''\gamma_1^{-1}$ these need not represent $\Gamma''_1\backslash\Gamma$, and the summands become
+  $\tau(\gamma_1^{-1}s_j\gamma_1^{-1}x)$; the representatives that make the proof work are $\gamma_1s_j$
+  ($\bigsqcup_j\Gamma''_1\gamma_1s_j=\gamma_1\bigsqcup_j\Gamma''s_j=\Gamma$). The conclusion of (c) is unaffected.
+  \emph{The general case} (F3-19 MINOR 4; on the 7-vertex model, $6\in R^\times$): for \emph{any} coset datum and \emph{any}
+  $g_1$-twisted chain datum $\tau_1$ (over $\mathbb Z$) for $g_1=\gamma_1g\gamma_2$, the operator on
+  $H^n(\mathrm{Hom}_\Gamma(C_\bullet,V))$, $n\ge0$, is that of $(g,\{s_j\},\tau)$ (\texttt{heckeTilde\_indep\_g}), via (b), (a) and
+  the transported choices.
+\end{theorem}
+\begin{proof}
+  \leanok
+  (T1) for $\tau_1$ as in [C]; the coset field from that of $\{s_j\}$ applied to $\gamma_1^{-1}\gamma$ and conjugation by
+  $\gamma_1$; summand by summand $\rho(\delta_j\gamma_2)\rho(\gamma_2^{-1})\varphi(\tau(s_jx))=\rho(\delta_j)\varphi(\tau(s_jx))$.
+  General case: $T_{(\{s'_j\},\tau_1)}=T_{(\{s'_j\},\tau_1^{\mathrm{tr}})}$ on $H^n$ by \ref{thm:welldef-b}, $=T_{(\{\gamma_1s_j\},\tau_1^{\mathrm{tr}})}$
+  at cochain level by (a), $=T_{(\{s_j\},\tau)}$ by the transported choices.
+\end{proof}
+
+% ----------------------------------------------------------------------
+\section{The G2 intake, continued (L18-2)}
+% Lean: lean/GL2/Cosets/IntakeG2.lean.  Carried still: P1 N with rowClass_equiv (prop:cosets (4) as a Gamma-equivariant
+% bijection) and eucl_run_bound_P3 (lem:bounds (4), the (P3) variant).
+
+\begin{proposition}[The factors of $\mu_\bullet$'s closed form, assembled]\label{prop:mu-assembled}
+  % mirrors [C] v1.17.0 prop:mu (1) (the factors: integral, determinant N, t_{a_t}^{-1} in Gamma); L17-3 audit MINOR 6
+  \lean{GL2.Cosets.mu_term_assembled}
+  \leanok
+  \uses{prop:mu, def:cosetreps-t}
+  For $\gamma\in\Gamma$ there is exactly one $a<m$ with $\gamma t_a^{-1}\in\Gamma^0(N)$, and for it $g\gamma t_a^{-1}$ is integral of
+  determinant $N$ with $\rho(g\gamma t_a^{-1})\rho(t_a)=\rho(g\gamma)$.
+\end{proposition}
+\begin{proof}
+  \leanok
+  \texttt{tcosets\_transversal} and \texttt{mu\_term}.
+\end{proof}
+
+\begin{proposition}[The cusp characterisation of $\gamma_j$]\label{prop:bdrycosets-cusp}
+  % mirrors [C] v1.17.0 prop:bdrycosets (2), the clause "characterised by gamma_j . infty = delta_j^{-1} . infty"; MINOR 3
+  \lean{GL2.Cosets.gamma_cusp}
+  \leanok
+  \uses{def:cosetreps}
+  $\delta_k\gamma\in B_N$ iff $(\gamma_{00}:\gamma_{10})=(\delta_{11}:-\delta_{10})$ as a ratio pair, i.e.\
+  $\gamma\cdot\infty=\delta_k^{-1}\cdot\infty$ in $\mathbb P^1(\mathbb Q)$ (the first column of $\mathrm{adj}\,\delta_k$).
+\end{proposition}
+\begin{proof}
+  \leanok
+  $\delta_k\gamma\in\Gamma g\Gamma$ always; $(\delta_k\gamma)_{10}=\delta_{10}\gamma_{00}+\delta_{11}\gamma_{10}$.
+\end{proof}
+
+% ----------------------------------------------------------------------
+\section{The boundary \texorpdfstring{$X_\partial$}{X\_d}, the pair hypothesis on the model, and \texttt{EtaSpec} (L19-4, C2)}
+
+\paragraph{Scope.} Slot 19, package L19-4 (the carried C2 / L18-6 MINOR 5). $X_\partial$ is a \emph{sub-descriptor} of an
+$X_{\mathrm{bulk}}$ descriptor; on the model it is read from the $\tau_\partial$ dump. With it, \texttt{PairHyp} for the pair
+(model, $X_\partial$) is proved with no hypothesis left (H4(ii) is \S\ref{prop:model7h4-ii}), and an accepted $\eta$-table is a
+pair homotopy for any $\tau,\tau_\partial,\eta$ realising the three tables. Lean: \texttt{GL2/Model/XBdry.lean},
+\texttt{XBdryModel.lean}, \texttt{EtaPair.lean}.
+
+\begin{definition}[The boundary descriptor $X_\partial$ and the pair]\label{def:xbdry}
+  % mirrors [C] v1.18.0 def:pair (X_bd a Gamma-subcomplex, j the inclusion), (B1), (B2)
+  \lean{GL2.Model.XBdryDatum, GL2.Model.XBdryDatum.Vb, GL2.Model.XBdryDatum.subM, GL2.Model.XBdryDatum.emb,
+    GL2.Model.XBdryDatum.toXBulk, GL2.Model.XBdryDatum.incF, GL2.Model.XBdryDatum.inc, GL2.Model.XBdryDatum.pairVia}
+  \leanok
+  \uses{def:xbulk, def:pairhomotopy}
+  An \texttt{XBdryDatum} of a descriptor $D$ is a decidable set $B_q$ of model $q$-simplices which is $\Gamma$-saturated
+  (a transporter $t\in S(\sigma,\sigma')$ carries $B$ to $B$), closed under faces, of dimension $\le1$ ((B2)), and has central
+  stabilisers, $S(\sigma,\sigma)\subseteq\{\pm1\}$ for $\sigma\in B$ ((B1)). \texttt{toXBulk} is $X_\partial$ as a descriptor
+  (the transporters, signs and faces of $D$, restricted); \texttt{inc} is $j\colon C_\bullet(X_\partial)\to C_\bullet(X_{\mathrm{bulk}})$;
+  \texttt{pairVia}\,$e$ is the cone layer's \texttt{PairData} for $\Gamma$ acting through any $e\colon\Gamma\to\mathrm{SL}_2(\mathbb Z)$.
+\end{definition}
+\begin{proof}
+  \leanok
+  The key-model and descriptor axioms are $D$'s.
+\end{proof}
+
+\begin{theorem}[$j$ is an equivariant chain map over the augmentations]\label{thm:xbdry-pair}
+  % mirrors [C] v1.18.0 def:pair ("j commutes with the augmentations")
+  \lean{GL2.Model.XBdryDatum.inc_genQ, GL2.Model.XBdryDatum.inc_equiv, GL2.Model.XBdryDatum.inc_bd,
+    GL2.Model.XBdryDatum.inc_aug, GL2.Model.XBdryDatum.pairVia_jaug, GL2.Model.XBdryDatum.isEmpty_dim}
+  \leanok
+  \uses{def:xbdry, thm:xbulk-cx}
+  $j[\gamma,\sigma]=[\gamma,\sigma]$; $j$ is $\mathrm{SL}_2(\mathbb Z)$-equivariant, $\partial j=j\partial$, $\varepsilon j=\varepsilon_\partial$;
+  $X_\partial$ has no simplices in degrees $\ge2$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  On generators of the free modules.
+\end{proof}
+
+\begin{theorem}[The (T1)-extension property of $C_\bullet(X_\partial)$]\label{thm:xbdry-free}
+  % mirrors [C] v1.18.0 (B1) + (B3) as used in lem:etaexists (a (T1)-map is free on orbit representatives)
+  \lean{GL2.Model.XBdryDatum.neg_one_comm, GL2.Model.XBdryDatum.negOne_smul, GL2.Model.XBdryDatum.pm_smul,
+    GL2.Model.XBdryDatum.orbSetoid, GL2.Model.XBdryDatum.Orb, GL2.Model.XBdryDatum.orbRep, GL2.Model.XBdryDatum.Valid,
+    GL2.Model.XBdryDatum.W, GL2.Model.XBdryDatum.W_indep, GL2.Model.XBdryDatum.exists_valid,
+    GL2.Model.XBdryDatum.Wz, GL2.Model.XBdryDatum.Wz_eq, GL2.Model.XBdryDatum.freeExt, GL2.Model.XBdryDatum.ext,
+    GL2.Model.XBdryDatum.ext_genQ, GL2.Model.XBdryDatum.genQ_eq_translate, GL2.Model.XBdryDatum.free_twisted}
+  \leanok
+  \uses{def:xbdry, def:pairhomotopy}
+  Suppose $-1\in S(\sigma,\sigma)$ for every bulk simplex ((B3): then $-1$ acts trivially on $C_\bullet(X_{\mathrm{bulk}})$) and
+  $e(g^{-1}hg)=\pm1$ whenever $e(h)=\pm1$ ($h,g^{-1}hg\in\Gamma$). Let $I$ be the set of $\Gamma''$-orbits of generators
+  $(\gamma,\sigma)$ of $C_q(X_\partial)$, $\Gamma''=\{h\in\Gamma: g^{-1}hg\in\Gamma\}$, with representatives \texttt{orbRep}. Then for
+  every $b$ and every $v\colon I\to C_b(X_{\mathrm{bulk}})$ there is exactly one (T1)-map $F\colon C_q(X_\partial)\to C_b(X_{\mathrm{bulk}})$
+  with $F(\texttt{orbRep}\,i)=v_i$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $F[\gamma,\sigma]=\mathrm{sgn}\cdot h'\cdot v_i$ for any $h\in\Gamma''$ with $h\cdot\iota(\sigma_i)=\gamma\iota(\sigma)$; two choices differ by
+  a $\Gamma''$-element stabilising a boundary simplex, which is $\pm1$ by (B1), and so is its conjugate, which acts trivially
+  by (B3); the signs agree by \texttt{sgn\_mul} and \texttt{noInv}. Uniqueness: every generator is the sign-tracked translate
+  of its representative.
+\end{proof}
+
+\begin{theorem}[\texttt{PairHyp} from H4(ii) and the descriptor]\label{thm:pairhyp-xbdry}
+  % mirrors [C] v1.18.0 eq:contractibleuse, (B1)-(B3): the standing hypotheses of sec:cone
+  \lean{GL2.Model.XBdryDatum.pairHyp_via}
+  \leanok
+  \uses{thm:xbdry-free, thm:xbdry-pair, def:xbulk-acyclic, prop:model7h4-ii-dim}
+  For an acyclic descriptor $D$ (\texttt{XBulk.Acyclic}) and a boundary descriptor $X_\partial$, under the two hypotheses of
+  \S\ref{thm:xbdry-free}, \texttt{PairHyp}\,$\Gamma$\,(\texttt{pairVia}\,$e$)\,$g$ holds. Unlike \S\ref{thm:pairhyp-of-acyclic}, the
+  boundary's fields are proved, not assumed.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \S\ref{thm:pairhyp-of-acyclic}'s fields, with \S\ref{thm:xbdry-free} for \texttt{free\_twisted}.
+\end{proof}
+
+\begin{definition}[$X_\partial$ of the seven-vertex model]\label{def:model7bd}
+  % mirrors [C] v1.18.0 def:model7 (the horocycle path v0 - v1 - v2 - v3 at infinity), (B1), (B2)
+  \lean{GL2.Model.model7B, GL2.Model.model7Bd, GL2.TauChk.Data.tauP2_bdry_trs, GL2.TauChk.Data.tauP2_bdry_small,
+    GL2.Model.one_ne_negOne}
+  \leanok
+  \uses{def:xbdry, def:model7-lean, prop:model7h4-iv, chk:taubd-p2}
+  $B_q=\{\sigma:(q,\sigma)\in K_{\mathrm{bd}}\}$, $K_{\mathrm{bd}}=\{v_0,v_1,v_2,v_3,e_{01},e_{12},e_{23}\}$ the boundary list of the
+  $\tau_\partial$ dump. Saturation: a stored transporter starting in $K_{\mathrm{bd}}$ ends in $K_{\mathrm{bd}}$ (\texttt{decide +kernel});
+  face closure and dimension: the $\tau_\partial$ checker's \texttt{bdryOk}; (B1): $|S(\sigma,\sigma)|=2$ on $K_{\mathrm{bd}}$ with
+  $\pm I\in S(\sigma,\sigma)$ (\S\ref{prop:model7h4-iv}).
+\end{definition}
+\begin{proof}
+  \leanok
+  As stated.
+\end{proof}
+
+\begin{theorem}[\texttt{PairHyp} for the model, with no hypothesis]\label{thm:model7-pairhyp}
+  % mirrors [C] v1.18.0 prop:model7h4 (ii) + (B1)-(B3) on the model: the hypotheses of lem:conerelative, eq:coneles,
+  % lem:etaexists, lem:etaunique, thm:conewelldef are met by (model7, X_bd)
+  \lean{GL2.Model.model7_negI, GL2.Model.hc_SL, GL2.Model.mapGL_negOne, GL2.Model.hc_Q, GL2.Model.model7_pairHyp,
+    GL2.Model.model7_pairHypQ, GL2.Model.model7_pairQ_bulk}
+  \leanok
+  \uses{thm:pairhyp-xbdry, def:model7bd, prop:model7h4-ii, prop:model7h4-iv, def:heckeP}
+  For every subgroup $H\le\mathrm{SL}_2(\mathbb Z)$ and $g\in\mathrm{SL}_2(\mathbb Z)$, \texttt{PairHyp}\,$H$ of the model's pair; and in the
+  Hecke setting ($\Gamma=\mathrm{SL}_2(\mathbb Z)\subset\mathrm{GL}_2(\mathbb Q)$ through \texttt{eQ}, bulk $=$ \texttt{Yc model7 eQ})
+  for \emph{every} $g\in\mathrm{GL}_2(\mathbb Q)$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \S\ref{thm:pairhyp-xbdry} with \texttt{model7\_acyclic}; $\pm1$ is central in $\mathrm{SL}_2(\mathbb Z)$ and in $\mathrm{GL}_2(\mathbb Q)$.
+\end{proof}
+
+\begin{corollary}[$\eta$ exists, is unique up to $\partial\Lambda-\Lambda\partial$, and $\Phi_g$ is independent of it, on the model]\label{cor:model7-etaexists}
+  % mirrors [C] v1.18.0 lem:etaexists, lem:etaunique, thm:conewelldef (b) on the model, g in GL2(Q)
+  \lean{GL2.Model.model7_eta_exists, GL2.Model.model7_eta_unique, GL2.Model.model7_conewelldef_b}
+  \leanok
+  \uses{thm:model7-pairhyp, lem:etaexists, lem:etaunique, thm:conewelldef}
+  For every $g\in\mathrm{GL}_2(\mathbb Q)$ and all $g$-twisted chain data $\tau$ on $X_{\mathrm{bulk}}$, $\tau_\partial$ on $X_\partial$ of
+  the model: a pair homotopy exists over $\mathbb Z$; two differ by $\partial\Lambda-\Lambda\partial$ for a unique $\Lambda$; the cone
+  operators of two pair homotopies are cone-homotopic by a filtration-preserving homotopy.
+\end{corollary}
+\begin{proof}
+  \leanok
+  \S\ref{lem:etaexists}, \S\ref{lem:etaunique}, \S\ref{thm:conewelldef} at \S\ref{thm:model7-pairhyp}; $\varepsilon j=\varepsilon_\partial$ is
+  \texttt{pairVia\_jaug}.
+\end{proof}
+
+\begin{definition}[Reading a checker table as chains; realising a table]\label{def:etaread}
+  \lean{GL2.Model.EtaRead.genAt, GL2.Model.EtaRead.absT, GL2.Model.EtaRead.absC, GL2.Model.EtaRead.genAtB,
+    GL2.Model.EtaRead.absTB, GL2.Model.EtaRead.RealisesTau, GL2.Model.EtaRead.RealisesTauBd,
+    GL2.Model.EtaRead.RealisesEta}
+  \leanok
+  \uses{chk:tau, chk:taubd, chk:eta, def:model7-lean, def:xbdry}
+  For an accepted $\tau$-dump $D$: $\texttt{genAt}\,q\,\gamma\,\sigma=[\gamma,\sigma]\in C_q$ ($0$ unless $\sigma$ is a stored $q$-simplex),
+  \texttt{absT} reads a stored term list $\sum c_t[\gamma_t,\sigma_t]$, \texttt{absC} reads a checker chain by its keys; \texttt{genAtB},
+  \texttt{absTB} the same in $C_q(X_\partial)$. $\tau$ (resp.\ $\tau_\partial$, $\eta$) \emph{realises} its table if on every generator
+  $s_j\cdot\iota(\sigma)$ ($1\le j\le m$; $\sigma$ a simplex, resp.\ a boundary simplex) its value is the reading of the stored slot
+  $(j,q,\sigma)$.
+\end{definition}
+\begin{proof}
+  \leanok
+  Definitions.
+\end{proof}
+
+\begin{theorem}[The checker's arithmetic is the chains' arithmetic]\label{thm:etaread}
+  \lean{GL2.Model.EtaRead.absC_eq_of_eval, GL2.Model.EtaRead.canon_spec, GL2.Model.EtaRead.genAt_canon,
+    GL2.Model.EtaRead.absC_canonTerms, GL2.Model.EtaRead.absC_canonTerms_self, GL2.Model.EtaRead.bd_genQ_gen,
+    GL2.Model.EtaRead.bd_genAt, GL2.Model.EtaRead.bd_absT, GL2.Model.EtaRead.bdB_genAtB, GL2.Model.EtaRead.inc_absTB,
+    GL2.Model.EtaRead.tauT1_sAt, GL2.Model.EtaRead.etaT1_sAt, GL2.Model.EtaRead.T1_ext_gen}
+  \leanok
+  \uses{def:etaread, thm:keymodel-tie, thm:xbdry-pair}
+  (1) Chains with equal \texttt{Chain.eval} have equal readings. (2) The canonical key of $\gamma\cdot\iota(\sigma)$ with its sign reads
+  back to $[\gamma,\sigma]$ ($\det\gamma=1$, $\sigma$ stored): \texttt{canonTerms} reads as \texttt{absT}. (3) $\partial$ of a stored term
+  list is the checker's \texttt{bdry}, read; the same in $X_\partial$. (4) At $\gamma=s_j$ ($j$ in its own class, $\mathrm{conj}\,s_j=I$)
+  the (T1) helpers of $\tau$, $\tau_\partial$, $\eta$ are plain lookups. (5) Two (T1)-maps out of $C_n(X_\partial)$ that agree on the
+  generators $s_j\cdot\iota(\sigma)$ agree, when the $s_j$ cover $\Gamma_0(N)\backslash\mathrm{SL}_2(\mathbb Z)$ ($g=\mathrm{diag}(1,N)$).
+\end{theorem}
+\begin{proof}
+  \leanok
+  (1) both readings are $\sum_k \mathrm{eval}(k)[k]$ over the keys; (2) the canonical matrix is $\gamma t$ for a stored
+  $t\in S(\sigma,\hat\sigma)$ with sign $\mathrm{permSign}(t)$, so $[\gamma,\sigma]=\mathrm{sgn}\,[\gamma t,\hat\sigma]$; (3) the face sums
+  are the descriptor's (\texttt{faceZ}); (5) $\gamma=h s_j$ with $h\in\Gamma_0(N)$, $g^{-1}hg\in\Gamma$ (\S\ref{lem:conj-glq}).
+\end{proof}
+
+\begin{theorem}[\texttt{EtaSpec} $\Rightarrow$ \texttt{IsPairHomotopy}]\label{thm:etaspec-pairhomotopy}
+  % mirrors [C] v1.18.0 obl:eta (i)-(iv) => def:pairhomotopy (eq:pairhomotopy) for the stored eta; L18-6 MINOR 5 (C2)
+  \lean{GL2.Model.EtaRead.slot_of, GL2.TauChk.EtaSpec.toIsPairHomotopy}
+  \leanok
+  \uses{thm:etaread, chk:eta, def:xbdry, def:pairhomotopy}
+  Let $E$ satisfy \texttt{EtaSpec}, $X_\partial$ a boundary descriptor whose simplices are $E$'s boundary list, $g=\mathrm{diag}(1,N)$,
+  $\dim X\ge2$, each $s_j$ in its own class, and the $s_j$ covering $\Gamma_0(N)\backslash\mathrm{SL}_2(\mathbb Z)$. Then for any
+  $g$-twisted $\tau$, $\tau_\partial$ and any (T1) map $\eta$ realising the $\tau$-, $\tau_\partial$- and $\eta$-tables,
+  $\eta$ is a pair homotopy: $\partial\eta+\eta\partial=j\tau_\partial-\tau j$ on all of $C_\bullet(X_\partial)$.
+  \emph{Not claimed:} that such $\tau$, $\tau_\partial$, $\eta$ exist (the construction of a twisted map from its table).
+\end{theorem}
+\begin{proof}
+  \leanok
+  Both sides are (T1); by \S\ref{thm:etaread}(5) it suffices to compare them on $s_j\cdot\iota(\sigma)$, $\sigma\in K_{\mathrm{bd}}$ of
+  degree $0$ or $1$ (the other degrees vanish). There the slot $(j,q,\sigma)$ exists (completeness), and \texttt{EtaSpec.homotopy}, read
+  through \texttt{absC} (\S\ref{thm:etaread}(1)--(4)), is the identity.
+\end{proof}
+
+\begin{corollary}[The real $p=2$ $\eta$-table is a pair homotopy]\label{cor:etap2-pairhomotopy}
+  % mirrors [C] v1.18.0 obl:eta on the golden p = 2, nu = 1 table
+  \lean{GL2.Model.entry10, GL2.Model.tauP2_cover, GL2.Model.tauP2_classes, GL2.Model.etaP2_dimX, GL2.Model.tauP2_N_ne,
+    GL2.Model.etaP2_pairHomotopy}
+  \leanok
+  \uses{thm:etaspec-pairhomotopy, chk:eta-p2, def:model7bd}
+  On \texttt{model7} with \texttt{model7Bd} and $g=\mathrm{diag}(1,2)$: every (T1) $\eta$ realising the checked $p=2$ $\eta$-table is a
+  pair homotopy for every $\tau$, $\tau_\partial$ realising the checked tables. The representatives $I$, $\left(\begin{smallmatrix}1&0\\1&1\end{smallmatrix}\right)$,
+  $S$ cover $\Gamma_0(2)\backslash\mathrm{SL}_2(\mathbb Z)$ (the parity of the bottom row).
+\end{corollary}
+\begin{proof}
+  \leanok
+  \S\ref{thm:etaspec-pairhomotopy} with \texttt{etaP2\_spec}.
+\end{proof}

@@ -1,0 +1,2632 @@
+% gt_part_MP.tex -- [GT] Part G12: the Moerdijk--Pronk model (the choice-free MP set, its twisted cochains, the bounded
+% assembly lemma, the descriptors M7 and R_Z).  Slot 22, package MP-L1 (docs/implementation/slot22/MP_impl_plan.md v0.2.1
+% sec. 3, MP_math_plan.md v0.2.1 sec. 8 rows L0--L7; MPL1_report.md).  Read by lean_census.py (gt_part_*.tex).
+% Lean: lean/GL2/MP/*.lean (namespace GL2.MP).  Labels: [GT]-only labels (prefix mp-); each names the [C] 1.22.0-pre.5
+% clause of sec:mpmodel it backs, in a "% backs" line.  [C] sec:mpmodel carries NO \LEAN marker at 1.22.0-pre.5; the
+% marker proposal is MP-L3's (MP_impl_plan.md sec. 3.2), not this part's.
+% Rows L3--L7 (packages MP-L1 / start of MP-L2): the bisimplicial set, the resolution and the comparison theorem in hypothesis
+% form; what stays open is the closing remark rmk:mp-open.
+
+\chapter{Part G12. The Moerdijk--Pronk model}\label{ch:mp}
+
+\paragraph{Setting.} As in [C] \S\texttt{sec:mpmodel}: a group $\Gamma$ acting on a simplicial complex $Y$ with finite
+stabilisers, $\mathfrak T$ its orbifold triangulation, $\Sigma_{\max}$ the representatives $\iota(\sigma)$ of the maximal
+simplices, a commutative ring $k$ and a representation $A$ of $\Gamma$ over $k$.  Under (SC) a finite intersection of closed
+simplices is non-empty iff they have a common vertex ([C] \texttt{rmk:mpwhat}(1)); that is how non-emptiness is expressed in
+Lean.  Nothing is assumed invertible, effective or adapted unless a row says so.  The rows of this part are the rows
+L0--L7 of the dependency graph of [MP] \S8.2 (the implementation plan's MP-L1 and the start of MP-L2), with the descriptor
+checks of L0b on $\mathsf R_{\mathbb Z}$ against the C++ dump; [C] \texttt{thm:mpcomparison} is proved in its hypothesis form
+((AC) over $k$ assumed) for the unnormalised MP complex.
+
+\section{The bounded assembly lemma (L6)}
+
+\begin{definition}[Chain complexes of modules; acyclicity; cones; bounded double complexes]\label{def:mp-cx}
+  % backs [C] 1.22.0-pre.5 lem:mpassembly (the objects of its bounded form)
+  \lean{GL2.MP.Cx, GL2.MP.Cx.Acyclic, GL2.MP.Cx.Contraction, GL2.MP.Cx.DMap, GL2.MP.Cx.cone, GL2.MP.Cx.DMap.lift,
+    GL2.MP.Cx.BDC4, GL2.MP.Cx.BDC4.tot3, GL2.MP.Cx.BDC4.tot, GL2.MP.Cx.BDC4.ColsExact}
+  \leanok
+  A \texttt{Cx} is an $\mathbb N$-graded chain complex of $k$-modules, $d_n\colon X_{n+1}\to X_n$, $d\circ d=0$ ($k$ any ring).  It
+  is \emph{acyclic} if it is exact in every degree, degree $0$ included ($d_0$ onto); an augmented complex
+  $\cdots\to P_0\to A$ is read with $A$ in degree $0$, so acyclicity is ``$P_\bullet\to A$ is a quasi-isomorphism''.  A degree
+  $-1$ map $v\colon T\to R$ commuting with the differentials has the cone $\mathrm{Cone}(R\leftarrow T)_n=R_n\times T_n$,
+  $D(a,t)=(da+vt,-dt)$.  A four-row bounded double complex \texttt{BDC4} is given by its rows $R_0,\dots,R_3$, placed in total
+  degree (row $s$ in degree $n$ is the entry $(n-s,s)$), with vertical maps $v_s\colon R_s\to R_{s-1}$ of degree $-1$, $v\circ v=0$;
+  its total complex is the iterated cone $\mathrm{Cone}(R_0\leftarrow\mathrm{Cone}(R_1\leftarrow\mathrm{Cone}(R_2\leftarrow R_3)))$
+  (\texttt{tot}; \texttt{tot3} the one of the upper three rows).  \texttt{ColsExact}: every column
+  $0\to R_3(c+3)\to R_2(c+2)\to R_1(c+1)\to R_0(c)\to0$ is exact and the entries below the first quadrant vanish.
+\end{definition}
+\begin{proof}
+  \leanok
+  Definitions; $D\circ D=0$ from $d\circ d=0$, $dv=vd$ and $v\circ v=0$.
+\end{proof}
+
+\begin{lemma}[A contractible complex is acyclic]\label{lem:mp-contract}
+  \lean{GL2.MP.Cx.acyclic_of_contraction}
+  \leanok
+  \uses{def:mp-cx}
+  If $h_n\colon X_n\to X_{n+1}$ satisfy $d h=\mathrm{id}$ in degree $0$ and $dh+hd=\mathrm{id}$ above, the complex is acyclic.
+\end{lemma}
+\begin{proof}
+  \leanok
+  A cycle $x$ is $d(hx)$.
+\end{proof}
+
+\begin{lemma}[Rows: the cone of acyclic complexes is acyclic]\label{lem:mp-cone-acyclic}
+  % backs [C] 1.22.0-pre.5 lem:mpassembly, proof, "Exact rows" (one filtration step)
+  \lean{GL2.MP.Cx.cone_acyclic, GL2.MP.Cx.cone_d_fst, GL2.MP.Cx.cone_d_snd}
+  \leanok
+  \uses{def:mp-cx}
+  If $R$ and $T$ are acyclic, so is $\mathrm{Cone}(R\leftarrow T)$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  Element-wise: for a cycle $(a,t)$, $t=dt'$; then $a+vt'$ is a cycle of $R$, $=da'$, and $(a,t)=D(a',-t')$; degree $0$ likewise.
+\end{proof}
+
+\begin{lemma}[The base row]\label{lem:mp-cone-base}
+  % backs [C] 1.22.0-pre.5 thm:mpcomparison, proof of (2) (the two composites Tot -> Z agree; the bottom row is a resolution)
+  \lean{GL2.MP.Cx.base_acyclic}
+  \leanok
+  \uses{def:mp-cx}
+  If $\mathrm{Cone}(R\leftarrow T)$ and $T$ are acyclic, so is $R$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  A cycle $a$ of $R$ gives the cycle $(a,0)=D(a',t')$; $dt'=0$, so $t'=dt''$ and $a=d(a'+vt'')$.
+\end{proof}
+
+\begin{lemma}[Bounded assembly, exact rows]\label{lem:mp-assembly-rows}
+  % backs [C] 1.22.0-pre.5 lem:mpassembly ("if f is a quasi-isomorphism on every row", acyclic form, N = 2 resp. 3)
+  \lean{GL2.MP.Cx.BDC4.tot3_acyclic_of_rows, GL2.MP.Cx.BDC4.tot_acyclic_of_rows}
+  \leanok
+  \uses{lem:mp-cone-acyclic}
+  A bounded double complex with three (resp.\ four) acyclic rows has an acyclic total complex.
+\end{lemma}
+\begin{proof}
+  \leanok
+  \ref{lem:mp-cone-acyclic}, twice (resp.\ three times): the filtration by $s$ has finitely many steps.
+\end{proof}
+
+\begin{lemma}[Bounded assembly, exact columns]\label{lem:mp-assembly-cols}
+  % backs [C] 1.22.0-pre.5 lem:mpassembly ("or on every column", acyclic form, four rows)
+  \lean{GL2.MP.Cx.BDC4.tot_acyclic_of_cols, GL2.MP.Cx.BDC4.tot_d}
+  \leanok
+  \uses{def:mp-cx}
+  A four-row bounded double complex whose columns are exact (\texttt{ColsExact}) has an acyclic total complex.
+\end{lemma}
+\begin{proof}
+  \leanok
+  A staircase chase from the bottom row: a cycle $(a_0,a_1,a_2,a_3)$ is reduced modulo boundaries to $(0,a_1',a_2,a_3)$ ($v_1$ onto),
+  to $(0,0,a_2',a_3)$ ($\ker v_1=\mathrm{im}\,v_2$), to $(0,0,0,a_3')$ ($\ker v_2=\mathrm{im}\,v_3$), and $a_3'=0$ ($v_3$ injective); the
+  low degrees by the vanishing entries.
+\end{proof}
+
+\begin{theorem}[The grid lemma: the bottom row of an exact grid is acyclic]\label{thm:mp-assembly-grid}
+  % backs [C] 1.22.0-pre.5 lem:mpassembly (the form thm:mpcomparison (2) uses) and thm:mpcomparison, proof of (2)
+  \lean{GL2.MP.Cx.BDC4.grid_bottom_row_acyclic}
+  \leanok
+  \uses{lem:mp-assembly-rows, lem:mp-assembly-cols, lem:mp-cone-base}
+  In a four-row bounded double complex whose rows $R_1,R_2,R_3$ are acyclic and whose columns are exact, the bottom row $R_0$ is
+  acyclic.  (For the MP resolution: $R_1,R_2,R_3$ the row augmentations $k[\mathfrak F_{\bullet,s}]\to k[Y_s]$, $s=0,1,2$
+  ([C] \texttt{lem:mprows}), the columns $k[\mathfrak F_{c,\bullet}]\to k[\mathfrak F'_c]$ ([C] \texttt{lem:mpcols}) and
+  $C_\bullet(Y)\to k$ ((AC)), and $R_0$ the augmented $k[\mathfrak F'_\bullet]\to k$, which is therefore a resolution.)
+\end{theorem}
+\begin{proof}
+  \leanok
+  The total complex is acyclic by \ref{lem:mp-assembly-cols}, the total complex of the upper rows by \ref{lem:mp-assembly-rows};
+  the total complex is $\mathrm{Cone}(R_0\leftarrow\text{upper})$, so \ref{lem:mp-cone-base}.  This is the acyclic-assembly form of
+  [C] \texttt{lem:mpassembly}, to which its proof reduces the quasi-isomorphism statement by a mapping cone.
+\end{proof}
+
+\section{Strings, the labelled Čech nerve and the MP set (L1)}
+
+\begin{lemma}[Deletions: the first simplicial identity and $d\circ d=0$]\label{lem:mp-del}
+  % backs [C] 1.22.0-pre.5 def:mpset ("the faces of a string are strings; S is a simplicial set") and def:mpfree
+  \lean{GL2.MP.del, GL2.MP.del_apply, GL2.MP.succAbove_succAbove_of_le, GL2.MP.del_del, GL2.MP.delPair,
+    GL2.MP.delPair_involutive, GL2.MP.delPair_ne, GL2.MP.del_delPair, GL2.MP.sign_delPair, GL2.MP.alt_sum_sq}
+  \leanok
+  For strings $f\colon\mathrm{Fin}(n+1)\to O$ and $d_if=f\circ\delta_i$ (delete entry $i$): $d_id_{j+1}=d_jd_i$ for $i\le j$, and for every
+  abelian group $A$ and $\Phi\colon O^{n+1}\to A$, $\sum_{i,j}(-1)^{i+j}\Phi(d_jd_if)=0$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  The identity on $\mathrm{Fin}$ (the one behind mathlib's \texttt{SimplexCategory.δ\_comp\_δ}); the double sum cancels in pairs under
+  the involution $(i,j)\mapsto(j,i-1)$ ($j<i$), $(j+1,i)$ ($i\le j$).
+\end{proof}
+
+\begin{definition}[MP cover datum; labels; the labelled Čech nerve $\mathfrak F'$; the MP set]\label{def:mp-cover}
+  % backs [C] 1.22.0-pre.5 def:mpset (S_k, faces, degeneracies) and def:mpfree (F'_k)
+  \lean{GL2.MP.Cover, GL2.MP.Cover.Lab, GL2.MP.Cover.Cov, GL2.MP.Cover.smulLab, GL2.MP.Cover.nf, GL2.MP.Cover.F',
+    GL2.MP.Cover.F'.del, GL2.MP.Cover.F'.norm, GL2.MP.Cover.MPSet, GL2.MP.Cover.MPSet.toF', GL2.MP.Cover.face,
+    GL2.MP.Cover.dgn, GL2.MP.Cover.gam, GL2.MP.Cover.Str}
+  \leanok
+  \uses{lem:mp-del}
+  A cover datum is $\Gamma$ acting on a type $P$ (the vertices of $Y$), a type $T=\Sigma_{\max}$ and vertex sets
+  $\mathrm{vtx}(\sigma)\subseteq P$ of $\iota(\sigma)$.  A label string $x=((g_0,\sigma_0),\dots,(g_n,\sigma_n))$ lies in
+  $\mathfrak F'_n$ iff $\bigcap_ig_i\iota(\sigma_i)\ne\emptyset$ (a common vertex), $\Gamma$ acting on every $g_i$.  The MP set
+  $\mathsf S_n$ is the set of normal forms $g_0=1$ ([C] \texttt{thm:mpcomparison}(1)); $d_i$ deletes the label $i$ and
+  re-normalises, $s_i$ repeats the label $i$; $\gamma_i=g_{i-1}^{-1}g_i$ are [C]'s coordinates and \texttt{Str} is [C]'s set of
+  strings $(\sigma_0,\dots,\sigma_n;\gamma_1,\dots,\gamma_n)$ with $\iota(\sigma_0)\cap\gamma_1\iota(\sigma_1)\cap\dots\cap
+  \gamma_1\cdots\gamma_n\iota(\sigma_n)\ne\emptyset$.
+\end{definition}
+\begin{proof}
+  \leanok
+  Definitions; faces and the action preserve the common-vertex condition (\texttt{Cov.del}, \texttt{Cov.smul}).
+\end{proof}
+
+\begin{lemma}[$\Gamma$ acts freely on $\mathfrak F'$; $\Gamma\backslash\mathfrak F'_n\cong\mathsf S_n$]\label{lem:mp-free}
+  % backs [C] 1.22.0-pre.5 thm:mpcomparison (1)
+  \lean{GL2.MP.Cover.F'.smul_eq_self, GL2.MP.Cover.F'.norm_eq_iff, GL2.MP.Cover.F'.norm_smul,
+    GL2.MP.Cover.MPSet.norm_toF', GL2.MP.Cover.F'.smul_norm}
+  \leanok
+  \uses{def:mp-cover}
+  $g\cdot x=x$ implies $g=1$ (already on $g_0$); two points of $\mathfrak F'_n$ have the same normal form iff they lie in one orbit,
+  and the normal forms are a transversal: $x=g_0\cdot\mathrm{nf}(x)$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  Compare the first labels; $\mathrm{nf}(gx)=\mathrm{nf}(x)$.
+\end{proof}
+
+\begin{lemma}[The simplicial identities on $\mathsf S$]\label{lem:mp-face-face}
+  % backs [C] 1.22.0-pre.5 def:mpset (faces, degeneracies) and rmk:mpwhat (1) ("S is a simplicial set")
+  \lean{GL2.MP.Cover.face_face, GL2.MP.Cover.face_dgn_castSucc, GL2.MP.Cover.face_dgn_succ, GL2.MP.Cover.face_succ_val,
+    GL2.MP.Cover.del_zero_toF', GL2.MP.Cover.face_eq_norm}
+  \leanok
+  \uses{def:mp-cover, lem:mp-del}
+  $d_id_{j+1}=d_jd_i$ ($i\le j$), $d_is_i=d_{i+1}s_i=\mathrm{id}$; $d_i$ for $i\ge1$ is the plain deletion, and the zeroth face of the
+  normal form is $d_0x_s=\gamma_1\cdot x_{d_0s}$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  Re-normalisation commutes with deletion; \ref{lem:mp-del}.
+\end{proof}
+
+\begin{lemma}[{{[C]}'s coordinates}]\label{lem:mp-set-gamma}
+  % backs [C] 1.22.0-pre.5 def:mpset (the definition of S_k and of d_0, d_k in (sigma; gamma)-coordinates)
+  \lean{GL2.MP.Cover.strEquiv, GL2.MP.Cover.partialProd_gam, GL2.MP.Cover.gam_partialProd, GL2.MP.Cover.face_zero_str,
+    GL2.MP.Cover.face_last_str}
+  \leanok
+  \uses{def:mp-cover}
+  $(\sigma;\gamma)\mapsto((\gamma_1\cdots\gamma_j,\sigma_j))_j$ is a bijection from [C]'s strings onto $\mathsf S_n$; in these coordinates
+  $d_0$ drops $(\sigma_0,\gamma_1)$ and $d_n$ drops $(\sigma_n,\gamma_n)$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  \texttt{Fin.partialProd} and its left and right inverses.
+\end{proof}
+
+\begin{lemma}[Finiteness]\label{lem:mp-set-finite}
+  % backs [C] 1.22.0-pre.5 rmk:mpwhat (1) and thm:mpcomparison (1) ("S_k is finite")
+  \lean{GL2.MP.Cover.finite_mpSet}
+  \leanok
+  \uses{def:mp-cover, lem:mp-set-gamma}
+  If $T$ is finite and every arrow set $\mathrm{Ar}(\sigma,\sigma')=\{\gamma:\iota(\sigma)\cap\gamma\iota(\sigma')\ne\emptyset\}$ is finite,
+  every $\mathsf S_n$ is finite.
+\end{lemma}
+\begin{proof}
+  \leanok
+  $\gamma_{j+1}\in\mathrm{Ar}(\sigma_j,\sigma_{j+1})$; a string is determined by $(\sigma;\gamma)$.
+\end{proof}
+
+\section{The twisted cochains (L2)}
+
+\begin{definition}[The MP cochains; the equivariant cochains on $\mathfrak F'$]\label{def:mp-cochains}
+  % backs [C] 1.22.0-pre.5 def:mpset (the MP complex, unnormalised) and thm:mpcomparison (3)
+  \lean{GL2.MP.Cover.Coch, GL2.MP.Cover.dC, GL2.MP.Cover.dC_apply, GL2.MP.Cover.ECoch, GL2.MP.Cover.dE,
+    GL2.MP.Cover.dE_apply, GL2.MP.Cover.dE_mem, GL2.MP.Cover.cochEquiv, GL2.MP.Cover.cochEquiv_apply}
+  \leanok
+  \uses{def:mp-cover}
+  $C^n(\mathsf S;A)=\{f\colon\mathsf S_n\to A\}$ with $(df)(s)=\gamma_1\cdot f(d_0s)+\sum_{i=1}^{n+1}(-1)^if(d_is)$ (all strings);
+  $E^n=\{F\colon\mathfrak F'_n\to A:F(gx)=gF(x)\}=\mathrm{Hom}_\Gamma(k[\mathfrak F'_n],A)$ with $(dF)(x)=\sum_i(-1)^iF(d_ix)$;
+  $E^n\to C^n(\mathsf S;A)$ the restriction to the normal forms, with inverse $F(x)=g_0\cdot f(\mathrm{nf}\,x)$.
+\end{definition}
+\begin{proof}
+  \leanok
+  Definitions; the inverse is equivariant since $\mathrm{nf}(gx)=\mathrm{nf}(x)$.
+\end{proof}
+
+\begin{theorem}[{$\mathrm{Hom}_\Gamma(k[\mathfrak F'_\bullet],A)=C^\bullet(\mathsf S;A)$ on the nose}]\label{thm:mp-cochequiv}
+  % backs [C] 1.22.0-pre.5 thm:mpcomparison (3) (unnormalised form: the twist gamma_1 is the re-normalisation of d_0)
+  \lean{GL2.MP.Cover.cochEquiv_dE}
+  \leanok
+  \uses{def:mp-cochains, lem:mp-face-face}
+  The restriction intertwines the untwisted differential of $E^\bullet$ with the twisted differential of $C^\bullet(\mathsf S;A)$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $F(d_0x_s)=F(\gamma_1\cdot x_{d_0s})=\gamma_1F(x_{d_0s})$, and $d_ix_s=x_{d_is}$ for $i\ge1$ (\ref{lem:mp-face-face}).
+\end{proof}
+
+\begin{theorem}[$d\circ d=0$; the MP complex]\label{thm:mp-dd}
+  % backs [C] 1.22.0-pre.5 def:mpset (the MP complex is a cochain complex), unnormalised
+  \lean{GL2.MP.Cover.dE_dE, GL2.MP.Cover.dC_dC, GL2.MP.Cover.mpComplex, GL2.MP.Cover.neg_one_pow_smul_smul}
+  \leanok
+  \uses{thm:mp-cochequiv, lem:mp-del}
+  $d\circ d=0$ on $E^\bullet$ and on $C^\bullet(\mathsf S;A)$, for every commutative ring $k$ and every representation $A$;
+  $C^\bullet(\mathsf S;A)$ is a cochain complex of $k$-modules (\texttt{mpComplex}).
+\end{theorem}
+\begin{proof}
+  \leanok
+  On $E^\bullet$ by \ref{lem:mp-del}; transported along \ref{thm:mp-cochequiv}.
+\end{proof}
+
+\begin{lemma}[Naturality in the coefficients]\label{lem:mp-cochains-natural}
+  % backs [C] 1.22.0-pre.5 thm:mpcomparison (4) ("naturally in M"), cochain level
+  \lean{GL2.MP.Cover.cochMap, GL2.MP.Cover.dC_natural, GL2.MP.Cover.mpComplexMap}
+  \leanok
+  \uses{thm:mp-dd}
+  A morphism $\varphi\colon A\to B$ of representations induces a map of MP complexes $f\mapsto\varphi\circ f$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  $\varphi$ is $\Gamma$-equivariant and linear.
+\end{proof}
+
+\section{The descriptors $\mathsf M_7$ and $\mathsf R_{\mathbb Z}$ (L0, L0b)}
+
+\begin{definition}[MP descriptor; Moerdijk--Pronk's rules as decidable predicates]\label{def:mp-datum}
+  % backs [C] 1.22.0-pre.5 def:mptri (descriptor; (SC), (IO)), def:mprules (1)-(4), def:mpell
+  \lean{GL2.MP.MPDatum, GL2.MP.MPDatum.samePt, GL2.MP.MPDatum.maps, GL2.MP.MPDatum.coset, GL2.MP.MPDatum.arr,
+    GL2.MP.MPDatum.stabGroupB, GL2.MP.MPDatum.wfB, GL2.MP.MPDatum.ioB, GL2.MP.MPDatum.orderedTop, GL2.MP.MPDatum.sameSet,
+    GL2.MP.MPDatum.scTopB, GL2.MP.MPDatum.lpart, GL2.MP.MPDatum.iso, GL2.MP.MPDatum.stabLe, GL2.MP.MPDatum.adaptedB,
+    GL2.MP.MPDatum.adaptedOrderB, GL2.MP.MPDatum.star, GL2.MP.MPDatum.starPts, GL2.MP.MPDatum.tSet,
+    GL2.MP.MPDatum.goodAtB, GL2.MP.MPDatum.goodVtxAtB, GL2.MP.MPDatum.goodStrongB, GL2.MP.MPDatum.closeUnder,
+    GL2.MP.MPDatum.goodFinAtB, GL2.MP.MPDatum.goodFinB, GL2.MP.MPDatum.collarB, GL2.MP.MPDatum.quotV,
+    GL2.MP.MPDatum.edges, GL2.MP.MPDatum.edgeRel, GL2.MP.MPDatum.quotE, GL2.MP.MPDatum.quotF, GL2.MP.MPDatum.quotChi,
+    GL2.MP.MPDatum.card1, GL2.MP.PredRow}
+  \leanok
+  The finite datum: the elements of each vertex-orbit stabiliser $\Gamma_o$, the lifted points $p=g_p\iota(o_p)$ with boundary
+  flags, the maximal simplices as lists of points.  $\mathrm{Ar}(\sigma,\sigma')=\bigcup g_p\Gamma_og_w^{-1}$ over the vertices $p$ of
+  $\iota(\sigma)$ and $w$ of $\iota(\sigma')$ in one orbit $o$.  Boolean predicates: well-formedness; (IO) no maximal simplex has two
+  vertices in one orbit; (SC) on the maximal simplices; \emph{adapted} in the subgroup form, $\Gamma_p\subseteq\Gamma_v$ after transport
+  for all vertices $p$ of a face with a dominating vertex $v$ (\texttt{adaptedB none}), and for the $\ell$-Sylow datum
+  (\texttt{adaptedB (some ℓ)}, $P_p=\{h\in\Gamma_p:h^{|\Gamma_p|_\ell}=1\}$); the orders-only comparison of \texttt{mp\_rules.py};
+  \emph{good}: $\mathsf T(v)=\{\gamma:\gamma\,\mathrm{St}(v)\cap\mathrm{St}(v)\ne\emptyset\}$ in the strong form of the C++ ($\mathsf T(v)$
+  in the stabiliser of one point of $\mathrm{St}(v)$, \texttt{goodAtB}), in the finite-group form (closure within $6$ elements,
+  \texttt{goodFinAtB}) and in the literal form of [C] \texttt{def:mprules}(3), $\mathsf T(v)\subseteq\Gamma_v$ (\texttt{goodVtxAtB});
+  \emph{collar}; the quotient counts $(V,E,F,\chi)$; $\lvert \mathsf S_1\rvert=\sum_{\sigma,\sigma'}\lvert \mathrm{Ar\rvert(\sigma,\sigma')}$.
+\end{definition}
+\begin{proof}
+  \leanok
+  Definitions (computable on the integer data; decided by the kernel).
+\end{proof}
+
+\begin{definition}[$\mathsf M_7$ from the dump that defines \texttt{model7}; $\mathsf R_{\mathbb Z}$ from the C++ dump]\label{def:mp-models}
+  % backs [C] 1.22.0-pre.5 def:mpRZ (1), (2)
+  \lean{GL2.MP.TauDataMP.reps0, GL2.MP.TauDataMP.orbIdx, GL2.MP.TauDataMP.toMP, GL2.MP.TauDataMP.cands,
+    GL2.MP.TauDataMP.sameVerts, GL2.MP.TauDataMP.scB, GL2.MP.model7Bd, GL2.MP.model7MP, GL2.MP.MPDatum.repPts,
+    GL2.MP.MPDatum.goodFails, GL2.MP.MPDatum.goodFinFails, GL2.MP.MPDatum.goodVtxFails, GL2.MP.rzMP, GL2.MP.selOf,
+    GL2.MP.MPDatum.row, GL2.MP.RZDump.dumpFnv, GL2.MP.RZDump.orbits, GL2.MP.RZDump.points, GL2.MP.RZDump.top,
+    GL2.MP.RZDump.arrows, GL2.MP.RZDump.sk, GL2.MP.RZDump.predicates}
+  \leanok
+  \uses{def:mp-datum, def:model7-lean}
+  $\mathsf M_7$ (\texttt{model7MP}) is computed from the $p=2$ dump \texttt{tauP2} that defines \texttt{GL2.Model.model7}: vertex
+  orbits the stored dimension-$0$ representatives, stabilisers the stored $S(o,o)$, points $v=t\,\iota(\mathrm{rep}\,v)$ with
+  $t\in S(v,\mathrm{rep}\,v)$, maximal simplices the stored triangles.  $\mathsf R_{\mathbb Z}$ (\texttt{rzMP}) is built from the dump of
+  \texttt{OrbifoldMPRulesValidation} (\texttt{ORBIFOLD\_MP\_DUMP}, re-typeset by \texttt{lean/tools/mp\_dump\_to\_lean.py} into
+  \texttt{GL2.MP.RZDump}, dump FNV \texttt{0x24ca42ad1b6a4fa0} recomputed by the generator): $\Gamma_o$ the powers of the dumped
+  generator up to the dumped order, points and maximal simplices as dumped.
+\end{definition}
+\begin{proof}
+  \leanok
+  Definitions.
+\end{proof}
+
+\begin{theorem}[{{[C]} \texttt{tab:mprules}, row $\mathsf M_7$; (SC) for its dump}]\label{thm:mp-model7-rules}
+  % backs [C] 1.22.0-pre.5 tab:mprules (row M7), rmk:mprulesread (1), (3), (4), thm:mpcomparison (5) ((IO), (SC) for M7)
+  \lean{GL2.MP.model7_shape, GL2.MP.tauP2_sc, GL2.MP.model7_rules}
+  \leanok
+  \uses{def:mp-models}
+  $\mathsf M_7$ has $5$ vertex orbits with stabilisers of orders $2,2,2,6,4$, $7$ lifted points and the five triangles of [C]
+  \texttt{def:model7}; in dimensions $1,2$ the stored transporters of the dump are exactly the vertex-set transporters (SC); (IO) holds;
+  it is \textbf{not} adapted (subgroup form, and orders-only), its Sylow data $\mathfrak T^{(2)},\mathfrak T^{(3)}$ are; it is not good
+  (strong and finite-group forms fail exactly at $v_1,v_2,\zeta^2,i$); no collar; $(V,E,F,\chi)=(5,9,5,1)$; $\lvert \mathsf S_1\rvert=132$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \texttt{decide +kernel} on the data.
+\end{proof}
+
+\begin{theorem}[{{[C]} \texttt{tab:mprules}, row $\mathsf R_{\mathbb Z}$}]\label{thm:mp-rz-rules}
+  % backs [C] 1.22.0-pre.5 tab:mprules (row R_Z), rmk:mprulesread (2), (3), thm:mpcomparison (5) ((IO), (SC) for R_Z)
+  \lean{GL2.MP.rz_shape, GL2.MP.rz_rules}
+  \leanok
+  \uses{def:mp-models}
+  $\mathsf R_{\mathbb Z}$ has $6$ vertex orbits (orders $2,2,2,6,4,2$), $9$ points and $7$ maximal simplices; it is well formed, (IO) and
+  (SC) hold; it \textbf{is} adapted (subgroup form) and so are its Sylow data; it is not good (both forms fail exactly at $v_1,v_2,m$);
+  no collar; $(V,E,F,\chi)=(6,12,7,1)$; $\lvert \mathsf S_1\rvert=172$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \texttt{decide +kernel} on the data.
+\end{proof}
+
+\begin{theorem}[The C++ dump of $\mathsf R_{\mathbb Z}$ checked in Lean]\label{thm:mp-rz-dump}
+  % backs [C] 1.22.0-pre.5 rmk:mprulesread COMP^r and rmk:mpwhat COMP^r (|S_0|, |S_1| on R_Z), MP_impl_plan.md sec. 3.3 (1)-(3)
+  \lean{GL2.MP.rz_arrows_dump, GL2.MP.rz_dump_counts, GL2.MP.rz_dump_rules}
+  \leanok
+  \uses{thm:mp-model7-rules, thm:mp-rz-rules}
+  For every pair of maximal simplices the arrows $\mathrm{Ar}(\sigma,\sigma')$ recomputed in Lean from the dumped orbits, points and
+  maximal simplices are the dumped C++ arrows (172 in all); the dumped $\lvert \mathsf S_0\rvert,\lvert \mathsf S_1\rvert$ (all strings) are the Lean
+  ones, $7$ and $172$ (the dumped non-degenerate $165=172-7$; $\lvert \mathsf S_2\rvert=3264$ stays C++-only here); the C++ predicate rows of
+  $\mathsf M_7$ and $\mathsf R_{\mathbb Z}$ at $\ell=3,2,0$ (adapted, orders-only, good, collar, $V,E,F,\chi$) are the Lean predicates.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \texttt{decide +kernel}.
+\end{proof}
+
+\begin{theorem}[{{[C]} \texttt{def:mprules}(3)'s literal strong form is stronger than the table's}]\label{thm:mp-goodvtx}
+  % backs [C] 1.22.0-pre.5 def:mprules (3) / rmk:mprulesread (3): a wording discrepancy reported to the MP-CT editor
+  \lean{GL2.MP.goodVtx_discrepancy, GL2.MP.MPDatum.goodAtB_iff_onePt, GL2.MP.MPDatum.goodVtxAtB_iff_vtx}
+  \leanok
+  \uses{def:mp-models}
+  With $\mathsf T(v)\subseteq\Gamma_v$ (the form written in [C] \texttt{def:mprules}(3)) goodness fails at every vertex orbit of
+  $\mathsf M_7$ and at $v_0,v_1,v_2,m$ on $\mathsf R_{\mathbb Z}$; the table's ``fails at'' column ($v_1,v_2,\zeta^2,i$ resp.\
+  $v_1,v_2,m$) is that of the C++ strong form ($\mathsf T(v)$ in the stabiliser of one point of $\mathrm{St}(v)$) and of the
+  finite-group criterion.  The Lean predicate \texttt{goodAtB} is the C++ form (\texttt{goodAtB\_iff\_onePt}:
+  $g_p^{-1}\mathsf T(v)g_p\subseteq\Gamma_o$ for one point $p=g_p\iota(o)$ of $\mathrm{St}(v)$); \texttt{goodVtxAtB} is [C]'s
+  literal wording (\texttt{goodVtxAtB\_iff\_vtx}), kept only to document the discrepancy.  The repair of [C] is the
+  contract editor's (proposed: ``$\mathsf T(v)\subseteq\Gamma_p$ for one vertex $p$ of $\mathrm{St}(v)$''); no value changes.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \texttt{decide +kernel}.
+\end{proof}
+
+\section{Complexes on bases (groundwork for L3--L7)}
+
+\begin{definition}[Complexes of free modules on bases; contractions; degree-lowering maps; shifts; column contractions]\label{def:mp-bcx}
+  % backs [C] 1.22.0-pre.5 def:mpfree (the complexes Z[F], Z[F'], C(Y) are free on explicit bases)
+  \lean{GL2.MP.BCx, GL2.MP.BCx.d, GL2.MP.BCx.d_single, GL2.MP.BCx.d_d, GL2.MP.BCx.toCx, GL2.MP.BContr,
+    GL2.MP.BContr.toContraction, GL2.MP.BDMap, GL2.MP.BDMap.v, GL2.MP.BDMap.v_single, GL2.MP.BDMap.toDMap, GL2.MP.shB,
+    GL2.MP.shBd, GL2.MP.BCx.shift, GL2.MP.BCx.shift_d_zero, GL2.MP.BCx.shift_d_succ, GL2.MP.BContr.shift,
+    GL2.MP.Cx.BDC4.ColExactAt, GL2.MP.Cx.BDC4.ColContr, GL2.MP.alt_sum_sq_k}
+  \leanok
+  \uses{def:mp-cx, lem:mp-del}
+  A complex on bases is given by a basis $B_m$ in each degree and the boundary $\partial b\in k[B_m]$ of each basis element; it
+  defines the \texttt{Cx} with $X_m=k[B_m]$.  Contractions and degree-lowering maps are given on basis elements; the shift prepends an
+  empty degree (rows placed in total degree) and carries contractions along; a column contraction of a four-row bounded double
+  complex consists of maps $h_0,h_1,h_2$ with $vh=\mathrm{id}$, $vh+hv=\mathrm{id}$, $hv=\mathrm{id}$.
+\end{definition}
+\begin{proof}
+  \leanok
+  Definitions; $d\circ d=0$, the contraction identities and $dv=vd$ extend from basis elements by linearity.
+\end{proof}
+
+\begin{lemma}[Contractions on bases; exact columns]\label{lem:mp-bcx-contr}
+  \lean{GL2.MP.BContr.acyclic, GL2.MP.Cx.BDC4.colExactAt_of_contr, GL2.MP.Cx.BDC4.colsExact_of}
+  \leanok
+  \uses{def:mp-bcx, lem:mp-contract}
+  A complex with a contraction on bases is acyclic; a contractible column is exact; a four-row bounded double complex whose
+  columns are all exact and whose entries below the first quadrant vanish satisfies \texttt{ColsExact}.
+\end{lemma}
+\begin{proof}
+  \leanok
+  \ref{lem:mp-contract}; the identities $vh=\mathrm{id}$ etc.\ give surjectivity, the two middle exactnesses and injectivity.
+\end{proof}
+
+\section{The free bisimplicial set, its rows and columns (L3--L5)}
+
+\begin{definition}[(IO), finiteness, $\dim\le2$; $Y_s$; $\mathfrak F_{n,s}$; the augmented complexes]\label{def:mp-bisimp}
+  % backs [C] 1.22.0-pre.5 def:mptri (3) ((IO), (PD)), def:mpfree
+  \lean{GL2.MP.Cover.Hyp, GL2.MP.Cover.InS, GL2.MP.Cover.YS, GL2.MP.Cover.FS, GL2.MP.Cover.strictMono_del,
+    GL2.MP.Cover.YS.del, GL2.MP.Cover.FS.dh, GL2.MP.Cover.FS.dv, GL2.MP.Cover.FS.base, GL2.MP.Cover.FS.toF',
+    GL2.MP.Cover.FS.base_dh, GL2.MP.Cover.FS.toF'_dh, GL2.MP.Cover.FS.base_dv, GL2.MP.Cover.FS.dh_dv,
+    GL2.MP.Cover.FS.toF'_dv, GL2.MP.Cover.altSum, GL2.MP.Cover.lc_altSum, GL2.MP.Cover.altSum_two_const,
+    GL2.MP.Cover.rowBd0, GL2.MP.Cover.rowBdS, GL2.MP.Cover.rowBdd0, GL2.MP.Cover.rowBddS, GL2.MP.Cover.rowB,
+    GL2.MP.Cover.rowBd, GL2.MP.Cover.rowCx, GL2.MP.Cover.fBd0, GL2.MP.Cover.fBdS, GL2.MP.Cover.fBdd0,
+    GL2.MP.Cover.fBddS, GL2.MP.Cover.fB, GL2.MP.Cover.fBd, GL2.MP.Cover.fCx, GL2.MP.Cover.yBd0, GL2.MP.Cover.yBdS,
+    GL2.MP.Cover.yBdd0, GL2.MP.Cover.yBddS, GL2.MP.Cover.yB, GL2.MP.Cover.yBd, GL2.MP.Cover.yCx}
+  \leanok
+  \uses{def:mp-cover, def:mp-bcx}
+  \texttt{Hyp}: an orbit-invariant vertex order \texttt{ord} injective on every maximal simplex ((IO)), finite vertex sets, at most
+  three vertices per maximal simplex.  $Y_s$: the strictly \texttt{ord}-increasing vertex strings in some $g\iota(\sigma)$ (one per
+  ordered simplex; (PD) by construction).  $\mathfrak F_{n,s}$: pairs $(x;(g_0,\sigma_0),\dots,(g_n,\sigma_n))$ with
+  $x\subseteq\bigcap g_i\iota(\sigma_i)$, horizontal faces deleting a label, vertical faces deleting a vertex.  The augmented
+  complexes on bases: the row $k[\mathfrak F_{\bullet,s}]\to k[Y_s]$ (\texttt{rowCx}), $k[\mathfrak F'_\bullet]\to k$
+  (\texttt{fCx}) and the ordered chain complex $k[Y_\bullet]\to k$ (\texttt{yCx}); $d\circ d=0$ by \ref{lem:mp-del}.
+\end{definition}
+\begin{proof}
+  \leanok
+  Definitions; $d\circ d=0$ by \ref{lem:mp-del} (and $\sum_{i\in\{0,1\}}(-1)^i=0$ at the augmentations).
+\end{proof}
+
+\begin{lemma}[L4: the rows are contractible]\label{lem:mp-rows}
+  % backs [C] 1.22.0-pre.5 lem:mprows (non-equivariant, any ring)
+  \lean{GL2.MP.Cover.del_zero_cons, GL2.MP.Cover.del_succ_cons, GL2.MP.Cover.del_one_cons, GL2.MP.Cover.ox,
+    GL2.MP.Cover.ox_spec, GL2.MP.Cover.rowPt0, GL2.MP.Cover.rowPtS, GL2.MP.Cover.dh_zero_rowPtS,
+    GL2.MP.Cover.dh_succ_rowPtS, GL2.MP.Cover.dh_one_rowPtS, GL2.MP.Cover.rowContr, GL2.MP.Cover.rowCx_acyclic}
+  \leanok
+  \uses{def:mp-bisimp, lem:mp-bcx-contr}
+  For each $s$ the augmented row $k[\mathfrak F_{\bullet,s}]\to k[Y_s]$ is contracted by prepending a chosen label $o_x\in O(x)$
+  (the extra degeneracy of the nerve of the chaotic groupoid on $O(x)$); hence it is acyclic, over every commutative ring.
+\end{lemma}
+\begin{proof}
+  \leanok
+  $d_0(o_x,t)=t$ and $d_{i+1}(o_x,t)=(o_x,d_it)$; the contraction identities on basis elements.
+\end{proof}
+
+\begin{lemma}[L5: the columns are contractible]\label{lem:mp-cols}
+  % backs [C] 1.22.0-pre.5 lem:mpcols (the cone on the first vertex v*, non-equivariant)
+  \lean{GL2.MP.Cover.Vf, GL2.MP.Cover.Vf_nonempty, GL2.MP.Cover.Vf_injOn, GL2.MP.Cover.vstar, GL2.MP.Cover.vstar_mem,
+    GL2.MP.Cover.vstar_le, GL2.MP.Cover.FS.lab, GL2.MP.Cover.FS.mem_Vf, GL2.MP.Cover.FS.vs, GL2.MP.Cover.FS.vs_dv,
+    GL2.MP.Cover.FS.ne_vs, GL2.MP.Cover.strictMono_cons_of_lt, GL2.MP.Cover.FS.coneUp, GL2.MP.Cover.FS.vs_coneUp,
+    GL2.MP.Cover.FS.dv_zero_coneUp, GL2.MP.Cover.FS.dv_succ_coneUp, GL2.MP.Cover.colH, GL2.MP.Cover.vdel,
+    GL2.MP.Cover.colH_of_eq, GL2.MP.Cover.colH_of_ne, GL2.MP.Cover.cone_identity}
+  \leanok
+  \uses{def:mp-bisimp}
+  For a label string $t$ let $v^\ast(t)$ be the \texttt{ord}-least common vertex of $\bigcap g_i\iota(\sigma_i)$.  The cone
+  $h(x;t)=(v^\ast x;t)$ if $x_0\ne v^\ast$, $0$ else, satisfies $dh+hd=\mathrm{id}$ on $\mathfrak F_{n,s+1}$.  No equivariance is
+  claimed ($v^\ast$ is not compatible with the faces in $n$).
+\end{lemma}
+\begin{proof}
+  \leanok
+  If $x_0\ne v^\ast$ then no vertex of $x$ is $v^\ast$ and $\mathrm{ord}\,v^\ast<\mathrm{ord}\,x_0$ ((IO) on the common vertices), so
+  $d_0(v^\ast x)=x$ and $d_{j+1}(v^\ast x)=v^\ast d_jx$; if $x_0=v^\ast$ only $d_0x$ survives and $v^\ast d_0x=x$.
+\end{proof}
+
+\section{The resolution (L6a)}
+
+\begin{lemma}[The dimension bound]\label{lem:mp-dim}
+  % backs [C] 1.22.0-pre.5 thm:mpcomparison, proof of (2) (Y is 2-dimensional; bounded s)
+  \lean{GL2.MP.Cover.setOf_InS, GL2.MP.Cover.ncard_InS_le, GL2.MP.Cover.finite_InS, GL2.MP.Cover.card_le_three,
+    GL2.MP.Cover.injective_of_strictMono, GL2.MP.Cover.isEmpty_YS_three, GL2.MP.Cover.dim_vs}
+  \leanok
+  \uses{def:mp-bisimp, lem:mp-cols}
+  A translate of a maximal simplex has at most three vertices; $Y$ has no $3$-simplices; on a triangle $x$ of $\mathfrak F_{n,2}$,
+  $v^\ast$ is the first vertex of $x$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  Cardinalities: an injective string inside $g\iota(\sigma)$ has at most $\lvert\mathrm{vtx}\,\sigma\rvert\le3$ entries.
+\end{proof}
+
+\begin{definition}[The grid]\label{def:mp-grid}
+  % backs [C] 1.22.0-pre.5 thm:mpcomparison, proof of (2) (the double complex Z[F] with both augmentations)
+  \lean{GL2.MP.Cover.R₁, GL2.MP.Cover.R₂, GL2.MP.Cover.R₃, GL2.MP.Cover.colAug, GL2.MP.Cover.v₁b, GL2.MP.Cover.v₂b,
+    GL2.MP.Cover.v₃b, GL2.MP.Cover.comm_aug_colAug, GL2.MP.Cover.comm_dh_colAug, GL2.MP.Cover.comm_aug_vdel,
+    GL2.MP.Cover.comm_dh_vdel, GL2.MP.Cover.v₁, GL2.MP.Cover.v₂, GL2.MP.Cover.v₃, GL2.MP.Cover.vv_colAug,
+    GL2.MP.Cover.vv_vdel, GL2.MP.Cover.vv_of_basis, GL2.MP.Cover.grid}
+  \leanok
+  \uses{def:mp-bisimp, def:mp-bcx}
+  The four-row bounded double complex with rows $k[\mathfrak F'_\bullet]\to k$ and $k[\mathfrak F_{\bullet,s}]\to k[Y_s]$ ($s=0,1,2$,
+  shifted by $s+1$), vertical maps the vertical faces, the column augmentation $(x;t)\mapsto t$ and the augmentation of $Y$; its
+  column $0$ is $k[Y_\bullet]\to k$, its column $n+1$ is $k[\mathfrak F_{n,\bullet}]\to k[\mathfrak F'_n]$.
+\end{definition}
+\begin{proof}
+  \leanok
+  $dv=vd$ (the two kinds of faces commute) and $v\circ v=0$ (\ref{lem:mp-del}; $\sum_{j\in\{0,1\}}(-1)^j=0$).
+\end{proof}
+
+\begin{theorem}[{L6a: $k[\mathfrak F'_\bullet]\to k$ is acyclic}]\label{thm:mp-resolution}
+  % backs [C] 1.22.0-pre.5 thm:mpcomparison (2) (the augmentation Z[F'] -> Z is a quasi-isomorphism; over any ring)
+  \lean{GL2.MP.Cover.grid_rows, GL2.MP.Cover.colPt0, GL2.MP.Cover.colH0, GL2.MP.Cover.colAug_colH0,
+    GL2.MP.Cover.FS.eq_colPt0, GL2.MP.Cover.FS.dv_one_coneUp, GL2.MP.Cover.cone_identity_zero,
+    GL2.MP.Cover.cone_identity_top, GL2.MP.Cover.lin_ext_basis, GL2.MP.Cover.colContr, GL2.MP.Cover.colExact_zero,
+    GL2.MP.Cover.grid_cols, GL2.MP.Cover.fCx_acyclic}
+  \leanok
+  \uses{def:mp-grid, lem:mp-rows, lem:mp-cols, lem:mp-dim, thm:mp-assembly-grid}
+  If the augmented ordered chain complex $k[Y_\bullet]\to k$ is acyclic ((AC) over $k$), then so is $k[\mathfrak F'_\bullet]\to k$:
+  the labelled Čech nerve of the cover of $Y$ by its closed maximal simplices resolves $k$, for every commutative ring $k$, with no
+  invertibility, effectivity or adaptedness hypothesis.
+\end{theorem}
+\begin{proof}
+  \leanok
+  The rows of the grid are acyclic (\ref{lem:mp-rows}), its columns exact (\ref{lem:mp-cols}, \ref{lem:mp-dim} at the top, (AC) in
+  column $0$); \ref{thm:mp-assembly-grid}.
+\end{proof}
+
+\section{The comparison theorem (L7)}
+
+\begin{definition}[The resolution in $\mathrm{Rep}_k\Gamma$]\label{def:mp-rep}
+  % backs [C] 1.22.0-pre.5 thm:mpcomparison (2) (Z[F'] as a complex of Z[Gamma]-modules, augmented)
+  \lean{GL2.MP.Cover.dF, GL2.MP.Cover.fBdS_smul, GL2.MP.Cover.dF_mapDomain, GL2.MP.Cover.mpX, GL2.MP.Cover.mpD,
+    GL2.MP.Cover.mpD_hom_apply, GL2.MP.Cover.mpD_mpD, GL2.MP.Cover.mpCx, GL2.MP.Cover.mpCx_d, GL2.MP.Cover.augL,
+    GL2.MP.Cover.augL_mapDomain, GL2.MP.Cover.fCx_d0, GL2.MP.Cover.fAcyc0, GL2.MP.Cover.fAcycS,
+    GL2.MP.Cover.fAcycSurj, GL2.MP.Cover.mpEps, GL2.MP.Cover.mpEps_hom_apply, GL2.MP.Cover.mpD_mpEps,
+    GL2.MP.Cover.mpAug, GL2.MP.Cover.mpAug_f_zero}
+  \leanok
+  \uses{thm:mp-resolution}
+  $k[\mathfrak F'_\bullet]$ as a chain complex of permutation representations of $\Gamma$ (the alternating deletion differential is
+  equivariant) with its augmentation to the trivial representation $k$.
+\end{definition}
+\begin{proof}
+  \leanok
+  Definitions; equivariance from $d_i(gx)=g\,d_ix$, $d\circ d=0$ from \ref{thm:mp-resolution}'s complex.
+\end{proof}
+
+\begin{theorem}[{$k[\mathfrak F'_\bullet]\to k$ is a projective resolution, over every ring}]\label{thm:mp-projres}
+  % backs [C] 1.22.0-pre.5 thm:mpcomparison (2) ("resolutions of Z by free Z[Gamma]-modules")
+  \lean{GL2.MP.Cover.exact_zero, GL2.MP.Cover.exact_succ, GL2.MP.Cover.mpEps_surjective, GL2.MP.Cover.mpAug_quasiIso,
+    GL2.MP.Cover.mpCx_projective, GL2.MP.Cover.mpRes}
+  \leanok
+  \uses{def:mp-rep, lem:mp-free, thm:mp-resolution, lem:permproj}
+  Under (AC) over $k$, (IO), finiteness and $\dim\le2$, the augmentation $k[\mathfrak F'_\bullet]\to k$ is a quasi-isomorphism in
+  $\mathrm{Rep}_k\Gamma$, and every $k[\mathfrak F'_n]$ is projective ($\Gamma$ acts freely on $\mathfrak F'$, so all stabilisers are
+  trivial): a projective resolution of $k$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  Exactness transported from \ref{thm:mp-resolution} along $k[X]\cong(X\to_0k)$; projectivity by \ref{lem:permproj} with trivial
+  stabilisers (\ref{lem:mp-free}).
+\end{proof}
+
+\begin{theorem}[{$\mathrm{Hom}_\Gamma(k[\mathfrak F'_\bullet],A)\cong C^\bullet(\mathsf S;A)$ as cochain complexes}]\label{thm:mp-homequiv}
+  % backs [C] 1.22.0-pre.5 thm:mpcomparison (3) (on the nose; unnormalised)
+  \lean{GL2.MP.Cover.coeff_single, GL2.MP.Cover.lcF_mapDomain, GL2.MP.Cover.liftE, GL2.MP.Cover.homE,
+    GL2.MP.Cover.homE_apply, GL2.MP.Cover.homE_d, GL2.MP.Cover.homEquiv, GL2.MP.Cover.homEquiv_d, GL2.MP.Cover.linYonIso}
+  \leanok
+  \uses{def:mp-rep, thm:mp-cochequiv}
+  $\varphi\mapsto(s\mapsto\varphi(x_s))$ is an isomorphism of cochain complexes from $\mathrm{Hom}_\Gamma(k[\mathfrak F'_\bullet],A)$ (mathlib's
+  \texttt{linearYonedaObj}) onto the MP complex $C^\bullet(\mathsf S;A)$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $\mathrm{Hom}_\Gamma(k[\mathfrak F'_n],A)$ is the equivariant functions on $\mathfrak F'_n$, precomposition with $d$ is the untwisted
+  alternating sum, and \ref{thm:mp-cochequiv}.
+\end{proof}
+
+\begin{theorem}[L7: the comparison theorem]\label{thm:mp-comparison}
+  % backs [C] 1.22.0-pre.5 thm:mpcomparison (4) for the unnormalised MP complex, in the hypothesis form (1)-(4); not (5)
+  \lean{GL2.MP.Cover.mpComparison}
+  \leanok
+  \uses{thm:mp-projres, thm:mp-homequiv}
+  Let $\Gamma$ be a group, $Y$ given by a cover datum with (IO), finite vertex sets and $\dim\le2$, and suppose $k[Y_\bullet]\to k$ is
+  acyclic ((AC) over $k$).  Then for every commutative ring $k$, every representation $A$ of $\Gamma$ over $k$ and every $n\ge0$,
+  \[
+    H^n(\Gamma;A)\;\cong\;H^n\bigl(C^\bullet(\mathsf S;A)\bigr),
+  \]
+  $C^\bullet(\mathsf S;A)$ the (unnormalised) MP complex of \ref{thm:mp-dd}.  No order is inverted, $\Gamma$ need not act effectively
+  (the central $-I$ of $\mathrm{SL}_2(\mathbb Z)$ is allowed), the triangulation need not be adapted.
+\end{theorem}
+\begin{proof}
+  \leanok
+  mathlib's \texttt{groupCohomologyIso} for the projective resolution of \ref{thm:mp-projres}, and \ref{thm:mp-homequiv} on homology.
+\end{proof}
+
+\section{$\mathsf M_7$ and $\mathsf R_{\mathbb Z}$ as MP covers (L0b)}
+
+\begin{definition}[The cover datum of a decided descriptor]\label{def:mp-datum-cover}
+  % backs [C] 1.22.0-pre.5 def:mptri (1), (2) (a descriptor and its isotropy datum define the Gamma-complex) and def:mpRZ
+  \lean{GL2.MP.MPDatum.dimB, GL2.MP.MPDatum.WF, GL2.MP.MPDatum.wf, GL2.MP.MPDatum.sub, GL2.MP.MPDatum.mem_sub_iff,
+    GL2.MP.MPDatum.ptRel, GL2.MP.MPDatum.P, GL2.MP.MPDatum.mkP, GL2.MP.MPDatum.smul_mkP, GL2.MP.MPDatum.mkP_eq_iff,
+    GL2.MP.MPDatum.pt, GL2.MP.MPDatum.cover, GL2.MP.MPDatum.smul_pt_eq_iff, GL2.MP.MPDatum.ofSL,
+    GL2.MP.MPDatum.ofSL_det, GL2.MP.MPDatum.toSL_ofSL}
+  \leanok
+  \uses{def:mp-datum, def:mp-cover}
+  For a well-formed descriptor ($\texttt{wfB}=\texttt{true}$) the stored stabilisers are subgroups $\Gamma_o\le\mathrm{SL}_2(\mathbb Z)$,
+  the vertices of $Y$ are the pairs $(o,g)$ modulo $g^{-1}g'\in\Gamma_o$ (the vertex $g\,\iota(o)$), with $\mathrm{SL}_2(\mathbb Z)$ acting by
+  left multiplication, and the maximal simplices are the vertex sets of the stored lists.  $\gamma\cdot w=p$ for lifted points iff
+  the decidable \texttt{maps}~$\gamma\,w\,p$ holds.
+\end{definition}
+\begin{proof}
+  \leanok
+  Definitions; \texttt{M22.toSL} is multiplicative and injective on determinant-one matrices.
+\end{proof}
+
+\begin{theorem}[(IO), finiteness, $\dim\le2$ from the decided predicates]\label{thm:mp-datum-hyp}
+  % backs [C] 1.22.0-pre.5 def:mptri (3) ((IO) by orbit index) and thm:mpcomparison (5) ((IO) for M7 and R_Z)
+  \lean{GL2.MP.MPDatum.ordP, GL2.MP.MPDatum.ordP_pt, GL2.MP.MPDatum.tv_mem, GL2.MP.MPDatum.hyp}
+  \leanok
+  \uses{def:mp-datum-cover, def:mp-bisimp}
+  If $\texttt{ioB}$ and $\texttt{dimB}$ hold, the orbit index is a $\Gamma$-invariant order injective on every maximal simplex, the
+  vertex sets are finite and have at most three elements: a \texttt{Cover.Hyp}.
+\end{theorem}
+\begin{proof}
+  \leanok
+  The orbit index is constant on orbits; (IO) is the \texttt{Nodup} of the orbit list of each maximal simplex.
+\end{proof}
+
+\begin{theorem}[The decided arrows are the arrows of the cover; $\lvert\mathsf S_0\rvert$, $\lvert\mathsf S_1\rvert$]\label{thm:mp-datum-arrows}
+  % backs [C] 1.22.0-pre.5 rmk:mpwhat (1) (Ar(sigma, sigma') the finite union of cosets Tr(v, w)) and its counts
+  \lean{GL2.MP.MPDatum.mem_Ar_iff, GL2.MP.MPDatum.exists_vtx, GL2.MP.MPDatum.mpSetZeroEquiv,
+    GL2.MP.MPDatum.card_mpSet_zero, GL2.MP.MPDatum.ArS, GL2.MP.MPDatum.arr_det, GL2.MP.MPDatum.arSEquiv,
+    GL2.MP.MPDatum.card_arS, GL2.MP.MPDatum.mpSetOneEquiv, GL2.MP.MPDatum.card_mpSet_one}
+  \leanok
+  \uses{def:mp-datum-cover, def:mp-cover, lem:mp-set-gamma}
+  $\{\gamma:\iota(\sigma)\cap\gamma\,\iota(\sigma')\ne\emptyset\}$ of the cover is the decided list \texttt{arr}~$\sigma\,\sigma'$
+  ($\bigcup g_p\Gamma_og_w^{-1}$); $\mathsf S_0$ is the set of maximal-simplex representatives and
+  $\lvert\mathsf S_1\rvert=\sum_{\sigma,\sigma'}\lvert\mathrm{Ar}(\sigma,\sigma')\rvert$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  A common vertex $p=\gamma w$ means $\gamma\in g_p\Gamma_og_w^{-1}$; the strings of $\mathsf S_1$ are $(\sigma\leftarrow\sigma';\gamma)$.
+\end{proof}
+
+\begin{theorem}[$\mathsf M_7$, $\mathsf R_{\mathbb Z}$ as MP covers; their counts]\label{thm:mp-models-cover}
+  % backs [C] 1.22.0-pre.5 def:mpRZ, rmk:mpwhat COMP^r (|S_0|, |S_1| = 5, 132 on M7 and 7, 172 on R_Z, all strings)
+  \lean{GL2.MP.rz_wf, GL2.MP.rz_dimB, GL2.MP.model7_wf, GL2.MP.model7_dimB, GL2.MP.rzCover, GL2.MP.model7Cover,
+    GL2.MP.rzHyp, GL2.MP.model7Hyp, GL2.MP.mpSet_counts}
+  \leanok
+  \uses{thm:mp-datum-hyp, thm:mp-datum-arrows, thm:mp-model7-rules, thm:mp-rz-rules}
+  $\mathsf M_7$ (from the dump that defines \texttt{model7}) and $\mathsf R_{\mathbb Z}$ (from the C++ dump) are MP cover data with
+  (IO), finite vertex sets and $\dim\le2$; their abstract MP sets have $\lvert\mathsf S_0\rvert,\lvert\mathsf S_1\rvert=5,132$ and
+  $7,172$ (all strings; the non-degenerate counts subtract the $\lvert\mathsf S_0\rvert$ degenerate strings $(\sigma\xleftarrow{1}\sigma)$).
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{thm:mp-datum-hyp}, \ref{thm:mp-datum-arrows} and \texttt{decide +kernel} on the arrow lists.
+\end{proof}
+
+\begin{theorem}[The comparison theorem for $\mathsf M_7$ and $\mathsf R_{\mathbb Z}$, given (AC)]\label{thm:mp-models-comparison}
+  % backs [C] 1.22.0-pre.5 thm:mpcomparison (5) in hypothesis form: (IO), finiteness, dim <= 2 proved; (AC) assumed
+  \lean{GL2.MP.rz_comparison, GL2.MP.model7_comparison}
+  \leanok
+  \uses{thm:mp-comparison, thm:mp-models-cover}
+  For $\Gamma=\mathrm{SL}_2(\mathbb Z)$, $\mathsf T\in\{\mathsf M_7,\mathsf R_{\mathbb Z}\}$, every commutative ring $k$ for which the
+  ordered chain complex of the vertex scheme of $\mathsf T$ is acyclic, every representation $A$ and every $n$:
+  $H^n(\mathrm{SL}_2(\mathbb Z);A)\cong H^n(C^\bullet(\mathsf S(\mathsf T);A))$ (unnormalised).
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{thm:mp-comparison} with \ref{thm:mp-models-cover}.
+\end{proof}
+
+\section{(AC) for $\mathsf M_7$: the sign bridge (MP-L2, open item 1)}
+
+\begin{definition}[The bridge data and the finite checks]\label{def:mp-ac-checks}
+  % backs [C] 1.22.0-pre.5 thm:mpcomparison (5) ((AC): the finite data relating a tau-dump to an MP descriptor on the same labels)
+  \lean{GL2.MP.ACBridge.srt, GL2.MP.ACBridge.sv, GL2.MP.ACBridge.posL, GL2.MP.ACBridge.eps, GL2.MP.ACBridge.Incr,
+    GL2.MP.ACBridge.tuples, GL2.MP.ACBridge.skip, GL2.MP.ACBridge.chkSimp, GL2.MP.ACBridge.chkTr, GL2.MP.ACBridge.chkInj,
+    GL2.MP.ACBridge.chkSurj, GL2.MP.ACBridge.chkBd, GL2.MP.ACBridge.Checks}
+  \leanok
+  \uses{def:mp-datum-cover}
+  For a $\tau$-dump $D$ with the $X_{\mathrm{bulk}}$ axioms and an MP descriptor $M$ on the same point labels: $\mathrm{srt}\,\sigma$ is
+  the stored vertex list of the dump simplex $\sigma$ sorted by orbit index (the (IO) order), $\varepsilon(\sigma)=\pm1$ the sign of
+  the sorting permutation.  The checks: (1) every $\mathrm{srt}\,\sigma$ is orbit-increasing and lies in a maximal simplex; (2) every
+  stored transporter $t\in S(\sigma,\sigma')$ carries $\mathrm{srt}\,\sigma'$ onto $\mathrm{srt}\,\sigma$ slot by slot and
+  $\varepsilon(\sigma)=\mathrm{sgn}(t)\,\varepsilon(\sigma')$; (3) every slot-wise transporter of sorted lists is stored (only the coset
+  $g_p\Gamma_og_w^{-1}$ of the first vertices is searched); (4) every orbit-increasing string of vertices of a maximal simplex is a
+  sorted dump simplex; (5) deleting slot $i$ of $\mathrm{srt}\,\tau$ is $\mathrm{srt}\,\partial_{\pi i}\tau$ ($\pi$ the position
+  permutation) with $(-1)^{\pi i}\varepsilon(\partial_{\pi i}\tau)=\varepsilon(\tau)(-1)^i$.
+\end{definition}
+\begin{proof}
+  \leanok
+  Decidable definitions (insertion sort, list positions, \texttt{permSign}).
+\end{proof}
+
+\begin{theorem}[The sign bridge: ordered chains $=$ \texttt{XBulk.chains}]\label{thm:mp-ac-bridge}
+  % backs [C] 1.22.0-pre.5 thm:mpcomparison (5) ((AC) from H4(ii): the ordered chain complex of Y is the oriented one of X_bulk)
+  \lean{GL2.MP.ACBridge.Θ, GL2.MP.ACBridge.Θ_tr, GL2.MP.ACBridge.exists_pre, GL2.MP.ACBridge.genQ_of_Θ,
+    GL2.MP.ACBridge.Ξ, GL2.MP.ACBridge.Ξ_genQ, GL2.MP.ACBridge.ΞI, GL2.MP.ACBridge.Ξe, GL2.MP.ACBridge.Ξ_aug,
+    GL2.MP.ACBridge.Ξ_bd_genQ, GL2.MP.ACBridge.Ξ_bd, GL2.MP.ACBridge.E0, GL2.MP.ACBridge.E1, GL2.MP.ACBridge.E2,
+    GL2.MP.ACBridge.d0_E, GL2.MP.ACBridge.d1_E, GL2.MP.ACBridge.d2_E, GL2.MP.ACBridge.contrZ,
+    GL2.MP.ACBridge.bcBCx, GL2.MP.ACBridge.BContr.bc, GL2.MP.ACBridge.yCx_eq_bc, GL2.MP.ACBridge.yCx_acyclic_of_bridge}
+  \leanok
+  \uses{def:mp-ac-checks, def:mp-bisimp, thm:mp-datum-hyp}
+  Under the checks, $\Theta(\gamma,\sigma)=\gamma\cdot\mathrm{srt}\,\sigma$ is a bijection from the simplices of $X_{\mathrm{bulk}}$ (the
+  classes $[\gamma,\sigma]$) onto the ordered simplices $Y_s$ of the MP vertex scheme, and
+  $\Xi\colon C_s(X_{\mathrm{bulk}})\to\mathbb Z[Y_s]$, $[\gamma,\sigma]\mapsto\varepsilon(\sigma)\,e_{\Theta(\gamma,\sigma)}$, is an
+  isomorphism of augmented chain complexes ($s=0,1,2$; $Y_s=\varnothing$ for $s\ge3$).  Hence if $X_{\mathrm{bulk}}$ is acyclic
+  (H4(ii)) and has a vertex, $k[Y_\bullet]\to k$ is acyclic over \emph{every} commutative ring $k$, i.e.\ (AC) holds.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $\Xi$ is well defined on the oriented relation by check (2), surjective by (4), injective with signs by (3) and the (SC)-type
+  search, a chain map by (5) (reindexing the face sum by $\pi$) and compatible with the augmentations ($\varepsilon=1$ on vertices).
+  The $\mathbb Z$-contraction of \texttt{GL2.Model.Bridge} (\texttt{contractZ}, built from H4(ii) by projectivity) transported through
+  $\Xi$ is a contraction of $\mathbb Z[Y_\bullet]\to\mathbb Z$; $k[Y_\bullet]\to k$ is its base change, so the base-changed
+  contraction makes it acyclic.
+\end{proof}
+
+\begin{theorem}[(AC) for $\mathsf M_7$; the comparison for $\mathsf M_7$, unconditional]\label{thm:mp-model7-ac}
+  % backs [C] 1.22.0-pre.5 thm:mpcomparison (5) for the row M7, and (4) for M7 with no hypothesis (unnormalised)
+  \lean{GL2.MP.model7_bridge_checks, GL2.MP.model7_AC, GL2.MP.model7_comparison_unc}
+  \leanok
+  \uses{thm:mp-ac-bridge, thm:mp-models-comparison}
+  The checks hold between the dump \texttt{tauP2} (which defines \texttt{model7}) and \texttt{model7MP}; so (AC) holds for $\mathsf M_7$
+  over every commutative ring, and $H^n(\mathrm{SL}_2(\mathbb Z);A)\cong H^n(C^\bullet(\mathsf S(\mathsf M_7);A))$ for every
+  commutative ring $k$, every representation $A$ of $\mathrm{SL}_2(\mathbb Z)$ over $k$ and every $n$, with no hypothesis left.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \texttt{decide +kernel} on the checks; \ref{thm:mp-ac-bridge} with \texttt{model7\_acyclic} (H4(ii)) and the vertex $v_0$;
+  \ref{thm:mp-models-comparison}.
+\end{proof}
+
+\section{(AC) for \texorpdfstring{$\mathsf R_{\mathbb Z}$}{R\_Z}: the subdivision \texorpdfstring{$\mathsf M_7\leftarrow\mathsf R_{\mathbb Z}$}{M\_7 <- R\_Z} (MP-L2, open item 1)}
+
+\begin{definition}[Formal sums of oriented simplices; their faces and table images]\label{def:mp-tab}
+  % backs [C] 1.22.0-pre.5 thm:mpcomparison (5) (the chain maps of the subdivision argument for R_Z, on finite data)
+  \lean{GL2.MP.TabMap.Tm, GL2.MP.TabMap.gq, GL2.MP.TabMap.val, GL2.MP.TabMap.scaleL, GL2.MP.TabMap.transL,
+    GL2.MP.TabMap.negL, GL2.MP.TabMap.DetOne, GL2.MP.TabMap.unitL, GL2.MP.TabMap.bdL, GL2.MP.TabMap.augL,
+    GL2.MP.TabMap.appL, GL2.MP.TabMap.val_append, GL2.MP.TabMap.val_scaleL, GL2.MP.TabMap.val_negL,
+    GL2.MP.TabMap.val_transL, GL2.MP.TabMap.val_smul, GL2.MP.TabMap.genQ_eq_val, GL2.MP.TabMap.bd_genQ,
+    GL2.MP.TabMap.bd_val, GL2.MP.TabMap.aug_val}
+  \leanok
+  \uses{thm:mp-ac-bridge}
+  A term $(c,g,\tau)$ stands for $c\,[\gamma g,\tau]$ in $C_q(X_{\mathrm{bulk}})$ of a dump; a list of terms is a formal sum with value
+  $\mathrm{val}_\gamma L=\sum c\,[\gamma g,\tau]$.  The boundary of a formal sum is the formal sum of its faces (transporter $1$, sign
+  $(-1)^j$), its augmentation the sum of the coefficients; a table $T$ (an image $T\sigma$ for each simplex) acts on formal sums by
+  $c\,[g,\tau]\mapsto c\,g\cdot T\tau$.
+\end{definition}
+\begin{proof}
+  \leanok
+  Definitions; the value lemmas by induction on the list, \texttt{bd\_genQ} from the faces of the dump.
+\end{proof}
+
+\begin{theorem}[Deciding equalities of formal sums through the sign bridge]\label{thm:mp-tab-same}
+  % backs [C] 1.22.0-pre.5 thm:mpcomparison (5) (the identities of the subdivision argument are finite checks)
+  \lean{GL2.MP.TabMap.Br, GL2.MP.TabMap.Br.ΘeqB, GL2.MP.TabMap.Br.coefSum, GL2.MP.TabMap.Br.Same,
+    GL2.MP.TabMap.Br.θ, GL2.MP.TabMap.Br.θ_eq_iff, GL2.MP.TabMap.Br.tF, GL2.MP.TabMap.Br.Ξ_val,
+    GL2.MP.TabMap.Br.same_sound}
+  \leanok
+  \uses{def:mp-tab, thm:mp-ac-bridge}
+  For a dump bridged to an MP descriptor (\ref{thm:mp-ac-bridge}): if for every term $z$ occurring in $L$ or $L'$ the summed
+  coefficients (times the orientation signs) of the terms whose ordered simplex $g\cdot\mathrm{srt}\,\tau$ equals that of $z$ agree
+  (equality decided slot by slot), then $\mathrm{val}_\gamma L=\mathrm{val}_\gamma L'$ for every $\gamma$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $\Xi$ is injective and sends $\mathrm{val}_\gamma L$ to $\sum c\,\varepsilon(\tau)\,e_{\gamma g\cdot\mathrm{srt}\,\tau}$; compare the
+  coefficients at every ordered simplex.
+\end{proof}
+
+\begin{definition}[Table maps]\label{def:mp-tab-map}
+  % backs [C] 1.22.0-pre.5 thm:mpcomparison (5) (equivariant chain maps between X_bulk complexes given by finite tables)
+  \lean{GL2.MP.TabMap.Br.TabOk, GL2.MP.TabMap.Br.FF, GL2.MP.TabMap.Br.relSub_le_FF, GL2.MP.TabMap.Br.Fmap,
+    GL2.MP.TabMap.Br.Fmap_genQ, GL2.MP.TabMap.Br.Fmap_val}
+  \leanok
+  \uses{thm:mp-tab-same}
+  A table compatible with the stored transporters ($T\sigma=\mathrm{sgn}(t)\,t\cdot T\sigma'$ for $t\in S(\sigma,\sigma')$, decided by
+  \ref{thm:mp-tab-same}) defines the equivariant map $[\gamma,\sigma]\mapsto\mathrm{val}_\gamma(T\sigma)$ on the oriented chains; on a
+  formal sum it is the formal sum of the table images.
+\end{definition}
+\begin{proof}
+  \leanok
+  The map on the free module kills the oriented relation by the compatibility; the rest by induction on the list.
+\end{proof}
+
+\begin{theorem}[Acyclicity through a deformation retraction given by tables]\label{thm:mp-retr}
+  % backs [C] 1.22.0-pre.5 thm:mpcomparison (5) (acyclicity is invariant under the subdivision M7 <- R_Z)
+  \lean{GL2.MP.TabMap.WFL, GL2.MP.TabMap.RetrChk, GL2.MP.TabMap.acyclic_of_retr}
+  \leanok
+  \uses{def:mp-tab-map}
+  If tables $\mathrm{sd}\colon C(B_1)\to C(B_2)$, $c\colon C(B_2)\to C(B_1)$ (chain maps, $c$ augmentation-preserving) and $h$ on $C(B_2)$
+  satisfy $\mathrm{id}-\mathrm{sd}\circ c=dh+hd$ (all decided on the simplices of the dumps), then $X_{\mathrm{bulk}}(B_1)$ acyclic
+  implies $X_{\mathrm{bulk}}(B_2)$ acyclic.
+\end{theorem}
+\begin{proof}
+  \leanok
+  A cycle $x$ of $C(B_2)$ is $\mathrm{sd}(cx)+d(hx)$; $cx$ is a cycle, hence a boundary $dy$ (or $0$ in degree $2$), and
+  $\mathrm{sd}(dy)=d(\mathrm{sd}\,y)$.  In degree $0$ the augmentation is preserved by $c$.
+\end{proof}
+
+\begin{definition}[$\mathsf R_{\mathbb Z}$ as an $X_{\mathrm{bulk}}$ descriptor; the subdivision tables]\label{def:mp-rz-tau}
+  % backs [C] 1.22.0-pre.5 def:mpRZ (R_Z as a Gamma-complex) and thm:mpcomparison (5) (its H4(ii) by subdivision)
+  \lean{GL2.MP.RZTau.tauRZ, GL2.MP.RZTau.sdTab, GL2.MP.RZTau.cTab, GL2.MP.RZTau.h0Tab, GL2.MP.RZTau.h1Tab,
+    GL2.MP.tauRZ_xbulkB, GL2.MP.rz_bridge_checks, GL2.MP.brM7, GL2.MP.brRZ}
+  \leanok
+  \uses{def:mp-models, def:mp-ac-checks, thm:mp-model7-ac}
+  \texttt{tauRZ} (generated by \texttt{lean/tools/rz\_tau\_from\_mp.py} from the C++ dump of $\mathsf R_{\mathbb Z}$; nothing in it is
+  trusted): every face of every maximal simplex of the lifted domain ($9$ vertices, $15$ edges, $7$ triangles) and every transporter
+  ($104$).  It satisfies the $X_{\mathrm{bulk}}$ axioms and is bridged to \texttt{rzMP}.  The tables: $\mathrm{sd}$ splits the edge orbit
+  $\{v_4v_6,v_5v_6\}$ of $\mathsf M_7$ at the new vertices $7,8$ (and the two triangles on it); $c$ is the collapse $7\mapsto4$,
+  $8\mapsto5$; $h_0(7)=[4,7]$, $h_0(8)=[5,8]$, $h_1([1,7])=-[1,4,7]$, $h_1([2,8])=-[2,5,8]$.
+\end{definition}
+\begin{proof}
+  \leanok
+  \texttt{decide +kernel} on \texttt{xbulkB} and on the bridge checks.
+\end{proof}
+
+\begin{theorem}[(AC) for $\mathsf R_{\mathbb Z}$; the comparison for $\mathsf R_{\mathbb Z}$, unconditional]\label{thm:mp-rz-ac}
+  % backs [C] 1.22.0-pre.5 thm:mpcomparison (5) for the row R_Z, and (4) for R_Z with no hypothesis (unnormalised)
+  \lean{GL2.MP.rz_retr, GL2.MP.rzX_acyclic, GL2.MP.rz_AC, GL2.MP.rz_comparison_unc}
+  \leanok
+  \uses{def:mp-rz-tau, thm:mp-retr, thm:mp-ac-bridge, thm:mp-models-comparison}
+  The tables form a deformation retraction ($\mathrm{sd}$, $c$ chain maps, $\mathrm{id}-\mathrm{sd}\,c=dh+hd$ on $C(\mathsf R_{\mathbb Z})$), so
+  $X_{\mathrm{bulk}}(\mathsf R_{\mathbb Z})$ is acyclic (from \texttt{model7\_acyclic}), (AC) holds for $\mathsf R_{\mathbb Z}$ over every
+  commutative ring, and $H^n(\mathrm{SL}_2(\mathbb Z);A)\cong H^n(C^\bullet(\mathsf S(\mathsf R_{\mathbb Z});A))$ for every commutative
+  ring $k$, every representation $A$ and every $n$, with no hypothesis left.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \texttt{decide +kernel} on the twenty fields of \texttt{RetrChk}; \ref{thm:mp-retr}; \ref{thm:mp-ac-bridge};
+  \ref{thm:mp-models-comparison}.
+\end{proof}
+
+\section{Naturality of the comparison in the coefficients (MP-L2, open item 3)}
+
+\begin{definition}[$\mathrm{Hom}(-,A)$ on chain complexes of representations]\label{def:mp-prey}
+  % backs [C] 1.22.0-pre.5 thm:mpcomparison (4) (the maps used for naturality in A)
+  \lean{GL2.MP.Cover.preY, GL2.MP.Cover.preY_f_apply, GL2.MP.Cover.preY_comp, GL2.MP.Cover.preY_id,
+    GL2.MP.Cover.preYEquiv, GL2.MP.Cover.postY, GL2.MP.Cover.postY_f_apply, GL2.MP.Cover.postY_preY,
+    GL2.MP.Cover.cochainsMap_inhomogeneousCochainsIso, GL2.MP.Cover.postY_linYonIso}
+  \leanok
+  \uses{thm:mp-homequiv}
+  Precomposition with a chain map $\varphi$ and post-composition with $f\colon A\to B$ on the cochain complexes
+  $\mathrm{Hom}(X_\bullet,A)$; precomposition turns a homotopy equivalence into one; pre- and post-composition commute; the
+  identifications of mathlib's inhomogeneous cochains with $\mathrm{Hom}(\mathrm{bar},A)$ and of $\mathrm{Hom}(k[\mathfrak F'_\bullet],A)$ with
+  $C^\bullet(\mathsf S;A)$ (\ref{thm:mp-homequiv}) commute with post-composition.
+\end{definition}
+\begin{proof}
+  \leanok
+  Componentwise; the homotopies are the images of the given ones under the additive functor $\mathrm{Hom}(-,A)^{\mathrm{op}}$.
+\end{proof}
+
+\begin{theorem}[The comparison isomorphism is natural in $A$]\label{thm:mp-comparison-natural}
+  % backs [C] 1.22.0-pre.5 thm:mpcomparison (4) (naturality in A of H^n(Gamma; A) = H^n(C(S; A)); unnormalised)
+  \lean{GL2.MP.Cover.mpBarEquiv, GL2.MP.Cover.mpComparisonNat, GL2.MP.Cover.mpComparisonNat_natural,
+    GL2.MP.Cover.mpFunctor, GL2.MP.Cover.mpComparisonNatIso, GL2.MP.model7_comparisonNatIso, GL2.MP.rz_comparisonNatIso}
+  \leanok
+  \uses{def:mp-prey, thm:mp-projres, thm:mp-model7-ac, thm:mp-rz-ac}
+  Through a fixed homotopy equivalence $k[\mathfrak F'_\bullet]\simeq\mathrm{bar}$ of projective resolutions of $k$, the isomorphisms
+  $H^n(\Gamma;A)\cong H^n(C^\bullet(\mathsf S;A))$ form a natural isomorphism of functors $\mathrm{Rep}_k\Gamma\to\mathrm{Mod}_k$, for every
+  commutative ring $k$ (given (AC) over $k$); for $\mathrm{SL}_2(\mathbb Z)$ on $\mathsf M_7$ and on $\mathsf R_{\mathbb Z}$, unconditionally.
+\end{theorem}
+\begin{proof}
+  \leanok
+  Each step is the homology of a chain map commuting with post-composition by $f$
+  (\ref{def:mp-prey}).  (The iso is built through the bar resolution rather than through $\mathrm{Ext}$, whose naturality in the
+  coefficients is not in mathlib; it is an isomorphism with the same source and target as \ref{thm:mp-comparison}.)
+\end{proof}
+
+\section{Morphisms of MP data, naturality and refinement invariance (MP-L3, rows L8, L9)}
+
+\begin{definition}[Morphism of MP data; the label table]\label{def:mp-morph}
+  % backs [C] 1.22.0-pre.6 def:mpmorphism (1), (2) (the label table; what the induced maps use of the morphism)
+  \lean{GL2.MP.Cover.mapLab, GL2.MP.Cover.Morph, GL2.MP.Cover.Morph.ofVtx}
+  \leanok
+  \uses{def:mp-cover}
+  For $\varphi\colon\Gamma\to\Gamma'$ and cover data $C$, $C'$, a morphism is a label table $\sigma\mapsto(\mathsf h_\sigma,\sigma')$
+  such that $\bigcap_ig_i\iota(\sigma_i)\neq\emptyset$ implies $\bigcap_i\varphi(g_i)\mathsf h_{\sigma_i}\iota'(\sigma'_i)\neq\emptyset$.  A
+  $\varphi$-equivariant vertex map $f$ with $f(\iota(\sigma))\subseteq\mathsf h_\sigma\iota'(\sigma')$ gives one (\texttt{ofVtx}); for a
+  refinement the condition is the containment of closed simplices in $|Y|$, and an equivariant vertex map with these
+  containments (\ref{def:mp-orbmap}) certifies it.  Only the labels enter the induced maps.
+\end{definition}
+\begin{proof}
+  \leanok
+  A common vertex $p$ goes to the common vertex $f(p)$.
+\end{proof}
+
+\begin{lemma}[The induced map of labelled nerves and of MP sets]\label{lem:mp-morph-simplicial}
+  % backs [C] 1.22.0-pre.6 thm:mpnatural (1) (u a phi-equivariant map of simplicial sets; u(x_s) = h_{sigma_0} x_{u(s)}),
+  % def:mpmorphism (3) (the gamma-coordinates h_{sigma_{i-1}}^{-1} phi(gamma_i) h_{sigma_i})
+  \lean{GL2.MP.Cover.Morph.uF, GL2.MP.Cover.Morph.uF_val, GL2.MP.Cover.Morph.uF_smul, GL2.MP.Cover.Morph.uF_del,
+    GL2.MP.Cover.Morph.uS, GL2.MP.Cover.Morph.uF_toF', GL2.MP.Cover.Morph.norm_uF_smul, GL2.MP.Cover.Morph.norm_del_norm,
+    GL2.MP.Cover.Morph.uS_face, GL2.MP.Cover.Morph.uS_gam, GL2.MP.Cover.Morph.uS_sigma}
+  \leanok
+  \uses{def:mp-morph, lem:mp-free, lem:mp-set-gamma}
+  $u((g_i,\sigma_i))=((\varphi(g_i)\mathsf h_{\sigma_i},\sigma'_i))$ is $\varphi$-equivariant and commutes with every face on the nose; on
+  normal forms $u(x_s)=\mathsf h_{\sigma_0}\cdot x_{u(s)}$, $u\colon\mathsf S\to\mathsf S'$ commutes with the faces, and the $\gamma$-coordinates of
+  $u(s)$ are $\mathsf h_{\sigma_{i-1}}^{-1}\varphi(\gamma_i)\mathsf h_{\sigma_i}$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  $\varphi(g)\varphi(g_i)\mathsf h=\varphi(gg_i)\mathsf h$; the normal form of a face does not depend on the representative of the orbit.
+\end{proof}
+
+\begin{definition}[The induced cochain map, with the label factor]\label{def:mp-pull}
+  % backs [C] 1.22.0-pre.6 def:mpmorphism (3) ((u^* f)(s) = h_{sigma_0} . f(u(s)); unnormalised), thm:mpnatural (1)
+  % (u^* is F -> F o u read on the normal forms)
+  \lean{GL2.MP.Cover.Morph.epull, GL2.MP.Cover.Morph.epull_dE, GL2.MP.Cover.Morph.pull, GL2.MP.Cover.Morph.pull_apply,
+    GL2.MP.Cover.Morph.cochEquiv_epull}
+  \leanok
+  \uses{lem:mp-morph-simplicial, thm:mp-cochequiv}
+  $(u^*f)(s):=\mathsf h_{\sigma_0}\cdot f(u(s))$, $C^\bullet(\mathsf S';A')\to C^\bullet(\mathsf S;\varphi^*A')$; it is $F\mapsto F\circ u$ on the
+  equivariant cochains, read through \ref{thm:mp-cochequiv}.
+\end{definition}
+\begin{proof}
+  \leanok
+  $F(u(x_s))=F(\mathsf h_{\sigma_0}x_{u(s)})=\mathsf h_{\sigma_0}F(x_{u(s)})$.
+\end{proof}
+
+\begin{theorem}[$u^*$ is a cochain map]\label{thm:mp-pull-cochain}
+  % backs [C] 1.22.0-pre.6 thm:mpnatural (1) (a cochain map, every ring, every representation; unnormalised)
+  \lean{GL2.MP.Cover.Morph.pull_dC, GL2.MP.Cover.Morph.pullMap, GL2.MP.Cover.Morph.pullMap_f_apply}
+  \leanok
+  \uses{def:mp-pull, thm:mp-dd}
+  $u^*\circ d=d\circ u^*$; hence a map of MP complexes $C^\bullet(\mathsf S';A')\to C^\bullet(\mathsf S;\varphi^*A')$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $F\mapsto F\circ u$ commutes with the untwisted differentials since $u$ commutes with the faces; transport along
+  \ref{thm:mp-cochequiv}.
+\end{proof}
+
+\begin{lemma}[Composition]\label{lem:mp-pull-comp}
+  % backs [C] 1.22.0-pre.6 thm:mpnatural (1) (compatible with composition, labels h''_sigma = psi(h_sigma) h'_{sigma'})
+  \lean{GL2.MP.Cover.Morph.comp, GL2.MP.Cover.Morph.comp_uF, GL2.MP.Cover.Morph.pull_comp}
+  \leanok
+  \uses{def:mp-pull}
+  With labels composed by $\mathsf h''_\sigma=\psi(\mathsf h_\sigma)\mathsf h'_{\sigma'}$, $(u'\circ u)^*=u^*\circ u'^*$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  On equivariant cochains both are $F\mapsto F\circ u'\circ u$.
+\end{proof}
+
+\begin{theorem}[The label factor cannot be dropped]\label{thm:mp-untwisted}
+  % backs [C] 1.22.0-pre.6 thm:mpnatural (4) (the defect formula; sufficient: one central automorphism for all labels; not in general)
+  \lean{GL2.MP.Cover.Morph.untw, GL2.MP.Cover.Morph.untw_defect, GL2.MP.Cover.Morph.untw_dC_of_const,
+    GL2.MP.Cover.Morph.untw_not_cochain}
+  \leanok
+  \uses{lem:mp-morph-simplicial, def:mp-cochains}
+  For the untwisted $f\mapsto f\circ u$:
+  $d(f\circ u)(s)-(df)(u(s))=(\varphi(\gamma_1)-\mathsf h_{\sigma_0}^{-1}\varphi(\gamma_1)\mathsf h_{\sigma_1})\cdot f(u(d_0s))$; it is a cochain map
+  when all labels act on $A'$ by one and the same central automorphism, and not a cochain map as soon as one string has
+  $\varphi(\gamma_1)v\neq\mathsf h_{\sigma_0}^{-1}\varphi(\gamma_1)\mathsf h_{\sigma_1}v$ for some $v$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  The faces $d_i$, $i\ge1$, agree; $d_0$ carries $\varphi(\gamma_1)$ resp.\ the $\gamma$-coordinate of $u(s)$ (\ref{lem:mp-morph-simplicial}).
+  For the failure take $f$ the indicator of $u(d_0s)$ with value $v$.
+\end{proof}
+
+\begin{definition}[Exact augmented complexes]\label{def:mp-exactaug}
+  % backs [C] 1.22.0-pre.6 thm:mpnatural (2) (proof: "phi^* N Z[F''] -> Z is acyclic, so Z[u] is the lift up to homotopy")
+  \lean{GL2.MP.ExactCx.ExactAug, GL2.MP.ExactCx.hzZero, GL2.MP.ExactCx.hzZero_comp, GL2.MP.ExactCx.hzOne,
+    GL2.MP.ExactCx.hzOne_comp, GL2.MP.ExactCx.hzSucc, GL2.MP.ExactCx.hzSucc_comp}
+  \leanok
+  An augmented chain complex $Q_\bullet\to Z$ in an abelian category, exact in every degree with $Q_0\to Z$ epi; not assumed
+  projective.
+\end{definition}
+\begin{proof}
+  \leanok
+  Definitions; the auxiliary lifts are lifts from projective objects along exact sequences.
+\end{proof}
+
+\begin{theorem}[Maps into exact complexes are unique up to homotopy]\label{thm:mp-homotopy-exact}
+  % backs [C] 1.22.0-pre.6 thm:mpnatural (2) (Weibel Thm. 2.2.6, the comparison theorem, in the form used: target exact, not projective)
+  \lean{GL2.MP.ExactCx.homotopyZero', GL2.MP.ExactCx.homotopy'}
+  \leanok
+  \uses{def:mp-exactaug}
+  Two chain maps from a projective resolution to an exact augmented complex that agree after the augmentation are
+  chain homotopic.
+\end{theorem}
+\begin{proof}
+  \leanok
+  mathlib's \texttt{ProjectiveResolution.liftHomotopyZero}, whose proof uses of the target only exactness: build the homotopy
+  inductively by lifting from projectives.
+\end{proof}
+
+\begin{definition}[Restriction of complexes; the bar map]\label{def:mp-barmap}
+  % backs [C] 1.22.0-pre.6 thm:mpnatural (2) (the restriction on Ext, read on inhomogeneous cochains)
+  \lean{GL2.MP.Cover.resC, GL2.MP.Cover.resY, GL2.MP.Cover.resY_f_apply, GL2.MP.Cover.preY_resY, GL2.MP.Cover.barMapF,
+    GL2.MP.Cover.barMapF_single, GL2.MP.Cover.barMap, GL2.MP.Cover.cochainsMap_barMap, GL2.MP.Cover.diag_inv_single,
+    GL2.MP.Cover.barEps, GL2.MP.Cover.barEps_d, GL2.MP.Cover.barπ_single, GL2.MP.Cover.resBarAug, GL2.MP.Cover.barMap_aug}
+  \leanok
+  \uses{def:mp-prey, def:mp-exactaug}
+  $\beta\colon\mathrm{bar}_\Gamma\to\varphi^*\mathrm{bar}_{\Gamma'}$, $(g_1,\dots,g_n)\mapsto(\varphi g_1,\dots,\varphi g_n)$, is a chain map of
+  $\Gamma$-representations compatible with the augmentations, and mathlib's restriction $x\mapsto x\circ\varphi^n$ on inhomogeneous
+  cochains is $\mathrm{Hom}(\beta,\varphi^*A')\circ\varphi^*$ (\texttt{cochainsMap\_barMap}); $\varphi^*\mathrm{bar}_{\Gamma'}\to k$ is exact
+  (restriction preserves exactness).
+\end{definition}
+\begin{proof}
+  \leanok
+  On the free generators, with \texttt{Fin.comp\_contractNth}; the bar augmentation sends every generator to $1$.
+\end{proof}
+
+\begin{definition}[The chain map $k\lbrack u\rbrack$]\label{def:mp-zu}
+  % backs [C] 1.22.0-pre.6 thm:mpnatural (1), (2) (u^* = F -> F o Z[u] on Hom(N Z[F'], -); unnormalised)
+  \lean{GL2.MP.Cover.zuF, GL2.MP.Cover.zuF_hom_apply, GL2.MP.Cover.dF_mapDomain_uF, GL2.MP.Cover.zu,
+    GL2.MP.Cover.zu_aug, GL2.MP.Cover.pullMap_zu}
+  \leanok
+  \uses{lem:mp-morph-simplicial, thm:mp-homequiv, def:mp-barmap}
+  $k[u]\colon k[\mathfrak F'_\bullet]\to\varphi^*k[\mathfrak F'{}'_\bullet]$ is a $\Gamma$-chain map over the augmentations, and $u^*$ is
+  precomposition with $k[u]$ under \ref{thm:mp-homequiv}.
+\end{definition}
+\begin{proof}
+  \leanok
+  $u$ is equivariant and commutes with the faces; $u(x_s)=\mathsf h_{\sigma_0}x_{u(s)}$.
+\end{proof}
+
+\begin{theorem}[$H^\bullet(u^*)$ is the restriction]\label{thm:mp-pull-natural}
+  % backs [C] 1.22.0-pre.6 thm:mpnatural (2) (under the comparison isos, H(u^*) = phi^*; unnormalised; (AC) over k for both)
+  \lean{GL2.MP.Cover.liftsHomotopy, GL2.MP.Cover.preYHomotopy, GL2.MP.Cover.pull_natural, GL2.MP.Cover.pull_homology_eq}
+  \leanok
+  \uses{def:mp-zu, def:mp-barmap, thm:mp-homotopy-exact, thm:mp-comparison-natural}
+  For a morphism along $\varphi$ of MP data with (IO), finiteness, $\dim\le2$ and (AC) over $k$, every representation $A'$ of
+  $\Gamma'$ and every $n$: $\mathrm{res}_\varphi\circ\Theta'=\Theta\circ H^n(u^*)$, with $\Theta,\Theta'$ the comparison isomorphisms of
+  \ref{thm:mp-comparison-natural} and $\mathrm{res}_\varphi$ mathlib's \texttt{groupCohomology.map}\,$\varphi\,(\mathrm{id})$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  On cochains the two composites are precomposition with $e\circ\beta$ and with $\varphi^*(e')\circ k[u]$, $e,e'$ the fixed
+  comparisons with the bar resolutions; both are $\Gamma$-maps from the projective resolution $k[\mathfrak F'_\bullet]$ into the exact
+  $\varphi^*\mathrm{bar}_{\Gamma'}$ over the augmentation, hence homotopic (\ref{thm:mp-homotopy-exact}).
+\end{proof}
+
+\begin{theorem}[Independence of the labels on cohomology]\label{thm:mp-label-indep}
+  % backs [C] 1.22.0-pre.6 thm:mpnatural (3) ("independent of the label choices on cohomology"; on cohomology, not the chain homotopy)
+  \lean{GL2.MP.Cover.pull_label_indep}
+  \leanok
+  \uses{thm:mp-pull-natural}
+  Two morphisms along the same $\varphi$ induce the same map on cohomology.
+\end{theorem}
+\begin{proof}
+  \leanok
+  Both are $\Theta\circ\mathrm{res}_\varphi\circ\Theta'^{-1}$.
+\end{proof}
+
+\begin{theorem}[Refinement invariance]\label{thm:mp-refine-invariance}
+  % backs [C] 1.22.0-pre.6 thm:mpnatural (3) (u^* a quasi-isomorphism in every degree, inducing the identity of H(Gamma; M); unnormalised)
+  \lean{GL2.MP.Cover.refine_homology_eq, GL2.MP.Cover.refine_quasiIso}
+  \leanok
+  \uses{thm:mp-pull-natural}
+  For $\varphi=\mathrm{id}$ (a refinement with its label table, or any morphism of MP data of one group), $H^n(u^*)=\Theta_1\circ\Theta_2^{-1}$;
+  $u^*$ is a quasi-isomorphism in every degree.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $\mathrm{res}_{\mathrm{id}}=\mathrm{id}$.
+\end{proof}
+
+\begin{definition}[Decided vertex maps and label tables]\label{def:mp-orbmap}
+  % backs [C] 1.22.0-pre.6 def:mpmorphism (1), (2) on descriptors (the label table sigma -> (h_sigma, sigma') with the containments)
+  \lean{GL2.MP.MPDatum.pt_eq_mkP_of_samePt, GL2.MP.MPDatum.omO, GL2.MP.MPDatum.omT, GL2.MP.MPDatum.OrbOk,
+    GL2.MP.MPDatum.labH, GL2.MP.MPDatum.labS, GL2.MP.MPDatum.LabOk, GL2.MP.MPDatum.omT_det, GL2.MP.MPDatum.omT_conj,
+    GL2.MP.MPDatum.omF, GL2.MP.MPDatum.vmap, GL2.MP.MPDatum.vmap_mkP, GL2.MP.MPDatum.vmap_smul, GL2.MP.MPDatum.labF,
+    GL2.MP.MPDatum.labF_vtx, GL2.MP.MPDatum.morph}
+  \leanok
+  \uses{def:mp-morph, def:mp-datum-cover}
+  An orbit table $o\mapsto(o',t_o)$ with $t_o^{-1}\Gamma_ot_o\subseteq\Gamma'_{o'}$ (decided) gives the equivariant vertex map
+  $g\iota(o)\mapsto gt_o\iota'(o')$; a label table with $\mathsf h_\sigma^{-1}f(p)\in\iota'(\sigma')$ for the vertices $p$ of $\iota(\sigma)$ (decided)
+  then gives a morphism of MP data of the two decided covers.
+\end{definition}
+\begin{proof}
+  \leanok
+  Well-definedness on cosets by the conjugation check; containment from the \texttt{samePt} witnesses.
+\end{proof}
+
+\begin{definition}[The refinement $\mathsf R_{\mathbb Z}\to\mathsf M_7$ with its labels]\label{def:mp-rz-refine}
+  % backs [C] 1.22.0-pre.6 def:mpmorphism (2) and the COMP record after thm:mpnatural (the seven labels, h = I; the coset member h(-I))
+  \lean{GL2.MP.rzOrb, GL2.MP.rzLab, GL2.MP.M22.negI, GL2.MP.rzLabFlip, GL2.MP.rz_orbOk, GL2.MP.rz_labOk,
+    GL2.MP.rz_labFlipOk, GL2.MP.model7_pos, GL2.MP.rzRefine, GL2.MP.rzRefineFlip}
+  \leanok
+  \uses{def:mp-orbmap, def:mp-models, def:mp-rz-tau}
+  The orbit table of the collapse $7\mapsto4$, $8\mapsto5$ of \texttt{RZTau.cTab} and the seven labels of the subdivision record
+  (each $\mathsf R_{\mathbb Z}$ triangle in one $\mathsf M_7$ triangle, all $\mathsf h=I$); \texttt{rzRefineFlip} replaces the label of triangle $0$
+  by $\mathsf h\cdot(-I)$.  All checks by \texttt{decide +kernel}.
+\end{definition}
+\begin{proof}
+  \leanok
+  Kernel-decided.
+\end{proof}
+
+\begin{theorem}[Refinement invariance on $\mathsf R_{\mathbb Z}\to\mathsf M_7$]\label{thm:mp-rz-refine}
+  % backs [C] 1.22.0-pre.6 thm:mpnatural (3) on R_Z -> M_7 (every ring, every representation, every degree; both label choices)
+  \lean{GL2.MP.rz_refine_homology_eq, GL2.MP.rz_refine_quasiIso, GL2.MP.rz_refine_label_indep}
+  \leanok
+  \uses{def:mp-rz-refine, thm:mp-refine-invariance, thm:mp-label-indep, thm:mp-model7-ac, thm:mp-rz-ac}
+  $u^*\colon C^\bullet(\mathsf S(\mathsf M_7);A)\to C^\bullet(\mathsf S(\mathsf R_{\mathbb Z});A)$ is a quasi-isomorphism for every commutative ring
+  and every representation of $\mathrm{SL}_2(\mathbb Z)$, inducing the identity of $H^\bullet(\mathrm{SL}_2(\mathbb Z);A)$ under the comparisons;
+  the two label choices induce the same map on cohomology.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{thm:mp-refine-invariance}, \ref{thm:mp-label-indep} with (AC) for both models.
+\end{proof}
+
+\begin{theorem}[The label factor on $\mathsf R_{\mathbb Z}\to\mathsf M_7$]\label{thm:mp-rz-untwisted}
+  % backs [C] 1.22.0-pre.6 thm:mpnatural (4) on R_Z -> M_7 (constant labels: untwisted is a cochain map; mixed labels +-I at
+  % odd n: it is not -- REFINE_TWIST), with n = 1, F_3
+  \lean{GL2.MP.rzRefine_lab, GL2.MP.rz_untwisted_const, GL2.MP.stdRep3, GL2.MP.A3, GL2.MP.rzStr,
+    GL2.MP.rzRefineFlip_lab0, GL2.MP.rzRefineFlip_lab5, GL2.MP.rz_untwisted_fails}
+  \leanok
+  \uses{def:mp-rz-refine, thm:mp-untwisted}
+  With the labels of the subdivision record (all $I$) the untwisted $f\mapsto f\circ u$ is a cochain map for every
+  representation; with the mixed labels of \texttt{rzRefineFlip} it is \emph{not} a cochain map
+  $C^0(\mathsf S(\mathsf M_7);\mathbb F_3^2)\to C^1(\mathsf S(\mathsf R_{\mathbb Z});\mathbb F_3^2)$ for the standard representation ($n=1$,
+  $\rho(-I)=-1$), witnessed on the string $(v_1v_2v_6\xleftarrow{1}v_2v_6v_8)$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{thm:mp-untwisted}: the defect at that string is $v-(-v)=2v\neq0$ for $v=e_1\in\mathbb F_3^2$.
+\end{proof}
+
+\section{The comparison with the shipped Bredon complex (MP-L3, row L10)}
+
+\begin{definition}[Lifts into exact complexes]\label{def:mp-lift-exact}
+  % backs [C] 1.22.0-pre.6 prop:mpbredon (1) (the existence of Phi over id_Z into the acyclic C_.(X_bulk) at every ring)
+  \lean{GL2.MP.ExactCx.ExactAug.ofQuasiIso, GL2.MP.ExactCx.ExactAug.ofQuasiIso_ε, GL2.MP.ExactCx.liftZ,
+    GL2.MP.ExactCx.liftZ_comp, GL2.MP.ExactCx.liftO, GL2.MP.ExactCx.liftO_comp, GL2.MP.ExactCx.lift',
+    GL2.MP.ExactCx.lift'_f_zero, GL2.MP.ExactCx.lift'_aug, GL2.MP.ExactCx.lift'_aug_id}
+  \leanok
+  \uses{def:mp-exactaug}
+  An augmentation that is a quasi-isomorphism makes an exact augmented complex; a map $f\colon Y\to Z$ lifts to a chain map
+  from a projective resolution of $Y$ to any exact augmented complex over $Z$.
+\end{definition}
+\begin{proof}
+  \leanok
+  mathlib's \texttt{ProjectiveResolution.lift}, which uses of the target only its exactness.
+\end{proof}
+
+\begin{definition}[$\varepsilon^{\mathsf{MP}}$]\label{def:mp-epsmp}
+  % backs [C] 1.22.0-pre.6 prop:mpbredon (1) (epsilon^MP := Phi^* o i^*: C_eq -> C(S; V), a cochain map at every ring;
+  % unnormalised MP cochains; Phi the lift of id into C_.(X_bulk) (x) k, i.e. i o Phi^MP up to homotopy)
+  \lean{GL2.MP.Cover.repExact, GL2.MP.Cover.mpExact, GL2.MP.Cover.bredonPhi, GL2.MP.Cover.bredonPhi_aug,
+    GL2.MP.Cover.epsMP}
+  \leanok
+  \uses{def:mp-lift-exact, thm:mp-projres, thm:mp-homequiv}
+  For an $X_{\mathrm{bulk}}$ descriptor with H4(ii) and an MP cover with (AC) over $k$: $\Phi\colon k[\mathfrak F'_\bullet]\to C_\bullet(X_{\mathrm{bulk}})\otimes k$
+  the $\Gamma$-chain map over $\mathrm{id}_k$, and $\varepsilon^{\mathsf{MP}}\colon C^\bullet_{\mathrm{eq}}(K,\mathrm{Rel};A)\cong\mathrm{Hom}_\Gamma(C_\bullet(X_{\mathrm{bulk}})\otimes k,A)
+  \xrightarrow{\Phi^*}\mathrm{Hom}_\Gamma(k[\mathfrak F'_\bullet],A)\cong C^\bullet(\mathsf S;A)$, a cochain map at every ring.
+\end{definition}
+\begin{proof}
+  \leanok
+  \ref{def:mp-lift-exact} with the exactness of $C_\bullet(X_{\mathrm{bulk}})\otimes k\to k$ (H4(ii), every ring).
+\end{proof}
+
+\begin{theorem}[The homotopy class of $\varepsilon^{\mathsf{MP}}$ is canonical]\label{thm:mp-epsmp-canonical}
+  % backs [C] 1.22.0-pre.6 prop:mpbredon (1) ("its homotopy class is canonical: any two Z[Gamma]-maps over id_Z are homotopic")
+  \lean{GL2.MP.Cover.bredonPhi_homotopy, GL2.MP.Cover.epsMP_homologyMap_eq}
+  \leanok
+  \uses{def:mp-epsmp, thm:mp-homotopy-exact}
+  Any $\Gamma$-chain map $k[\mathfrak F'_\bullet]\to C_\bullet(X_{\mathrm{bulk}})\otimes k$ over the augmentations is homotopic to $\Phi$; the
+  induced maps on cohomology agree.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{thm:mp-homotopy-exact}.
+\end{proof}
+
+\begin{theorem}[$\varepsilon^{\mathsf{MP}}$ is a quasi-isomorphism if $6\in k^\times$]\label{thm:mp-epsmp-quasiiso}
+  % backs [C] 1.22.0-pre.6 prop:mpbredon (2), the "if" (thm:specialisation re-proved on the MP model; unnormalised);
+  % not the "not only if" witness, not (3)
+  \lean{GL2.MP.Cover.repRes, GL2.MP.Cover.bredonPsi_aug, GL2.MP.Cover.bredonPhiEquiv, GL2.MP.Cover.epsMP_quasiIso,
+    GL2.MP.model7_epsMP_quasiIso, GL2.MP.rz_epsMP_quasiIso}
+  \leanok
+  \uses{thm:mp-epsmp-canonical, thm:mp-model7-ac, thm:mp-rz-ac}
+  If $6\in k^\times$ and the representative stabiliser orders divide $12$ (H4(iv)), $\Phi$ is a homotopy equivalence and
+  $\varepsilon^{\mathsf{MP}}$ is a quasi-isomorphism, for every representation; for $\mathrm{SL}_2(\mathbb Z)$ with the Bredon side on $\mathsf M_7$
+  and the MP side on $\mathsf M_7$ or on $\mathsf R_{\mathbb Z}$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  For $6\in k^\times$ both $k[\mathfrak F'_\bullet]$ and $C_\bullet(X_{\mathrm{bulk}})\otimes k$ are projective resolutions of $k$; the lift back
+  $\Psi$ exists by \ref{def:mp-lift-exact}, and $\Psi\Phi\simeq\mathrm{id}$, $\Phi\Psi\simeq\mathrm{id}$ by \ref{thm:mp-homotopy-exact};
+  $\mathrm{Hom}(-,A)$ preserves homotopy equivalences.
+\end{proof}
+
+\begin{theorem}[The Bredon side vanishes when $-I$ acts by $-1$ and $2\in k^\times$]\label{thm:mp-bredon-zero}
+  % backs [C] 1.22.0 prop:mpbredon (2), "not only if", the Bredon half ("the Bredon complex vanishes by eq:negI with 2
+  % invertible"); slot-24 C-w (M6 close)
+  \lean{GL2.MP.negOne_smul_simp, GL2.MP.ofMulAction_negOne, GL2.MP.bredonHom_eq_zero, GL2.MP.bredon_isZero_X,
+    GL2.MP.bredon_isZero_homology}
+  \leanok
+  \uses{thm:model7-pairhyp, def:mp-epsmp}
+  Let $D$ be an $X_{\mathrm{bulk}}$ descriptor with $-I$ in every stabiliser ($\mathsf M_7$: \texttt{model7\_negI}), $k$ a
+  commutative ring with $2\in k^\times$ and $A$ a $k[\mathrm{SL}_2(\mathbb Z)]$-module on which $-I$ acts by $-1$.  Then every
+  $\Gamma$-map $k[\mathrm{Simp}_q]\to A$ is $0$, so $C^q_{\mathrm{eq}}(K,\mathrm{Rel};A)=0$ and $H^q(C^\bullet_{\mathrm{eq}}(K,\mathrm{Rel};A))=0$
+  for every $q$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $-I$ fixes every simplex, so it acts trivially on $k[\mathrm{Simp}_q]$; hence $f=f\circ\rho(-I)=\rho_A(-I)\circ f=-f$, $2f=0$,
+  $f=0$.  Transport along \texttt{homEqv\_iso}; a complex zero in degree $q$ has zero $H^q$.
+\end{proof}
+
+\begin{theorem}[{$\varepsilon^{\mathsf{MP}}$, the ``not only if'' witness: $\mathbb Z[1/2]$, $n$ odd}]\label{thm:mp-epsmp-witness}
+  % backs [C] 1.22.0 prop:mpbredon (2), second sentence: for R = Z[1/2] and n odd both sides are acyclic (rmk:negI second
+  % bullet; H^q(Gamma; V_R) = 0 since 2 in R^x) while 3 is not in R^x; slot-24 C-w (M6 close), via LG-1
+  \lean{GL2.MP.Cover.mp_isZero_homology, GL2.MP.Cover.epsMP_quasiIso_of_two_unit, GL2.MP.ZHalf, GL2.MP.zHalf_two_isUnit,
+    GL2.MP.zHalfToF3, GL2.MP.zHalf_three_not_isUnit, GL2.MP.zHalf_six_not_isUnit, GL2.MP.model7_epsMP_witness,
+    GL2.MP.rz_epsMP_witness}
+  \leanok
+  \uses{thm:mp-bredon-zero, thm:mp-comparison, thm:lg-exp2, thm:lg-exp2-sym, thm:mp-epsmp-quasiiso}
+  If $-I$ lies in every stabiliser, $2\in k^\times$ and $-I$ acts by $-1$ on $A$, then both $H^q(C^\bullet_{\mathrm{eq}}(K,\mathrm{Rel};A))$
+  and $H^q(C^\bullet(\mathsf S;A))\cong H^q(\mathrm{SL}_2(\mathbb Z);A)$ vanish for every $q$, so $\varepsilon^{\mathsf{MP}}$ is a
+  quasi-isomorphism, with no hypothesis on $3$ ($\varepsilon^{\mathsf{MP}}$ lands in the unnormalised MP complex, as in
+  \ref{def:mp-epsmp}).  For $k=\mathbb Z[1/2]$ and $A=\mathrm{Sym}^nk^2$, $n$ odd, on $\mathsf M_7$: both sides acyclic, $\varepsilon^{\mathsf{MP}}$ a
+  quasi-isomorphism, and $3,6\notin k^\times$ (\texttt{model7\_epsMP\_witness}); with the MP side on $\mathsf R_{\mathbb Z}$,
+  \texttt{rz\_epsMP\_witness} states the quasi-isomorphism and $6\notin k^\times$, the acyclicity of that side being
+  \texttt{Cover.mp\_isZero\_homology} at \texttt{rzHyp}.  So
+  the hypothesis $6\in k^\times$ of \ref{thm:mp-epsmp-quasiiso} is sufficient, not necessary.
+\end{theorem}
+\begin{proof}
+  \leanok
+  Bredon side \ref{thm:mp-bredon-zero}; MP side \ref{thm:mp-comparison} and \ref{thm:lg-exp2} ($2\in k^\times$); a map between zero
+  objects is an isomorphism.  $\rho_n(-I)=-1$ for odd $n$ (\ref{thm:lg-exp2-sym}).  $3\notin\mathbb Z[1/2]^\times$: its image under
+  $\mathbb Z[1/2]\to\mathbb F_3$ ($2\mapsto-1$) is $0$; $6=2\cdot3$.
+\end{proof}
+
+\section{The normalised MP complex (MP-L3, open item: normalised \texorpdfstring{$\simeq$}{~} unnormalised)}
+
+\begin{definition}[The labelled Čech nerve as a simplicial object]\label{def:mp-simpK}
+  % backs [C] 1.22.0-pre.6 def:mpfree (Z[F'_.] the chain complex of the simplicial set F', its degeneracies), def:mpset (S a
+  % simplicial set: faces and degeneracies)
+  \lean{GL2.MP.Cover.F'map, GL2.MP.Cover.F'map_smul, GL2.MP.Cover.kmap, GL2.MP.Cover.kmap_hom_apply, GL2.MP.Cover.KX,
+    GL2.MP.Cover.simpK, GL2.MP.Cover.simpK_δ_hom_apply, GL2.MP.Cover.simpK_σ_hom_apply}
+  \leanok
+  \uses{def:mp-cover, thm:mp-projres}
+  $[n]\mapsto k[\mathfrak F'_n]$, $\theta\mapsto(x\mapsto x\circ\theta)$ is a simplicial object in $\mathrm{Rep}_k\Gamma$; its faces are the deletions,
+  its degeneracies the repetitions.
+\end{definition}
+\begin{proof}
+  \leanok
+  $x\circ\theta$ keeps a common vertex; functoriality of $\mathrm{mapDomain}$.
+\end{proof}
+
+\begin{theorem}[Its alternating face map complex is $k\lbrack\mathfrak F'_\bullet\rbrack$]\label{thm:mp-simpK-alt}
+  % backs [C] 1.22.0-pre.6 def:mpfree (Z[F'_.] is the chain complex of the simplicial set F')
+  \lean{GL2.MP.Cover.coeff_symm_single, GL2.MP.Cover.mpD_single, GL2.MP.Cover.mpD_eq_sum, GL2.MP.Cover.simpK_altIso}
+  \leanok
+  \uses{def:mp-simpK}
+  The alternating face map complex of \ref{def:mp-simpK} is the complex $k[\mathfrak F'_\bullet]$ of \ref{thm:mp-projres}.
+\end{theorem}
+\begin{proof}
+  \leanok
+  On basis elements both differentials are $\sum_i(-1)^i\,d_i$.
+\end{proof}
+
+\begin{definition}[Cochains vanishing on the degeneracies]\label{def:mp-normcx}
+  % backs [C] 1.22.0-pre.6 def:mpset (the normalised complex as a subcomplex of C_un), thm:mpcomparison (2) (N Z[F'] -> Z)
+  \lean{GL2.MP.Cover.preYIso, GL2.MP.Cover.normSub, GL2.MP.Cover.mem_normSub_iff, GL2.MP.Cover.QInfty_comp_of_mem,
+    GL2.MP.Cover.PInfty_comp_of_mem, GL2.MP.Cover.normD, GL2.MP.Cover.normCx, GL2.MP.Cover.normι, GL2.MP.Cover.normr,
+    GL2.MP.Cover.normr_normι, GL2.MP.Cover.normι_normr}
+  \leanok
+  \uses{def:mp-prey}
+  For a simplicial object $X$ in $\mathrm{Rep}_k\Gamma$: the cochains $\varphi\colon X_n\to A$ with $\sigma_i\circ\varphi=0$ for all $i$ (mathlib's
+  \texttt{DegeneraciesVanish}, equivalently $Q_\infty\circ\varphi=0$) form a subcomplex of $\mathrm{Hom}_\Gamma(K[X],A)$; precomposition with
+  mathlib's Dold--Kan projector $P_\infty$ is a retraction onto it.
+\end{definition}
+\begin{proof}
+  \leanok
+  $P_\infty$, $Q_\infty$ are chain maps with $P_\infty+Q_\infty=\mathrm{id}$, $Q_\infty P_\infty=0$, and $Q_\infty\varphi=0$ iff $\varphi$ kills the
+  degeneracies (\texttt{degeneraciesVanish\_iff\_QInfty\_f\_comp}).
+\end{proof}
+
+\begin{theorem}[Normalised $\simeq$ unnormalised]\label{thm:mp-norm-heq}
+  % backs [C] 1.22.0-pre.6 def:mpset / thm:mpcomparison (2) (the normalised quotient computes the same cohomology; at the level of
+  % cochains: the normalised cochains are a homotopy equivalent subcomplex; every ring)
+  \lean{GL2.MP.Cover.normHEq}
+  \leanok
+  \uses{def:mp-normcx}
+  The inclusion of the normalised cochains into $\mathrm{Hom}_\Gamma(K[X],A)$ is a homotopy equivalence, for every ring and every
+  representation.
+\end{theorem}
+\begin{proof}
+  \leanok
+  The retraction composed with the inclusion is $\mathrm{Hom}(P_\infty,A)$, homotopic to the identity by mathlib's
+  \texttt{homotopyPInftyToId}; the other composite is the identity.
+\end{proof}
+
+\begin{theorem}[In MP coordinates: vanishing on degenerate strings]\label{thm:mp-norm-dgn}
+  % backs [C] 1.22.0-pre.6 def:mpset (C^k(S; M) = functions vanishing on degenerate strings; f := 0 on degenerate strings)
+  \lean{GL2.MP.Cover.simpK_σ_single, GL2.MP.Cover.degeneraciesVanish_iff, GL2.MP.Cover.nmpSub,
+    GL2.MP.Cover.mem_normSub_iff_nmp, GL2.MP.Cover.nmpEquiv, GL2.MP.Cover.dC_mem_nmp, GL2.MP.Cover.nmpCx,
+    GL2.MP.Cover.normIsoNmp, GL2.MP.Cover.nmpIncl, GL2.MP.Cover.nmpIncl_eq, GL2.MP.Cover.nmpIncl_quasiIso}
+  \leanok
+  \uses{thm:mp-norm-heq, thm:mp-simpK-alt, thm:mp-homequiv, lem:mp-face-face}
+  For $X$ the labelled Čech nerve, $\sigma_i\circ\varphi=0$ for all $i$ iff the MP cochain of $\varphi$ vanishes on every degenerate string
+  $s_i(s)$.  Hence [C]'s normalised MP complex $C^\bullet(\mathsf S;A)$ (functions vanishing on degenerate strings, the twisted
+  differential) is a subcomplex of $C^\bullet_{\mathrm{un}}(\mathsf S;A)$, isomorphic to the normalised cochains of \ref{def:mp-normcx}, and its
+  inclusion is a quasi-isomorphism.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $\sigma_i(x)=x\circ\sigma_i$, every $x\in\mathfrak F'_n$ is $g_0\cdot x_s$, and on normal forms $x_s\circ\sigma_i=x_{s_i(s)}$; equivariance of $\varphi$.
+\end{proof}
+
+\begin{theorem}[The comparison theorem for the normalised MP complex]\label{thm:mp-comparison-normalised}
+  % backs [C] 1.22.0-pre.6 thm:mpcomparison (4) for the normalised C(S; M) of def:mpset (given (AC) over k); (5) for M_7, R_Z
+  \lean{GL2.MP.Cover.mpComparisonNorm, GL2.MP.Cover.mpComparisonNmp, GL2.MP.model7_comparisonNorm,
+    GL2.MP.rz_comparisonNorm}
+  \leanok
+  \uses{thm:mp-norm-dgn, thm:mp-comparison-natural, thm:mp-model7-ac, thm:mp-rz-ac}
+  $H^n(\Gamma;A)\cong H^n(C^\bullet(\mathsf S;A))$ for [C]'s normalised MP complex, every commutative ring with (AC) over $k$, every
+  representation, every $n$; for $\mathrm{SL}_2(\mathbb Z)$ on $\mathsf M_7$ and $\mathsf R_{\mathbb Z}$ unconditionally.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{thm:mp-comparison-natural}, \ref{thm:mp-simpK-alt}, \ref{thm:mp-norm-heq}, \ref{thm:mp-norm-dgn}.
+\end{proof}
+
+\section{The tree of $\mathrm{SL}_2(\mathbb Z)$ as a retract of $Y$ (LR-Y phase 1)}
+
+\begin{lemma}[A retract of an acyclic complex is acyclic]\label{lem:mp-cx-retract}
+  % backs [C] 1.22.0-pre.11 eq:treeses (1) (the homological step of LR-Y; LV0_audit.md section 3.2)
+  \lean{GL2.MP.Cx.acyclic_of_retract, GL2.MP.BCx.lc_comm}
+  \leanok
+  \uses{def:mp-cx, def:mp-bcx}
+  If $i\colon A\to B$ and $r\colon B\to A$ are chain maps of \texttt{Cx} with $r\circ i=\mathrm{id}$ and $B$ is acyclic, then $A$ is
+  acyclic.  (A map given on bases commutes with the differentials as soon as it does on basis elements.)
+\end{lemma}
+\begin{proof}
+  \leanok
+  $x=r(ix)=r(dy)=d(ry)$ in degree $0$; a cycle $x$ has $ix$ a cycle, $ix=dy$, $x=d(ry)$.
+\end{proof}
+
+\begin{definition}[The full subcomplex on the vertices of order $\ge m$]\label{def:mp-tree-cx}
+  % backs [C] 1.22.0-pre.11 eq:treeses (1) (the tree complex as a subcomplex of C(Y))
+  \lean{GL2.MP.Cover.TS, GL2.MP.Cover.TS.del, GL2.MP.Cover.tB, GL2.MP.Cover.tBd, GL2.MP.Cover.tInclB,
+    GL2.MP.Cover.tInclB_bd, GL2.MP.Cover.tBdd, GL2.MP.Cover.treeCx, GL2.MP.Cover.tIncl, GL2.MP.Cover.tIncl_d}
+  \leanok
+  \uses{def:mp-bisimp, def:mp-bcx}
+  For a cover with (IO) and $m\in\mathbb N$, $\mathcal T_s$ is the set of ordered $s$-simplices of $Y$ whose first (hence every)
+  vertex has order $\ge m$; with the restricted boundary, $k[\mathcal T_\bullet]\to k$ is a \texttt{BCx} (\texttt{treeCx}), and the
+  inclusion $k[\mathcal T_\bullet]\to k[Y_\bullet]$ is a chain map, injective on bases ($d\circ d=0$ is reflected through it).
+\end{definition}
+\begin{proof}
+  \leanok
+  The faces of a simplex of $\mathcal T$ lie in $\mathcal T$ (orders increase along a simplex); \texttt{mapDomain} along the injective
+  basis inclusion intertwines the boundaries, so $d\circ d=0$ on $Y$ gives it on $\mathcal T$.
+\end{proof}
+
+\begin{theorem}[A vertex retraction onto the full subcomplex makes it acyclic]\label{thm:mp-tree-acyclic}
+  % backs [C] 1.22.0-pre.11 eq:treeses (1) (the retraction r : C(Y) -> C(T), r i = id; no homotopy)
+  \lean{GL2.MP.Cover.TreeRetr, GL2.MP.Cover.eCh, GL2.MP.Cover.eCh_swap, GL2.MP.Cover.tBd_eCh, GL2.MP.Cover.eCh_tri,
+    GL2.MP.Cover.rB, GL2.MP.Cover.rB_comm, GL2.MP.Cover.rB_tInclB, GL2.MP.Cover.tRetr, GL2.MP.Cover.tRetr_tIncl,
+    GL2.MP.Cover.tRetr_d, GL2.MP.Cover.treeCx_acyclic}
+  \leanok
+  \uses{lem:mp-cx-retract, def:mp-tree-cx}
+  Let all orders be $\le m+1$ and let $f$ be a vertex map of $Y$ that is the identity on $\{\mathrm{ord}\ge m\}$, lands there, takes
+  values in vertices of $Y$, and carries every edge of $Y$ to one vertex or to the two vertices of an edge.  Then
+  $r(v)=f(v)$, $r[a,b]=\pm[f a,f b]$ (oriented by order; $0$ if $fa=fb$), $r=0$ on triangles, is a chain map
+  $k[Y_\bullet]\to k[\mathcal T_\bullet]$ with $r\circ i=\mathrm{id}$; so $\mathcal T$ is acyclic whenever $Y$ is.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $d\,r[a,b]=fb-fa$ by (IO) (adjacent vertices have different orders); on a triangle $r(\partial t)=0$ because three pairwise
+  equal-or-adjacent vertices of orders in $\{m,m+1\}$ take at most two values, and $[u,w]=-[w,u]$; $\mathcal T$ has no simplices of
+  dimension $\ge2$; \ref{lem:mp-cx-retract}.
+\end{proof}
+
+\begin{definition}[The orbit map of a decided descriptor and its finite check]\label{def:mp-datum-tree}
+  % backs [C] 1.22.0-pre.11 eq:treeses (1) (the Gamma-equivariant vertex retraction, on the descriptor)
+  \lean{GL2.MP.MPDatum.TreeChk, GL2.MP.MPDatum.tauF, GL2.MP.MPDatum.fP, GL2.MP.MPDatum.fP_smul, GL2.MP.MPDatum.fP_pt,
+    GL2.MP.MPDatum.treeRetr}
+  \leanok
+  \uses{def:mp-datum-cover, thm:mp-datum-hyp, thm:mp-tree-acyclic}
+  An orbit map $\tau$ with $\Gamma_o\le\Gamma_{\tau o}$ defines the $\Gamma$-equivariant vertex map $g\,\iota(o)\mapsto g\,\iota(\tau o)$;
+  with a point map $\varphi$ and the finite check \texttt{TreeChk} ($\tau$ lands in $\{\ge m\}$ and fixes it, $\varphi$ is the
+  pointwise image, each image orbit meets a maximal simplex, the $\varphi$-image of two points of a maximal simplex is one point or
+  lies in a maximal simplex) it is retraction data in the sense of \ref{thm:mp-tree-acyclic}.
+\end{definition}
+\begin{proof}
+  \leanok
+  Well defined since $g^{-1}g'\in\Gamma_o\le\Gamma_{\tau o}$; equivariant by construction; a simplex $x\subseteq g\,\iota(\sigma)$ has
+  vertices $g\,\mathrm{pt}\,p$, $g\,\mathrm{pt}\,q$ with $p,q\in\sigma$, mapped to $g\,\mathrm{pt}\,\varphi p$, $g\,\mathrm{pt}\,\varphi q$.
+\end{proof}
+
+\begin{theorem}[{The tree $\Gamma\cdot[\rho,i]$ in $\mathsf M_7$}]\label{thm:mp-model7-tree}
+  % backs [C] 1.22.0-pre.11 eq:treeses (1) (the Bass--Serre tree as the full subcomplex of Y on the orbits of rho and i)
+  \lean{GL2.MP.model7Tau, GL2.MP.model7Phi, GL2.MP.model7_treeChk, GL2.MP.model7TreeRetr, GL2.MP.model7Rho, GL2.MP.model7I,
+    GL2.MP.model7_tree_data, GL2.MP.model7_edge_chk, GL2.MP.model7_tree_vtx, GL2.MP.model7_tree_edges,
+    GL2.MP.model7_stab_cap, GL2.MP.model7_tree_edge_stab, GL2.MP.model7_negI_fixes}
+  \leanok
+  \uses{def:mp-datum-tree, thm:mp-model7-rules}
+  For $\mathsf M_7$ and $m=3$: the vertices of $\mathcal T$ are the translates of $\rho=\mathrm{pt}\,4$ ($\Gamma_\rho=\langle U\rangle$)
+  and $i=\mathrm{pt}\,6$ ($\Gamma_i=\langle S\rangle$); every edge is a translate of $[\rho,i]$ ($[T\rho,i]=S\cdot[\rho,i]$), and the
+  stabiliser of $[\rho,i]$ is $\{\pm I\}$.  The orbit map $v_0\mapsto\rho$, $v_1,v_2\mapsto i$ passes \texttt{TreeChk}.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \texttt{decide +kernel} on \texttt{TreeChk}, on the edge and stabiliser tables, and on \texttt{maps}~$S$; \ref{def:mp-datum-tree}.
+\end{proof}
+
+\begin{theorem}[{{[C]} \texttt{eq:treeses} (1): the tree sequence is exact}]\label{thm:mp-treeses-exact}
+  % backs [C] 1.22.0-pre.11 eq:treeses (1), over every commutative ring k, without Serre
+  \lean{GL2.MP.treeses_exact}
+  \leanok
+  \uses{thm:mp-model7-tree, thm:mp-tree-acyclic, thm:mp-model7-ac}
+  For every commutative ring $k$, the augmented chain complex
+  $0\to k[\Gamma\cdot[\rho,i]]\to k[\Gamma\cdot\rho]\oplus k[\Gamma\cdot i]\to k\to0$ of the tree of $\mathrm{SL}_2(\mathbb Z)$ is
+  acyclic; with \ref{thm:mp-model7-tree} its terms are $k[\Gamma/\langle-I\rangle]$, $k[\Gamma/\langle U\rangle]\oplus k[\Gamma/\langle S\rangle]$, $k$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{thm:mp-tree-acyclic} with \ref{thm:mp-model7-tree} and (AC) for $\mathsf M_7$ (\ref{thm:mp-model7-ac}).
+\end{proof}
+
+\section{The tree complex as a complex of \texorpdfstring{$\mathbb Z[\Gamma]$}{Z[Gamma]}-modules (LR-Y phase 2a)}
+
+\begin{definition}[$\Gamma$ acts on the simplices of $Y$ and of the tree]\label{def:mp-ys-action}
+  % backs [C] 1.22.0-pre.11 eq:treeses (1) (the terms as Z[Gamma]-modules; LR-Y phase 2a)
+  \lean{GL2.MP.Cover.inS_smul_left, GL2.MP.Cover.YS.mulAction, GL2.MP.Cover.YS.smul_val, GL2.MP.Cover.YS.del_smul,
+    GL2.MP.Cover.TS.mulAction, GL2.MP.Cover.TS.smul_val, GL2.MP.Cover.TS.del_smul}
+  \leanok
+  \uses{def:mp-tree-cx}
+  $g\cdot(v_0,\dots,v_s)=(gv_0,\dots,gv_s)$ on the ordered simplices of $Y$ and of $\mathcal T$; it commutes with the faces.
+\end{definition}
+\begin{proof}
+  \leanok
+  $\mathrm{ord}$ is $\Gamma$-invariant and $g\cdot h\,\iota(\sigma)=(gh)\,\iota(\sigma)$.
+\end{proof}
+
+\begin{theorem}[Chain-level equivariance of $d$, $\mathrm{incl}$ and $r$]\label{thm:mp-tree-equivariant}
+  % backs [C] 1.22.0-pre.11 eq:treeses (1) (the tree complex is a complex of permutation modules; r, incl equivariant)
+  \lean{GL2.MP.Cover.lc_mapDomain_smul, GL2.MP.Cover.yBdS_smul, GL2.MP.Cover.tBdS_smul, GL2.MP.Cover.treeCx_d_smul,
+    GL2.MP.Cover.tIncl_smul, GL2.MP.Cover.isE_smul, GL2.MP.Cover.isE_smul_iff, GL2.MP.Cover.eCh_smul,
+    GL2.MP.Cover.TreeRetr.Equivariant, GL2.MP.Cover.fV_smul, GL2.MP.Cover.rB_smul, GL2.MP.Cover.tRetr_smul,
+    GL2.MP.MPDatum.treeRetr_equivariant, GL2.MP.model7_tRetr_smul}
+  \leanok
+  \uses{def:mp-ys-action, thm:mp-tree-acyclic, def:mp-datum-tree}
+  In every degree $\ge1$ the boundaries of $Y$ and $\mathcal T$, the inclusion $k[\mathcal T_\bullet]\to k[Y_\bullet]$ and, for a
+  $\Gamma$-equivariant vertex map, the retraction $r$ commute with $\mathrm{mapDomain}(g\cdot)$; the orbit-map retraction of a
+  decided descriptor is equivariant, so for $\mathsf M_7$ both $\mathrm{incl}$ and $r$ are maps of permutation representations.
+\end{theorem}
+\begin{proof}
+  \leanok
+  On basis elements: faces commute with $g$; $[gu,gw]$ is an edge iff $[u,w]$ is; $f(gv)=g\,f(v)$.
+\end{proof}
+
+\begin{theorem}[The terms of the tree complex of $\mathsf M_7$ as permutation modules]\label{thm:mp-model7-tree-orbits}
+  % backs [C] 1.22.0-pre.11 eq:treeses (1) (k[T_1] = k[Gamma/<-I>], k[T_0] = k[Gamma/<U>] + k[Gamma/<S>] in Rep k Gamma)
+  \lean{GL2.MP.mpow, GL2.MP.toSL_mpow, GL2.MP.mS, GL2.MP.mU, GL2.MP.sS, GL2.MP.sU, GL2.MP.model7_stab_pows,
+    GL2.MP.mS_det, GL2.MP.mU_det, GL2.MP.sS_pow, GL2.MP.sU_pow, GL2.MP.sS_sq, GL2.MP.sU_cube, GL2.MP.sS_four,
+    GL2.MP.sU_six, GL2.MP.sS_pow_inj, GL2.MP.sU_pow_inj, GL2.MP.model7_sS_fix, GL2.MP.model7_sU_fix,
+    GL2.MP.pow_smul_fix, GL2.MP.model7_stab_I, GL2.MP.model7_stab_Rho, GL2.MP.model7_stab_edge,
+    GL2.MP.model7IV, GL2.MP.model7RhoV, GL2.MP.model7_ord_I, GL2.MP.model7_ord_Rho, GL2.MP.model7_f_I,
+    GL2.MP.model7_f_Rho, GL2.MP.model7IV_val, GL2.MP.model7RhoV_val, GL2.MP.TS0_ext,
+    GL2.MP.orbEquiv, GL2.MP.orbEquiv_mk, GL2.MP.orbEquiv_smul, GL2.MP.ofMulActionIso,
+    GL2.MP.model7_top2, GL2.MP.model7_inS, GL2.MP.model7_isE, GL2.MP.model7E, GL2.MP.model7E_val, GL2.MP.TS1_ext,
+    GL2.MP.model7_cov_edge, GL2.MP.model7_smul_E_iff, GL2.MP.model7_cov_vtx, GL2.MP.model7_smul_IV_iff,
+    GL2.MP.model7_smul_RhoV_iff, GL2.MP.model7_RhoV_ne_IV, GL2.MP.stabilizer_eq_zpowers, GL2.MP.model7_stabilizer_E,
+    GL2.MP.model7_stabilizer_IV, GL2.MP.model7_stabilizer_RhoV, GL2.MP.model7EdgeEquiv, GL2.MP.model7RhoEquiv,
+    GL2.MP.model7IEquiv, GL2.MP.model7RhoEquiv_mk, GL2.MP.model7IEquiv_mk, GL2.MP.model7VtxMap,
+    GL2.MP.model7VtxMap_bij, GL2.MP.model7VtxEquiv, GL2.MP.model7VtxEquiv_smul, GL2.MP.model7TreeRep1,
+    GL2.MP.model7TreeRep0}
+  \leanok
+  \uses{thm:mp-model7-tree, def:mp-ys-action}
+  $\Gamma_i=\langle S\rangle=\{S^j\}_{j<4}$, $\Gamma_\rho=\langle U\rangle=\{U^j\}_{j<6}$, $\mathrm{Stab}[\rho,i]=\langle-I\rangle$
+  ($S^2=U^3=-I$, $S^4=U^6=1$, the listed powers distinct); as $\Gamma$-sets $\mathcal T_1\cong\Gamma/\langle-I\rangle$ and
+  $\mathcal T_0\cong\Gamma/\langle U\rangle\sqcup\Gamma/\langle S\rangle$, hence $k[\mathcal T_1]\cong k[\Gamma/\langle-I\rangle]$ and
+  $k[\mathcal T_0]\cong k[\Gamma/\langle U\rangle\sqcup\Gamma/\langle S\rangle]=k[\Gamma/\langle U\rangle]\oplus k[\Gamma/\langle S\rangle]$
+  in $\mathrm{Rep}\,k\,\Gamma$, for every commutative ring $k$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \texttt{decide +kernel} on the stored stabiliser lists ($\mathrm{st}\,4=\{S^j\}$, $\mathrm{st}\,3=\{U^j\}$) and on the powers;
+  orbit--stabiliser (\texttt{ofQuotientStabilizer}); the two vertex orbits are separated by $\mathrm{ord}$ ($3\neq4$);
+  an equivariant bijection of $\Gamma$-sets induces an isomorphism of permutation representations.
+\end{proof}
+
+\section{Periodic resolutions and the cone resolution of the tree (LR-Y phase 2b--c)}
+
+\begin{definition}[{Free $k[G]$-modules on bases}]\label{def:mp-fb}
+  % backs [C] 1.22.0-pre.11 cl:amalgam, eq:mvamalgam (the free modules k[Gamma]^r of the resolution; LR-2)
+  \lean{GL2.MP.FB, GL2.MP.FB.smul_c, GL2.MP.FB.smul_g, GL2.MP.FB.smul_eq_self, GL2.MP.lc_lc, GL2.MP.lc_sub_fun,
+    GL2.MP.lc_mapDomain_comp}
+  \leanok
+  \uses{def:mp-bcx}
+  $\mathrm{FB}\,r\,G=\{(c,g)\}$, $(c,g)$ standing for $g\,e_c$, with $G$ acting freely by left multiplication; $k[\mathrm{FB}\,r\,G]$ is
+  the free $k[G]$-module of rank $r$, and right multiplication by elements of $k[G]$ is given on this basis.
+\end{definition}
+\begin{proof}
+  \leanok
+  $h\,(c,g)=(c,hg)$; $h\,(c,g)=(c,g)$ forces $h=1$.
+\end{proof}
+
+\begin{theorem}[Periodic resolutions of cyclic stabilisers]\label{thm:mp-per-acyclic}
+  % backs [C] 1.22.0-pre.11 cl:amalgam (the periodic resolutions of Z/4, Z/6, Z/2 induced to Gamma; LR-2 (a))
+  \lean{GL2.MP.PerData, GL2.MP.PerData.pow_fix, GL2.MP.PerData.pow_mod, GL2.MP.PerData.difB, GL2.MP.PerData.nrmB, GL2.MP.PerData.augB, GL2.MP.PerData.bdS,
+    GL2.MP.PerData.bdS_even, GL2.MP.PerData.bdS_odd, GL2.MP.PerData.perB, GL2.MP.PerData.perBd, GL2.MP.PerData.single_pow, GL2.MP.PerData.lc_difB_nrmB,
+    GL2.MP.PerData.lc_nrmB_difB, GL2.MP.PerData.even0, GL2.MP.PerData.bdd_zero, GL2.MP.PerData.bdd_succ, GL2.MP.PerData.perCx, GL2.MP.PerData.sec,
+    GL2.MP.PerData.sec_spec, GL2.MP.PerData.sec_c, GL2.MP.PerData.rep, GL2.MP.PerData.exists_idx, GL2.MP.PerData.idx, GL2.MP.PerData.idx_spec, GL2.MP.PerData.idx_eq,
+    GL2.MP.PerData.sec_eq, GL2.MP.PerData.rep_mul_pow, GL2.MP.PerData.idx_mul_pow, GL2.MP.PerData.idx_mul, GL2.MP.PerData.rep_mul, GL2.MP.PerData.eq_rep_idx,
+    GL2.MP.PerData.sEv, GL2.MP.PerData.sOd, GL2.MP.PerData.lc_difB_sEv, GL2.MP.PerData.lc_sEv_difB, GL2.MP.PerData.lc_sOd_nrmB, GL2.MP.PerData.lc_nrmB_sOd,
+    GL2.MP.PerData.hS, GL2.MP.PerData.h0B, GL2.MP.PerData.perH, GL2.MP.PerData.h0_eq, GL2.MP.PerData.hs_zero, GL2.MP.PerData.hs_succ, GL2.MP.PerData.perContr,
+    GL2.MP.PerData.perCx_acyclic, GL2.MP.PerData.bdS_smul, GL2.MP.PerData.augB_smul}
+  \leanok
+  \uses{def:mp-fb, lem:mp-contract}
+  Let $G$ act on $X$ with base points $x_c$ ($c<r$) meeting every orbit exactly once and $\mathrm{Stab}(x_c)=\{t_c^j\}_{j<N_c}$
+  ($t_c^{N_c}=1$, the powers distinct).  Then
+  $\cdots\to k[G]^r\xrightarrow{N}k[G]^r\xrightarrow{1-t}k[G]^r\to k[X]\to0$, $(1-t)(c,g)=(c,g)-(c,gt_c)$,
+  $N(c,g)=\sum_{j<N_c}(c,gt_c^j)$, is acyclic over every commutative ring $k$, and its differentials are $G$-equivariant.
+\end{theorem}
+\begin{proof}
+  \leanok
+  A contraction on bases: choose $g=\mathrm{rep}(c,g)\,t_c^{\mathrm{idx}(c,g)}$ ($\mathrm{idx}<N_c$, unique by distinctness);
+  $s_{-1}(y)=$ a chosen preimage, $s_{\mathrm{even}}(c,g)=-\sum_{i<\mathrm{idx}}(c,\mathrm{rep}\,t_c^i)$,
+  $s_{\mathrm{odd}}(c,g)=(c,\mathrm{rep})$ if $\mathrm{idx}=N_c-1$ and $0$ otherwise (the standard contraction of $k[\mathbb Z/N]$ on each coset);
+  $ds+sd=\mathrm{id}$ by telescoping and $\mathrm{idx}(c,gt_c^i)=\mathrm{idx}(c,g)+i\bmod N_c$; \ref{lem:mp-contract}.
+\end{proof}
+
+\begin{theorem}[The cone of a short exact sequence of resolutions]\label{thm:mp-cone-ses}
+  % backs [C] 1.22.0-pre.11 cl:amalgam, eq:mvamalgam (the resolution of k from eq:treeses; LR-2 (c))
+  \lean{GL2.MP.ConeDat, GL2.MP.ConeDat.B, GL2.MP.ConeDat.bd0, GL2.MP.ConeDat.bd1, GL2.MP.ConeDat.bd2, GL2.MP.ConeDat.bd, GL2.MP.ConeDat.F, GL2.MP.ConeDat.F_comm,
+    GL2.MP.ConeDat.lc_sumElim, GL2.MP.ConeDat.bdd0, GL2.MP.ConeDat.bdd1, GL2.MP.ConeDat.bdd2, GL2.MP.ConeDat.bdd, GL2.MP.ConeDat.cx, GL2.MP.ConeDat.L, GL2.MP.ConeDat.L_inl,
+    GL2.MP.ConeDat.L_inr, GL2.MP.ConeDat.eq_L, GL2.MP.ConeDat.L_eq_zero, GL2.MP.ConeDat.mapDomain_neg', GL2.MP.ConeDat.d_zero, GL2.MP.ConeDat.d_one,
+    GL2.MP.ConeDat.d_succ, GL2.MP.ConeDat.step, GL2.MP.ConeDat.acyclic}
+  \leanok
+  \uses{def:mp-bcx, lem:mp-cx-retract}
+  Let $R_A\to A$, $R_B\to B$ be acyclic augmented complexes on bases, $f\colon R_A\to R_B$ a chain map on bases and $\varepsilon\colon B\to k$
+  with $\varepsilon f_0=0$.  If $0\to A\xrightarrow{f_0}B\xrightarrow{\varepsilon}k\to0$ is exact, the complex
+  $k\leftarrow R_{B,1}\leftarrow R_{B,2}\oplus R_{A,1}\leftarrow R_{B,3}\oplus R_{A,2}\leftarrow\cdots$,
+  $D(b,a)=(db+fa,-da)$ (and $\varepsilon d$, $db+fa$ in degrees $1$, $2$), is acyclic.
+\end{theorem}
+\begin{proof}
+  \leanok
+  Element-wise: degree $0$ by $\varepsilon$ and $R_B$ onto; degree $1$: $\varepsilon(dx)=0\Rightarrow dx=f_0z$, $z=dz'$,
+  $x-fz'=dw$; degree $\ge2$: a cycle $(x,y)$ has $f_0(dy)=-ddx=0$ (degree $2$) or $dy=0$, so $y=dy'$, $x+fy'=dx'$ and $(x,y)=D(x',-y')$.
+\end{proof}
+
+\begin{definition}[The periodic data and the lift for $\mathsf M_7$]\label{def:mp-model7-lift}
+  % backs [C] 1.22.0-pre.11 cl:amalgam, eq:mvamalgam (P^{<-I>}, P^{<S>} + P^{<U>} and the lift phi; LR-2 (a), (b))
+  \lean{GL2.MP.negOne_eq_sS_sq, GL2.MP.negOne_sq, GL2.MP.negOne_ne_one, GL2.MP.model7PerE, GL2.MP.model7VX,
+    GL2.MP.model7VT, GL2.MP.model7_sep_I, GL2.MP.model7_sep_Rho, GL2.MP.model7PerV, GL2.MP.model7PhiB, GL2.MP.model7F,
+    GL2.MP.model7_tBdS_E, GL2.MP.model7_comm0, GL2.MP.mul_sS_sS, GL2.MP.mul_sU_sU, GL2.MP.mul_sU2_sU, GL2.MP.sS_pow3,
+    GL2.MP.sU_pow4, GL2.MP.sU_pow5, GL2.MP.model7_commS, GL2.MP.model7Phi_comm}
+  \leanok
+  \uses{thm:mp-model7-tree-orbits, thm:mp-per-acyclic}
+  Periodic data: the tree edges with base point $[\rho,i]$, $t=-I$, $N=2$; the tree vertices with base points $i$ ($t=S$, $N=4$) and
+  $\rho$ ($t=U$, $N=6$).  The lift $\varphi\colon P^{\langle-I\rangle}\to P^{\langle S\rangle}\oplus P^{\langle U\rangle}$ of the tree
+  boundary $[\rho,i]\mapsto i-\rho$ is $(1,-1)$ in even degrees and $(1+S,-(1+U+U^2))$ in odd degrees; it is a chain map.
+\end{definition}
+\begin{proof}
+  \leanok
+  \ref{thm:mp-model7-tree-orbits} for the stabilisers; $\varphi$ commutes with $d$ on generators by $S^2=U^3=-I$, $S^4=U^6=1$.
+\end{proof}
+
+\begin{theorem}[{The free resolution of $k$ over $k[\mathrm{SL}_2(\mathbb Z)]$ from the tree}]\label{thm:mp-model7-cone-res}
+  % backs [C] 1.22.0-pre.11 cl:amalgam, eq:mvamalgam (the resolution k <- k[G]^2 <- k[G]^3 <- ..., every degree)
+  \lean{GL2.MP.model7Cone, GL2.MP.model7Cone_B, GL2.MP.model7ConeRes_acyclic}
+  \leanok
+  \uses{thm:mp-cone-ses, def:mp-model7-lift, thm:mp-treeses-exact}
+  For every commutative ring $k$ the complex $k\leftarrow k[\Gamma]^2\leftarrow k[\Gamma]^3\leftarrow k[\Gamma]^3\leftarrow\cdots$
+  (ranks $2,3,3,\dots$, $2$-periodic from degree $2$ by construction) is acyclic, $-I$ included.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{thm:mp-cone-ses} with the periodic resolutions (\ref{thm:mp-per-acyclic}), the lift (\ref{def:mp-model7-lift}) and
+  $0\to k[\mathcal T_1]\to k[\mathcal T_0]\to k\to0$ exact (\ref{thm:mp-treeses-exact}; injectivity since $\mathcal T$ has no
+  $2$-simplices).  The argument is uniform in the degree; no finite degree certificate is needed.
+\end{proof}
+
+\section{The tree resolution as a projective resolution; comparison with MP (LR-Y phase 2e)}
+
+\begin{theorem}[Resolutions by free permutation modules on bases]\label{thm:mp-perm-res}
+  % backs [C] 1.22.0-pre.11 cl:amalgam, eq:mvamalgam (the resolution as a projective resolution in Rep k Gamma; LR-2 (d))
+  \lean{GL2.MP.PermRes, GL2.MP.PermRes.dP, GL2.MP.PermRes.dP_mapDomain, GL2.MP.PermRes.dP_dP, GL2.MP.PermRes.augL,
+    GL2.MP.PermRes.augL_mapDomain, GL2.MP.PermRes.augL_dP, GL2.MP.PermRes.X, GL2.MP.PermRes.D, GL2.MP.PermRes.D_hom_apply,
+    GL2.MP.PermRes.D_D, GL2.MP.PermRes.cx, GL2.MP.PermRes.cx_d, GL2.MP.PermRes.eps, GL2.MP.PermRes.eps_hom_apply,
+    GL2.MP.PermRes.D_eps, GL2.MP.PermRes.aug, GL2.MP.PermRes.aug_f_zero, GL2.MP.PermRes.exact_zero,
+    GL2.MP.PermRes.exact_succ, GL2.MP.PermRes.eps_surjective, GL2.MP.PermRes.aug_quasiIso, GL2.MP.PermRes.projective,
+    GL2.MP.PermRes.res, GL2.MP.PermRes.cohIso}
+  \leanok
+  \uses{thm:mp-projres, thm:mp-tree-equivariant}
+  If $G$ acts freely on bases $B_n$, the boundaries are equivariant, $d\circ d=0$ and $\cdots\to k[B_1]\to k[B_0]\xrightarrow{\Sigma}k\to0$
+  is exact, then $k[B_\bullet]\to k$ is a projective resolution of the trivial representation in $\mathrm{Rep}\,k\,G$, and
+  $H^n(G;A)\cong H^n(\mathrm{Hom}_G(k[B_\bullet],A))$ for every $n$ and every $A$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  As \ref{thm:mp-projres}: free permutation modules are projective (\texttt{projective\_ofMulAction}, trivial stabilisers), the
+  augmentation is a quasi-isomorphism by the exactness, and mathlib's \texttt{groupCohomologyIso}.
+\end{proof}
+
+\begin{theorem}[The tree resolution of $\mathrm{SL}_2(\mathbb Z)$ computes group cohomology and MP cohomology]\label{thm:mp-tree-mp-comparison}
+  % backs [C] 1.22.0-pre.11 cl:amalgam, eq:mvamalgam, thm:mpcomparison (4)-(5) in the form "a second resolution giving the same groups" (H^q(Gamma; M) from k[G]^2 <- k[G]^3 <- ... = MP cohomology, every q, -I included)
+  \lean{GL2.MP.model7PB, GL2.MP.model7PB.act, GL2.MP.model7PBd, GL2.MP.model7PhiB_smul, GL2.MP.mapDomain_inl_smul,
+    GL2.MP.mapDomain_inr_smul, GL2.MP.model7PBd_smul, GL2.MP.model7PB_free, GL2.MP.model7_bd0, GL2.MP.model7_bd0_eq,
+    GL2.MP.lc_const_single, GL2.MP.model7PermRes, GL2.MP.model7TreeRes, GL2.MP.model7TreeCoh, GL2.MP.model7TreeMP,
+    GL2.MP.model7TreeMPEquiv}
+  \leanok
+  \uses{thm:mp-perm-res, thm:mp-model7-cone-res, thm:mp-comparison, thm:mp-model7-ac}
+  For every commutative ring $k$, the tree resolution $P_\bullet\colon k[\Gamma]^2\leftarrow k[\Gamma]^3\leftarrow k[\Gamma]^3\leftarrow\cdots\to k$
+  is a projective resolution of $k$ over $k[\mathrm{SL}_2(\mathbb Z)]$; for every representation $A$ and every $q$,
+  $H^q(\Gamma;A)\cong H^q(\mathrm{Hom}_\Gamma(P_\bullet,A))\cong H^q(C^\bullet(\mathsf S(\mathsf M_7);A))$, the central $-I$ included;
+  the lifts of $\mathrm{id}_k$ between $P_\bullet$ and the MP resolution $k[\mathfrak F'_\bullet]$ form a homotopy equivalence.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $\varphi$ and the periodic differentials are right multiplications, hence equivariant; $\Gamma$ acts freely on the bases;
+  exactness from \ref{thm:mp-model7-cone-res}; \ref{thm:mp-perm-res}; the MP side is \ref{thm:mp-comparison} with (AC) for
+  $\mathsf M_7$ (\ref{thm:mp-model7-ac}); \texttt{ProjectiveResolution.homotopyEquiv}.
+\end{proof}
+
+\section{The explicit cochain complex and the periodicity (LR-Y phase 3)}
+
+\begin{theorem}[{$\mathrm{Hom}_G(k[X],A)$ as equivariant functions; $\mathrm{Hom}_G(k[G]^r,A)\cong A^r$}]\label{thm:mp-hom-perm}
+  % backs [C] 1.22.0-pre.11 cl:amalgam, eq:mvamalgam (the cochain complex Hom_Gamma(P, A) in coordinates; LR-Y phase 3 (1))
+  \lean{GL2.MP.EqF, GL2.MP.lcEqF_mapDomain, GL2.MP.liftEqF, GL2.MP.permHom, GL2.MP.permHom_apply, GL2.MP.permHom_lc,
+    GL2.MP.eqF_FB, GL2.MP.eqFB, GL2.MP.homFB, GL2.MP.homFB_apply, GL2.MP.eqFSum, GL2.MP.lc_eqF_difB, GL2.MP.lc_eqF_nrmB,
+    GL2.MP.permHom_D}
+  \leanok
+  \uses{def:mp-fb, thm:mp-per-acyclic, thm:mp-perm-res}
+  For a $G$-set $X$ and a representation $A$ over a commutative ring $k$, $\varphi\mapsto(x\mapsto\varphi(x))$ is a $k$-linear
+  isomorphism from $\mathrm{Hom}_G(k[X],A)$ onto the $G$-equivariant functions $X\to A$; on $X=\mathrm{FB}\,r\,G$ evaluation at the
+  generators $(c,1)$ gives $\mathrm{Hom}_G(k[G]^r,A)\cong A^r$, and equivariant functions on $X\sqcup Y$ are pairs.  Precomposition
+  with a boundary given on bases is the linear combination of the values; on the periodic boundaries it is $(1-t_c)$ and
+  $\sum_{j<N_c}t_c^j$ at the generators.
+\end{theorem}
+\begin{proof}
+  \leanok
+  As \texttt{homE} (\ref{thm:mp-comparison}); $F(c,g)=F(g\cdot(c,1))=g\,F(c,1)$.
+\end{proof}
+
+\begin{theorem}[The explicit cochain complex $A^2\to A^3\to A^3\to\cdots$ of $\mathrm{SL}_2(\mathbb Z)$]\label{thm:mp-tree-cochains}
+  % backs [C] 1.22.0-pre.11 cl:amalgam, eq:mvamalgam (H^q(Gamma; A) = H^q(A^2 -> A^3 -> A^3 -> ...), every q, -I included; LR-Y phase 3 (3))
+  \lean{GL2.MP.nrmA, GL2.MP.difA, GL2.MP.nrmA_apply, GL2.MP.difA_apply, GL2.MP.vtxA, GL2.MP.phiA, GL2.MP.edgA,
+    GL2.MP.treeD0, GL2.MP.treeDS, GL2.MP.tcX, GL2.MP.tcD, GL2.MP.treeEv, GL2.MP.treeEv_zero, GL2.MP.treeEv_succ,
+    GL2.MP.lc_eqF_vtx, GL2.MP.lc_eqF_phiB, GL2.MP.lc_eqF_edg, GL2.MP.treeEv_d, GL2.MP.tcD_sq, GL2.MP.treeCoch,
+    GL2.MP.treeCoch_d, GL2.MP.treeCochIso, GL2.MP.model7TreeCochCoh}
+  \leanok
+  \uses{thm:mp-hom-perm, thm:mp-tree-mp-comparison}
+  Let $k$ be a commutative ring, $A$ a representation of $\Gamma=\mathrm{SL}_2(\mathbb Z)$ over $k$, $N_t^{(N)}=\sum_{j<N}t^j$.  The maps
+  $d^0(x,y)=((1-S)x,(1-U)y,\,x-y)$ and, for $m\ge0$,
+  $d^{m+1}((x,y),z)=(v_{m+1}(x,y),\ \varphi^*_{m+1}(x,y)-e_m z)$ with $v_j=(1-S,1-U)$, $\varphi^*_j(x,y)=x-y$ for even $j$,
+  $v_j=(N_S^{(4)},N_U^{(6)})$, $\varphi^*_j(x,y)=(1+S)x-(1+U+U^2)y$ for odd $j$, $e_m=1-(-I)$ for even $m$ and $1+(-I)$ for odd $m$,
+  form a cochain complex $A^2\to A^3\to A^3\to\cdots$, isomorphic to $\mathrm{Hom}_\Gamma(P_\bullet,A)$ by evaluation at the generators;
+  hence $H^n(\Gamma;A)\cong H^n(A^2\to A^3\to A^3\to\cdots)$ for every $n$, the central $-I$ included.
+\end{theorem}
+\begin{proof}
+  \leanok
+  Evaluation at $(c,1)$ turns precomposition with $\partial$ into $d$ (\ref{thm:mp-hom-perm}); $d\circ d=0$ is transported from
+  $\partial\circ\partial=0$; \ref{thm:mp-tree-mp-comparison}.
+\end{proof}
+
+\begin{theorem}[The periodicity $H^q\cong H^{q+2}$, $q\ge2$]\label{thm:mp-tree-periodic}
+  % backs [C] 1.22.0-pre.11 lem:bulkperiodic (2): ONLY the existence of a natural isomorphism H^q = H^{q+2} for q >= 2, from the 2-periodic resolution; NOT that it is e cup -, NOT the q = 1 clause; not (1)
+  \lean{GL2.MP.difA_nat, GL2.MP.nrmA_nat, GL2.MP.vtxA_nat, GL2.MP.phiA_nat, GL2.MP.edgA_nat, GL2.MP.tcMap,
+    GL2.MP.tcMap_comm, GL2.MP.treeCochMap, GL2.MP.treeCochFunctor, GL2.MP.treeDS_periodic, GL2.MP.model7PBd_periodic,
+    GL2.MP.treeScPer, GL2.MP.treePerNat, GL2.MP.model7CohPeriodic, GL2.MP.treePerNat_natural}
+  \leanok
+  \uses{thm:mp-tree-cochains}
+  Its terms are $2$-periodic from degree $1$ and its differentials from degree $2$: $P_{n+2}=P_n$ for $n\ge1$ and
+  $\partial_{n+2}=\partial_n$ for $n\ge2$; dually $\mathrm{Hom}_\Gamma(P_\bullet,A)$ has $C^{n+2}=C^n$ and $d^{n+2}=d^n$ for every
+  $n\ge1$.  $A\mapsto(A^2\to A^3\to\cdots)$ is a functor, and for every $q\ge2$ there is an isomorphism
+  $H^q(A^2\to A^3\to\cdots)\cong H^{q+2}(A^2\to A^3\to\cdots)$ natural in $A$; hence $H^q(\Gamma;A)\cong H^{q+2}(\Gamma;A)$ for every
+  $q\ge2$, every commutative ring $k$ and every $A$.  The isomorphism is not identified with cup product with a class $e$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $\mathrm{Even}(j+2)\Leftrightarrow\mathrm{Even}\,j$; the short complexes at $q$ and $q+2$ have equal terms and maps for $q\ge2$
+  (identity components, natural in $A$); mathlib's \texttt{homologyFunctorIso'}.
+\end{proof}
+
+\begin{theorem}[The Mayer--Vietoris sequence of the amalgam, with periodic middle terms]\label{thm:mp-tree-mv}
+  % backs [C] 1.22.0-pre.12 eq:mvamalgam (2): the long exact sequence, with H^q(<S>) + H^q(<U>) and H^q(<-I>) computed by the periodic cochain complexes and the middle map induced by phi^*; the identification of these terms with groupCohomology of the cyclic subgroups and of the middle map with res - res is thm:mp-mv-terms / thm:mp-mv-resres (LR-Y phase 4)
+  \lean{GL2.MP.tcD_sq_apply, GL2.MP.vtxA_sq, GL2.MP.edgA_sq, GL2.MP.vCoch, GL2.MP.vCoch_d, GL2.MP.eX, GL2.MP.eD, GL2.MP.eSh,
+    GL2.MP.eSh_d, GL2.MP.mvιF, GL2.MP.mvπF, GL2.MP.mvι, GL2.MP.mvπ, GL2.MP.mvι_mvπ, GL2.MP.mvSC, GL2.MP.mvSC_shortExact,
+    GL2.MP.mvδ, GL2.MP.mvRes, GL2.MP.mvInc, GL2.MP.mvInc_mvRes, GL2.MP.mvRes_mvδ, GL2.MP.mvδ_mvInc, GL2.MP.mv_exact_coh,
+    GL2.MP.mv_exact_vtx, GL2.MP.mv_exact_edge, GL2.MP.mvσF, GL2.MP.mvφF, GL2.MP.edgA_phiA, GL2.MP.vCoch_cocycle,
+    GL2.MP.mvφ_lift, GL2.MP.mvφ_cocycle, GL2.MP.mvδ_eq}
+  \leanok
+  \uses{thm:mp-tree-cochains}
+  Let $V^\bullet$ be the vertex complex $A^2\to A^2\to\cdots$ with differentials $(1-S,1-U)$, $(N_S^{(4)},N_U^{(6)})$, alternating
+  (the periodic cochain complex of $\langle S\rangle$ and $\langle U\rangle$), and $E^\bullet$ the edge complex shifted by one,
+  $0\to A\to A\to\cdots$ with differentials $-(1-(-I))$, $-(1+(-I))$, alternating (so $H^{q+1}(E^\bullet)$ is $H^q$ of the
+  periodic cochain complex of $\langle-I\rangle$).  Then $0\to E^\bullet\to(A^2\to A^3\to\cdots)\to V^\bullet\to0$,
+  $z\mapsto((0,0),z)$, $((x,y),z)\mapsto(x,y)$, is a short exact sequence of cochain complexes, and with \ref{thm:mp-tree-cochains}
+  the sequence
+  $\cdots\to H^q(E^\bullet)\to H^q(\Gamma;A)\to H^q(V^\bullet)\xrightarrow{\delta}H^{q+1}(E^\bullet)\to H^{q+1}(\Gamma;A)\to\cdots$
+  is exact at every term, for every commutative ring $k$ and every $A$.  The connecting map of this short exact sequence of
+  cochain complexes (the \emph{middle} map $\operatorname{res}-\operatorname{res}$ of [C] \texttt{eq:mvamalgam}; [C]'s connecting map $\partial$ of
+  \texttt{lem:bulkperiodic}(2) is the map $H^{q+1}(E^\bullet)\to H^{q+1}(\Gamma;A)$ here) is induced by $\varphi^*$:
+  for a cocycle $v$ of $V^\bullet$ in degree $q$, $\delta[v]=[\varphi^*_q v]$, $\varphi^*_q(x,y)=x-y$ ($q$ even),
+  $(1+S)x-(1+U+U^2)y$ ($q$ odd).
+\end{theorem}
+\begin{proof}
+  \leanok
+  $d\circ d=0$ on $V^\bullet$, $E^\bullet$ and $e_q\varphi^*_q=\varphi^*_{q+1}v_q$ (its restriction to cocycles) are read off from $d\circ d=0$ on $A^2\to A^3\to\cdots$;
+  degreewise short exactness by hand; mathlib's homology sequence (\texttt{ShortExact.homology\_exact$_{1,2,3}$},
+  \texttt{ShortExact.$\delta$\_eq}) transported along \ref{thm:mp-tree-cochains}.
+\end{proof}
+
+\section{The Mayer--Vietoris terms as group cohomology, the middle map as \texorpdfstring{$\operatorname{res}-\operatorname{res}$}{res - res} (LR-Y phase 4)}
+
+\begin{theorem}[Finite cyclic groups: $H^q(C;A)$ by the periodic cochain complex]\label{thm:mp-cyc-coh}
+  % backs [C] 1.22.0-pre.12 eq:mvamalgam (the terms H^q(<S>), H^q(<U>), H^q(<-I>) as groupCohomology; LR-Y phase 4, item (5) (i))
+  \lean{GL2.MP.CycDat, GL2.MP.CycDat.perD, GL2.MP.CycDat.lc_augB, GL2.MP.CycDat.permRes, GL2.MP.CycDat.cycD,
+    GL2.MP.CycDat.cycEv, GL2.MP.CycDat.cycEv_apply, GL2.MP.CycDat.cycEv_d, GL2.MP.CycDat.cycD_sq,
+    GL2.MP.CycDat.cycCoch, GL2.MP.CycDat.cycCoch_d, GL2.MP.CycDat.cycCochIso, GL2.MP.CycDat.zpow,
+    GL2.MP.PermRes.barEquiv, GL2.MP.PermRes.barIso, GL2.MP.CycDat.cohIso}
+  \leanok
+  \uses{thm:mp-per-acyclic, thm:mp-perm-res, thm:mp-hom-perm, thm:mp-comparison-natural}
+  Let $k$ be a commutative ring, $C$ a group with an element $t$ of order $N$ generating it, and $A$ a representation of $C$
+  over $k$.  The periodic complex $k[C]\xleftarrow{1-t}k[C]\xleftarrow{N_t}k[C]\xleftarrow{1-t}\cdots$, $N_t=\sum_{j<N}t^j$,
+  is a resolution of $k$ by free permutation modules, and evaluation at the generator identifies $\mathrm{Hom}_C(P_\bullet,A)$
+  with $A\to A\to A\to\cdots$ (differentials $1-t$, $N_t$, alternating).  Hence $H^q(C;A)\cong H^q(A\to A\to\cdots)$ for every
+  $q$, through a fixed homotopy equivalence of $P_\bullet$ with the bar resolution (not through $\mathrm{Ext}$).  This applies to
+  $\langle S\rangle$, $\langle U\rangle$, $\langle-I\rangle\le\mathrm{SL}_2(\mathbb Z)$ ($N=4,6,2$).
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{thm:mp-per-acyclic} on a point; \ref{thm:mp-perm-res}; \ref{thm:mp-hom-perm}; inhomogeneous cochains $=\mathrm{Hom}(\mathrm{bar},A)$
+  (mathlib's \texttt{inhomogeneousCochainsIso}) and \texttt{preYEquiv} of \texttt{ProjectiveResolution.homotopyEquiv}.
+\end{proof}
+
+\begin{theorem}[Restriction through resolutions; between finite cyclic groups]\label{thm:mp-cyc-res}
+  % backs [C] 1.22.0-pre.12 eq:mvamalgam (res on the periodic cochains; LR-Y phase 4, item (5) (ii))
+  \lean{GL2.MP.diagonalSuccIsoFree_inv_single, GL2.MP.barπ_zero_single, GL2.MP.resCx, GL2.MP.resY, GL2.MP.resY_f_apply,
+    GL2.MP.preY_resY, GL2.MP.barMapF, GL2.MP.barMapF_single, GL2.MP.barMapCx, GL2.MP.cochainsMap_barMap,
+    GL2.MP.barMapF_π, GL2.MP.preYHomotopy, GL2.MP.PermRes.resP, GL2.MP.PermRes.resPToF, GL2.MP.PermRes.resPFrom,
+    GL2.MP.PermRes.resPι, GL2.MP.PermRes.resPι', GL2.MP.PermRes.resPι'_ι, GL2.MP.PermRes.resP_eps_hom,
+    GL2.MP.PermRes.viaBar, GL2.MP.PermRes.eps_barEquiv_inv, GL2.MP.PermRes.barEquiv_hom_π, GL2.MP.PermRes.viaBar_eps,
+    GL2.MP.PermRes.comm_of_eps, GL2.MP.PermRes.resHomotopy, GL2.MP.PermRes.barIso_res, GL2.MP.PermRes.mapB,
+    GL2.MP.PermRes.mapB_f_hom, GL2.MP.PermRes.mapB_eps, GL2.MP.sum_range_mul_eq, GL2.MP.CycDat.resA,
+    GL2.MP.CycDat.resA_smul, GL2.MP.CycDat.resA_comm, GL2.MP.CycDat.resα, GL2.MP.CycDat.resα_eps, GL2.MP.CycDat.cycRes,
+    GL2.MP.CycDat.cycRes_f_apply, GL2.MP.CycDat.cohIso_res}
+  \leanok
+  \uses{thm:mp-cyc-coh, thm:mp-perm-res}
+  Let $f\colon G'\to G$ be an injective homomorphism, $P_\bullet$, $P'_\bullet$ resolutions of $k$ by free permutation modules over
+  $G$, $G'$, and $\alpha\colon P'_\bullet\to P_\bullet|_{G'}$ a chain map lifting $\mathrm{id}_k$.  Under the isomorphisms of
+  \ref{thm:mp-cyc-coh} (through the bar resolution), mathlib's restriction $\texttt{groupCohomology.map}\,f$ is induced by
+  $\varphi\mapsto\varphi\circ\alpha$.  For finite cyclic $C'=\langle t'\rangle$, $C=\langle t\rangle$ of orders $N'$, $N=dN'$ with
+  $f(t')=t^d$, restriction $H^q(C;A)\to H^q(C';A)$ on the periodic cochains is $x\mapsto x$ for even $q$ and
+  $x\mapsto\sum_{j<d}t^jx$ for odd $q$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  Mathlib's \texttt{cochainsMap} is precomposition with the bar map $(g_i)\mapsto(f g_i)$, a chain map lifting $\mathrm{id}_k$;
+  two lifts $P'_\bullet\to P_\bullet|_{G'}$ of $\mathrm{id}_k$ are homotopic (\texttt{ProjectiveResolution.liftHomotopy});
+  restriction preserves homotopies.  For cyclic groups, $\alpha(e)=e$ in even and $\alpha(e)=\sum_{j<d}t^je$ in odd degrees.
+\end{proof}
+
+\begin{theorem}[The Mayer--Vietoris terms]\label{thm:mp-mv-terms}
+  % backs [C] 1.22.0-pre.12 eq:mvamalgam (the terms: H^q(V) = H^q(<S>; A) + H^q(<U>; A), H^{q+1}(E) = H^q(<-I>; A), every q)
+  \lean{GL2.MP.liftCycles_π_homologyIsoSc', GL2.MP.gS, GL2.MP.gU, GL2.MP.gI, GL2.MP.zS, GL2.MP.zU, GL2.MP.zI,
+    GL2.MP.gI_le_gS, GL2.MP.gI_le_gU, GL2.MP.fS, GL2.MP.fU, GL2.MP.fS_t, GL2.MP.fU_t, GL2.MP.resS, GL2.MP.resU,
+    GL2.MP.resI, GL2.MP.resSI, GL2.MP.resUI, GL2.MP.cS, GL2.MP.cU, GL2.MP.cI, GL2.MP.vtxA_eq, GL2.MP.edgA_eq,
+    GL2.MP.jS, GL2.MP.jU, GL2.MP.pS, GL2.MP.pU, GL2.MP.jS_pS, GL2.MP.jU_pU, GL2.MP.jS_pU, GL2.MP.jU_pS,
+    GL2.MP.pS_jS_add, GL2.MP.vHomIso, GL2.MP.vIso, GL2.MP.inl_vIso_inv, GL2.MP.inr_vIso_inv, GL2.MP.prev_eq_pred,
+    GL2.MP.eτ₁, GL2.MP.cI_d_zero, GL2.MP.eScMap, GL2.MP.eHomIso, GL2.MP.eIso, GL2.MP.eHomIso_π}
+  \leanok
+  \uses{thm:mp-tree-mv, thm:mp-cyc-coh}
+  In \ref{thm:mp-tree-mv}, for every commutative ring $k$, every representation $A$ of $\Gamma=\mathrm{SL}_2(\mathbb Z)$ and every $q$:
+  $H^q(V^\bullet)\cong H^q(\langle S\rangle;A)\oplus H^q(\langle U\rangle;A)$ (the vertex complex is the direct sum of the periodic
+  cochain complexes of $\langle S\rangle$ and $\langle U\rangle$), and $H^{q+1}(E^\bullet)\cong H^q(\langle-I\rangle;A)$, the
+  identity on cocycles (through the short complexes $A\to A\to A$ with components $(-1,1,-1)$, and $(0,1,-1)$ at $q=0$).
+\end{theorem}
+\begin{proof}
+  \leanok
+  Inclusions and projections of the summands are chain maps; mathlib's \texttt{homologyIsoSc'} and
+  \texttt{isIso\_homologyMap\_of\_epi\_of\_isIso\_of\_mono'}; \ref{thm:mp-cyc-coh}.
+\end{proof}
+
+\begin{theorem}[The middle map of the Mayer--Vietoris sequence is $\operatorname{res}_S-\operatorname{res}_U$]\label{thm:mp-mv-resres}
+  % backs [C] 1.22.0-pre.12 eq:mvamalgam (the middle map res - res, the sign as written; every q, every k, every A)
+  \lean{GL2.MP.liftCycles_congr, GL2.MP.liftCycles_iCycles, GL2.MP.homology_ext, GL2.MP.cycResS, GL2.MP.cycResU,
+    GL2.MP.jS_phi, GL2.MP.jU_phi, GL2.MP.mvδ_comp, GL2.MP.mvδ_comp_neg, GL2.MP.mvδ_inl, GL2.MP.mvδ_inr,
+    GL2.MP.mvδ_resres}
+  \leanok
+  \uses{thm:mp-mv-terms, thm:mp-cyc-res}
+  Under the isomorphisms of \ref{thm:mp-mv-terms}, the map $\delta\colon H^q(V^\bullet)\to H^{q+1}(E^\bullet)$ of
+  \ref{thm:mp-tree-mv} (the connecting map of its short exact sequence of cochain complexes, i.e.\ the \emph{middle} map of
+  [C] \texttt{eq:mvamalgam}) is
+  $\operatorname{res}^{\langle S\rangle}_{\langle-I\rangle}-\operatorname{res}^{\langle U\rangle}_{\langle-I\rangle}\colon
+  H^q(\langle S\rangle;A)\oplus H^q(\langle U\rangle;A)\to H^q(\langle-I\rangle;A)$ (mathlib's \texttt{groupCohomology.map} along
+  the inclusions), for every $q$, every commutative ring $k$ and every $A$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $\delta[v]=[\varphi^*_qv]$ (\ref{thm:mp-tree-mv}); $\varphi^*_q(x,0)=x$, $(1+S)x$ and $\varphi^*_q(0,y)=-y$, $-(1+U+U^2)y$ are the
+  restrictions of \ref{thm:mp-cyc-res} ($d=2$, $d=3$), with the sign on the $\langle U\rangle$-summand.
+\end{proof}
+
+\begin{theorem}[The beginning $0\to H^0(\Gamma;A)\to A^S\oplus A^U\to A^{-I}$]\label{thm:mp-mv-low}
+  % backs [C] 1.22.0-pre.12 eq:mvamalgam (the beginning, as a statement about A^S, A^U, A^{-I}, proved directly, not as the degree-0 case of the sequence; LRY3_audit MINOR-1, LRY4_audit MINOR-3)
+  \lean{GL2.MP.sS_eq_S, GL2.MP.sU_eq_ST, GL2.MP.invS, GL2.MP.invU, GL2.MP.invI, GL2.MP.mem_invS, GL2.MP.mem_invU,
+    GL2.MP.mem_invI, GL2.MP.invariants_eq_inf, GL2.MP.lowι, GL2.MP.lowι_fst, GL2.MP.lowι_snd, GL2.MP.invS_le_invI,
+    GL2.MP.invU_le_invI, GL2.MP.lowδ, GL2.MP.mv_low_exact, GL2.MP.resSI_zero, GL2.MP.resUI_zero}
+  \leanok
+  \uses{thm:mp-mv-terms}
+  For every commutative ring $k$ and every $A$: $A^\Gamma=A^S\cap A^U$, and $0\to A^\Gamma\to A^S\oplus A^U\to A^{-I}$,
+  $a\mapsto(a,a)$, $(x,y)\mapsto x-y$, is exact (proved directly, not as the degree-$0$ case of the sequence of
+  \ref{thm:mp-tree-mv}).  Under mathlib's $H^0(G;A)\cong A^G$ (\texttt{H0Iso}) restriction
+  $H^0(\langle S\rangle;A)\to H^0(\langle-I\rangle;A)$ (resp.\ from $\langle U\rangle$) is the inclusion of invariants.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $S$ and $U=ST$ generate $\mathrm{SL}_2(\mathbb Z)$ (mathlib's \texttt{SL2Z\_generators}); mathlib's \texttt{map\_H0Iso\_hom\_f}.
+\end{proof}
+
+\begin{theorem}[The periodicity, natural on group cohomology]\label{thm:mp-periodic-natural}
+  % backs [C] 1.22.0-pre.12 lem:bulkperiodic (2): ONLY a natural isomorphism H^q(Gamma; -) = H^{q+2}(Gamma; -), q >= 2, of functors, built through the bar comparison; NOT shown to coincide with the isomorphism of thm:mp-tree-periodic; NOT that it is e cup -, NOT its compatibility with restriction, NOT the q = 1 clause (LRY4_audit MINOR-4)
+  \lean{GL2.MP.postY_treeCochIso, GL2.MP.model7TreeCochCohNat, GL2.MP.model7TreeCochCohNat_natural,
+    GL2.MP.model7CohPeriodicNat, GL2.MP.model7CohPeriodicNat_natural, GL2.MP.model7CohPeriodicNatIso}
+  \leanok
+  \uses{thm:mp-tree-periodic, thm:mp-comparison-natural}
+  $H^n(\Gamma;A)\cong H^n(A^2\to A^3\to\cdots)$ through the bar resolution is natural in $A$, and for every $q\ge2$ a periodicity
+  isomorphism $H^q(\Gamma;-)\cong H^{q+2}(\Gamma;-)$, built through the bar comparison of \ref{thm:mp-comparison-natural} (not
+  shown to coincide with that of \ref{thm:mp-tree-periodic}), is a natural isomorphism of functors
+  $\mathrm{Rep}_k\Gamma\to\mathrm{Mod}_k$.  It is not identified with cup product with a class $e$, and its compatibility with
+  restriction is not proved.
+\end{theorem}
+\begin{proof}
+  \leanok
+  As \ref{thm:mp-comparison-natural}: inhomogeneous cochains $=\mathrm{Hom}(\mathrm{bar},A)$ naturally, pre- and post-composition
+  commute, evaluation at the generators is natural; \ref{thm:mp-tree-periodic}.
+\end{proof}
+
+\section{The tree sequence in \texorpdfstring{$\mathrm{Rep}\,k\,\Gamma$}{Rep k Gamma}; the Mayer--Vietoris sequence in group cohomology (LR-Y phase 5)}
+
+\begin{theorem}[{The tree sequence \texttt{eq:treeses} as one short exact sequence of $k[\Gamma]$-modules}]\label{thm:mp-treeses-rep}
+  % backs [C] 1.22.0-pre.12 eq:treeses (1): the sequence assembled as one object of Rep k Gamma (LRY3_audit MINOR-1); every commutative ring k
+  \lean{GL2.MP.TE, GL2.MP.TV, GL2.MP.qS, GL2.MP.qU, GL2.MP.qS_mk, GL2.MP.qU_mk, GL2.MP.qS_smul, GL2.MP.qU_smul,
+    GL2.MP.sesBdB, GL2.MP.sesBdB_smul, GL2.MP.sesAugL, GL2.MP.sesAugL_mapDomain, GL2.MP.sesE, GL2.MP.sesV, GL2.MP.sesF,
+    GL2.MP.sesF_hom_apply, GL2.MP.sesG, GL2.MP.sesG_hom_apply, GL2.MP.sesAugL_sesBdB, GL2.MP.sesF_sesG, GL2.MP.treeSES,
+    GL2.MP.sesVtxEquiv, GL2.MP.sesVtxEquiv_inl, GL2.MP.sesVtxEquiv_inr, GL2.MP.model7EdgeEquiv_mk, GL2.MP.tBdS_smul,
+    GL2.MP.sesBdB_tree, GL2.MP.sesBd_tree, GL2.MP.treeCx_d1, GL2.MP.sesAug_tree, GL2.MP.tree_d1_injective,
+    GL2.MP.sesBd_injective, GL2.MP.sesBd_exact, GL2.MP.treeSES_shortExact, GL2.MP.sesF_single, GL2.MP.sesG_single}
+  \leanok
+  \uses{thm:mp-treeses-exact, thm:mp-model7-tree-orbits}
+  For every commutative ring $k$, the short complex
+  $k[\Gamma/\langle-I\rangle]\to k[\Gamma/\langle S\rangle\sqcup\Gamma/\langle U\rangle]\to k$ in $\mathrm{Rep}\,k\,\Gamma$,
+  $\gamma\langle-I\rangle\mapsto\gamma\langle S\rangle-\gamma\langle U\rangle$ and every coset $\mapsto1$ ($k$ the trivial
+  representation), is short exact.  Under the orbit--stabiliser bijections $\gamma\langle-I\rangle\mapsto\gamma\cdot[\rho,i]$,
+  $\gamma\langle S\rangle\mapsto\gamma\cdot i$, $\gamma\langle U\rangle\mapsto\gamma\cdot\rho$ of \ref{thm:mp-model7-tree-orbits} its
+  maps are the boundary $\partial[\rho,i]=i-\rho$ and the augmentation of the tree.  The middle term is the permutation module of
+  the disjoint union, $=k[\Gamma/\langle S\rangle]\oplus k[\Gamma/\langle U\rangle]$ up to
+  \texttt{Finsupp.sumFinsuppLEquivProdFinsupp}.
+\end{theorem}
+\begin{proof}
+  \leanok
+  Transport of \ref{thm:mp-treeses-exact} along the two bijections; the tree has no $2$-simplices, so its boundary is injective;
+  exactness in $\mathrm{Rep}\,k\,\Gamma$ is checked after the faithful forgetful functor to $k$-modules.
+\end{proof}
+
+\begin{theorem}[{The first map of the Mayer--Vietoris sequence is $(\operatorname{res}_S,\operatorname{res}_U)$}]\label{thm:mp-mv-res}
+  % backs [C] 1.22.0-pre.12 eq:mvamalgam (the map H^q(Gamma; V) -> H^q(<S>; V) + H^q(<U>; V) is restriction, every q, q = 0 included; through the bar-built comparison of thm:mp-periodic-natural, NOT the Ext-built one of thm:mp-tree-cochains)
+  \lean{GL2.MP.vtxB, GL2.MP.vtxP, GL2.MP.incA, GL2.MP.lc_single_one, GL2.MP.mapDomain_vtxB_bdS, GL2.MP.incA_comm,
+    GL2.MP.incA_smul, GL2.MP.incα, GL2.MP.incα_eps, GL2.MP.incα_eval, GL2.MP.gS_inj, GL2.MP.gU_inj, GL2.MP.incαS,
+    GL2.MP.incαU, GL2.MP.resΓS, GL2.MP.resΓU, GL2.MP.incS_chain, GL2.MP.incU_chain, GL2.MP.resΓS_tree,
+    GL2.MP.resΓU_tree, GL2.MP.mvResN, GL2.MP.mvResN_vIso}
+  \leanok
+  \uses{thm:mp-mv-terms, thm:mp-cyc-res, thm:mp-periodic-natural}
+  For every commutative ring $k$, every representation $A$ of $\Gamma=\mathrm{SL}_2(\mathbb Z)$ and every $q\ge0$: under the
+  isomorphism $H^q(\Gamma;A)\cong H^q(A^2\to A^3\to\cdots)$ built through the bar resolution
+  (\texttt{model7TreeCochCohNat}, \ref{thm:mp-periodic-natural}) and the isomorphism $H^q(V^\bullet)\cong
+  H^q(\langle S\rangle;A)\oplus H^q(\langle U\rangle;A)$ of \ref{thm:mp-mv-terms}, the map $H^q(\Gamma;A)\to H^q(V^\bullet)$
+  induced by the projection to the vertex part is $(\operatorname{res}^\Gamma_{\langle S\rangle},\operatorname{res}^\Gamma_{\langle U\rangle})$,
+  mathlib's \texttt{groupCohomology.map} along the inclusions.  On cochains $\operatorname{res}_S$ is $((x,y),z)\mapsto x$ and
+  $\operatorname{res}_U$ is $((x,y),z)\mapsto y$ ($(x,y)\mapsto x$, $y$ in degree $0$).
+\end{theorem}
+\begin{proof}
+  \leanok
+  The periodic resolution of $\langle t_c\rangle$ ($t_0=S$, $t_1=U$) is the $c$-th vertex summand $k[\Gamma]e_c$ of the tree
+  resolution restricted to $\langle t_c\rangle$: on bases $(0,g)\mapsto(c,g)$, a chain map lifting $\mathrm{id}_k$; then
+  \ref{thm:mp-cyc-res} (\texttt{barIso\_res}) with $f$ the inclusion $\langle t_c\rangle\hookrightarrow\Gamma$.
+\end{proof}
+
+\begin{theorem}[{The Mayer--Vietoris sequence of the amalgam in group cohomology}]\label{thm:mp-mv-les}
+  % backs [C] 1.22.0-pre.12 eq:mvamalgam (the long exact sequence with all three maps in groupCohomology terms; the connecting map defined by transport of the cone connecting map, characterised on cocycles; NOT identified with a connecting map of mathlib's groupCohomology long exact sequence of a coefficient sequence, no Shapiro)
+  \lean{GL2.MP.mvFirst, GL2.MP.mvMid, GL2.MP.mvConn, GL2.MP.mvFirst_eq, GL2.MP.mvMid_eq, GL2.MP.vIso_mvMid,
+    GL2.MP.inv_mvFirst, GL2.MP.eIso_mvConn, GL2.MP.mvFirst_mvMid, GL2.MP.mvMid_mvConn, GL2.MP.mvConn_mvFirst,
+    GL2.MP.mvLES_exact_vtx, GL2.MP.mvLES_exact_edge, GL2.MP.mvLES_exact_coh, GL2.MP.eSh_homology_zero_isZero,
+    GL2.MP.mvLES_mono_zero, GL2.MP.mvConn_π}
+  \leanok
+  \uses{thm:mp-mv-res, thm:mp-mv-resres, thm:mp-tree-mv}
+  For every commutative ring $k$ and every representation $A$ of $\Gamma$, with
+  $\partial_q\colon H^q(\langle-I\rangle;A)\to H^{q+1}(\Gamma;A)$ the inclusion of the edge part of the tree cochains (through
+  \ref{thm:mp-mv-terms} and the bar-built comparison), the sequence
+  \[0\to H^0(\Gamma;A)\xrightarrow{(\operatorname{res}_S,\operatorname{res}_U)}H^0(\langle S\rangle;A)\oplus H^0(\langle U\rangle;A)
+  \xrightarrow{\operatorname{res}_S-\operatorname{res}_U}H^0(\langle-I\rangle;A)\xrightarrow{\partial_0}H^1(\Gamma;A)\to\cdots\]
+  is exact at every term ($q=0$ included: the first map is a monomorphism), all three maps in \texttt{groupCohomology} terms.
+  On a cocycle $z$ of the periodic complex of $\langle-I\rangle$ ($z\in A$ with $(1-(-I))z=0$, resp.\ $(1+(-I))z=0$),
+  $\partial_q[z]$ is the class of the tree cochain $((0,0),z)$ of degree $q+1$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  Mathlib's homology sequence of the short exact sequence of \ref{thm:mp-tree-mv}, transported along
+  \ref{thm:mp-mv-res}, \ref{thm:mp-mv-resres} and \ref{thm:mp-mv-terms} (\texttt{ShortComplex.exact\_of\_iso}); $H^0$ of the
+  shifted edge complex vanishes.  The cocycle formula is \texttt{eHomIso\_π} (identity on cocycles).
+\end{proof}
+
+\begin{theorem}[{Naturality in the coefficients of the Mayer--Vietoris sequence}]\label{thm:mp-mv-natural}
+  % backs [C] 1.22.0-pre.12 eq:mvamalgam ("natural in V": every map of the sequence of thm:mp-mv-les commutes with groupCohomology.map of f : A -> B)
+  \lean{GL2.MP.res_natural, GL2.MP.CycDat.cycD_nat, GL2.MP.CycDat.cycCochMap, GL2.MP.CycDat.postY_cycCochIso,
+    GL2.MP.PermRes.barIso_natural, GL2.MP.CycDat.cohIso_natural, GL2.MP.eShMapF, GL2.MP.eShMap, GL2.MP.mvι_natural,
+    GL2.MP.cI_cocycle_eSh, GL2.MP.eHomIso_natural, GL2.MP.eIso_inv_natural, GL2.MP.model7TreeCochCohNat_inv_natural,
+    GL2.MP.mvConn_natural, GL2.MP.resΓS_natural, GL2.MP.resΓU_natural, GL2.MP.mvFirst_natural, GL2.MP.mvMid_natural}
+  \leanok
+  \uses{thm:mp-mv-les, thm:mp-periodic-natural}
+  For every morphism $f\colon A\to B$ of representations of $\Gamma$ and every $q$, the three maps of \ref{thm:mp-mv-les} commute
+  with the maps induced by $f$ (and by its restrictions to $\langle S\rangle$, $\langle U\rangle$, $\langle-I\rangle$) on
+  \texttt{groupCohomology}: $(\operatorname{res}_S,\operatorname{res}_U)$, $\operatorname{res}_S-\operatorname{res}_U$ and $\partial_q$
+  are natural transformations.  The comparisons $H^q(G;A)\cong H^q(\mathrm{Hom}_G(P_\bullet,A))$ through the bar resolution
+  are natural in $A$ for every resolution by free permutation modules, in particular for the cyclic groups.
+\end{theorem}
+\begin{proof}
+  \leanok
+  Restriction: mathlib's \texttt{groupCohomology.map\_comp}.  The connecting map: the bar comparisons are natural (pre- and
+  post-composition commute, \ref{thm:mp-comparison-natural}), the inclusion of the edge part is a natural chain map, and the
+  identification of the edge term is the identity on cocycles.
+\end{proof}
+
+\section{LV-1: mod-$2$ cohomology of $\mathrm{Sym}^n\mathbb F_2^2$ from two ranks}
+
+\begin{theorem}[The packed columns are $\rho_n$ mod $2$ (F1)]\label{thm:lv-f1}
+  % backs the LV gate F1 of L23_master_plan.md v0.4 sec. 4.2(1) (LV0_audit R1): colU = packBits(rhoEntry mod 2), for S, U, U^2; [C] eq:rhondef
+  \lean{GL2.L23.RankF2.pascal, GL2.L23.RankF2.testBit_pascal, GL2.L23.RankF2.rhoEntry_S, GL2.L23.RankF2.rhoEntry_U,
+    GL2.L23.RankF2.rhoEntry_U2, GL2.L23.RankF2.testBit_colS, GL2.L23.RankF2.testBit_colU, GL2.L23.RankF2.testBit_colU2,
+    GL2.L23.RankF2.rhoMat_entry, GL2.L23.RankF2.vec_of_testBit, GL2.L23.RankF2.colsA_eq, GL2.L23.RankF2.colsSig_eq,
+    GL2.L23.RankF2.rowsLtK_eq}
+  \leanok
+  \uses{chk:rhoexec}
+  Over $\mathbb F_2$, $S\equiv\left(\begin{smallmatrix}0&1\\1&0\end{smallmatrix}\right)$, $U\equiv\left(\begin{smallmatrix}0&1\\1&1\end{smallmatrix}\right)$,
+  $U^2\equiv\left(\begin{smallmatrix}1&1\\1&0\end{smallmatrix}\right)$.  Let $P_m=\sum_t\binom mt 2^t\bmod 2$ (bit-packed, $P_{m+1}=P_m\oplus 2P_m$).  For $j\le n$
+  and every $t$: bit $t$ of $2^{n-j}$, of $2^{n-j}P_j$ and of $P_{n-j}$ is set iff the entry $(t,j)$ of $\rho_n(A)$
+  ([C] \texttt{eq:rhondef}, \texttt{rhoEntry} over $\mathbb N$) is odd, for $A=S,U,U^2$ respectively; equivalently the bit vector of
+  each packed column is column $j$ of $\rho_n(A\bmod 2)$ over $\mathbb Z/2$.  The kernel generators \texttt{colsA},
+  \texttt{colsSig} are the column lists of $[1+\rho_n(S)\mid 1+\rho_n(U)+\rho_n(U^2)]$ and of $[1+\rho_n(S)\,;\,1+\rho_n(U)]$ (stacked).
+\end{theorem}
+\begin{proof}
+  \leanok
+  Pascal's rule mod $2$; in the double sum of \texttt{eq:rhondef} a zero entry of the matrix leaves one surviving term.
+\end{proof}
+
+\begin{theorem}[$\dim_{\mathbb F_2}H^q$ in every degree, characteristic $2$]\label{thm:lv-tree-f2-dims}
+  % backs L23_master_plan.md v0.4 sec. 4.3 (mod-2 dimensions in all degrees from ranks, F3); [C] cl:amalgam via thm:mp-tree-cochains
+  \lean{GL2.L23.TreeF2.TrivNegOne, GL2.L23.TreeF2.nrmA_sS_four, GL2.L23.TreeF2.nrmA_sU_six, GL2.L23.TreeF2.edgA_eq_zero,
+    GL2.L23.TreeF2.sigmaA, GL2.L23.TreeF2.psiA, GL2.L23.TreeF2.treeDS_even, GL2.L23.TreeF2.treeDS_odd,
+    GL2.L23.TreeF2.kerD0Equiv, GL2.L23.TreeF2.finrank_range_treeD0, GL2.L23.TreeF2.finrank_homology_add,
+    GL2.L23.TreeF2.finrank_H_zero, GL2.L23.TreeF2.finrank_H_succ}
+  \leanok
+  \uses{thm:mp-tree-cochains}
+  Let $A$ be a finite-dimensional representation of $\mathrm{SL}_2(\mathbb Z)$ over $\mathbb F_2$ on which $-I$ acts trivially,
+  $\sigma=(1-S,1-U)\colon A\to A^2$, $\psi(x,y)=(1+S)x-(1+U+U^2)y$.  Then $\dim H^0(\Gamma;A)+\operatorname{rank}\sigma=\dim A$ (the
+  degree-$0$ identity needs no hypothesis on $-I$) and, for every $q\ge0$,
+  $\dim H^{q+1}(\Gamma;A)+\operatorname{rank}\psi+\operatorname{rank}\sigma=2\dim A$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $S^2=U^3=-I$ act trivially, so $N_S^{(4)}=N_U^{(6)}=0$ and $e_m=0$; the odd differentials are $\psi$ (into the last factor), the
+  even ones are $d^0$ (precomposed with the projection), $\ker d^0\cong\ker\sigma$ by $x\mapsto(x,x)$; rank--nullity.
+\end{proof}
+
+\begin{theorem}[$\mathrm{Sym}^n\mathbb F_2^2$: the cell theorem]\label{thm:lv-v2-dims}
+  % backs per-cell [R] Thm A / C and Theorem O(2)-(3) dimension values at ell = 2 (L23_master_plan.md v0.4 sec. 4.3); census columns h0..h3
+  \lean{GL2.L23.TreeF2.mod2, GL2.L23.TreeF2.symRep2, GL2.L23.TreeF2.V2, GL2.L23.TreeF2.V2_trivNegOne,
+    GL2.L23.TreeF2.finrank_range_eq_rankF2, GL2.L23.TreeF2.finrank_range_sigma_V2, GL2.L23.TreeF2.finrank_range_psi_V2,
+    GL2.L23.TreeF2.V2_dims, GL2.L23.TreeF2.V2_dims_eq, GL2.L23.TreeF2.pascal_lt, GL2.L23.TreeF2.rowsLt_colsA,
+    GL2.L23.TreeF2.rowsLt_colsSig, GL2.L23.TreeF2.V2_dims_of_ranks}
+  \leanok
+  \uses{thm:lv-f1, thm:lv-tree-f2-dims}
+  Let $V_n=\mathrm{Sym}^n\mathbb F_2^2$, $g\mapsto\rho_n(g\bmod2)$, $a=$ \texttt{rankF2 (colsA n)}, $s=$ \texttt{rankF2 (colsSig n)}.  If the
+  packed columns are below $2^{n+1}$, resp.\ $2^{2(n+1)}$ (true for every $n$: \texttt{rowsLt\_colsA}, \texttt{rowsLt\_colsSig}), then
+  $\dim H^0(\Gamma;V_n)=n+1-s$ and $\dim H^{q}(\Gamma;V_n)=2(n+1)-a-s$ for every $q\ge1$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{thm:lv-tree-f2-dims} with $\operatorname{rank}\sigma=s$, $\operatorname{rank}\psi=a$: \texttt{rankF2} is the rank over
+  $\mathbb F_2$ (\texttt{rankF2\_eq\_rank}) and by \ref{thm:lv-f1} the images of the standard basis are the packed columns.
+\end{proof}
+
+\begin{theorem}[Certified cells: $n\le64$ and $n=100,101,128,129,255,256$]\label{chk:lv-cells}
+  % backs the census rows ell = 2, h0..h3 at these n (L23 census even pass, mv2_odd.txt for odd n); decide +kernel, no native_decide, no literal data
+  \lean{GL2.L23.Cells.dims_0, GL2.L23.Cells.dims_1, GL2.L23.Cells.dims_2, GL2.L23.Cells.dims_3, GL2.L23.Cells.dims_4,
+    GL2.L23.Cells.dims_5, GL2.L23.Cells.dims_6, GL2.L23.Cells.dims_7, GL2.L23.Cells.dims_8, GL2.L23.Cells.dims_9,
+    GL2.L23.Cells.dims_10, GL2.L23.Cells.dims_11, GL2.L23.Cells.dims_12, GL2.L23.Cells.dims_13, GL2.L23.Cells.dims_14,
+    GL2.L23.Cells.dims_15, GL2.L23.Cells.dims_16, GL2.L23.Cells.dims_17, GL2.L23.Cells.dims_18, GL2.L23.Cells.dims_19,
+    GL2.L23.Cells.dims_20, GL2.L23.Cells.dims_21, GL2.L23.Cells.dims_22, GL2.L23.Cells.dims_23, GL2.L23.Cells.dims_24,
+    GL2.L23.Cells.dims_25, GL2.L23.Cells.dims_26, GL2.L23.Cells.dims_27, GL2.L23.Cells.dims_28, GL2.L23.Cells.dims_29,
+    GL2.L23.Cells.dims_30, GL2.L23.Cells.dims_31, GL2.L23.Cells.dims_32, GL2.L23.Cells.dims_33, GL2.L23.Cells.dims_34,
+    GL2.L23.Cells.dims_35, GL2.L23.Cells.dims_36, GL2.L23.Cells.dims_37, GL2.L23.Cells.dims_38, GL2.L23.Cells.dims_39,
+    GL2.L23.Cells.dims_40, GL2.L23.Cells.dims_41, GL2.L23.Cells.dims_42, GL2.L23.Cells.dims_43, GL2.L23.Cells.dims_44,
+    GL2.L23.Cells.dims_45, GL2.L23.Cells.dims_46, GL2.L23.Cells.dims_47, GL2.L23.Cells.dims_48, GL2.L23.Cells.dims_49,
+    GL2.L23.Cells.dims_50, GL2.L23.Cells.dims_51, GL2.L23.Cells.dims_52, GL2.L23.Cells.dims_53, GL2.L23.Cells.dims_54,
+    GL2.L23.Cells.dims_55, GL2.L23.Cells.dims_56, GL2.L23.Cells.dims_57, GL2.L23.Cells.dims_58, GL2.L23.Cells.dims_59,
+    GL2.L23.Cells.dims_60, GL2.L23.Cells.dims_61, GL2.L23.Cells.dims_62, GL2.L23.Cells.dims_63, GL2.L23.Cells.dims_64,
+    GL2.L23.Cells.dims_100, GL2.L23.Cells.dims_101, GL2.L23.Cells.dims_128, GL2.L23.Cells.dims_129,
+    GL2.L23.Cells.dims_255, GL2.L23.Cells.dims_256}
+  \leanok
+  \uses{thm:lv-v2-dims}
+  For each listed $n$ the kernel decides the two width bounds and the two ranks, and \ref{thm:lv-v2-dims} gives
+  $\dim H^0(\Gamma;\mathrm{Sym}^n\mathbb F_2^2)$ and $\dim H^q(\Gamma;\mathrm{Sym}^n\mathbb F_2^2)$, $q\ge1$, as the stated numbers.
+  The other cells $64<n\le700$ (and $n=701,999,1000$) are in the library \texttt{L23Cells}, outside this census; evidence: the ledgers and replay logs in \texttt{docs/implementation/slot22/lv/}.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \texttt{decide +kernel} on \texttt{rowsLtK} and \texttt{rankF2} (GMP-accelerated \texttt{Nat.xor} rows), \texttt{V2\_dims\_eq}.
+\end{proof}
+
+\section{LV-2: mod-$3$ cohomology of $\mathrm{Sym}^n\mathbb F_3^2$}
+
+\begin{theorem}[\texttt{rankF3} is the rank over $\mathbb F_3$]\label{thm:lv3-rankf3}
+  % backs L23_master_plan.md v0.4 sec. 4.2(2) at ell = 3 (LV1_audit sec. 5.2): two bit-planes per row, verified elimination
+  \lean{GL2.L23.RankF3.add3, GL2.L23.RankF3.neg3, GL2.L23.RankF3.rankF3, GL2.L23.RankF3.val3, GL2.L23.RankF3.vec3,
+    GL2.L23.RankF3.Disj, GL2.L23.RankF3.Low, GL2.L23.RankF3.val3_add3, GL2.L23.RankF3.val3_neg3, GL2.L23.RankF3.Good3,
+    GL2.L23.RankF3.reduce3_clear, GL2.L23.RankF3.reduce3_vec, GL2.L23.RankF3.addRow3_spec, GL2.L23.RankF3.finrank_good3,
+    GL2.L23.RankF3.toMat3, GL2.L23.RankF3.rankF3_eq_rank, GL2.L23.RankF3.rowsOK3_spec}
+  \leanok
+  A row $(p,m)$ of naturals with disjoint bits stands for the vector with entry $1$ where $p$ has a bit, $-1$ where $m$ has a bit.
+  For rows with disjoint planes below $2^w$, \texttt{rankF3 rows} is the rank over $\mathbb Z/3$ of the matrix of these vectors.
+\end{theorem}
+\begin{proof}
+  \leanok
+  The bitwise sum \texttt{add3} is the entrywise sum mod $3$ (nine cases per position).  Invariant: an echelon basis with pivot
+  entry $1$ and nothing above the pivot; reduction clears every pivot and stays in the span; rows with distinct pivots are
+  independent.
+\end{proof}
+
+\begin{theorem}[The two-plane columns are $\rho_n$ mod $3$ (F1 at $\ell=3$)]\label{thm:lv3-f1}
+  % backs the LV gate F1 at ell = 3 ([C] eq:rhondef): Q_m = (z-1)^m, columns of rho_n(S), rho_n(U), rho_n(U^2) mod 3
+  \lean{GL2.L23.RankF3.qrow, GL2.L23.RankF3.val3_qrow, GL2.L23.RankF3.rhoEntry_a0c1, GL2.L23.RankF3.rhoEntry_c1d0,
+    GL2.L23.RankF3.mS3, GL2.L23.RankF3.mU3, GL2.L23.RankF3.mUU3, GL2.L23.RankF3.vec3_colS, GL2.L23.RankF3.vec3_colU,
+    GL2.L23.RankF3.vec3_colU2, GL2.L23.RankF3.colsPS_eq, GL2.L23.RankF3.colsMU_eq, GL2.L23.RankF3.colsN3_eq,
+    GL2.L23.RankF3.colsSig3_eq, GL2.L23.RankF3.rows_colsPS, GL2.L23.RankF3.rows_colsMU, GL2.L23.RankF3.rows_colsN3,
+    GL2.L23.RankF3.rows_colsSig3}
+  \leanok
+  \uses{chk:rhoexec}
+  Over $\mathbb F_3$, $S\equiv\left(\begin{smallmatrix}0&-1\\1&0\end{smallmatrix}\right)$, $U\equiv\left(\begin{smallmatrix}0&-1\\1&1\end{smallmatrix}\right)$,
+  $U^2\equiv\left(\begin{smallmatrix}-1&-1\\1&0\end{smallmatrix}\right)$.  Let $Q_m=(z-1)^m$, entry $t$ equal to $\binom mt(-1)^{m+t}$.  For $j\le n$
+  column $j$ of $\rho_n(S)$, $\rho_n(U)$, $\rho_n(U^2)$ ([C] \texttt{eq:rhondef}) is $(-1)^ju_{n-j}$, $z^{n-j}Q_j$, $(-1)^jQ_{n-j}$; the
+  kernel generators are the column lists of $1+\rho_n(S)$, $1-\rho_n(U)$, $1+\rho_n(U)+\rho_n(U^2)$ and of
+  $[1-\rho_n(S)\,;\,1-\rho_n(U)]$, with disjoint planes below $2^{n+1}$, resp.\ $2^{2(n+1)}$, for every $n$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  Pascal's rule for $Q_m$; in the double sum of \texttt{eq:rhondef} a zero entry of the matrix leaves one surviving index.
+\end{proof}
+
+\begin{theorem}[$-I$ acting by $-1$ kills every $H^q$]\label{thm:lv3-tree-negone}
+  % backs [C] lem:centralminusone (H^q(Gamma; V_R) = 0 when 2 is a unit and n odd) on the tree complex, every q
+  \lean{GL2.L23.TreeF3.sigmaK, GL2.L23.TreeF3.kerD0EquivK, GL2.L23.TreeF3.finrank_H_zeroK, GL2.L23.TreeF3.finrank_H_succK,
+    GL2.L23.TreeF3.nrmA_sS_four_eq, GL2.L23.TreeF3.nrmA_sU_six_eq, GL2.L23.TreeF3.sigmaK_injective,
+    GL2.L23.TreeF3.finrank_H_eq_zero_of_negOne}
+  \leanok
+  \uses{thm:mp-tree-cochains}
+  Let $K$ be a field with $2\ne0$ and $A$ a finite-dimensional $K$-representation of $\mathrm{SL}_2(\mathbb Z)$ on which $-I$ acts by
+  $-1$.  Then $H^q(\mathrm{SL}_2(\mathbb Z);A)=0$ for every $q$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $\sigma=(1-S,1-U)$ is injective ($Sx=x$ gives $-x=S^2x=x$); $N_S=N_U=0$; the edge block is $2$ in even and $0$ in odd degree.  So
+  the odd differentials have rank $\dim A$ (onto the last factor), the even ones rank $2\dim A$, and every $H^q$ is $0$ by rank--nullity.
+\end{proof}
+
+\begin{theorem}[$\dim H^q$ for $-I$ trivial, characteristic $\ne2$]\label{thm:lv3-tree-triv}
+  % backs L23_master_plan.md v0.4 sec. 4.3 at ell = 3 (LV1_audit sec. 5.2, re-derived in LV2_predictions.md sec. C.0)
+  \lean{GL2.L23.TreeF3.prodSubEquiv, GL2.L23.TreeF3.finrank_range_prodMap, GL2.L23.TreeF3.finrank_range_add_of_sq_one,
+    GL2.L23.TreeF3.finrank_H_of_trivNegOne}
+  \leanok
+  \uses{thm:mp-tree-cochains}
+  Let $K$ be a field with $2\ne0$, $A$ finite-dimensional with $-I$ acting trivially, $s=\operatorname{rank}(1-S,1-U)$,
+  $r_S^+=\operatorname{rank}(1+S)$, $r_3=\operatorname{rank}(1+U+U^2)$, $r_U^-=\operatorname{rank}(1-U)$, $d=\dim A$.  Then
+  $\dim H^0=d-s$, $\dim H^1=2d-s-r_S^+-r_3$ and $\dim H^{q}=d-r_3-r_U^-$ for every $q\ge2$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $N_S=2(1+S)$, $N_U=2(1+U+U^2)$, the edge block is $0$ in even and $2$ in odd degree; the odd differentials have rank
+  $r_S^++r_3$, the even ones (degree $\ge2$) rank $r_S^-+r_U^-+d$, and $r_S^++r_S^-=d$ since $S^2=1$ and $2\ne0$.
+\end{proof}
+
+\begin{theorem}[$\mathrm{Sym}^n\mathbb F_3^2$: the cell theorems]\label{thm:lv3-v3-dims}
+  % backs per-cell [R] Thm C / D dimension values at ell = 3 (L23_master_plan.md v0.4 sec. 4.3); census columns h0..h3 at ell = 3
+  \lean{GL2.L23.TreeF3.mod3, GL2.L23.TreeF3.symRep3, GL2.L23.TreeF3.V3, GL2.L23.TreeF3.V3_negOne, GL2.L23.TreeF3.V3_negOne_even,
+    GL2.L23.TreeF3.V3_negOne_odd, GL2.L23.TreeF3.mod3_sS, GL2.L23.TreeF3.mod3_sU, GL2.L23.TreeF3.mod3_sU_sq,
+    GL2.L23.TreeF3.finrank_range_eq_rankF3, GL2.L23.TreeF3.finrank_range_sigma_V3, GL2.L23.TreeF3.finrank_range_PS_V3,
+    GL2.L23.TreeF3.finrank_range_N3_V3, GL2.L23.TreeF3.finrank_range_MU_V3, GL2.L23.TreeF3.V3_dims_odd,
+    GL2.L23.TreeF3.V3_dims_of_ranks}
+  \leanok
+  \uses{thm:lv3-rankf3, thm:lv3-f1, thm:lv3-tree-negone, thm:lv3-tree-triv}
+  Let $V_n=\mathrm{Sym}^n\mathbb F_3^2$, $g\mapsto\rho_n(g\bmod3)$.  For odd $n$, $\dim H^q(\Gamma;V_n)=0$ for every $q$.  For even $n$,
+  with the four \texttt{rankF3} values $s,p,r,u$ of the generators of \ref{thm:lv3-f1}: $\dim H^0=n+1-s$, $\dim H^1=2(n+1)-s-p-r$,
+  $\dim H^q=n+1-r-u$ for $q\ge2$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $\rho_n(-I)=(-1)^n$ (\texttt{rhoMat\_smul\_one}); \ref{thm:lv3-tree-negone}, \ref{thm:lv3-tree-triv}; the ranks by \ref{thm:lv3-rankf3}
+  and \ref{thm:lv3-f1}.
+\end{proof}
+
+\begin{theorem}[Certified cells at $\ell=3$: every even $n\le64$]\label{chk:lv3-cells}
+  % backs the census rows ell = 3, h0..h3 at even n <= 64 (C++ C_I records n <= 60, [R] closed forms); decide +kernel, no native_decide
+  \lean{GL2.L23.Cells.dims3_0, GL2.L23.Cells.dims3_2, GL2.L23.Cells.dims3_4, GL2.L23.Cells.dims3_6, GL2.L23.Cells.dims3_8,
+    GL2.L23.Cells.dims3_10, GL2.L23.Cells.dims3_12, GL2.L23.Cells.dims3_14, GL2.L23.Cells.dims3_16, GL2.L23.Cells.dims3_18,
+    GL2.L23.Cells.dims3_20, GL2.L23.Cells.dims3_22, GL2.L23.Cells.dims3_24, GL2.L23.Cells.dims3_26, GL2.L23.Cells.dims3_28,
+    GL2.L23.Cells.dims3_30, GL2.L23.Cells.dims3_32, GL2.L23.Cells.dims3_34, GL2.L23.Cells.dims3_36, GL2.L23.Cells.dims3_38,
+    GL2.L23.Cells.dims3_40, GL2.L23.Cells.dims3_42, GL2.L23.Cells.dims3_44, GL2.L23.Cells.dims3_46, GL2.L23.Cells.dims3_48,
+    GL2.L23.Cells.dims3_50, GL2.L23.Cells.dims3_52, GL2.L23.Cells.dims3_54, GL2.L23.Cells.dims3_56, GL2.L23.Cells.dims3_58,
+    GL2.L23.Cells.dims3_60, GL2.L23.Cells.dims3_62, GL2.L23.Cells.dims3_64}
+  \leanok
+  \uses{thm:lv3-v3-dims}
+  For each even $n\le64$ the kernel decides the four ranks, and \ref{thm:lv3-v3-dims} gives $\dim H^0$, $\dim H^1$ and $\dim H^q$, $q\ge2$,
+  of $\Gamma$ with coefficients in $\mathrm{Sym}^n\mathbb F_3^2$ as the stated numbers.
+  The even cells $n>64$ (every even $n\le700$) are in the library \texttt{L23Cells}, outside this census; evidence: the ledgers and replay logs in \texttt{docs/implementation/slot22/lv/}.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \texttt{decide +kernel} on \texttt{rankF3}, \texttt{V3\_dims\_of\_ranks}.
+\end{proof}
+
+\section{LG-1: exponent \texorpdfstring{$2$}{2} for odd \texorpdfstring{$n$}{n} in every degree (Theorem O(1))}
+
+\begin{theorem}[Degree $1$: the cocycle identity at a central element acting by $-1$]\label{thm:lg-exp2-deg1}
+  % backs [C] lem:centralminusone, degree 1, any group (L23_master_plan.md v0.4 sec. 1 Theorem O(1), "in degree 1 this is one line"); LG-1
+  \lean{GL2.L23.OddExp.cocycle_two_smul, GL2.L23.OddExp.H1_two_smul_eq_zero}
+  \leanok
+  Let $G$ be a group, $k$ a commutative ring, $A$ a $k[G]$-module and $z\in G$ central with $z\cdot a=-a$ for all $a\in A$.  Every
+  $1$-cocycle $f$ satisfies $2f(g)=(g-1)(-f(z))$; hence $2\cdot H^1(G;A)=0$ (mathlib's \texttt{groupCohomology}).
+\end{theorem}
+\begin{proof}
+  \leanok
+  $f(zg)=f(gz)$ expanded by the cocycle identity: $-f(g)+f(z)=g f(z)+f(g)$.
+\end{proof}
+
+\begin{theorem}[The chain-homotopy certificate on the tree complex]\label{thm:lg-exp2-tree}
+  % backs [C] lem:centralminusone (every q) and prop:badprimes(2) on the complex of rmk:treeconeres; L23_master_plan.md v0.4 sec. 4.3 row LG-1
+  \lean{GL2.L23.OddExp.NegOneActs, GL2.L23.OddExp.rS2, GL2.L23.OddExp.rU3, GL2.L23.OddExp.nrm4S, GL2.L23.OddExp.nrm6U,
+    GL2.L23.OddExp.nrm2S_dif, GL2.L23.OddExp.dif_nrm2S, GL2.L23.OddExp.nrm3U_dif, GL2.L23.OddExp.dif_nrm3U,
+    GL2.L23.OddExp.edgA_even_apply, GL2.L23.OddExp.edgA_odd_apply, GL2.L23.OddExp.treeDS_even_apply,
+    GL2.L23.OddExp.treeDS_odd_apply, GL2.L23.OddExp.hOne, GL2.L23.OddExp.hOdd, GL2.L23.OddExp.hEven, GL2.L23.OddExp.htH,
+    GL2.L23.OddExp.treeH, GL2.L23.OddExp.treeTwoNull, GL2.L23.OddExp.treeCoch_homologyMap_two}
+  \leanok
+  \uses{thm:mp-tree-cochains}
+  Let $k$ be a commutative ring and $A$ a $k[\mathrm{SL}_2(\mathbb Z)]$-module on which $-I$ acts by $-1$.  On the complex
+  $A^2\to A^3\to A^3\to\cdots$ of \ref{thm:mp-tree-cochains} the maps $h^1((x,y),z)=(N_2x,N_3y)$, $h^{2j+1}((x,y),z)=((N_2x,N_3y),0)$
+  ($j\ge1$) and $h^{2j}((x,y),z)=((0,0),-z)$ ($j\ge1$), $N_2=1+S$, $N_3=1+U+U^2$, satisfy $dh+hd=2\cdot\mathrm{id}$ in every degree.  Hence
+  $2\cdot\mathrm{id}$ induces $0$ on every $H^q$ of the complex.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $S^2=U^3=-I$ act by $-1$, so $N_S^{(4)}=N_U^{(6)}=0$, the edge block is $2$ in even and $0$ in odd degree, and
+  $N_2(1-S)=(1-S)N_2=1-S^2=2$, $N_3(1-U)=(1-U)N_3=1-U^3=2$; a direct check in degree $0$, $1$, and in even and odd degree $\ge2$
+  (the complex is $2$-periodic).  \texttt{Homotopy.nullHomotopy'} and \texttt{homologyMap\_eq}.
+\end{proof}
+
+\begin{theorem}[Theorem O(1): $2\cdot H^q(\mathrm{SL}_2(\mathbb Z);A)=0$ when $-I$ acts by $-1$]\label{thm:lg-exp2}
+  % backs [C] lem:centralminusone (2 H^q = 0 for every q, over every commutative ring; and its last clause: H^q = 0 when 2 is a unit, for a ring); LG-1
+  \lean{GL2.L23.OddExp.two_smul_eq_zero, GL2.L23.OddExp.add_self_eq_zero, GL2.L23.OddExp.eq_zero_of_two_unit}
+  \leanok
+  \uses{thm:lg-exp2-tree, thm:mp-tree-cochains}
+  Let $k$ be a commutative ring and $A$ a $k[\mathrm{SL}_2(\mathbb Z)]$-module on which $-I$ acts by $-1$.  Then $2x=0$ for every
+  $x\in H^q(\mathrm{SL}_2(\mathbb Z);A)$ and every $q\ge0$ (mathlib's \texttt{groupCohomology}); if $2\in k^\times$, every $H^q$ vanishes.
+\end{theorem}
+\begin{proof}
+  \leanok
+  Transport \ref{thm:lg-exp2-tree} along $H^q(\Gamma;A)\cong H^q(A^2\to A^3\to\cdots)$ (\ref{thm:mp-tree-cochains}).
+\end{proof}
+
+\begin{theorem}[Theorem O(1) for $\mathrm{Sym}^nk^2$, $n$ odd]\label{thm:lg-exp2-sym}
+  % backs [C] lem:centralminusone for X = Sym^n Z^2, Sym^n (Z/2^K)^2, Sym^n Z_(2)^2 (n odd) and prop:badprimes(2); LG-1
+  \lean{GL2.L23.OddExp.toMatK, GL2.L23.OddExp.symRepK, GL2.L23.OddExp.VK, GL2.L23.OddExp.toMatK_negOne,
+    GL2.L23.OddExp.VK_negOne, GL2.L23.OddExp.VK_negOneActs, GL2.L23.OddExp.sym_odd_two_smul_eq_zero}
+  \leanok
+  \uses{thm:lg-exp2}
+  For every commutative ring $k$ let $V_n(k)=\mathrm{Sym}^nk^2$ with $g\mapsto\rho_n(g)$ ([C] \texttt{def:rhon}).  Then
+  $\rho_n(-I)=(-1)^n$, and for odd $n$, $2\cdot H^q(\mathrm{SL}_2(\mathbb Z);V_n(k))=0$ for every $q$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \texttt{rho\_smul\_one} at $r=-1$, then \ref{thm:lg-exp2}.
+\end{proof}
+
+\section{LG-2: odd \texorpdfstring{$n$}{n}, the vanishing \texorpdfstring{$H^0$}{H0} and the mod-2 dimensions in every degree}
+
+\begin{theorem}[$H^0=0$ when $-I$ acts by $-1$ without $2$-torsion]\label{thm:lg-h0-zero}
+  % backs [C] prop:oddnltwo(1), the clause H^0(Gamma; V) = 0 (and (3)'s "H^0 = 0"), over every domain with 2 != 0; LG-2
+  \lean{GL2.L23.OddDims.H0_eq_zero_of_negOne, GL2.L23.OddDims.symN_two_torsion, GL2.L23.OddDims.sym_odd_H0_eq_zero}
+  \leanok
+  \uses{thm:lg-exp2-sym}
+  If $-I$ acts by $-1$ on $A$ and $A$ has no $2$-torsion, then $H^0(\mathrm{SL}_2(\mathbb Z);A)=0$.  In particular
+  $H^0(\mathrm{SL}_2(\mathbb Z);\mathrm{Sym}^nk^2)=0$ for odd $n$ and every domain $k$ with $2\ne0$ ($k=\mathbb Z$ included).
+\end{theorem}
+\begin{proof}
+  \leanok
+  An invariant $v$ has $v=(-I)v=-v$.
+\end{proof}
+
+\begin{theorem}[Characteristic $2$: $c_U=2h^0$ and $\dim H^{q+1}$ from $\dim(1+S)M$]\label{thm:lg-odd-f2-general}
+  % backs [C] prop:oddnltwo(2) (c_U = 2 h^0 and M^U = pi_U M, by its own argument) and the mod-2 shadow of (1),(3); LG-2
+  \lean{GL2.L23.OddDims.add_self_zero, GL2.L23.OddDims.nrm_eq_dif, GL2.L23.OddDims.rS_rS, GL2.L23.OddDims.rU_rU_rU,
+    GL2.L23.OddDims.nrmS_apply, GL2.L23.OddDims.nrmU_apply, GL2.L23.OddDims.nrmS_nrmS, GL2.L23.OddDims.range_piU,
+    GL2.L23.OddDims.range_psiA, GL2.L23.OddDims.ker_sigmaA, GL2.L23.OddDims.nrm_comm, GL2.L23.OddDims.piU_fix,
+    GL2.L23.OddDims.finrank_kerU_eq, GL2.L23.OddDims.finrank_H_succ_of_free}
+  \leanok
+  \uses{thm:lv-tree-f2-dims}
+  Let $M$ be a finite-dimensional $\mathbb F_2[\mathrm{SL}_2(\mathbb Z)]$-module on which $-I$ acts trivially, with
+  $M^S=(1+S)M$ and $SUS=U^2$ on $M$.  Then $(1+U+U^2)M=M^U$, $\dim M^U=2\dim H^0(\Gamma;M)$, and
+  $\dim H^{q+1}(\Gamma;M)+\dim(1+S)M=\dim M$ for every $q\ge0$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $\pi_U=1+U+U^2$ is idempotent onto $M^U$ and commutes with $N=1+S$; $N(M^U)=M^U\cap\ker N$ (onto by $M^S=NM$ and $\pi_U|_{M^U}=1$), so
+  rank--nullity for $N|_{M^U}$ gives $\dim M^U=2\dim(M^U\cap M^S)=2h^0$.  Then $\operatorname{rank}\psi=\dim(NM+\pi_UM)$ and
+  \ref{thm:lv-tree-f2-dims}.  No Dickson theorem and no eigenvalue count is used.
+\end{proof}
+
+\begin{theorem}[Odd $n$: $\dim_{\mathbb F_2}H^q(\Gamma;\mathrm{Sym}^n\mathbb F_2^2)=(n+1)/2$ for every $q\ge1$]\label{thm:lg-odd-f2-dims}
+  % backs [C] prop:oddnltwo(2) (c_U = 2 h^0, dim M^S = (n+1)/2) and the value dim H^q(Gamma; M) = (n+1)/2, q >= 1, for EVERY odd n; LG-2
+  \lean{GL2.L23.OddDims.V2_S_apply, GL2.L23.OddDims.V2_free_S, GL2.L23.OddDims.mS2_mU2_mS2, GL2.L23.OddDims.V2_conj,
+    GL2.L23.OddDims.V2_finrank_rangeS, GL2.L23.OddDims.V2_odd_dims, GL2.L23.OddDims.V2_odd_cU}
+  \leanok
+  \uses{thm:lg-odd-f2-general, thm:lv-v2-dims, thm:lv-f1}
+  Let $n$ be odd and $M=\mathrm{Sym}^n\mathbb F_2^2$.  Then $\rho_n(S)$ reverses the monomial basis, $M^S=(1+S)M$ has dimension $(n+1)/2$,
+  $SUS=U^2$, $\dim M^U=2\dim H^0(\Gamma;M)$, and $\dim H^{q}(\Gamma;M)=(n+1)/2$ for every $q\ge1$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{thm:lv-f1} for the entries of $\rho_n(S)\bmod2$; $\bar S\bar U\bar S=\bar U^2$ in $\mathrm{SL}_2(\mathbb F_2)$; \ref{thm:lg-odd-f2-general}.
+\end{proof}
+
+\begin{theorem}[The closed form of $h^0$ at the certified odd cells]\label{chk:lg-h0-cells}
+  % backs [C] prop:oddnltwo(2), h^0 = floor((floor(n/3)+1)/2), per cell (odd n <= 63, n = 101, 129, 255); the general form needs Dickson / the F_4 count; LG-2
+  \lean{GL2.L23.OddDimsCells.h0_1, GL2.L23.OddDimsCells.h0_3, GL2.L23.OddDimsCells.h0_5, GL2.L23.OddDimsCells.h0_7,
+    GL2.L23.OddDimsCells.h0_9, GL2.L23.OddDimsCells.h0_11, GL2.L23.OddDimsCells.h0_13, GL2.L23.OddDimsCells.h0_15,
+    GL2.L23.OddDimsCells.h0_17, GL2.L23.OddDimsCells.h0_19, GL2.L23.OddDimsCells.h0_21, GL2.L23.OddDimsCells.h0_23,
+    GL2.L23.OddDimsCells.h0_25, GL2.L23.OddDimsCells.h0_27, GL2.L23.OddDimsCells.h0_29, GL2.L23.OddDimsCells.h0_31,
+    GL2.L23.OddDimsCells.h0_33, GL2.L23.OddDimsCells.h0_35, GL2.L23.OddDimsCells.h0_37, GL2.L23.OddDimsCells.h0_39,
+    GL2.L23.OddDimsCells.h0_41, GL2.L23.OddDimsCells.h0_43, GL2.L23.OddDimsCells.h0_45, GL2.L23.OddDimsCells.h0_47,
+    GL2.L23.OddDimsCells.h0_49, GL2.L23.OddDimsCells.h0_51, GL2.L23.OddDimsCells.h0_53, GL2.L23.OddDimsCells.h0_55,
+    GL2.L23.OddDimsCells.h0_57, GL2.L23.OddDimsCells.h0_59, GL2.L23.OddDimsCells.h0_61, GL2.L23.OddDimsCells.h0_63,
+    GL2.L23.OddDimsCells.h0_101, GL2.L23.OddDimsCells.h0_129, GL2.L23.OddDimsCells.h0_255}
+  \leanok
+  \uses{chk:lv-cells, thm:lg-odd-f2-dims}
+  For each listed odd $n$, $\dim_{\mathbb F_2}H^0(\Gamma;\mathrm{Sym}^n\mathbb F_2^2)=\lfloor(\lfloor n/3\rfloor+1)/2\rfloor$; with
+  \ref{thm:lg-odd-f2-dims}, $\dim M^U=2\lfloor(\lfloor n/3\rfloor+1)/2\rfloor$ there.  For general odd $n$ the closed form is not formalised
+  (it needs the eigenvalue count of $U$ over $\mathbb F_4$ or Dickson's theorem for $\mathrm{GL}_2(\mathbb F_2)$).
+\end{theorem}
+\begin{proof}
+  \leanok
+  The values of \ref{chk:lv-cells}, compared with the formula by \texttt{norm\_num}.
+\end{proof}
+
+\section{LG-3: the splitting \texorpdfstring{$M=M_0\oplus M_1$}{M = M0 + M1} and the dimensions of [R] Theorem A}
+
+\begin{theorem}[The splitting by an element of order $3$ when $3$ is a unit]\label{thm:lg-split-general}
+  % backs L23_master_plan.md v0.4 sec. 4.3 row "layer splitting M = M_0 + M_1" (general for the module splitting, |A_3| = 3 invertible); [R] Theorem A, first sentence; LG-3
+  \lean{GL2.L23.Split.isCompl_ker_range, GL2.L23.Split.ker_range_stable}
+  \leanok
+  Let $k$ be a commutative ring with $3\in k^\times$, $M$ a $k$-module and $u\in\mathrm{End}_k(M)$ with $u^3=1$.  Then
+  $M=\ker(u-1)\oplus\operatorname{im}(u-1)$, and every $g\in\mathrm{End}_k(M)$ with $gu=ug$ or $gu=u^2g$ preserves both summands.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $e=\tfrac13(1+u+u^2)$ is an idempotent with image in $\ker(u-1)$ and $1-e=(u-1)\circ(-\tfrac13(2+u))$; an element of the
+  intersection has $3x=(1+u+u^2)x=(1+u+u^2)(u-1)y=0$.  For $gu=u^2g$: $u^2(gx)=gx$ gives $u(gx)=u^3(gx)=gx$, and
+  $g(u-1)y=(u-1)(u+1)gy$.
+\end{proof}
+
+\begin{theorem}[$\mathrm{Sym}^n\mathbb F_2^2=M_0\oplus M_1$, stable under $\mathrm{GL}_2(\mathbb F_2)$]\label{thm:lg-split-v2}
+  % backs [R] Theorem A ("M = M_0 + M_1 with M_0 = M^{U^2}, M_1 = (U^2 - 1)M, canonically and stably under every odd-determinant integer matrix"); L23_master_plan.md v0.4 sec. 4.3; LG-3
+  \lean{GL2.L23.Split.gl2F2_normalises, GL2.L23.Split.uV2, GL2.L23.Split.uV2_eq, GL2.L23.Split.uV2_cube,
+    GL2.L23.Split.three_unit, GL2.L23.Split.M0, GL2.L23.Split.M1, GL2.L23.Split.V2_split,
+    GL2.L23.Split.V2_matrix_normalises, GL2.L23.Split.V2_M0_stable, GL2.L23.Split.V2_M1_stable, GL2.L23.Split.mod2_det,
+    GL2.L23.Split.V2_M0_stable_SL, GL2.L23.Split.V2_M1_stable_SL}
+  \leanok
+  \uses{thm:lg-split-general, thm:lv-v2-dims}
+  Let $M=\mathrm{Sym}^n\mathbb F_2^2$ with $g\mapsto\rho_n(g\bmod2)$, $u=\rho_n(\bar U^2)$, $M_0=\ker(u-1)=M^{U^2}$ and $M_1=(u-1)M$.  Then
+  $M=M_0\oplus M_1$ for every $n$, and $\rho_n(A)$ preserves $M_0$ and $M_1$ for every $A\in\mathrm{GL}_2(\mathbb F_2)$; in particular
+  $M_0$, $M_1$ are sub-representations of $\mathrm{SL}_2(\mathbb Z)$.  (In prose, not claimed by the \texttt{\textbackslash lean} list: an integer
+  matrix of odd determinant acts on $M$ by $\rho_n$ of its reduction, which lies in $\mathrm{GL}_2(\mathbb F_2)$, so $M_0$, $M_1$ are
+  stable under it.)
+\end{theorem}
+\begin{proof}
+  \leanok
+  $\langle\bar U^2\rangle=A_3$ is normal in $\mathrm{GL}_2(\mathbb F_2)\cong S_3$ (a finite check over the $16$ matrices,
+  \texttt{decide}); $\bar U^6=1$ from $U^3=-I$; \ref{thm:lg-split-general} with $3=1\in\mathbb F_2^\times$.
+\end{proof}
+
+\begin{theorem}[Characteristic $2$: $\dim H^{q+1}+\dim(1+S)M=\dim M$ without freeness]\label{thm:lg-f2-general}
+  % backs [R] Theorem A, the dimension clause h^q = t + i + m for q >= 1, by a route that does not use the atoms; generalises thm:lg-odd-f2-general (no hypothesis M^S = (1+S)M); LG-3
+  \lean{GL2.L23.Split.range_inf_eq_map, GL2.L23.Split.finrank_map_add_H0, GL2.L23.Split.finrank_H_succ_general}
+  \leanok
+  \uses{thm:lg-odd-f2-general, thm:lv-tree-f2-dims}
+  Let $M$ be a finite-dimensional $\mathbb F_2[\mathrm{SL}_2(\mathbb Z)]$-module on which $-I$ acts trivially and $SUS=U^2$ on $M$
+  (with $-I$ trivial this says exactly that $\rho$ factors through $\mathrm{SL}_2(\mathbb Z)\to\mathrm{GL}_2(\mathbb F_2)\cong S_3$: a theorem
+  about $\mathbb F_2[\mathrm{GL}_2(\mathbb F_2)]$-modules, the modules of [R] Theorem A).  Then
+  $(1+S)M\cap M^U=(1+S)(M^U)$, $\dim(1+S)(M^U)+\dim H^0(\Gamma;M)=\dim M^U$, and
+  $\dim H^{q+1}(\Gamma;M)+\dim(1+S)M=\dim M$ for every $q\ge0$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $N=1+S$ commutes with $\pi_U=1+U+U^2$, which fixes $M^U$ and has image $M^U$: if $Nv\in M^U$ then $Nv=\pi_UNv=N\pi_Uv$.  The kernel of
+  $N|_{M^U}$ is $M^U\cap M^S=\ker\sigma$, of dimension $h^0$.  Then $\operatorname{rank}\psi=\dim NM+\dim M^U-\dim(NM\cap M^U)=\dim NM+h^0$
+  and \ref{thm:lv-tree-f2-dims}.
+\end{proof}
+
+\begin{theorem}[{[R]} Theorem A: $\dim_{\mathbb F_2}H^q(\Gamma;\mathrm{Sym}^n\mathbb F_2^2)=\lfloor n/2\rfloor+1$, every $n$, every $q\ge1$]\label{thm:lg-thmA-dims}
+  % backs [R] Theorem A's consequence "h^q = floor(n/2) + 1 for every q >= 1 and every n" (Q2); L23_master_plan.md v0.4 sec. 4.3 row "[R] Thm A, C dimension closed forms" (Thm A: general); LG-3
+  \lean{GL2.L23.Split.mem_kerN_iff, GL2.L23.Split.kerNEquiv, GL2.L23.Split.V2_finrank_rangeS_all, GL2.L23.Split.V2_dims_all}
+  \leanok
+  \uses{thm:lg-f2-general, thm:lg-odd-f2-dims}
+  For every $n\ge0$ and every $q\ge0$: $\dim_{\mathbb F_2}(1+S)\mathrm{Sym}^n\mathbb F_2^2=\lceil n/2\rceil$ and
+  $\dim_{\mathbb F_2}H^{q+1}(\mathrm{SL}_2(\mathbb Z);\mathrm{Sym}^n\mathbb F_2^2)=\lfloor n/2\rfloor+1$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $\rho_n(S)\bmod 2$ reverses the monomials (\ref{thm:lg-odd-f2-dims}); $\ker(1+S)$ is the reversal-symmetric vectors, determined by
+  their first $\lfloor n/2\rfloor+1$ coordinates; rank--nullity and \ref{thm:lg-f2-general}.  The atoms are not used.  [R] Theorem C
+  ($\ell=3$, $q\ge2$) is \ref{thm:lg-c3-dims} (LG-C3).
+\end{proof}
+
+\section{LG-4: the \texorpdfstring{$c_p$}{c\_p} lemma}
+
+\begin{theorem}[An eigenvector with a unit coordinate]\label{thm:lg-cp-core}
+  % backs [Rv] (census_l23_plan_v02_review.md) "c_p is derived, not independent (repair 2)", the core step; L23_master_plan.md v0.4 sec. 4.3 row c_p; LG-4
+  \lean{GL2.L23.Cp.ZeroMod, GL2.L23.Cp.zeroMod_mul_left, GL2.L23.Cp.zeroMod_mul_right, GL2.L23.Cp.zeroMod_sub_iff}
+  \leanok
+  Let $R$ be a commutative ring, $T\in M_d(R)$, $e\in R^d$ with $Te=\lambda e$ and $e_{i_0}\in R^\times$ for some $i_0$.  For all $\mu,a\in R$:
+  $T-\mu\equiv0\bmod a$ (entrywise) if and only if $a\mid\lambda-\mu$ and $T-\lambda\equiv0\bmod a$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $(T-\mu)e=(\lambda-\mu)e$; read off coordinate $i_0$ and divide by the unit $e_{i_0}$; then $T-\lambda=(T-\mu)-(\lambda-\mu)$.
+\end{proof}
+
+\begin{theorem}[The minimal elementary divisor is the content]\label{thm:lg-cp-smith}
+  % backs L23_master_plan.md v0.4 sec. 4.3 row c_p ("a lemma on a matrix over a DVR ... (Smith normal form over a PID)") and [Rv] repair 1 (kernel divisors are infinite); LG-4
+  \lean{GL2.L23.Cp.zeroMod_iff_of_decomp, GL2.L23.Cp.zeroMod_diagonal_iff, GL2.L23.Cp.enat_le_of_forall,
+    GL2.L23.Cp.enat_eq_of_forall, GL2.L23.Cp.content, GL2.L23.Cp.le_content_iff, GL2.L23.Cp.SmithDecomp,
+    GL2.L23.Cp.SmithDecomp.edMin, GL2.L23.Cp.SmithDecomp.le_edMin_iff, GL2.L23.Cp.SmithDecomp.edMin_eq_content,
+    GL2.L23.Cp.SmithDecomp.edMin_eq}
+  \leanok
+  \uses{thm:lg-cp-core}
+  Let $R$ be a commutative ring, $\varpi\in R$, and $A=P\,\mathrm{diag}(d)\,Q$ with $P,Q$ invertible.  Then $A\equiv0\bmod\varpi^m$ iff
+  $\varpi^m\mid d_i$ for every $i$; hence $\min_iv_\varpi(d_i)=\min_{i,j}v_\varpi(A_{ij})$ in $\mathbb N\cup\{\infty\}$ ($v_\varpi(0)=\infty$,
+  mathlib's \texttt{emultiplicity}), independently of the decomposition.  (The converse ``$v_\varpi(d_i)=\infty\Rightarrow d_i=0$'' needs
+  $\bigcap_m\varpi^mR=0$, true over $\mathbb Z_\ell$ and $\mathbb Z/\ell^K$; nothing here uses it.)
+\end{theorem}
+\begin{proof}
+  \leanok
+  Entrywise divisibility is preserved by multiplication on either side; $D=P^{-1}AQ^{-1}$.  Existence of a decomposition (Smith
+  normal form) is not needed for the statement.
+\end{proof}
+
+\begin{theorem}[The $c_p$ formula]\label{thm:lg-cp}
+  % backs [Rv] sec. 1.2 "c_p = min(v_ell(p^n - 1), min ed_eis_p)" (PROVED there; here general); L23_master_plan.md v0.4 sec. 4.3 row c_p; LG-4
+  \lean{GL2.L23.Cp.cp_eq_min, GL2.L23.Cp.emultiplicity_unit_mul, GL2.L23.Cp.cp_formula, GL2.L23.Cp.cp_formula_content}
+  \leanok
+  \uses{thm:lg-cp-core, thm:lg-cp-smith}
+  Let $R$ be a commutative ring, $\varpi\in R$, $p\in R^\times$, $T\in M_d(R)$ with $Te=(1+p^{n+1})e$ and $e$ primitive ($e_{i_0}\in R^\times$).
+  Then for Smith decompositions of $T-(1+p)$ and $T-(1+p^{n+1})$:
+  $\min\mathrm{ed}(T-(1+p))=\min\bigl(v_\varpi(p^n-1),\,\min\mathrm{ed}(T-(1+p^{n+1}))\bigr)$, and the same for the contents.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{thm:lg-cp-core} with $\lambda=1+p^{n+1}$, $\mu=1+p$, $\lambda-\mu=p(p^n-1)$; \ref{thm:lg-cp-smith}.  The identification of $T$
+  with $T_p$ on $\Lambda^1$ and of $e$ with the primitive Eisenstein vector is per cell (LH).
+\end{proof}
+
+\section{LG-C3: {[R]} Theorem C at \texorpdfstring{$\ell=3$}{l = 3}, every even \texorpdfstring{$n$}{n}}
+
+\begin{theorem}[The ranks of $D$, $D^2$ for a unipotent element on $\mathrm{Sym}^n\mathbb F_3^2$]\label{thm:lg-c3-jordan}
+  % backs [R] Theorem C(1), first sentence (the Jordan type J_3^{floor(n/3)} + J_{(n mod 3)+1}, the free basis 1, y, y^2), for C, a generator of a Sylow 3-subgroup of GL_2(F_3); u = U^2 is conjugate to C^{+-1}; the ranks only, D^3 = 0 is prose (LG-C3 audit F2, F3); L23_master_plan.md sec. 4.3 row "[R] Thm A, C dimension closed forms" (Thm C: general); LG-C3
+  \lean{GL2.L23.Jordan3.mC, GL2.L23.Jordan3.Nq, GL2.L23.Jordan3.subst_Nq, GL2.L23.Jordan3.beta, GL2.L23.Jordan3.cPoly,
+    GL2.L23.Jordan3.subst_cPoly_zero, GL2.L23.Jordan3.subst_cPoly_succ, GL2.L23.Jordan3.cPoly_hom, GL2.L23.Jordan3.cS,
+    GL2.L23.Jordan3.Dop, GL2.L23.Jordan3.Dop_cS, GL2.L23.Jordan3.Dop_sq_cS, GL2.L23.Jordan3.dehom,
+    GL2.L23.Jordan3.dehom_cPoly_deg, GL2.L23.Jordan3.sum_smul_eq_zero, GL2.L23.Jordan3.Psi, GL2.L23.Jordan3.Psi_injective,
+    GL2.L23.Jordan3.Dc, GL2.L23.Jordan3.Jop, GL2.L23.Jordan3.Jop_single, GL2.L23.Jordan3.finrank_range_Jop,
+    GL2.L23.Jordan3.comm1, GL2.L23.Jordan3.comm2, GL2.L23.Jordan3.finrank_range_Dc, GL2.L23.Jordan3.finrank_range_Dc_sq}
+  \leanok
+  Let $C=\begin{pmatrix}1&-1\\0&1\end{pmatrix}\in\mathrm{GL}_2(\mathbb F_3)$ ($x\mapsto x$, $y\mapsto y-x$) and $D=\rho_n(C)-1$ on
+  $\mathrm{Sym}^n\mathbb F_3^2$.  For every $n\ge0$: $\operatorname{rank}D=n-\lfloor n/3\rfloor$ and $\operatorname{rank}D^2=\lfloor(n+1)/3\rfloor$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  [R]'s free-basis argument, made explicit.  $N=y^3-x^2y$ is $C$-invariant in characteristic $3$.  With $\beta_0=1$, $\beta_1=-(y+x)$,
+  $\beta_2=-y^2$, the forms $c_j=x^{n-j}\beta_{j\bmod3}N^{\lfloor j/3\rfloor}$ ($0\le j\le n$) satisfy $Dc_j=c_{j-1}$ for $3\nmid j$ and
+  $Dc_j=0$ for $3\mid j$.  They are a basis: at $x=1$, $c_j$ becomes a polynomial in $y$ of degree exactly $j$, and polynomials of
+  distinct exact degrees are independent.  In this basis $D$ and $D^2$ are partial shifts, of ranks
+  $\#\{k<n:k\not\equiv2\}=n-\lfloor n/3\rfloor$ and $\#\{k<n-1:k\equiv0\}=\lfloor(n+1)/3\rfloor$ (mod $3$).
+  \emph{Prose only, not formalised:} $D^3=0$ (in the basis, $D^3c_j=0$ for every $j$, since $D^2c_j=c_{j-2}$ only when
+  $j\equiv2$, and then $3\mid j-2$); with it the two ranks give the Jordan type $J_3^{\lfloor n/3\rfloor}\oplus J_{(n\bmod3)+1}$ of
+  $\rho_n(C)$.
+\end{proof}
+
+\begin{theorem}[{{[R]} Theorem C(1): $\dim_{\mathbb F_3}H^q(\Gamma;\mathrm{Sym}^n\mathbb F_3^2)=[n\equiv0,4\bmod6]$, every even $n$, every $q\ge2$}]\label{thm:lg-c3-dims}
+  % backs [R] Theorem C(1) "h^q = [n = 0, 4 mod 6] for q >= 2" (Q3) and [C] prop:ellthreeclosed(2)'s value on Sym^n F_3^2; census columns h2, h3 at ell = 3, every even n; L23_master_plan.md sec. 4.3; LG-C3
+  \lean{GL2.L23.Jordan3.mQ, GL2.L23.Jordan3.mQ_mul_self, GL2.L23.Jordan3.mQCQ, GL2.L23.Jordan3.LU_eq,
+    GL2.L23.Jordan3.finrank_range_DU, GL2.L23.Jordan3.finrank_range_DU_sq, GL2.L23.Jordan3.char3_sq,
+    GL2.L23.Jordan3.finrank_range_difA_V3, GL2.L23.Jordan3.finrank_range_nrmA_V3, GL2.L23.Jordan3.V3_dims_ge2,
+    GL2.L23.Jordan3.V3_dims_thmC}
+  \leanok
+  \uses{thm:lg-c3-jordan, thm:lv3-v3-dims, thm:lv3-tree-triv}
+  For every even $n\ge0$ and every $q\ge0$:
+  $\dim_{\mathbb F_3}H^{q+2}(\mathrm{SL}_2(\mathbb Z);\mathrm{Sym}^n\mathbb F_3^2)=[n\not\equiv2\bmod3]=[n\equiv0,4\bmod6]$.
+  (For odd $n$ every $H^q$ vanishes, \ref{thm:lv3-v3-dims}.)  This agrees with every cell of \ref{chk:lv3-cells}.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $U\equiv\begin{pmatrix}0&-1\\1&1\end{pmatrix}$ and $QCQ=-U$, $Q^2=1$, for $Q=\begin{pmatrix}1&0\\1&-1\end{pmatrix}$.  For even $n$, $\rho_n(-I)=1$,
+  so $\rho_n(U)-1$ is conjugate to $D$.  In characteristic $3$, $1+U+U^2=(U-1)^2$.  By \ref{thm:lv3-tree-triv},
+  $\dim H^{q+2}=(n+1)-\operatorname{rank}(1+U+U^2)-\operatorname{rank}(1-U)=(n+1)-\lfloor(n+1)/3\rfloor-(n-\lfloor n/3\rfloor)$, and this is
+  $[n\not\equiv2\bmod3]$.  Not covered: $h^0$, $h^1$ (no closed form is claimed; per cell, \ref{chk:lv3-cells}); [R] C(1)'s Bredon
+  clauses ([C] \texttt{prop:ellthreeclosed}(3) is not formalised); C(2)--(5).
+\end{proof}
+
+\section{LV (slot 23): elementary divisors over \texorpdfstring{$\mathbb Z/\ell^K$}{Z/l^K}; \texorpdfstring{$h^0$}{h0} at \texorpdfstring{$\ell=2$}{l = 2} from one rank}
+
+\begin{theorem}[\texttt{smithPK} computes the elementary divisors over $\mathbb Z/\ell^K$]\label{thm:lv-smithpk}
+  % backs L23_master_plan.md v0.4 sec. 4.2(2) (smith2k / smith3k, a verified algorithm, no witness data); LV_plan_and_predictions.md
+  \lean{GL2.L23.SmithPK.fld, GL2.L23.SmithPK.rep, GL2.L23.SmithPK.powMod, GL2.L23.SmithPK.firstNZ, GL2.L23.SmithPK.lvC,
+    GL2.L23.SmithPK.tst, GL2.L23.SmithPK.elim, GL2.L23.SmithPK.redRow, GL2.L23.SmithPK.level, GL2.L23.SmithPK.smithPK,
+    GL2.L23.SmithPK.lenOf, GL2.L23.SmithPK.sig, GL2.L23.SmithPK.fld_add_mul, GL2.L23.SmithPK.fld_redRow,
+    GL2.L23.SmithPK.firstNZ_spec, GL2.L23.SmithPK.mul_powMod_totient, GL2.L23.SmithPK.exact_div_test,
+    GL2.L23.SmithPK.tst_spec, GL2.L23.SmithPK.vecK, GL2.L23.SmithPK.spanK, GL2.L23.SmithPK.Ctx, GL2.L23.SmithPK.RowOK,
+    GL2.L23.SmithPK.PivOK, GL2.L23.SmithPK.pivot_facts, GL2.L23.SmithPK.elim_step, GL2.L23.SmithPK.level_spec,
+    GL2.L23.SmithPK.levels_spec, GL2.L23.SmithPK.smithPK_spec, GL2.L23.SmithPK.Ech, GL2.L23.SmithPK.pivOK_ech,
+    GL2.L23.SmithPK.card_span_pivot, GL2.L23.SmithPK.card_sup_of_inf_eq_bot, GL2.L23.SmithPK.card_spanK_ech,
+    GL2.L23.SmithPK.smithPK_card, GL2.L23.SmithPK.card_of_sig}
+  \leanok
+  Let $\ell$ be prime, $K\ge1$, $N=\ell^K$, and let $R$ rows of $w$ entries in $\{0,\dots,N-1\}$ be packed in fields of $2H$ bits with
+  $N+RN^2<2^H$.  The pivots $(v_k,j_k,p_k)$ returned by \texttt{smithPK} satisfy: the span over $\mathbb Z/N$ of the rows equals the
+  span of the $p_k$; the $p_k$ form an echelon family ($p_k$ divisible by $\ell^{v_k}$, of valuation exactly $v_k$ at column $j_k$, every
+  later pivot row zero there); and the span has $\ell^{\sum_k(K-v_k)}$ elements.  (That the multiset $\{v_k\}$ is an invariant of the
+  span, i.e.\ the elementary divisors, is not stated here; only the order is.)
+\end{theorem}
+\begin{proof}
+  \leanok
+  A row operation on packed rows is the row operation on the fields while no field overflows; the lazily unreduced fields stay
+  below $N+RN^2$.  The four-operation row test reads ``$\ell^{v+1}$ divides the field'' (low bits at $\ell=2$; the exact-division
+  test $m\mid f\iff fc\bmod2^H\le\lfloor(2^H-1)/m\rfloor$, $mc\equiv1$, at odd $\ell$); $u^{-1}=u^{\varphi(N)-1}$ (Euler).  Invariants per
+  level $v$: bounds, divisibility by $\ell^v$ (by $\ell^{v+1}$ for the rows already tested), zero at every pivot column, the span.  The
+  span of an echelon family is the direct sum of the cyclic modules $\mathbb Z/N\cdot p_k\cong\ell^{v_k}\mathbb Z/N$.
+\end{proof}
+
+\begin{theorem}[F1 over $\mathbb Z/N$: the packed columns are $\rho_n$ and the tree differentials]\label{thm:lv-smith-f1}
+  % backs the LV gate F1 for the Smith lane ([C] eq:rhondef over ZMod N; the analogue of thm:lv-f1, thm:lv3-f1)
+  \lean{GL2.L23.SmithPK.qrowK, GL2.L23.SmithPK.entN_qrowK, GL2.L23.SmithPK.mSN, GL2.L23.SmithPK.mUN, GL2.L23.SmithPK.mUUN,
+    GL2.L23.SmithPK.entN_colSK, GL2.L23.SmithPK.entN_colUK, GL2.L23.SmithPK.entN_colUUK, GL2.L23.SmithPK.vecN_colSK,
+    GL2.L23.SmithPK.vecN_colUK, GL2.L23.SmithPK.vecN_colUUK, GL2.L23.SmithPK.Fits, GL2.L23.SmithPK.entN_colN3K,
+    GL2.L23.SmithPK.entN_colD0x, GL2.L23.SmithPK.entN_colD0y, GL2.L23.SmithPK.entN_colD1x, GL2.L23.SmithPK.entN_colD1y,
+    GL2.L23.SmithPK.entN_colD2z, GL2.L23.SmithPK.colsD_reduced}
+  \leanok
+  \uses{chk:rhoexec, thm:mp-tree-cochains}
+  For every $n$, $j\le n$ and $N$ (fields of width $F$ with $16N^3<2^F$), the packed column $j$ of $\rho_n(S)$, $\rho_n(U)$,
+  $\rho_n(U^2)$ is column $j$ of \texttt{GL2.rhoMat} over $\mathbb Z/N$ ([C] \texttt{eq:rhondef}); and the packed columns of the cell
+  matrices are, entry by entry, the explicit block formulas $((1-S)u_j,0,u_j)$, $(0,(1-U)u_j,-u_j)$, $(2(1+S)u_j,0,(1+S)u_j)$,
+  $(0,2N_3u_j,-N_3u_j)$, $(0,0,-2u_j)$ in $\rho_n$ over $\mathbb Z/N$.  These are, by hand, the blocks of \texttt{treeD0},
+  \texttt{treeDS 0}, \texttt{treeDS 1} for $n$ even ($N_S=2(1+S)$, $N_U=2(1+U+U^2)$, $\texttt{edgA}\,0=0$, $\texttt{edgA}\,1=2$);
+  that identification is not proved here (\ref{rmk:mp-open}~(10)(a)).
+\end{theorem}
+\begin{proof}
+  \leanok
+  $Q_m=(z-1)^m$ by the binomial recursion $\binom m{t+1}(t+1)=\binom mt(m-t)$; the double sum of \texttt{eq:rhondef} as in
+  \ref{thm:lv3-f1}; fields add without overflow.
+\end{proof}
+
+\begin{theorem}[The Smith cell theorem]\label{thm:lv-smith-cell}
+  % backs the per-cell l-adic span sizes of d^q (q = 0, 1, 2) on Sym^n (Z/l^K)^2, n even (LV_plan_and_predictions.md); not ladic_type itself
+  \lean{GL2.L23.SmithPK.cellPiv, GL2.L23.SmithPK.cell_card, GL2.L23.SmithPK.cell_card0, GL2.L23.SmithPK.cell_card1,
+    GL2.L23.SmithPK.cell_card2}
+  \leanok
+  \uses{thm:lv-smithpk, thm:lv-smith-f1}
+  If the kernel decides \texttt{sig K (cellPiv l K H n q) = (s, cs)}, the span over $\mathbb Z/\ell^K$ of the cell columns of $d^q$
+  ($q=0,1,2$; the block formulas of \ref{thm:lv-smith-f1}, the columns of the tree differentials by \ref{thm:lv-smith-tree}) has
+  $\ell^s$ elements.  The counts \texttt{cs} are certified by \ref{thm:lv-smith-type}.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{thm:lv-smithpk} with the rows of \ref{thm:lv-smith-f1}, which are reduced.
+\end{proof}
+
+\begin{theorem}[Certified Smith cells: $\ell\in\{2,3\}$, every even $n\le30$, $d^0,d^1,d^2$]\label{chk:lv-smith-cells}
+  % backs the per-cell spans of d^q over Z/l^K (K = 10 at l = 2, K = 6 at l = 3); decide +kernel, no native_decide; even n <= 150 in L23Cells
+  \lean{GL2.L23.Cells.card2_0_0, GL2.L23.Cells.card2_0_1, GL2.L23.Cells.card2_0_2, GL2.L23.Cells.card2_2_0,
+    GL2.L23.Cells.card2_2_1, GL2.L23.Cells.card2_2_2, GL2.L23.Cells.card2_4_0, GL2.L23.Cells.card2_4_1,
+    GL2.L23.Cells.card2_4_2, GL2.L23.Cells.card2_6_0, GL2.L23.Cells.card2_6_1, GL2.L23.Cells.card2_6_2,
+    GL2.L23.Cells.card2_8_0, GL2.L23.Cells.card2_8_1, GL2.L23.Cells.card2_8_2, GL2.L23.Cells.card2_10_0,
+    GL2.L23.Cells.card2_10_1, GL2.L23.Cells.card2_10_2, GL2.L23.Cells.card2_12_0, GL2.L23.Cells.card2_12_1,
+    GL2.L23.Cells.card2_12_2, GL2.L23.Cells.card2_14_0, GL2.L23.Cells.card2_14_1, GL2.L23.Cells.card2_14_2,
+    GL2.L23.Cells.card2_16_0, GL2.L23.Cells.card2_16_1, GL2.L23.Cells.card2_16_2, GL2.L23.Cells.card2_18_0,
+    GL2.L23.Cells.card2_18_1, GL2.L23.Cells.card2_18_2, GL2.L23.Cells.card2_20_0, GL2.L23.Cells.card2_20_1,
+    GL2.L23.Cells.card2_20_2, GL2.L23.Cells.card2_22_0, GL2.L23.Cells.card2_22_1, GL2.L23.Cells.card2_22_2,
+    GL2.L23.Cells.card2_24_0, GL2.L23.Cells.card2_24_1, GL2.L23.Cells.card2_24_2, GL2.L23.Cells.card2_26_0,
+    GL2.L23.Cells.card2_26_1, GL2.L23.Cells.card2_26_2, GL2.L23.Cells.card2_28_0, GL2.L23.Cells.card2_28_1,
+    GL2.L23.Cells.card2_28_2, GL2.L23.Cells.card2_30_0, GL2.L23.Cells.card2_30_1, GL2.L23.Cells.card2_30_2,
+    GL2.L23.Cells.card3_0_0, GL2.L23.Cells.card3_0_1, GL2.L23.Cells.card3_0_2, GL2.L23.Cells.card3_2_0,
+    GL2.L23.Cells.card3_2_1, GL2.L23.Cells.card3_2_2, GL2.L23.Cells.card3_4_0, GL2.L23.Cells.card3_4_1,
+    GL2.L23.Cells.card3_4_2, GL2.L23.Cells.card3_6_0, GL2.L23.Cells.card3_6_1, GL2.L23.Cells.card3_6_2,
+    GL2.L23.Cells.card3_8_0, GL2.L23.Cells.card3_8_1, GL2.L23.Cells.card3_8_2, GL2.L23.Cells.card3_10_0,
+    GL2.L23.Cells.card3_10_1, GL2.L23.Cells.card3_10_2, GL2.L23.Cells.card3_12_0, GL2.L23.Cells.card3_12_1,
+    GL2.L23.Cells.card3_12_2, GL2.L23.Cells.card3_14_0, GL2.L23.Cells.card3_14_1, GL2.L23.Cells.card3_14_2,
+    GL2.L23.Cells.card3_16_0, GL2.L23.Cells.card3_16_1, GL2.L23.Cells.card3_16_2, GL2.L23.Cells.card3_18_0,
+    GL2.L23.Cells.card3_18_1, GL2.L23.Cells.card3_18_2, GL2.L23.Cells.card3_20_0, GL2.L23.Cells.card3_20_1,
+    GL2.L23.Cells.card3_20_2, GL2.L23.Cells.card3_22_0, GL2.L23.Cells.card3_22_1, GL2.L23.Cells.card3_22_2,
+    GL2.L23.Cells.card3_24_0, GL2.L23.Cells.card3_24_1, GL2.L23.Cells.card3_24_2, GL2.L23.Cells.card3_26_0,
+    GL2.L23.Cells.card3_26_1, GL2.L23.Cells.card3_26_2, GL2.L23.Cells.card3_28_0, GL2.L23.Cells.card3_28_1,
+    GL2.L23.Cells.card3_28_2, GL2.L23.Cells.card3_30_0, GL2.L23.Cells.card3_30_1, GL2.L23.Cells.card3_30_2}
+  \leanok
+  \uses{thm:lv-smith-cell}
+  For each even $n\le30$, $\ell\in\{2,3\}$ and $q\in\{0,1,2\}$ the kernel decides the Smith signature of $d^q$ over $\mathbb Z/\ell^K$, and
+  \ref{thm:lv-smith-cell} gives the number of elements of the span of its columns, and \ref{thm:lv-smith-type} (\texttt{type}) the
+  number of elements of $\ell^t$ times it for every $t$, i.e.\ the certified valuation counts.  Odd $n$: at $\ell=3$ the groups vanish (\ref{thm:lg-exp2}); at $\ell=2$ only the exponent $2$ is proved, the order is
+  open (\ref{rmk:mp-open}~(10)(d)).  The even cells $32\le n\le150$ are generated
+  in the library \texttt{L23Cells} (\texttt{LV4M*}); evidence: \texttt{docs/implementation/slot23/lv/}.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \texttt{decide +kernel} on \texttt{sig}, \texttt{cell\_card0/1/2}.
+\end{proof}
+
+\begin{theorem}[The type: $\#(\ell^t\cdot\text{span})$ for every $t$; the counts are certified]\label{thm:lv-smith-type}
+  % backs LV_audit.md R1(a): the valuation counts of a Smith signature are certified (the module type over Z/l^K)
+  \lean{GL2.L23.SmithPK.VPiv, GL2.L23.SmithPK.VEch, GL2.L23.SmithPK.vspan, GL2.L23.SmithPK.card_span_vpiv,
+    GL2.L23.SmithPK.card_vspan, GL2.L23.SmithPK.VEch.smul, GL2.L23.SmithPK.map_vspan_smul, GL2.L23.SmithPK.card_smul_vspan,
+    GL2.L23.SmithPK.ech_vech, GL2.L23.SmithPK.smithPK_card_smul, GL2.L23.SmithPK.sum_eq_cnt, GL2.L23.SmithPK.sig_snd,
+    GL2.L23.SmithPK.card_smul_of_sig, GL2.L23.SmithPK.cell_type0, GL2.L23.SmithPK.cell_type1, GL2.L23.SmithPK.cell_type2}
+  \leanok
+  \uses{thm:lv-smithpk, thm:lv-smith-cell}
+  For every $t\ge0$, $\#(\ell^t\cdot L)=\ell^{\sum_k(K-(v_k+t))}$ (truncated) for the row span $L$ and the pivots of \texttt{smithPK};
+  in cell form, a kernel-decided \texttt{sig K \dots = (s, cs)} gives $\#(\ell^t\cdot L)=\ell^{\sum_{v<K}cs_v(K-(v+t))}$.  These numbers
+  determine $L$ up to isomorphism, so the counts \texttt{cs} are the valuation counts of the elementary divisors $\ne0\bmod\ell^K$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  An echelon family with valuations $v_k$ (now allowed $\ge K$, the vector is then $0$) spans $\ell^{\sum(K-v_k)}$ elements;
+  multiplying it by $\ell^t$ gives an echelon family with valuations $v_k+t$ spanning $\ell^t L$.
+\end{proof}
+
+\begin{theorem}[The cell columns are the columns of \texttt{treeD0}, \texttt{treeDS}]\label{thm:lv-smith-tree}
+  % backs LV_audit.md M-3 (follow-up): the explicit block formulas are LR-Y's differentials on Sym^n (Z/N)^2 (coordinates)
+  \lean{GL2.L23.SmithPK.modN, GL2.L23.SmithPK.symRepN, GL2.L23.SmithPK.VN, GL2.L23.SmithPK.VN_negOne_even,
+    GL2.L23.SmithPK.modN_sS, GL2.L23.SmithPK.modN_sU, GL2.L23.SmithPK.modN_sU_sq, GL2.L23.SmithPK.extv, GL2.L23.SmithPK.blk,
+    GL2.L23.SmithPK.treeD0_x, GL2.L23.SmithPK.treeD0_y, GL2.L23.SmithPK.treeDS0_x, GL2.L23.SmithPK.treeDS0_y,
+    GL2.L23.SmithPK.treeDS1_x, GL2.L23.SmithPK.treeDS1_y, GL2.L23.SmithPK.treeDS1_z, GL2.L23.SmithPK.entN_colD0x_tree,
+    GL2.L23.SmithPK.entN_colD0y_tree, GL2.L23.SmithPK.entN_colD1x_tree, GL2.L23.SmithPK.entN_colD1y_tree,
+    GL2.L23.SmithPK.entN_colD2x_tree, GL2.L23.SmithPK.entN_colD2y_tree, GL2.L23.SmithPK.entN_colD2z_tree}
+  \leanok
+  \uses{thm:lv-smith-f1, thm:mp-tree-cochains}
+  Let $V_N(n)=\mathrm{Sym}^n(\mathbb Z/N)^2$ on $(\mathbb Z/N)^{n+1}$, $g\mapsto\rho_n(g\bmod N)$ in the basis $u_t$.  For every $t<3(n+1)$,
+  entry $t$ of each packed cell column equals entry $t$ of \texttt{treeD0}, \texttt{treeDS 0}, \texttt{treeDS 1} on $V_N(n)$ applied to
+  the corresponding basis vector, the cochain $((x,y),z)$ read as one vector (\texttt{blk}); $n$ even for $d^1$, $d^2$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $\rho_n(-I)=1$ for $n$ even; $N_S=2(1+S)$, $N_U=2(1+U+U^2)$, $\texttt{edgA}\,0=0$, $\texttt{edgA}\,1=2$; \ref{thm:lv-smith-f1}.
+\end{proof}
+
+\begin{theorem}[\texttt{rankF2}, \texttt{rankF3} without \texttt{Nat.log2}]\label{thm:lv-rankfast}
+  % backs the kernel-cost finding of slot 23 (Nat.log2 is not kernel-accelerated); LV_plan_and_predictions.md sec. 3
+  \lean{GL2.L23.RankF2.lgGo, GL2.L23.RankF2.lg2, GL2.L23.RankF2.lgGo_eq, GL2.L23.RankF2.lg2_eq, GL2.L23.RankF2.rankF2F,
+    GL2.L23.RankF2.rankF2F_eq, GL2.L23.RankF3.rankF3F, GL2.L23.RankF3.rankF3F_eq}
+  \leanok
+  \uses{thm:lv3-rankf3}
+  \texttt{lg2}, a binary search on $x\gg2^k$, equals \texttt{Nat.log2} for every $x$; hence \texttt{rankF2F} $=$ \texttt{rankF2} and
+  \texttt{rankF3F} $=$ \texttt{rankF3} on every row list.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $\lfloor\log_2x\rfloor=b+\lfloor\log_2(x/2^b)\rfloor$ when $x/2^b\ne0$; the eliminations differ only in the logarithm.
+\end{proof}
+
+\begin{theorem}[$h^0$ at $\ell=2$ from one rank]\label{thm:lv-h0-ranks}
+  % backs the census h0 at ell = 2 for n in (700, 1000] (LV_plan_and_predictions.md; h^q, q >= 1, is thm:lg-thmA-dims)
+  \lean{GL2.L23.TreeF2.V2_h0_of_rankS}
+  \leanok
+  \uses{thm:lv-tree-f2-dims, thm:lv-v2-dims}
+  For every $n$: if \texttt{rankF2 (colsSig n)} $=s$ then $\dim_{\mathbb F_2}H^0(\Gamma;\mathrm{Sym}^n\mathbb F_2^2)=n+1-s$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $\dim H^0+\operatorname{rank}\sigma=n+1$ and $\operatorname{rank}\sigma=\texttt{rankF2 (colsSig n)}$.
+\end{proof}
+
+\section{What is open}
+
+\begin{remark}[What this part does not prove]\label{rmk:mp-open}
+  % backs nothing; records the open items for MP-L2 / MP-L3
+  (1) [C] \texttt{thm:mpcomparison}(5) for $\mathrm{SL}_2(\mathbb Z)$ is proved for both rows, $\mathsf M_7$ (\ref{thm:mp-model7-ac})
+  and $\mathsf R_{\mathbb Z}$ (\ref{thm:mp-rz-ac}): the comparison holds unconditionally on both (unnormalised).
+  (2) \emph{Closed in MP-L3}: the normalised MP complex of [C] \texttt{def:mpset} (functions vanishing on degenerate strings)
+  is a homotopy equivalent subcomplex (\ref{thm:mp-norm-heq}, \ref{thm:mp-norm-dgn}) and the comparison holds for it
+  (\ref{thm:mp-comparison-normalised}); its ranks $\abs{\mathsf S_k^{\mathrm{nd}}}$ are not formalised.  (3) Naturality in $A$ is proved for the comparison isomorphism built
+  through the bar resolution (\ref{thm:mp-comparison-natural}); that it coincides with the $\mathrm{Ext}$-built
+  \ref{thm:mp-comparison} is not proved (not needed), nor base change $C(\mathsf S;M)\otimes R$.  (4) [C] \texttt{lem:mpassembly} in its quasi-isomorphism form (the acyclic form is
+  \ref{thm:mp-assembly-grid}, which is what the comparison uses).  (5) Rows L8 and L9 are proved for the unnormalised complexes (\ref{thm:mp-pull-natural}, \ref{thm:mp-refine-invariance}, \ref{thm:mp-rz-refine}); label independence is proved on cohomology, not as a chain homotopy.  Row L10 is proved for [C] \texttt{prop:mpbredon}(1), the ``if'' of (2) (\ref{thm:mp-epsmp-quasiiso}) and, since slot 24 (C-w), the ``not only if'' witness of (2) (\ref{thm:mp-epsmp-witness}); (3) is open.  Rows L11--L16 of [MP] \S8.2 are open.  (6) LR-Y phases 3--5: the periodicity \ref{thm:mp-tree-periodic} is not identified with cup product with $e$ ([C]
+  \texttt{lem:bulkperiodic}(2)), and its $q=1$ clause is not proved; a periodicity isomorphism built through the bar comparison
+  is natural on \texttt{groupCohomology} (\ref{thm:mp-periodic-natural}), but that it coincides with the isomorphism of
+  \ref{thm:mp-tree-periodic} is not proved, nor its compatibility with restriction.  The middle terms and the middle map of \ref{thm:mp-tree-mv} are identified with
+  \texttt{groupCohomology} of $\langle S\rangle$, $\langle U\rangle$, $\langle-I\rangle$ and with $\operatorname{res}-\operatorname{res}$
+  (\ref{thm:mp-mv-terms}, \ref{thm:mp-mv-resres}); with the bar-built comparison of \ref{thm:mp-periodic-natural} in place of
+  the $\mathrm{Ext}$-built \ref{thm:mp-tree-cochains}, the first map is $(\operatorname{res}_S,\operatorname{res}_U)$
+  (\ref{thm:mp-mv-res}), the whole sequence is stated and proved exact in \texttt{groupCohomology} terms, $q=0$ included
+  (\ref{thm:mp-mv-les}), and it is natural in $A$ (\ref{thm:mp-mv-natural}) (LR-Y phase 5).  Not proved: that its connecting
+  map $\partial_q$ (defined by transport, characterised on cocycles) is a connecting map of mathlib's \texttt{groupCohomology}
+  sequence of a coefficient sequence (Shapiro is not used); that phase 3's $\mathrm{Ext}$-built maps \texttt{mvRes},
+  \texttt{mvInc} agree with the bar-built ones; cup products.  (The short exact sequence \texttt{eq:treeses} as one object of $\mathrm{Rep}\,k\,\Gamma$ is
+  \ref{thm:mp-treeses-rep}, LR-Y phase 5.)  (7) LG-1/LG-2 (slot 23): Theorem O(1) is proved in every degree over every ring
+  (\ref{thm:lg-exp2}), and the mod-$2$ dimensions of odd $n$ in every degree (\ref{thm:lg-odd-f2-dims}).  Not proved: the closed form
+  $h^0=\lfloor(\lfloor n/3\rfloor+1)/2\rfloor$ for general $n$ (per cell only, \ref{chk:lg-h0-cells}; needs the $\mathbb F_4$ eigenvalue
+  count or Dickson's theorem for $\mathrm{GL}_2(\mathbb F_2)$); the integral groups $H^q(\Gamma;\mathrm{Sym}^n\mathbb Z^2)\cong\mathbb F_2^{h^0},
+  \mathbb F_2^{(n+1)/2-h^0}$ of [C] \texttt{prop:oddnltwo}(3) (they need the Bockstein sequence of $0\to V\to V\to V/2\to0$ in
+  \texttt{groupCohomology} and the change of rings $\mathbb Z\to\mathbb F_2$); the $H^0$ Hecke formulas ($T_\ell^2=0$, $T_2m=\pi(m)d_n$).  (8) LG-3/LG-4 (slot 23): the splitting $M=M_0\oplus M_1$ and its
+  $\mathrm{GL}_2(\mathbb F_2)$-stability (\ref{thm:lg-split-v2}), $h^q=\lfloor n/2\rfloor+1$ for every $n$ and $q\ge1$ (\ref{thm:lg-thmA-dims}),
+  and the $c_p$ formula over any commutative ring (\ref{thm:lg-cp}) are proved generally.  Not proved: the atom decomposition
+  $M_0\cong1^t\oplus P^i$, $M_1\cong\mathrm{St}_2^m$ and $c=\dim M_0$ in closed form (an $\mathbb F_4$ eigenvalue count); the existence of a Smith decomposition over a PID
+  (not needed by \ref{thm:lg-cp}); the saturation step of [C] \texttt{lem:cprule} (a $\mathbb Q_\ell$-eigenvector scaled to a primitive
+  $e_0\in N$; \ref{thm:lg-cp} takes the primitive integral eigenvector as a hypothesis); and the identification of the census
+  operator $T_p$ and Eisenstein vector (LH).  (9) LG-C3 (slot 23): [R] Theorem C(1)'s $h^q=[n\equiv0,4\bmod6]$ ($\ell=3$, $q\ge2$,
+  every even $n$) and the ranks of $D$, $D^2$ for a unipotent element on $\mathrm{Sym}^n\mathbb F_3^2$ are proved generally
+  (\ref{thm:lg-c3-dims}, \ref{thm:lg-c3-jordan}).  Not proved: $D^3=0$, hence the Jordan type itself (prose); $h^0$, $h^1$ at $\ell=3$ in closed form (per cell only,
+  \ref{chk:lv3-cells}); [R] C(1)'s Bredon clauses ($\dim\operatorname{coker}(\varepsilon^*|_{H^1})=[n\equiv0,4\bmod6]$; $H^1$ of the group equals
+  the Bredon $H^1$ iff $n\equiv2\bmod6$), which need [C] \texttt{prop:ellthreeclosed}(3), the comparison with the shipped Bredon
+  complex; [R] C(2) (the $\mathbb Z_{(3)}$-lattices, Krull--Schmidt), C(3) (inflation from $\mathrm{SL}_2(\mathbb F_3)$; LIT (F1)), C(4)--(5).
+  (10) LV (slot 23): the Smith algorithm over $\mathbb Z/\ell^K$ (\ref{thm:lv-smithpk}), F1 over $\mathbb Z/N$ (\ref{thm:lv-smith-f1})
+  and the Smith cell theorem (\ref{thm:lv-smith-cell}) prove the order $\ell^s$ of the span over $\mathbb Z/\ell^K$ of the cell columns, \ref{thm:lv-smith-type}
+  its type (the counts), \ref{thm:lv-smith-tree} that the columns are those of \texttt{treeD0} / \texttt{treeDS} on $V_N(n)$, entry by
+  entry.  Not proved: (a) the span-level statement (the cell span is the image of $d^q$), hence the orders of
+  $H^q(\Gamma;\mathrm{Sym}^n(\mathbb Z/\ell^K)^2)$, and $V_N(n)\cong$ \texttt{VK (ZMod N) n} (F-LG R4);
+  (b) the passage from $\mathbb Z/\ell^K$ to $\mathbb Z_\ell$ (a certified $K$: all valuations $<K$ and their number the rank over
+  $\mathbb Q$) and hence the census \texttt{ladic\_type\_q}; (c) closed by \ref{thm:lv-smith-type}; (d) at $\ell=2$ and
+  odd $n$ the order of the $2$-torsion (only the exponent $2$ is proved, \ref{thm:lg-exp2}; the number of summands needs the
+  Bockstein / universal-coefficient step of (7)).
+\end{remark}

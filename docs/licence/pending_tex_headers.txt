@@ -1,0 +1,4 @@
+# Files that still need an SPDX header and are deliberately skipped by docs/licence/tools/add_spdx.py:
+# docs/latex sources under active edit by other agents at the time of the sweep (slot 21, WP-LIC).
+# add_spdx.py --check tolerates exactly this list; a follow-up commit adds the headers
+# (python3 docs/licence/tools/add_spdx.py --apply) and empties this list in the same commit.

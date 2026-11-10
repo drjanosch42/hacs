@@ -1,0 +1,74 @@
+# 015_strict_locality.oc -- the STRICT locality mode, from the console
+# (plan Sec. 10, Phase C1b item 3; [X] Sec. 3.1, [E] sec:localcert "Strict
+# mode"; slot-3 WP-3).
+#
+# [P] v3's C1b list still carried "`locality = strict` ->
+# not_implemented_in_this_build" as an `expect_error` case.  That line is
+# OBSOLETE since slot-3 WP-3: strict mode computes.  This script is what
+# replaces it ([WP3-3] finding 7), and it asserts the three things the
+# replacement has to assert:
+#
+#   1. strict mode is BYTE-IDENTICAL to budget mode wherever budget mode
+#      certifies -- which is every block of the golden grid (the E0a verdict),
+#      and which is why slot-3 WP-3 moved no golden value;
+#   2. a non-default mathematical setting moves the FINGERPRINT, so a record
+#      taken under it is distinguishable from a golden one;
+#   3. and therefore `golden(...)` REFUSES under it (rule R19) -- a pin at a
+#      non-default configuration would compare numbers that mean different
+#      things.
+#
+# `hecke::NotImplementedInThisBuild` and its exit code 5 survive as the named
+# build-capability error, raised by no settings value today; it stays pinned by
+# ConsoleScriptValidation's test-only verb, not by this script.
+
+include("prelude.oc");
+
+# --- the budget-mode reference, taken FIRST, at the defaults ---------------
+H = cohomology(symmetric_power(MODEL, N_SYM, ELL));
+T2 = hecke(H, P_HECKE);
+BUDGET_D = decompose(T2, 1);
+BUDGET_INV = hash(BUDGET_D);
+BUDGET_U = hash(BUDGET_D.U);
+assert(BUDGET_INV == golden(POINT_HECKE, "decomp_A(T_p)^1_invariants").hash,
+       "the budget-mode block list is the golden one");
+assert(BUDGET_D.locality.mode == "budget", "the default mode");
+print(BUDGET_D.num_blocks, BUDGET_D.locality.mode, BUDGET_D.locality.phase_reached);
+
+# A second golden-grid cell, so "byte-identical" is not a single-cell claim.
+H2 = cohomology(symmetric_power(MODEL, 16, 13));
+T2B = hecke(H2, 2);
+BUDGET_D2 = decompose(T2B, 1);
+BUDGET_INV2 = hash(BUDGET_D2);
+BUDGET_U2 = hash(BUDGET_D2.U);
+assert(BUDGET_INV2 == golden("n=16 ell=13 p=2 r=1", "decomp_A(T_p)^1_invariants").hash,
+       "the budget-mode block list at (16, 13) is the golden one");
+
+# --- strict mode ----------------------------------------------------------
+set locality = "strict";
+assert(fingerprint() != "0x0000000000000000", "a non-default setting moves the fingerprint");
+print(math_settings().locality, math_settings().is_default);
+
+STRICT_D = decompose(hecke(H, P_HECKE), 1);
+assert(STRICT_D.locality.mode == "strict", "the handle ran in strict mode");
+assert(hash(STRICT_D) == BUDGET_INV,
+       "strict mode is byte-identical where budget mode certifies -- (10, 691)");
+assert(hash(STRICT_D.U) == BUDGET_U, "and so is the change of basis");
+assert(STRICT_D.certify() == 0, "and the certificate still re-derives");
+
+STRICT_D2 = decompose(hecke(H2, 2), 1);
+assert(hash(STRICT_D2) == BUDGET_INV2,
+       "strict mode is byte-identical where budget mode certifies -- (16, 13)");
+assert(hash(STRICT_D2.U) == BUDGET_U2, "and so is the change of basis");
+print(STRICT_D.num_blocks, STRICT_D.locality.mode, STRICT_D.locality.phase_reached);
+
+# Rule R19: no pin may be taken at a non-default configuration.
+expect_error "the mathematical settings are not at their defaults" {
+    golden(POINT_HECKE, "decomp_A(T_p)^1_invariants")
+}
+
+# --- back to the defaults --------------------------------------------------
+set locality = "budget=64";
+assert(fingerprint() == "0x0000000000000000", "the defaults are restored exactly");
+assert(math_settings().is_default == true, "and the settings say so");
+print(math_settings().locality, math_settings().is_default);
+annotate("015_strict_locality: strict == budget on 2 golden cells");

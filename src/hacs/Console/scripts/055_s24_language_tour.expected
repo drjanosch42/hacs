@@ -1,0 +1,25 @@
+#! oc-format 1
+math_settings() is a Record with the keys ["locality", "locality_source", "is_default", "fingerprint", "canonical_text", "keys"]
+abs(-7) = 7  min(3, 5) = 3
+repr of a string: "dim"  json of a list: [1, "two", true]
+script_args() without parameters: {}
+Fp(691, 1000) = 309 mod 691
+gcd( X^2 + 2*X + 1 (mod 691) , X^2 + 690 (mod 691) ) = X + 1 (mod 691)
+X = X (mod 691)  f(2) = 9  X^691 mod (X^2 + 1) = 690*X (mod 691)
+rref: [[1 0 1] [0 1 1] [0 0 0]]
+rank 2 column space: [[1 2] [2 4] [1 0]]
+in GF(7^2), C_{ell,r} = X^2 + 1 (mod 7) : (1 + 2Y) - (1 + 2Y) is zero: true
+models(): ["sl2z_7vertex"]
+1-sphere : dimension 1  simplex counts [3, 3]  Euler characteristic 0
+2-sphere : dimension 2  simplex counts [4, 6, 4]  Euler characteristic 2
+3-sphere : dimension 3  simplex counts [5, 10, 10, 5]  Euler characteristic 0
+Moebius Band : dimension 2  simplex counts [6, 12, 6]  Euler characteristic 0
+Projective Plane : dimension 2  simplex counts [6, 15, 10]  Euler characteristic 1
+a hand-made circle: triangle [3, 3] 0
+golden_has(n=10 ell=691, dim_H^1): true
+[0, 3, 0]
+type:  List
+size:  3
+value: [0, 3, 0]
+lfunction/v1  k = 12  ell = 691  a = 199  mu = 0  lambda = 1
+the first three coefficients of L_a(T): [33498404414, 209903387020, 26227700637]

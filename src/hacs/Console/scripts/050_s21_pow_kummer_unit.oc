@@ -1,0 +1,23 @@
+# 050_s21_pow_kummer_unit.oc -- two read_only verbs of the slot-21 verbs package ([PG] sec:pg-missing).
+#
+#   pow(A, e)          A^e over F_p by square-and-multiply (e >= 0; A^0 = I).
+#   kummer_unit(ell, i)  the exact cyclotomic unit eta_i of layer 1 ([E] sec:lvnf) on the power basis of
+#                      Z[zeta_ell], with the Kummer ell-th-power test: v_pi(eta^(ell-1) - 1) > i exactly when
+#                      ell | B_i (the record's `oracle_agrees` is that comparison).
+# Cells: Fibonacci mod 7 (the Pisano period of 7 is 16); ell = 37 at i = 32 (37 | B_32: irregular) and i = 30 (not).
+A = matrix(7, [[1, 1], [1, 0]]);
+assert(pow(A, 10) == matrix(7, [[5, 6], [6, 6]]));
+assert(pow(A, 0) == identity(7, 2));
+assert(pow(A, 16) == identity(7, 2));
+assert(mul(pow(A, 3), pow(A, 5)) == pow(A, 8));
+
+K = kummer_unit(37, 32);
+print("ell = 37 i = 32: v_pi =", K.v_pi, " ell | B_i:", K.ell_divides_Bi, " oracle agrees:", K.oracle_agrees, " not an ell-th power:", K.not_lth_power);
+assert(K.ell_divides_Bi);
+assert(K.oracle_agrees);
+assert(K.v_pi > 32);
+assert(len(K.coefficients) == 36);
+K = kummer_unit(37, 30);
+print("ell = 37 i = 30: v_pi =", K.v_pi, " ell | B_i:", K.ell_divides_Bi, " oracle agrees:", K.oracle_agrees);
+assert(K.ell_divides_Bi == false);
+assert(K.oracle_agrees);

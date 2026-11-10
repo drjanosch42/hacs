@@ -1,0 +1,289 @@
+# cost_models.tsv -- NBCONFIRM S2 (slot 25, 2026-11-07): the console cost estimators of the capped verbs, fitted on the reference box
+# (RTX PRO 6000 workstation, 32 hw threads, CPU route) by docs/console/tools/nbconfirm_fit.py from docs/console/nbconfirm/s2_measurements.tsv;
+# report docs/console/NBCONFIRM_S2_calibration.md.  ADVISORY ONLY: read by the S3 estimator (CostEstimate), never a value, a record or a hash
+# input; the campaign driver and --bench ignore it.  A re-fit that changes any `term` row bumps the model id (`<verb>_<quantity>/v<k>`).
+#
+# Row kinds (TAB-separated, first column = kind):
+#   term   model_id verb variant regime threads j coef monomial     -- y = sum_j coef_j * prod x^e  ("1" = constant); wall in s, rss in MiB
+#   resid  model_id verb variant regime threads n rms_log max_log max_log_ge1s   -- ln(measured/predicted) over the n fitted cells
+#   grid   model_id verb variant regime threads feature lo hi       -- the fitted box: a feature above hi flags the estimate `extrapolated`
+#   gmax   model_id verb variant regime threads max_measured        -- the group's largest measured value: the cost-space part est / gmax of x
+#   lowconf model_id verb variant regime threads reason             -- a thin group (dof < 2, or a per-prime term on < 2 paired cells)
+#   safety quantity band_floor x_exp strong_x                        -- q_hi = q * max(band, band_floor) * x^x_exp; strong warning at x > strong_x
+#   fitted_on commit build_id sha256_prefix note                     -- the code the measurements were taken on (one model = one code)
+#   thread verb rule                                                 -- how threads other than the fitted ones are handled (S2 Sec. 3.3)
+#   calib  calib/v2 class slot threads ref_seconds digest rss_mib    -- the reference box's speed-probe times and peak RSS (S2 Sec. 4;
+#          calib/v2 = NBCONFIRM S3, emitted by `cohomology_app --calibrate=thorough --emit-reference`; calib/v1 had no rss_mib)
+#   class  verb kernel_class                                         -- the device-factor class that scales the verb's wall estimate
+# variant: `full` / `anemic` (hecke_structure), `-` otherwise.  regime (descent / hecke_structure): N1 = (N = 1), n0 = (n = 0, N > 1),
+# gen = (N > 1, n > 0); `all` otherwise.  threads: 1 / 16 = fitted at ENGINE_THREADS = that; `*` = thread-independent (pooled).
+# Features: psi = [SL2(Z):Gamma_0(N)], n1 = n + 1, D = psi*n1, p2 = sum p^2, pr = psi*sqrt(p2) (P = the verb's primes, defaults applied),
+#   np = |P|, sp = sum P, pm = max P, k, ell, W, m.
+fitted_on	fb7f58b9	unrecorded	7be7e7ad192b8ee0	hecke-extensions fb7f58b9 + the S2 bound-lifting probe patch (uncommitted)
+safety	wall	1.5	2	2
+safety	rss	1.5	1	2
+term	descent_wall/v1	descent	-	N1	1	0	0.02	1
+term	descent_wall/v1	descent	-	N1	1	1	1.84066e-05	n1^3.0663
+term	descent_wall/v1	descent	-	N1	1	2	0.00261813	p2^1.0000
+resid	descent_wall/v1	descent	-	N1	1	5	0.1830	0.2717	0.2605
+grid	descent_wall/v1	descent	-	N1	1	n1	21	121
+grid	descent_wall/v1	descent	-	N1	1	p2	38	9409
+gmax	descent_wall/v1	descent	-	N1	1	52.68
+lowconf	descent_wall/v1	descent	-	N1	1	per_prime_cells=1
+term	descent_rss/v1	descent	-	N1	1	0	17	1
+term	descent_rss/v1	descent	-	N1	1	1	0.122681	n1^1.4646
+term	descent_rss/v1	descent	-	N1	1	2	0.128469	pr^1.0000
+resid	descent_rss/v1	descent	-	N1	1	5	0.0706	0.1267	0.1267
+grid	descent_rss/v1	descent	-	N1	1	n1	21	121
+grid	descent_rss/v1	descent	-	N1	1	p2	38	9409
+gmax	descent_rss/v1	descent	-	N1	1	170.6
+lowconf	descent_rss/v1	descent	-	N1	1	per_prime_cells=1
+term	descent_wall/v1	descent	-	N1	16	0	0.02	1
+term	descent_wall/v1	descent	-	N1	16	1	0.00526724	n1^1.0000
+term	descent_wall/v1	descent	-	N1	16	2	1.21875e-07	n1^3.7137
+term	descent_wall/v1	descent	-	N1	16	3	0.00241329	p2^1.0000
+resid	descent_wall/v1	descent	-	N1	16	11	0.2687	0.6589	0.6589
+grid	descent_wall/v1	descent	-	N1	16	n1	21	241
+grid	descent_wall/v1	descent	-	N1	16	p2	38	39601
+gmax	descent_wall/v1	descent	-	N1	16	90.31
+term	descent_rss/v1	descent	-	N1	16	0	17	1
+term	descent_rss/v1	descent	-	N1	16	1	0.0296822	n1^2.3159
+term	descent_rss/v1	descent	-	N1	16	2	1.22349	pr^1.0000
+resid	descent_rss/v1	descent	-	N1	16	11	0.1128	0.2651	0.2651
+grid	descent_rss/v1	descent	-	N1	16	n1	21	241
+grid	descent_rss/v1	descent	-	N1	16	p2	38	39601
+gmax	descent_rss/v1	descent	-	N1	16	8921.4
+term	descent_wall/v1	descent	-	gen	1	0	0.02	1
+term	descent_wall/v1	descent	-	gen	1	1	1.44625e-07	D^3.0075*n1^0.7910
+term	descent_wall/v1	descent	-	gen	1	2	0.00224982	p2^1.0000
+resid	descent_wall/v1	descent	-	gen	1	6	0.0322	0.0708	0.0708
+grid	descent_wall/v1	descent	-	gen	1	D	168	296
+grid	descent_wall/v1	descent	-	gen	1	n1	11	41
+grid	descent_wall/v1	descent	-	gen	1	p2	38	9409
+gmax	descent_wall/v1	descent	-	gen	1	68.6
+lowconf	descent_wall/v1	descent	-	gen	1	per_prime_cells=1
+term	descent_rss/v1	descent	-	gen	1	0	17	1
+term	descent_rss/v1	descent	-	gen	1	1	0.00527868	D^1.8046*n1^0.0941
+term	descent_rss/v1	descent	-	gen	1	2	0.0123721	pr^1.0000
+resid	descent_rss/v1	descent	-	gen	1	6	0.0126	0.0304	0.0304
+grid	descent_rss/v1	descent	-	gen	1	D	168	296
+grid	descent_rss/v1	descent	-	gen	1	n1	11	41
+grid	descent_rss/v1	descent	-	gen	1	p2	38	9409
+gmax	descent_rss/v1	descent	-	gen	1	232.3
+lowconf	descent_rss/v1	descent	-	gen	1	per_prime_cells=1
+term	descent_wall/v1	descent	-	gen	16	0	0.02	1
+term	descent_wall/v1	descent	-	gen	16	1	2.13547e-07	D^2.9485*n1^0.2620
+term	descent_wall/v1	descent	-	gen	16	2	0.00217305	p2^1.0000
+resid	descent_wall/v1	descent	-	gen	16	17	0.1551	0.2842	0.2842
+grid	descent_wall/v1	descent	-	gen	16	D	168	1122
+grid	descent_wall/v1	descent	-	gen	16	n1	5	81
+grid	descent_wall/v1	descent	-	gen	16	p2	4	39601
+gmax	descent_wall/v1	descent	-	gen	16	427.1
+term	descent_rss/v1	descent	-	gen	16	0	17	1
+term	descent_rss/v1	descent	-	gen	16	1	0.00226401	D^1.9185*n1^0.7255
+term	descent_rss/v1	descent	-	gen	16	2	0.0156563	pr^1.0000
+resid	descent_rss/v1	descent	-	gen	16	17	0.0628	0.1472	0.1472
+grid	descent_rss/v1	descent	-	gen	16	D	168	1122
+grid	descent_rss/v1	descent	-	gen	16	n1	5	81
+grid	descent_rss/v1	descent	-	gen	16	p2	4	39601
+gmax	descent_rss/v1	descent	-	gen	16	9178.7
+term	descent_wall/v1	descent	-	n0	1	0	0.02	1
+term	descent_wall/v1	descent	-	n0	1	1	5.07105e-06	psi^2.0491
+term	descent_wall/v1	descent	-	n0	1	2	0.00272192	p2^1.0000
+resid	descent_wall/v1	descent	-	n0	1	4	0.1175	0.2082	0.2082
+grid	descent_wall/v1	descent	-	n0	1	p2	38	9409
+grid	descent_wall/v1	descent	-	n0	1	psi	294	1202
+gmax	descent_wall/v1	descent	-	n0	1	26.21
+lowconf	descent_wall/v1	descent	-	n0	1	dof=1
+lowconf	descent_wall/v1	descent	-	n0	1	per_prime_cells=1
+term	descent_rss/v1	descent	-	n0	1	0	17	1
+term	descent_rss/v1	descent	-	n0	1	1	0.00115333	psi^1.9174
+term	descent_rss/v1	descent	-	n0	1	2	0.0375465	pr^1.0000
+resid	descent_rss/v1	descent	-	n0	1	4	0.3977	0.6123	0.6123
+grid	descent_rss/v1	descent	-	n0	1	p2	38	9409
+grid	descent_rss/v1	descent	-	n0	1	psi	294	1202
+gmax	descent_rss/v1	descent	-	n0	1	1150.1
+lowconf	descent_rss/v1	descent	-	n0	1	dof=1
+lowconf	descent_rss/v1	descent	-	n0	1	per_prime_cells=1
+term	descent_wall/v1	descent	-	n0	16	0	0.02	1
+term	descent_wall/v1	descent	-	n0	16	1	3.74434e-05	psi^1.7725
+term	descent_wall/v1	descent	-	n0	16	2	0.00326424	p2^1.0000
+resid	descent_wall/v1	descent	-	n0	16	7	0.3178	0.4583	0.4583
+grid	descent_wall/v1	descent	-	n0	16	p2	38	9409
+grid	descent_wall/v1	descent	-	n0	16	psi	98	2400
+gmax	descent_wall/v1	descent	-	n0	16	55.19
+term	descent_rss/v1	descent	-	n0	16	0	17	1
+term	descent_rss/v1	descent	-	n0	16	1	0.00684095	psi^1.6773
+term	descent_rss/v1	descent	-	n0	16	2	0.0338225	pr^1.0000
+resid	descent_rss/v1	descent	-	n0	16	7	0.3542	0.6894	0.6894
+grid	descent_rss/v1	descent	-	n0	16	p2	38	9409
+grid	descent_rss/v1	descent	-	n0	16	psi	98	2400
+gmax	descent_rss/v1	descent	-	n0	16	3850.7
+term	forms_algebra_wall/v1	forms_algebra	-	all	*	0	0.02	1
+term	forms_algebra_wall/v1	forms_algebra	-	all	*	1	1.68264e-14	k^4.1405*pm^0.2202
+resid	forms_algebra_wall/v1	forms_algebra	-	all	*	14	0.2258	0.7619	0.1798
+grid	forms_algebra_wall/v1	forms_algebra	-	all	*	k	400	8000
+grid	forms_algebra_wall/v1	forms_algebra	-	all	*	pm	5	97
+gmax	forms_algebra_wall/v1	forms_algebra	-	all	*	293.98
+term	forms_algebra_rss/v1	forms_algebra	-	all	*	0	17	1
+term	forms_algebra_rss/v1	forms_algebra	-	all	*	1	5.82339e-06	k^1.6459*pm^0.5944
+resid	forms_algebra_rss/v1	forms_algebra	-	all	*	14	0.1166	0.2742	0.2742
+grid	forms_algebra_rss/v1	forms_algebra	-	all	*	k	400	8000
+grid	forms_algebra_rss/v1	forms_algebra	-	all	*	pm	5	97
+gmax	forms_algebra_rss/v1	forms_algebra	-	all	*	214.5
+term	hecke_structure_wall/v1	hecke_structure	anemic	gen	*	0	0.02	1
+term	hecke_structure_wall/v1	hecke_structure	anemic	gen	*	1	1.12477e-09	D^3.5052*n1^1.5323
+resid	hecke_structure_wall/v1	hecke_structure	anemic	gen	*	10	0.5021	0.8091	0.8091
+grid	hecke_structure_wall/v1	hecke_structure	anemic	gen	*	D	126	510
+grid	hecke_structure_wall/v1	hecke_structure	anemic	gen	*	n1	5	41
+gmax	hecke_structure_wall/v1	hecke_structure	anemic	gen	*	93.56
+term	hecke_structure_rss/v1	hecke_structure	anemic	gen	*	0	17	1
+term	hecke_structure_rss/v1	hecke_structure	anemic	gen	*	1	0.956997	D^0.6678
+resid	hecke_structure_rss/v1	hecke_structure	anemic	gen	*	10	0.2237	0.4198	0.4198
+grid	hecke_structure_rss/v1	hecke_structure	anemic	gen	*	D	126	510
+gmax	hecke_structure_rss/v1	hecke_structure	anemic	gen	*	83.4
+term	hecke_structure_wall/v1	hecke_structure	anemic	n0	*	0	0.02	1
+term	hecke_structure_wall/v1	hecke_structure	anemic	n0	*	1	0.00105609	psi^1.6630
+resid	hecke_structure_wall/v1	hecke_structure	anemic	n0	*	4	0.2985	0.3586	0.3586
+grid	hecke_structure_wall/v1	hecke_structure	anemic	n0	*	psi	98	600
+gmax	hecke_structure_wall/v1	hecke_structure	anemic	n0	*	63.03
+term	hecke_structure_rss/v1	hecke_structure	anemic	n0	*	0	17	1
+term	hecke_structure_rss/v1	hecke_structure	anemic	n0	*	1	0.610582	psi^0.8231
+resid	hecke_structure_rss/v1	hecke_structure	anemic	n0	*	4	0.0998	0.1320	0.1320
+grid	hecke_structure_rss/v1	hecke_structure	anemic	n0	*	psi	98	600
+gmax	hecke_structure_rss/v1	hecke_structure	anemic	n0	*	154.2
+term	hecke_structure_wall/v1	hecke_structure	full	N1	*	0	0.02	1
+term	hecke_structure_wall/v1	hecke_structure	full	N1	*	1	0.000426949	n1^2.0943
+term	hecke_structure_wall/v1	hecke_structure	full	N1	*	2	3.77198e-14	n1^7.0220
+resid	hecke_structure_wall/v1	hecke_structure	full	N1	*	25	0.3054	0.8856	0.8856
+grid	hecke_structure_wall/v1	hecke_structure	full	N1	*	n1	21	269
+gmax	hecke_structure_wall/v1	hecke_structure	full	N1	*	5228
+term	hecke_structure_rss/v1	hecke_structure	full	N1	*	0	17	1
+term	hecke_structure_rss/v1	hecke_structure	full	N1	*	1	0.160879	n1^1.3798
+resid	hecke_structure_rss/v1	hecke_structure	full	N1	*	25	0.2676	0.5020	0.5020
+grid	hecke_structure_rss/v1	hecke_structure	full	N1	*	n1	21	269
+gmax	hecke_structure_rss/v1	hecke_structure	full	N1	*	430
+term	hecke_structure_wall/v1	hecke_structure	full	gen	*	0	0.02	1
+term	hecke_structure_wall/v1	hecke_structure	full	gen	*	1	2.2056e-12	D^4.3143*n1^1.5852
+resid	hecke_structure_wall/v1	hecke_structure	full	gen	*	13	0.2051	0.3519	0.3519
+grid	hecke_structure_wall/v1	hecke_structure	full	gen	*	D	168	510
+grid	hecke_structure_wall/v1	hecke_structure	full	gen	*	n1	5	41
+gmax	hecke_structure_wall/v1	hecke_structure	full	gen	*	154.22
+term	hecke_structure_rss/v1	hecke_structure	full	gen	*	0	17	1
+term	hecke_structure_rss/v1	hecke_structure	full	gen	*	1	0.00885084	D^1.3836
+resid	hecke_structure_rss/v1	hecke_structure	full	gen	*	13	0.0860	0.1707	0.1707
+grid	hecke_structure_rss/v1	hecke_structure	full	gen	*	D	168	510
+gmax	hecke_structure_rss/v1	hecke_structure	full	gen	*	71.3
+term	hecke_structure_wall/v1	hecke_structure	full	n0	*	0	0.02	1
+term	hecke_structure_wall/v1	hecke_structure	full	n0	*	1	1.46398e-06	psi^2.4735
+resid	hecke_structure_wall/v1	hecke_structure	full	n0	*	7	0.4861	0.9077	0.9077
+grid	hecke_structure_wall/v1	hecke_structure	full	n0	*	psi	98	2400
+gmax	hecke_structure_wall/v1	hecke_structure	full	n0	*	334.41
+term	hecke_structure_rss/v1	hecke_structure	full	n0	*	0	17	1
+term	hecke_structure_rss/v1	hecke_structure	full	n0	*	1	0.136206	psi^1.1447
+resid	hecke_structure_rss/v1	hecke_structure	full	n0	*	7	0.1914	0.3189	0.3189
+grid	hecke_structure_rss/v1	hecke_structure	full	n0	*	psi	98	2400
+gmax	hecke_structure_rss/v1	hecke_structure	full	n0	*	937.3
+term	hida_lambda_wall/v1	hida_lambda	-	all	*	0	0.02	1
+term	hida_lambda_wall/v1	hida_lambda	-	all	*	1	8.71463e-12	k^2.6429*ell^1.1068*W^0.6380
+resid	hida_lambda_wall/v1	hida_lambda	-	all	*	19	0.4224	1.1503	1.1503
+grid	hida_lambda_wall/v1	hida_lambda	-	all	*	W	3	20
+grid	hida_lambda_wall/v1	hida_lambda	-	all	*	ell	5	1009
+grid	hida_lambda_wall/v1	hida_lambda	-	all	*	k	200	8000
+gmax	hida_lambda_wall/v1	hida_lambda	-	all	*	51.96
+term	hida_lambda_rss/v1	hida_lambda	-	all	*	0	17	1
+term	hida_lambda_rss/v1	hida_lambda	-	all	*	1	3.70153e-05	k^1.3050*ell^0.5224
+resid	hida_lambda_rss/v1	hida_lambda	-	all	*	19	0.1932	0.4774	0.4774
+grid	hida_lambda_rss/v1	hida_lambda	-	all	*	ell	5	1009
+grid	hida_lambda_rss/v1	hida_lambda	-	all	*	k	200	8000
+gmax	hida_lambda_rss/v1	hida_lambda	-	all	*	88.8
+term	hida_tower_wall/v1	hida_tower	-	all	1	0	0.02	1
+term	hida_tower_wall/v1	hida_tower	-	all	1	1	3.32293e-06	n1^3.0881
+resid	hida_tower_wall/v1	hida_tower	-	all	1	3	0.0078	0.0109	0.0109
+grid	hida_tower_wall/v1	hida_tower	-	all	1	ell	5	5
+grid	hida_tower_wall/v1	hida_tower	-	all	1	m	3	3
+grid	hida_tower_wall/v1	hida_tower	-	all	1	n1	101	301
+gmax	hida_tower_wall/v1	hida_tower	-	all	1	148.8
+lowconf	hida_tower_wall/v1	hida_tower	-	all	1	dof=1
+term	hida_tower_rss/v1	hida_tower	-	all	1	0	17	1
+term	hida_tower_rss/v1	hida_tower	-	all	1	1	0.00501851	n1^2.0348
+resid	hida_tower_rss/v1	hida_tower	-	all	1	3	0.0034	0.0048	0.0048
+grid	hida_tower_rss/v1	hida_tower	-	all	1	ell	5	5
+grid	hida_tower_rss/v1	hida_tower	-	all	1	n1	101	301
+gmax	hida_tower_rss/v1	hida_tower	-	all	1	569.8
+lowconf	hida_tower_rss/v1	hida_tower	-	all	1	dof=1
+term	hida_tower_wall/v1	hida_tower	-	all	16	0	0.02	1
+term	hida_tower_wall/v1	hida_tower	-	all	16	1	2.38811e-07	n1^3.2816*m^0.3442
+resid	hida_tower_wall/v1	hida_tower	-	all	16	9	0.1543	0.2340	0.2340
+grid	hida_tower_wall/v1	hida_tower	-	all	16	ell	5	101
+grid	hida_tower_wall/v1	hida_tower	-	all	16	m	1	3
+grid	hida_tower_wall/v1	hida_tower	-	all	16	n1	101	501
+gmax	hida_tower_wall/v1	hida_tower	-	all	16	306.16
+term	hida_tower_rss/v1	hida_tower	-	all	16	0	17	1
+term	hida_tower_rss/v1	hida_tower	-	all	16	1	0.00778515	n1^1.9774
+resid	hida_tower_rss/v1	hida_tower	-	all	16	9	0.0317	0.0578	0.0578
+grid	hida_tower_rss/v1	hida_tower	-	all	16	ell	5	101
+grid	hida_tower_rss/v1	hida_tower	-	all	16	n1	101	501
+gmax	hida_tower_rss/v1	hida_tower	-	all	16	1618.8
+term	level_n_wall/v1	level_n	-	all	*	0	0.02	1
+term	level_n_wall/v1	level_n	-	all	*	1	5.52519e-13	n1^4.0622*psi^3.9561*np^1.0000
+resid	level_n_wall/v1	level_n	-	all	*	30	0.1956	0.4407	0.3958
+grid	level_n_wall/v1	level_n	-	all	*	n1	1	2001
+grid	level_n_wall/v1	level_n	-	all	*	np	1	12
+grid	level_n_wall/v1	level_n	-	all	*	psi	1	1800
+gmax	level_n_wall/v1	level_n	-	all	*	384.4
+term	level_n_rss/v1	level_n	-	all	*	0	17	1
+term	level_n_rss/v1	level_n	-	all	*	1	1.30579e-05	n1^2.1944*psi^1.4745
+resid	level_n_rss/v1	level_n	-	all	*	30	0.2025	0.4627	0.4627
+grid	level_n_rss/v1	level_n	-	all	*	n1	1	2001
+grid	level_n_rss/v1	level_n	-	all	*	np	1	12
+grid	level_n_rss/v1	level_n	-	all	*	psi	1	1800
+gmax	level_n_rss/v1	level_n	-	all	*	347.3
+term	nebentypus_wall/v1	nebentypus	-	all	*	0	0.02	1
+term	nebentypus_wall/v1	nebentypus	-	all	*	1	7.13865e-09	n1^2.8406*psi^2.0152*sp^1.0000
+resid	nebentypus_wall/v1	nebentypus	-	all	*	18	0.2259	0.5188	0.4567
+grid	nebentypus_wall/v1	nebentypus	-	all	*	n1	5	1001
+grid	nebentypus_wall/v1	nebentypus	-	all	*	psi	1	360
+grid	nebentypus_wall/v1	nebentypus	-	all	*	sp	2	97
+gmax	nebentypus_wall/v1	nebentypus	-	all	*	52.33
+term	nebentypus_rss/v1	nebentypus	-	all	*	0	17	1
+term	nebentypus_rss/v1	nebentypus	-	all	*	1	1.61597e-05	n1^2.2916*psi^1.4908
+resid	nebentypus_rss/v1	nebentypus	-	all	*	18	0.2683	0.5388	0.5388
+grid	nebentypus_rss/v1	nebentypus	-	all	*	n1	5	1001
+grid	nebentypus_rss/v1	nebentypus	-	all	*	psi	1	360
+grid	nebentypus_rss/v1	nebentypus	-	all	*	sp	2	97
+gmax	nebentypus_rss/v1	nebentypus	-	all	*	197.9
+thread	forms_algebra	independent
+thread	hecke_structure	independent
+thread	hida_lambda	independent
+thread	level_n	independent
+thread	nebentypus	independent
+thread	descent	amdahl_wall_logT_rss
+thread	hida_tower	amdahl_wall_logT_rss
+class	descent	zdesc
+class	forms_algebra	u128
+class	hecke_structure	zrec
+class	hida_lambda	ntt
+class	hida_tower	ladic
+class	level_n	u128
+class	nebentypus	heil
+calib	calib/v2	zdesc	1	1	4.4620	0x97889cebb75f6071	61.6
+calib	calib/v2	zdesc	mt	16	0.7665	0x97889cebb75f6071	524.8
+calib	calib/v2	zrec	1	1	1.9532	-	43.6
+calib	calib/v2	zrec	mt	16	1.9532	-	43.6
+calib	calib/v2	u128	1	1	1.1876	-	19.2
+calib	calib/v2	u128	mt	16	1.1876	-	19.2
+calib	calib/v2	heil	1	1	1.4133	-	22.1
+calib	calib/v2	heil	mt	16	1.4133	-	22.1
+calib	calib/v2	ntt	1	1	1.3206	-	17.6
+calib	calib/v2	ntt	mt	16	1.3206	-	17.6
+calib	calib/v2	ladic	1	1	5.1326	-	77.7
+calib	calib/v2	ladic	mt	16	1.6464	-	86.3
+calib	calib/v2	elim	1	1	0.1403	0x7561c9af33c19965	45.8
+calib	calib/v2	elim	mt	16	0.1403	0x7561c9af33c19965	45.8
+calib	calib/v2	gemm	1	1	0.0341	0x3976d4827d07618c	24.1
+calib	calib/v2	gemm	mt	16	0.0341	0x3976d4827d07618c	24.1
+calib	calib/v2	bw	1	1	0.0481	0x3b11cbc3b9eeec22	139.6
+calib	calib/v2	bw	mt	16	0.0481	0x3b11cbc3b9eeec22	139.6
+calib	calib/v2	hecke	1	1	0.9514	-	99.2
+calib	calib/v2	hecke	mt	16	0.2554	-	118.6

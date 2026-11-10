@@ -1,0 +1,33 @@
+# SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
+# SPDX-License-Identifier: LGPL-3.0-only WITH LicenseRef-CUDA-exception
+
+# %% [md] 09 -- over Z: the Hecke operators as integer matrices, torsion included.
+# H^1(Gamma_0(N); Sym^n Z^2) = T (+) Z^r: T the torsion, Z^r the free part. In generators "torsion first, then a basis
+# of the free part" every T_p is a block matrix [[tau, M], [0, F]]: tau acts on T, F on Z^r, and M records how the free
+# generators are moved into the torsion. module_Z() computes all three. F is exact over Z, in one picked basis B
+# (rule iso_dixon/v3) that is certified to be a Z-basis by one determinant, det(Phi_cert^T B) = +-1; its integers
+# are printed in full (strings). The free generators are the classes [b_j] of the cocycles of B themselves, so
+# T_p b_j = sum_i F_ij b_i + sum_a M_aj g_a holds as printed (g_a the torsion generators, row a of M mod d_a).
+# pi_B (in retractions, per torsion prime) gives the torsion coordinates of the b_j: subtracting them gives the
+# other natural complement, and M changes by pi_B F - tau pi_B. At level 1 and n = 30 the torsion is
+# (Z/2)^3 + (Z/4)^3 + (Z/3)^2 + Z/9 + Z/25 + Z/29, r = 5, and the entries of F(T_3) have up to 89 bits.
+# module_Z("local") is the same object without F.
+
+# %% H^1 over Z at level 1, n = 30
+set coefficient_ring = "Z";
+D = descent(1, 30, [2, 3]);
+Z = D.module_Z();
+display(Z.invariant_factors);
+display(Z.basis);
+
+# %% T_3: the free block F over Z and its characteristic polynomial
+display(Z.ops[1].F);
+display(Z.ops[1].charpoly_Z);
+
+# %% T_3: the torsion block tau and the mixed block M (per torsion prime, against the classes of B)
+display(Z.ops[1].tau);
+display(Z.ops[1].M);
+
+# %% The torsion coordinates of the basis B at ell = 5 (pi_B: one row per generator of the 5-torsion)
+display(Z.retractions[2].ell);
+display(Z.retractions[2].pi_B);

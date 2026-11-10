@@ -1,0 +1,97 @@
+# 047_c5_local_algebra_verbs.oc -- [P] Sec. 3.5's C5 rows and the value types
+# of C5b (slot-9 WP-13, console phase C5b).
+#
+# The local-algebra verbs -- nilpotent_part, radical, tangent_space, socle,
+# nilpotency_index, loewy, socle_series, is_local, algebra_invariants -- on
+# ANY commuting family, with no locality certificate as input
+# (HeckeExt/HeckeAlgebraInvariants: rad = ker Frob^e, Berlekamp's count of
+# maximal ideals, Ann(rad), the Jordan-Chevalley split s = t^(ell^N)).  Then
+# GF / GFElt (the canonical split field), Settings, Atlas, L_map.
+
+include("prelude.oc");
+
+# --- constructed algebras with known invariants -------------------------------
+p = 7;
+x = matrix(p, [[0, 0, 0], [1, 0, 0], [0, 1, 0]]);          # F[x]/(x^3), regular rep
+A = algebra_invariants([x]);
+assert(A.local and A.dim == 3 and A.nilpotency_index == 3, "F[x]/(x^3): local, nu = 3");
+assert(A.hilbert == [1, 1, 1] and A.embdim == 1 and A.gorenstein, "F[x]/(x^3): Hilbert (1,1,1)");
+assert(radical([x]).dim == 2 and socle([x]).dim == 1, "F[x]/(x^3): rad dim 2, socle dim 1");
+assert(loewy([x]).dims == [3, 2, 1, 0], "F[x]/(x^3): Loewy series");
+assert(socle_series([x]).dims == [0, 1, 2, 3], "F[x]/(x^3): socle series");
+print(A);
+
+u = matrix(p, [[0, 0, 0], [1, 0, 0], [0, 0, 0]]);          # F[u, v]/(u, v)^2 on <1, u, v>
+v = matrix(p, [[0, 0, 0], [0, 0, 0], [1, 0, 0]]);
+T = tangent_space([u, v]);
+S = socle([u, v]);
+assert(T.local and T.embdim == 2 and T.dim == 2, "F[u,v]/(u,v)^2: embdim 2");
+assert(S.dim == 2 and S.gorenstein == false, "F[u,v]/(u,v)^2: socle dim 2, NOT Gorenstein");
+assert(nilpotency_index([u, v]) == 2, "F[u,v]/(u,v)^2: nu = 2");
+
+# The Galois-conjugate trap: each operator's minimal polynomial is x^2 + 1,
+# irreducible over F_7, but F[a, b] = F_49 x F_49 is NOT local.
+a = matrix(p, [[0, 6, 0, 0], [1, 0, 0, 0], [0, 0, 0, 6], [0, 0, 1, 0]]);
+b = matrix(p, [[0, 6, 0, 0], [1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 6, 0]]);
+assert(is_local([a]) and is_local([b]), "each alone generates F_49");
+assert(is_local([a, b]) == false, "together: two maximal ideals");
+assert(algebra_invariants([a, b]).components == 2, "Berlekamp counts 2");
+expect_error "do not commute" { is_local([x, matrix(p, [[1, 0, 0], [0, 2, 0], [0, 0, 3]])]); }
+
+# Jordan-Chevalley: t = s + n with s = diag(2, 2, 3), n = E_12, conjugated.
+s0 = matrix(5, [[2, 0, 0], [0, 2, 0], [0, 0, 3]]);
+n0 = matrix(5, [[0, 1, 0], [0, 0, 0], [0, 0, 0]]);
+P = matrix(5, [[1, 2, 0], [0, 1, 3], [1, 0, 1]]);
+t = mul(mul(P, add(s0, n0)), inverse(P));
+assert(nilpotent_part(t) == mul(mul(P, n0), inverse(P)), "nilpotent_part recovers P n0 P^-1");
+assert(nilpotent_part([t, identity(5, 3)]) == [nilpotent_part(t), zero(5, 3, 3)],
+       "the list form: one nilpotent part per operator");
+
+# --- the verbs on a real ideal: (10, 691), against the record's T_m ------------------
+R = ext_record(N_SYM, ELL, sturm = false, commutant = false);
+m = R.ideals[0];
+Tm = m.algebra;
+assert(radical(Tm).dim == Tm.dim_m, "radical(T_m) == m_S");
+assert(nilpotency_index(Tm) == Tm.nilpotency, "nilpotency_index(T_m) == nu");
+assert(tangent_space(Tm).embdim == Tm.embdim, "tangent_space(T_m).embdim");
+assert(socle(Tm).gorenstein == Tm.gorenstein, "socle(T_m).gorenstein");
+assert(loewy(Tm).layers_over_f == module_structure(m).loewy, "loewy(T_m) == the LoewyProfile");
+assert(socle_series(Tm).layers_over_f == module_structure(m).socle, "socle_series(T_m) == its socle");
+print(Tm);
+
+# --- GF: the canonical split field -------------------------------------------
+F = GF(7, 3);
+print(F);
+assert(F.canonical and F.degree == 3, "C_{7,3} is the CanonicalLess-least monic irreducible");
+y = F.gen;
+assert(gf_pow(y, 342) == F.one, "Y^(7^3 - 1) = 1");
+assert(gf_frobenius(gf_frobenius(gf_frobenius(y))) == y, "Frob^3 = id on F_343");
+assert(gf_mul(y, gf_inv(y)) == F.one, "Y * Y^-1 = 1");
+assert(gf_eval(F.polynomial, y).is_zero, "Y is a root of C_{7,3}");
+assert(gf_add(F.elt([1, 2]), F.elt([6, 5])) == F.zero, "(1 + 2Y) + (6 + 5Y) = 0");
+print(y, gf_mul(y, y), gf_inv(y));
+assert(canonical_field(7, 3).polynomial == F.polynomial, "canonical_field(ell, r) is GF(ell, r)");
+
+# --- Settings ------------------------------------------------------------------
+St = settings_snapshot();
+assert(St.is_default and St.fingerprint == fingerprint(), "the snapshot at the defaults");
+assert(St.get("locality") == "budget=64" and St.get("coefficient_ring") == "F_ell", "two keys");
+
+# --- Atlas: Sigma(5) ---------------------------------------------------------------
+At = atlas(5);
+assert(At.primes == [2, 3, 7, 11, 13, 17, 19, 23, 29, 31], "the anemic pool {q <= 31} \\ {5}");
+first = At.system(0);
+assert(At.lookup(first.eigenvalues) == 0, "lookup finds system 0 from its own eigenvalues");
+assert(At.separates, "S_sep(5) separates Sigma(5) u chi");
+print(At, At.separating_primes);
+
+# --- L_map: the Dickson multiplication into (12, 5) from (6, 5) -------------------
+Hn = cohomology(symmetric_power(MODEL, 12, 5));
+Hm = cohomology(symmetric_power(MODEL, 6, 5));
+L = L_map(Hm, Hn);
+assert(L.m == 6 and L.certificate == 0, "m = n - ell - 1, the coefficient-level certificate");
+assert(L.L.rows == 13 and L.L.cols == 7, "L : Sym^6 -> Sym^12 is 13 x 7");
+print("L_* ranks", L.ranks);
+
+assert(fingerprint() == "0x0000000000000000", "every pin taken at the defaults");
+annotate("047_c5_local_algebra_verbs: the local-algebra verbs, GF, Settings, Atlas, L_map");

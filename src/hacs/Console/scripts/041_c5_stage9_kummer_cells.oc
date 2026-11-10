@@ -1,0 +1,79 @@
+# 041_c5_stage9_kummer_cells.oc -- [S Stage 9] case 1 on all seven of its
+# cells (slot-9 WP-13, console phase C5b).
+#
+#   k < ell - 1 and ell | num(B_k / k):
+#   (n, ell) = (10, 691), (14, 3617), (16, 43867), (18, 283), (18, 617),
+#              (20, 131), (20, 593)          (k = n + 2 in the pipeline's n)
+#
+# 040 read the flagship cell through the extension record.  The record's
+# Stage 1 would admit U_ell on these cells, and U_3617 alone costs ~34 s
+# (HeckeExtKummerValidation), so this script reaches the SAME mathematics
+# through the C5 objects that need no U_ell: the involution (iota), the
+# boundary restriction r^1 (boundary), the cone (cone) and the local-algebra
+# verbs on the good-prime operators.  Every pin is at fingerprint 0.
+#
+# Per cell it asserts:
+#   * the Kummer property itself, derived (bernoulli_mod, as 019 does);
+#   * dim H^1 = 3, the whole of H^1 one generalised eigenspace of T_2 for the
+#     Eisenstein eigenvalue 1 + 2^(n+1), with n_2 of Jordan type (2, 1);
+#   * X_4^+ = H^1_+ is 2-dimensional and F[T_2, T_3]|_{H^1_+} is LOCAL with
+#     nilpotency index 2: exactly one maximal ideal there, and it is NON-SPLIT;
+#   * [E] cl:harder in its mod-ell form (v1.4.0): r^1 vanishes on the joint
+#     Eisenstein eigenspace E (the socle, 2-dimensional), while rank r^1 = 1,
+#     so dim H^1_! = 2 and dim X_3 = dim H^1_c^1 = 3 (X_6 = H^2_c = 0).
+
+include("prelude.oc");
+
+KUMMER = [[10, 691], [14, 3617], [16, 43867], [18, 283], [18, 617], [20, 131], [20, 593]];
+
+cells = 0;
+for cell in KUMMER {
+    n = cell[0];
+    ell = cell[1];
+    k = n + 2;
+    tag = "(" + str(n) + ", " + str(ell) + ")";
+    assert(bernoulli_mod(k, ell) == 0, tag + ": ell | num(B_k / k)");
+
+    H = cohomology(symmetric_power(MODEL, n, ell));
+    assert(H.dims == [0, 3, 0], tag + ": dim H^q = [0, 3, 0]");
+    I3 = identity(ell, 3);
+    T2 = hecke(H, 2).A(1);
+    T3 = hecke(H, 3).A(1);
+    a2 = (1 + 2^(n + 1)) % ell;
+    a3 = (1 + 3^(n + 1)) % ell;
+    assert(jordan_type(sub(T2, scale(I3, a2))) == [2, 1],
+           tag + ": T_2 - (1 + 2^(n+1)) has Jordan type (2, 1)");
+    A = algebra_invariants([T2, T3]);
+    assert(A.local and A.nilpotency_index == 2 and A.embdim == 1,
+           tag + ": F[T_2, T_3] on H^1 is local, nu = 2, embdim 1");
+
+    # X_4^+ : the involution's plus part.
+    J = iota(H);
+    assert(J.certificate == 0, tag + ": obl:iota discharged");
+    assert(J.dims_plus == [0, 2, 0] and J.dims_minus == [0, 1, 0], tag + ": H^1 = 2 (+) 1");
+    P = J.plus(1);
+    Ap = algebra_invariants([restrict(T2, P), restrict(T3, P)]);
+    assert(Ap.local and Ap.components == 1, tag + ": exactly one maximal ideal in H^1_+");
+    assert(Ap.nilpotency_index == 2, tag + ": and it is non-split (nu = 2)");
+    assert(loewy([restrict(T2, P), restrict(T3, P)]).layers == [1, 1], tag + ": Loewy [1, 1] on H^1_+");
+
+    # Harder's criterion, mod ell: r^1 = 0 on the joint eigenspace E.
+    E = intersect(kernel(sub(T2, scale(I3, a2))), kernel(sub(T3, scale(I3, a3))));
+    assert(E.cols == 2, tag + ": the joint Eisenstein eigenspace E is 2-dimensional (the socle)");
+    B = boundary(H);
+    assert(B.dims == [1, 1] and B.q_max == 1 and B.degrees == [0, 1], tag + ": H^*_bd on the circle");
+    r1 = B.r(1);
+    assert(rank(mul(r1, E)) == 0, tag + ": r^1 vanishes on E (cl:harder)");
+    assert(rank(r1) == 1, tag + ": but rank r^1 = 1 -- the TOP of the block restricts");
+    C = cone(H);
+    assert(C.H1_shriek == 2, tag + ": dim H^1_! = dim H^1 - 1 = 2");
+    assert(C.dims == [0, 3, 0] and C.les_exact, tag + ": H^*_c = [0, 3, 0], the LES exact");
+    assert(C.q_max == 2 and C.truncated == false and C.coefficient_ring == "F_ell",
+           tag + ": the cone's degree members");
+    print(tag, H.dims, J.dims_plus, rank(r1), C.H1_shriek, C.dims);
+    cells = cells + 1;
+}
+assert(cells == 7, "all seven [S Stage 9] case-1 cells");
+
+assert(fingerprint() == "0x0000000000000000", "every pin taken at the defaults");
+annotate("041_c5_stage9_kummer_cells: " + str(cells) + " Kummer cells, one non-split ideal in H^1_+ each");

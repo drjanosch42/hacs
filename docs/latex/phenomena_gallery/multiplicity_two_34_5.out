@@ -1,0 +1,7 @@
+operators [2, 3, 5, 7]  separating set S_sep [2]  ideals 3
+ideal 0  dim 2  atlas system 1  chi [0, 3]  a_2 4 (mod 5)  a_3 3 (mod 5)  U_5 0 (mod 5)  nu 1
+ideal 1  dim 1  atlas system 1  chi [0, 3]  a_2 4 (mod 5)  a_3 3 (mod 5)  U_5 1 (mod 5)  nu 1
+ideal 2  dim 4  atlas system 2  chi [1, 2]  a_2 1 (mod 5)  a_3 2 (mod 5)  U_5 0 (mod 5)  nu 1
+H^1_+ ideal 0  dim 1  system 1  nu 1
+H^1_+ ideal 1  dim 1  system 1  nu 1
+H^1_+ ideal 2  dim 2  system 2  nu 1

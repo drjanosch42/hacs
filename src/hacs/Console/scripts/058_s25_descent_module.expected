@@ -1,0 +1,13 @@
+#! oc-format 1
+module(691, 2): ok  route: cokernel  K_max: 3  invariant factors: [2, 2, 2]
+  T_2 charpoly on the free part (mod 691^2): [1, 475480, 379705, 252219]
+module(2, 3): ok  route: tree  torsion: [1, 2]  invariant factors: [3, 3, 3, 2, 1]
+  generator: torsion  exponent 1  cochain length 25
+  generator: torsion  exponent 2  cochain length 25
+  generator: free  exponent 3  cochain length 25
+  generator: free  exponent 3  cochain length 25
+  generator: free  exponent 3  cochain length 25
+  T_2 on the generators (column convention): [[0, 0, 0, 0, 0], [2, 2, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 1]]
+module(5, 2) at level 11: [2, 2, 2]  T_2: [[23, 0, 0], [0, 23, 24], [0, 0, 3]]  charpoly: [1, 1, 17, 13]
+module(691, 9): refused -- REFUSED [Precision] K = 9 > K_max = 3 (the width of this export)
+refusals: ok

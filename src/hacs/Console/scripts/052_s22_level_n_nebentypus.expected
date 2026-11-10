@@ -1,0 +1,6 @@
+#! oc-format 1
+level 1, n = 10, ell = 7: h1 = 3  dim S_12 = 1  charpoly T_2 = [4, 0, 1, 1]
+level 11, n = 0, ell = 7: h0 = 1  h1 = 3  index = 12  cusps = 2
+trivial character at (11, 0, 7) agrees with level_n: charpoly T_2 = [2, 6, 1, 1]
+7.2, n = 2, ell = 13: order = 3  h0 = 0  h1 = 4  charpoly T_2 = [8, 3, 4, 2, 1]
+13.8, n = 4, ell = 17: parity_ok = false  h1 = 0

@@ -1,0 +1,3 @@
+#! oc-format 1
+ell = 37 i = 32: v_pi = 38  ell | B_i: true  oracle agrees: true  not an ell-th power: true
+ell = 37 i = 30: v_pi = 30  ell | B_i: false  oracle agrees: true

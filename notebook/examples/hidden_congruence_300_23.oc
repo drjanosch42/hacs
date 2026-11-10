@@ -1,0 +1,69 @@
+# hidden_congruence_300_23.oc -- the (n = 300, ell = 23) "hidden congruence" [C] / [E] sec:ring,
+# docs/latex/loewy_and_galois_cohomology.tex (sec. "The (300,23) block").
+#
+# n = 300 (weight k = 302), ell = 23.  The block with eigensystem (a_2, a_3, a_5, a_7, a_23) =
+# (19, 14, 0, 0, 0) is rhobar_Delta (x) omega^2, dihedral for K = Q(sqrt(-23)), non-ordinary (a_23 = 0), D = 4.
+#   * mod 23 its Hecke algebra A_1 = T_m/(T_m cap ell T_m^sat) is F_23: ONE eigensystem (Hilbert function [1]);
+#   * over Z/23^2 the algebra A_K/ell has Hilbert function [1, 1], i.e. F_23[x]/x^2 -- two distinct
+#     weight-302 level-one eigenforms, congruent mod 23 but not mod 23^2 (depth delta = 1).
+#   dim A_1 = 1 < 2 = dim A_K/ell  is the "hidden" marker.   The record's `hidden` flag is true.
+#
+# Steps: (1) hecke_ring_algebra(300, 23, 2) -- the Z/ell^K Hecke-algebra route, all 14 blocks;
+#        (2) pick the block with system (19,14,0,0,0) and show A1 vs A_K Hilbert functions;
+#        (3) dihedral pattern: for the primes of the system, a_p = 0 exactly where p is inert in Q(sqrt(-23))
+#            (-23 is a non-square mod p).  The other blocks of the same (n, ell) are shown for contrast:
+#            none of them is hidden.
+# Only read_only verbs are used (hecke_ring_algebra, print, keys, len, str, assert), so the script is
+# notebook-safe.  Needs no full console.   Cost: ~97 s wall (shared binary, RelWithDebInfo), 0.56 GB RSS (the dense route at n = 300).
+# Not in Console/scripts/ (no frozen transcript).
+#
+# Expected output (excerpt):
+#   BLOCKS 14 primes [2, 3, 5, 7, 23] K_cls 2 K_run [2]
+#   BLOCK system=[19, 14, 0, 0, 0] D=4 verdict=stable
+#     A1_hilbert (mod 23)     = [1]      -> one eigensystem mod 23
+#     AK_hilbert (mod 23^2)/ell = [1, 1]   -> F_23[x]/x^2 over Z/23^2
+#     hidden = true  (A_1 smaller than A_K/ell)
+#   DIHEDRAL p=2 (-23|p)=+1 split a_p=19
+#   DIHEDRAL p=3 (-23|p)=+1 split a_p=14
+#   DIHEDRAL p=5 (-23|p)=-1 inert a_p=0
+#   DIHEDRAL p=7 (-23|p)=-1 inert a_p=0
+#   OTHER BLOCKS hidden: 1 of 14 ; D=4 with A1=[1,1]: 8
+
+R = hecke_ring_algebra(300, 23, 2);
+print("BLOCKS", len(R.blocks), "primes", R.primes, "K_cls", R.K_cls, "K_run", R.K_run);
+
+TARGET = [19, 14, 0, 0, 0];
+BI = -1;
+i = 0;
+nhid = 0;
+nsplit = 0;
+for b in R.blocks {
+    if b.hidden { nhid = nhid + 1; }
+    if b.A1_hilbert == [1, 1] and b.D == 4 { nsplit = nsplit + 1; }
+    if b.system == TARGET { BI = i; }
+    i = i + 1;
+}
+assert(BI >= 0, "the block (19,14,0,0,0) is present");
+B = R.blocks[BI];
+
+print("BLOCK system=" + str(B.system) + " D=" + str(B.D) + " verdict=" + B.verdict);
+print("  A1_hilbert (mod 23)     = " + str(B.A1_hilbert) + "      -> one eigensystem mod 23");
+print("  AK_hilbert (mod 23^2)/ell = " + str(B.AK_hilbert) + "   -> F_23[x]/x^2 over Z/23^2");
+print("  hidden = " + str(B.hidden) + "  (A_1 smaller than A_K/ell)");
+assert(B.A1_hilbert == [1] and B.AK_hilbert == [1, 1] and B.hidden, "hidden congruence at (300,23)");
+
+# dihedral pattern: -23 is a square mod p iff p splits in K = Q(sqrt(-23))
+i = 0;
+for p in R.primes {
+    if p != 23 {
+        sq = false;
+        for x in range(0, p) {
+            if Fp(p, x * x + 23) == Fp(p, 0) { sq = true; }
+        }
+        if sq { tag = "split"; sgn = "+1"; } else { tag = "inert"; sgn = "-1"; }
+        print("DIHEDRAL p=" + str(p) + " (-23|p)=" + sgn + " " + tag + " a_p=" + str(B.system[i]));
+        if not sq { assert(B.system[i] == 0, "a_p = 0 at an inert prime"); }
+    }
+    i = i + 1;
+}
+print("OTHER BLOCKS hidden:", nhid, "of", len(R.blocks), "; D=4 with A1=[1,1]:", nsplit);

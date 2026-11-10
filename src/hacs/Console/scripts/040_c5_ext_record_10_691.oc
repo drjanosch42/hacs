@@ -1,0 +1,86 @@
+# 040_c5_ext_record_10_691.oc -- [S Stage 9] case 1 at its flagship cell,
+# through the extension RECORD object (slot-9 WP-13, console phase C5b).
+#
+# 020 pinned (10, 691) as far as the C1b surface reached -- matrices, Jordan
+# types, one Decomposition block.  What 020 could not reach is the record the
+# extension engine writes for the cell: its maximal ideals, the local Hecke
+# algebra T_m, the Loewy profile, the extension class between the layers, the
+# presentation, the per-sign records and the cone.  C5b binds them, and this
+# script reads them.
+#
+# [S Stage 9] predicts, at a Kummer cell with n < ell - 1: exactly ONE
+# non-split Eisenstein-cuspidal maximal ideal in X_4^+ = H^1_+, and -- in the
+# form [E] cl:harder states it since v1.4.0 -- r^1 = 0 on the socle E of that
+# block (not on the block: rank r^1 = 1, dim H^1_! = dim H^1 - 1).  Whether the
+# prediction HOLDS is the engine's acceptance (HeckeExtRamanujanValidation,
+# HeckeBoundaryParabolicValidation); what this script asserts is what the
+# record says, read from the console.
+
+include("prelude.oc");
+
+# The record, with the E4b-E5 objects (cone) and the E3 split (sign_split).
+R = ext_record(N_SYM, ELL, cone = true, sign_split = true);
+assert(R.schema == "hecke_ext/v5", "the record schema");
+assert(R.dims == [0, 3, 0], "dim H^q(Gamma; Sym^10 (x) F_691)");
+assert(R.coefficient_ring == "F_ell", "the extension layer computes over F_ell");
+assert(R.u_ell.included, "U_691 is admitted by the frozen budget");
+assert(R.operators == [2, 3, 5, 7, 691], "S_0 = {2, 3, 5, 7} and U_ell");
+assert(R.verify == 0, "HeckeExtRecord::verify()");
+assert(R.settings.fingerprint == "0x0000000000000000", "computed at the defaults");
+print(R);
+
+# --- The one maximal ideal ---------------------------------------------------
+assert(R.num_ideals == 1, "one maximal ideal at (10, 691)");
+m = R.ideals[0];
+print(m);
+assert(m.group == "H1" and m.dim == 3 and m.local, "the whole of H^1, certified local");
+assert(m.residue_degree == 1 and m.residue_degree_certified, "residue field F_691");
+assert(m.witness_poly == poly(ELL, [24, 1]), "m = (T_2 + 24) = (T_2 - 667)");
+assert(m.character(3) == poly(ELL, [252]), "P_3 = a_3 = 1 + 3^11 = 252 (mod 691)");
+assert(m.final == "true", "final");
+
+# --- T_m = F_691[eps]/eps^2 ------------------------------------------------------
+T = local_algebra(m);
+print(T);
+assert(T.dim == 2 and T.dim_m == 1 and T.nilpotency == 2, "T_m = F[eps]/eps^2");
+assert(T.hilbert == [1, 1] and T.embdim == 1 and T.gorenstein, "embdim 1, Gorenstein");
+assert(T.verify == 0, "certificate (a) re-derives");
+# The certificate-free route of the C5 local-algebra verbs agrees.
+I = T.invariants;
+assert(I.local and I.dim == T.dim and I.dim_radical == T.dim_m, "algebra_invariants(t_p) == T_m");
+assert(I.nilpotency_index == T.nilpotency and I.hilbert == T.hilbert, "nu and the Hilbert function");
+assert(nilpotent_part(T.t(2)) == T.n(2), "Jordan-Chevalley: nilpotent_part(t_2) == n_2");
+
+# --- The module structure: non-split, Loewy (2, 1) ----------------------------------
+P = module_structure(m);
+print(P);
+assert(P.loewy == [2, 1] and P.socle == [2, 1], "Loewy = socle = [2, 1]");
+assert(P.semisimple == false, "m H^1 != 0: a non-trivial Hecke-module extension");
+assert(P.cyclic == false and P.min_generators == 2, "not cyclic: two generators");
+assert(P.verify == 0, "ModuleStructure::verify()");
+for q in [2, 3, 5, 7, 691] {
+    assert(P.jordan(q) == [2, 1], "n_" + str(q) + " has Jordan type (2, 1)");
+}
+X = P.structure_map(0);
+print(X);
+assert(X.split == false and X.rank == 1, "the extension class of layers (0, 1) is non-split");
+assert(X.active == [2, 3, 5, 7, 691], "every generator glues the layers");
+
+Q = presentation(m);
+print(Q);
+assert(Q.min_generators == 2 and Q.min_relations == 1 and Q.verify == 0, "two generators, one relation");
+
+# --- X_4^+ : exactly one non-split Eisenstein-cuspidal ideal ------------------------
+assert(R.has_sign_records, "the per-sign records were built");
+plus = R.ideals_plus;
+assert(len(plus) == 1, "exactly one maximal ideal in H^1_+");
+assert(plus[0].dim == 2 and plus[0].nilpotency == 2, "of dimension 2, non-split (nu = 2)");
+assert(len(R.ideals_minus) == 1 and R.ideals_minus[0].dim == 1, "H^1_- is the cuspidal line");
+print(plus[0], R.ideals_minus[0]);
+
+# --- The cone: H^1_! and the long exact sequence -------------------------------
+assert(R.H1_shriek == 2, "dim H^1_! = dim H^1 - 1 (rank r^1 = 1)");
+assert(R.les_exact, "the cone's long exact sequence is exact");
+
+assert(fingerprint() == "0x0000000000000000", "every pin taken at the defaults");
+annotate("040_c5_ext_record_10_691: 1 ideal, T_m = F[eps]/eps^2, one non-split ideal in H^1_+");

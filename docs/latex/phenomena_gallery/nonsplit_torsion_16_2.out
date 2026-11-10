@@ -1,0 +1,10 @@
+status: final
+signature: (16,2,full) C1=refused(non_reduced) redQ=non_reduced_certified C2=not_run gen=[2:open(sandwich)] C_T=not_run fp=not_certified G6=[2.pt[0]=non_split] status=final
+H^1 = Z^12 + Z/2 + Z/2^3
+torsion generators: [{ell: 2, exponent: 1, d: 2}, {ell: 2, exponent: 3, d: 8}]
+T_3 on the torsion (row i mod d_i), 1 + p = 4 : [[0, 0], [0, 4]]
+  M (the 2-part of tors against the free basis): [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [5, 7, 7, 0, 7, 7, 4, 1, 5, 0, 2, 2]]
+T_5 on the torsion (row i mod d_i), 1 + p = 6 : [[0, 0], [0, 6]]
+  M (the 2-part of tors against the free basis): [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [2, 0, 6, 0, 0, 6, 0, 0, 2, 0, 0, 0]]
+T_7 on the torsion (row i mod d_i), 1 + p = 8 : [[0, 0], [0, 0]]
+  M (the 2-part of tors against the free basis): [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [2, 6, 6, 0, 6, 6, 0, 2, 2, 0, 4, 4]]

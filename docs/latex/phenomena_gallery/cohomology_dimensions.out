@@ -1,0 +1,40 @@
+ell = 691
+  n = 0  k = 2  dim H^q = [1, 0, 0]  dim S_k = 0  2 dim S_k + 1 = 0
+  n = 1  k = 3  dim H^q = [0, 0, 0]  dim S_k = 0  2 dim S_k + 1 = 0
+  n = 2  k = 4  dim H^q = [0, 1, 0]  dim S_k = 0  2 dim S_k + 1 = 1
+  n = 3  k = 5  dim H^q = [0, 0, 0]  dim S_k = 0  2 dim S_k + 1 = 0
+  n = 4  k = 6  dim H^q = [0, 1, 0]  dim S_k = 0  2 dim S_k + 1 = 1
+  n = 5  k = 7  dim H^q = [0, 0, 0]  dim S_k = 0  2 dim S_k + 1 = 0
+  n = 6  k = 8  dim H^q = [0, 1, 0]  dim S_k = 0  2 dim S_k + 1 = 1
+  n = 7  k = 9  dim H^q = [0, 0, 0]  dim S_k = 0  2 dim S_k + 1 = 0
+  n = 8  k = 10  dim H^q = [0, 1, 0]  dim S_k = 0  2 dim S_k + 1 = 1
+  n = 9  k = 11  dim H^q = [0, 0, 0]  dim S_k = 0  2 dim S_k + 1 = 0
+  n = 10  k = 12  dim H^q = [0, 3, 0]  dim S_k = 1  2 dim S_k + 1 = 3
+  n = 11  k = 13  dim H^q = [0, 0, 0]  dim S_k = 0  2 dim S_k + 1 = 0
+  n = 12  k = 14  dim H^q = [0, 1, 0]  dim S_k = 0  2 dim S_k + 1 = 1
+  n = 13  k = 15  dim H^q = [0, 0, 0]  dim S_k = 0  2 dim S_k + 1 = 0
+  n = 14  k = 16  dim H^q = [0, 3, 0]  dim S_k = 1  2 dim S_k + 1 = 3
+  n = 15  k = 17  dim H^q = [0, 0, 0]  dim S_k = 0  2 dim S_k + 1 = 0
+  n = 16  k = 18  dim H^q = [0, 3, 0]  dim S_k = 1  2 dim S_k + 1 = 3
+  n = 17  k = 19  dim H^q = [0, 0, 0]  dim S_k = 0  2 dim S_k + 1 = 0
+  n = 18  k = 20  dim H^q = [0, 3, 0]  dim S_k = 1  2 dim S_k + 1 = 3
+  n = 19  k = 21  dim H^q = [0, 0, 0]  dim S_k = 0  2 dim S_k + 1 = 0
+  n = 20  k = 22  dim H^q = [0, 3, 0]  dim S_k = 1  2 dim S_k + 1 = 3
+  n = 21  k = 23  dim H^q = [0, 0, 0]  dim S_k = 0  2 dim S_k + 1 = 0
+  n = 22  k = 24  dim H^q = [0, 5, 0]  dim S_k = 2  2 dim S_k + 1 = 5
+  n = 23  k = 25  dim H^q = [0, 0, 0]  dim S_k = 0  2 dim S_k + 1 = 0
+  n = 24  k = 26  dim H^q = [0, 3, 0]  dim S_k = 1  2 dim S_k + 1 = 3
+ell = 5
+  n = 0  dim H^q = [1, 0, 0]
+  n = 2  dim H^q = [0, 1, 0]
+  n = 4  dim H^q = [0, 1, 0]
+  n = 6  dim H^q = [1, 2, 0]
+  n = 8  dim H^q = [0, 1, 0]
+  n = 10  dim H^q = [0, 3, 0]
+  n = 12  dim H^q = [1, 2, 0]
+  n = 14  dim H^q = [0, 3, 0]
+  n = 16  dim H^q = [0, 3, 0]
+  n = 18  dim H^q = [1, 4, 0]
+  n = 20  dim H^q = [1, 4, 0]
+  n = 22  dim H^q = [0, 5, 0]
+  n = 24  dim H^q = [1, 4, 0]

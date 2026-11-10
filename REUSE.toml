@@ -1,0 +1,67 @@
+version = 1
+SPDX-PackageName = "HACS"
+SPDX-PackageDownloadLocation = "NOASSERTION"
+
+# Bulk licence mapping (REUSE 3.x).  Of several matching annotations the LAST one wins; an
+# inline SPDX header in a file (docs/licence/tools/add_spdx.py) takes precedence over all of them.
+# Policy (owner decision 2026-10-06; slot-21 plan WP-LIC): code LGPL-3.0-only with the NVIDIA CUDA
+# Toolkit exception, lean/ Apache-2.0, docs/ CC-BY-4.0, third-party items under their own licence.
+# Checked by docs/licence/tools/check_licences.sh (LicenceGuardValidation).
+
+# 1. Default: everything not listed below (C++ / CUDA, console, tools, scripts, data, build files).
+[[annotations]]
+path = "**"
+SPDX-FileCopyrightText = "2024-2026 Fabian Januszewski"
+SPDX-License-Identifier = "LGPL-3.0-only WITH LicenseRef-CUDA-exception"
+
+# 2. Documentation, LaTeX, result records and data under docs/, and the ground-truth blueprint text.
+[[annotations]]
+path = ["docs/**", "lean/blueprint/**"]
+SPDX-FileCopyrightText = "2024-2026 Fabian Januszewski"
+SPDX-License-Identifier = "CC-BY-4.0"
+
+# 3. Lean: own files (GL2/, tools/, survey/, lakefile, census) -- Apache-2.0.  Deliberately NOT
+#    given inline headers: lean/census.tsv carries a sha256 over the Lean sources.
+[[annotations]]
+path = "lean/**"
+SPDX-FileCopyrightText = "2024-2026 Fabian Januszewski"
+SPDX-License-Identifier = "Apache-2.0"
+
+# 3b. The blueprint text stays CC-BY-4.0 (re-stated after 3, which would otherwise win).
+[[annotations]]
+path = "lean/blueprint/**"
+SPDX-FileCopyrightText = "2024-2026 Fabian Januszewski"
+SPDX-License-Identifier = "CC-BY-4.0"
+
+# 4. Vendored FLT modules: upstream Apache-2.0, byte-identical, NO SPDX headers (Apache-2.0 4(b)).
+#    Per-file record: lean/Vendor/AnthropicFLT/MANIFEST.tsv; notices: NOTICE, ATTRIBUTION.md.
+[[annotations]]
+path = "lean/Vendor/**"
+precedence = "override"
+SPDX-FileCopyrightText = "2026 Anthropic, PBC; 2024-2026 Kevin Buzzard, Andrew Yang, Matthew Jasper and the other FLT-project / flt-regular / Mathlib authors named in lean/Vendor/AnthropicFLT/NOTICE and ATTRIBUTION.md"
+SPDX-License-Identifier = "Apache-2.0"
+
+# 5. KaTeX 0.19.0 (notebook/vendor/katex/PROVENANCE.txt).  Code and CSS: MIT.  The .woff2 fonts:
+#    KaTeX's fonts are SIL OFL 1.1 (Design Science, Khan Academy), verified slot 22 WP-LIC2 (PROVENANCE.txt); licence text beside them: FONTS-LICENSE-OFL.txt.
+[[annotations]]
+path = "notebook/vendor/katex/**"
+precedence = "override"
+SPDX-FileCopyrightText = "2013-2020 Khan Academy and other contributors"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "notebook/vendor/katex/fonts/**"
+precedence = "override"
+SPDX-FileCopyrightText = "2009-2010 Design Science, Inc.; 2014-2018 Khan Academy"
+SPDX-License-Identifier = "OFL-1.1"
+
+[[annotations]]
+path = "notebook/vendor/katex/FONTS-LICENSE-OFL.txt"
+precedence = "override"
+SPDX-FileCopyrightText = "2009-2010 Design Science, Inc.; 2014-2018 Khan Academy"
+SPDX-License-Identifier = "OFL-1.1"
+
+# 6. (Third-party literature: docs/literature/ was removed from HEAD in slot 22 WP-LIC2; history still holds it,
+#    see docs/licence/THIRD_PARTY.md section 3. No annotation any more; LICENSES/LicenseRef-third-party-literature.txt
+#    is kept only for the history / a future re-add.)
+

@@ -1,0 +1,419 @@
+% gt_part_M6.tex -- [GT] Part M6: the Hecke operator does not depend on the resolution; [C] thm:classical on the model.
+% Slot 23, package M6-A (docs/implementation/slot22/M6B_brief.md, core item A: A1, A2, A3, A-T). Read by lean_census.py.
+% Lean: lean/GL2/M6/{ResTransfer,ResMap,BarCor,Classical,TreeHecke,HomologyLink,ModelHecke,ThetaExt}.lean (namespace GL2.M6;
+% HomologyLink in GL2.Cone.CochainCx). Every row is `proved` (no literature hypothesis, no \gtmodlit).
+% Labels: [GT]-only labels (prefix m6-); each names the [C] v1.21.0 clause it backs, in a "% backs" line.
+% [C] thm:classical and eq:corconjres: the clause-scoped \LEAN markers proposed in rmk:m6-open are APPLIED in [C] v1.24.0-rc.1
+% (slot-25 RC124, owner question Q4 approved in principle 2026-10-18); the release of [C] 1.24.0 is the owner's.
+% Route (M6B_brief.md D3): resolution transport, not delta-functors. Theta_can (D4): the comparison induced by any lift of id
+% to the bar resolution; M4's Theta (Ext-built, mathlib's groupCohomologyIso) IS Theta_can (A-Theta, thm:m6-theta-ext), so
+% lit:hecke-classical (hcl) is a theorem (thm:m6-hcl) and thm:classical-model is proved outright.
+
+\chapter{Part M6. Hecke operators on resolutions; \texorpdfstring{[C] \texttt{thm:classical}}{[C] thm:classical} on the model}\label{ch:m6}
+
+\paragraph{Setting.} $G$ a group, $k$ a commutative ring, $K\le G$ of finite index with a (left) transversal $\sigma$ (the vendored
+\texttt{Cores.Transversal}, $\sigma(K)=1$) and its retraction $\lambda=\sigma.\texttt{lam}\colon G\to K$ ($x\in\lambda(x)\,\sigma(x^{-1}K)^{-1}$).
+Projective resolutions are mathlib's \texttt{ProjectiveResolution} of the trivial representation $k$; for a chain complex $X$ of
+$G$-representations, $\mathrm{Hom}_G(X,A)$ is mathlib's \texttt{linearYonedaObj}, $\varphi^*$ / $\theta_*$ / $\mathrm{res}$ are
+LR-Y's \texttt{preY} / \texttt{postY} / \texttt{resY} (\ref{def:mp-prey}, \ref{thm:mp-cyc-res}). On the model: Part M4 / M5's setting
+(\ref{def:m4-hecke}, \ref{def:m5-Tcls}).
+
+\section{The canonical comparison and the transfer on a resolution}
+
+\begin{definition}[The canonical comparison $\Theta_{\mathrm{can}}$'s building block]\label{def:m6-can}
+  % backs [C] v1.21.0 thm:classical ("under the isomorphisms of thm:explicit_complex_equiv and rmk:orbifold": the comparison induced by a lift of id)
+  \lean{GL2.M6.canIso}
+  \leanok
+  \uses{def:mp-prey}
+  For a projective resolution $P$ of $k$ over $G$: $\texttt{canIso}\,P\,A\,n\colon H^n(G;A)\cong H^n(\mathrm{Hom}_G(P,A))$, mathlib's
+  inhomogeneous cochains $=\mathrm{Hom}(\mathrm{bar},A)$, then $\varphi^*$ for the comparison $P\simeq\mathrm{bar}$ of
+  \texttt{ProjectiveResolution.homotopyEquiv} (as LR-Y's \texttt{PermRes.barIso}; not through $\mathrm{Ext}$).
+\end{definition}
+\begin{proof}
+  \leanok
+  Definition.
+\end{proof}
+
+\begin{lemma}[Any lift of the identity]\label{lem:m6-can-lift}
+  \lean{GL2.M6.canIso_hom_eq, GL2.M6.canIso_lift}
+  \leanok
+  \uses{def:m6-can}
+  \texttt{canIso}\,$P$ is induced by \emph{any} chain map $P\to\mathrm{bar}$ over $\mathrm{id}_k$; for every chain map
+  $\varphi\colon P\to Q$ over $\mathrm{id}_k$, $\texttt{canIso}\,P=\texttt{canIso}\,Q\circ H(\varphi^*)$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  Two lifts of $\mathrm{id}_k$ out of a projective resolution are homotopic (\texttt{liftHomotopy}); $\mathrm{Hom}(-,A)$ of a homotopy
+  is a homotopy (\texttt{preYHomotopy}); for the second claim apply the first to $\varphi$ followed by $Q$'s comparison.
+\end{proof}
+
+\begin{definition}[The transfer on a resolution]\label{def:m6-corY}
+  % backs [C] v1.21.0 eq:corconjres's cor^Gamma_{Gamma''} (Brown III.9) on an arbitrary resolution
+  \lean{GL2.M6.corLin, GL2.M6.corLin_apply, GL2.M6.resHom_comm, GL2.M6.corLin_comm, GL2.M6.corHom, GL2.M6.corHom_hom_apply,
+    GL2.M6.corHomL, GL2.M6.corHom_comp, GL2.M6.corY, GL2.M6.corY_f_apply}
+  \leanok
+  For every chain complex $X$ of $G$-representations: the cochain map $\texttt{corY}\colon\mathrm{Hom}_K(\mathrm{res}\,X,\mathrm{res}\,A)\to
+  \mathrm{Hom}_G(X,A)$, $\chi\mapsto\bigl(x\mapsto\sum_{q\in G/K}\sigma_q\,\chi(\sigma_q^{-1}x)\bigr)$; the value is $G$-equivariant
+  (\texttt{corLin\_comm}) and commutes with precomposition by $G$-maps (\texttt{corHom\_comp}).
+\end{definition}
+\begin{proof}
+  \leanok
+  Equivariance: $\gamma\,\sigma_{\gamma^{-1}q}=\sigma_q\,\lambda(\sigma_q^{-1}\gamma)$ (the vendored \texttt{mul\_σ}), $\chi$ is
+  $K$-linear, and $q\mapsto\gamma^{-1}q$ permutes $G/K$.
+\end{proof}
+
+\begin{lemma}[Independence of the transversal, cochain level]\label{lem:m6-corY-indep}
+  \lean{GL2.M6.corHom_indep, GL2.M6.corY_indep}
+  \leanok
+  \uses{def:m6-corY}
+  $\texttt{corY}$ does not depend on $\sigma$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  $\sigma_q=\sigma'_q h$ with $h\in K$, and $\sigma'_qh\,\chi(h^{-1}\sigma_q'^{-1}x)=\sigma'_q\,\chi(\sigma_q'^{-1}x)$.
+\end{proof}
+
+\begin{lemma}[{$\mathrm{cor}\circ\mathrm{res}=[G:K]$, cochain level}]\label{lem:m6-corY-res}
+  \lean{GL2.M6.corHom_res, GL2.M6.corY_resY}
+  \leanok
+  \uses{def:m6-corY}
+  $\texttt{corY}\circ\mathrm{res}=[G:K]$ on $\mathrm{Hom}_G(X,A)$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  For $G$-linear $\varphi$, $\sigma_q\,\varphi(\sigma_q^{-1}x)=\varphi(x)$; there are $[G:K]$ summands.
+\end{proof}
+
+\begin{lemma}[Naturality of the transfer in the resolution]\label{lem:m6-corY-natural}
+  \lean{GL2.M6.corY_natural}
+  \leanok
+  \uses{def:m6-corY}
+  For every chain map $F\colon X\to Y$ of $G$-representations, $\texttt{corY}_X\circ(\mathrm{res}\,F)^*=F^*\circ\texttt{corY}_Y$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  $F(\sigma_q^{-1}x)=\sigma_q^{-1}F(x)$.
+\end{proof}
+
+\section{Restriction, conjugation and corestriction through any resolution}
+
+\begin{theorem}[Restriction and conjugation through resolutions]\label{thm:m6-map-res}
+  % backs [C] v1.21.0 eq:corconjres's res^Gamma_{Gamma'} and (c_g)_* (mathlib's groupCohomology.map) on arbitrary resolutions
+  \lean{GL2.M6.comm_of_el, GL2.M6.comm_of_el', GL2.M6.el_of_comm, GL2.M6.diag_stab_bot, GL2.M6.barRes, GL2.M6.barRes_complex,
+    GL2.M6.barRes_π_zero, GL2.M6.cochainsMap_split, GL2.M6.barMap_π, GL2.M6.map_canIso}
+  \leanok
+  \uses{lem:m6-can-lift, thm:mp-cyc-res}
+  For an \emph{injective} $f\colon K\to G$, $\theta\colon\mathrm{res}_fA\to B$, projective resolutions $P$ (over $G$) and $Q$ (over $K$), and
+  \emph{any} chain map $\alpha\colon Q\to\mathrm{res}_fP$ over $\mathrm{id}_k$: mathlib's $\texttt{groupCohomology.map}\,f\,\theta$ is,
+  through \texttt{canIso}, induced by $\psi\mapsto\theta\circ\mathrm{res}_f(\psi)\circ\alpha$. (Restriction: $f=K\hookrightarrow G$,
+  $\theta=\mathrm{id}$; conjugation: $f=(h\mapsto g^{-1}hg)$, $\theta=\rho(g)$, $\alpha=\tau$.) Generalises LR-Y's
+  \texttt{PermRes.barIso\_res}.
+\end{theorem}
+\begin{proof}
+  \leanok
+  On inhomogeneous cochains $\texttt{cochainsMap}\,f\,\theta$ is precomposition with LR-Y's bar map, then $\theta_*$
+  (\texttt{cochainsMap\_barMap}, \texttt{cochainsMap\_inhomogeneousCochainsIso}); $\alpha$ followed by $P$'s comparison and $Q$'s
+  comparison followed by the bar map are two lifts of $\mathrm{id}_k$ into $\mathrm{res}_f\mathrm{bar}_G$, a projective resolution over
+  $K$ (\texttt{barRes}: the bar resolution is a permutation resolution with free action), hence homotopic.
+\end{proof}
+
+\begin{definition}[$\lambda$ on the standard and bar resolutions]\label{def:m6-lam}
+  \lean{GL2.M6.resPR, GL2.M6.lam_mul_left, GL2.M6.lamV, GL2.M6.lamV_smul, GL2.M6.mdL, GL2.M6.mdL_single, GL2.M6.lamStd,
+    GL2.M6.lamStd_single, GL2.M6.lamCx, GL2.M6.lamStd_eps, GL2.M6.rep_comp_apply, GL2.M6.isoStd_hom_single,
+    GL2.M6.isoStd_inv_single, GL2.M6.lamBar, GL2.M6.lamBar_apply, GL2.M6.lamBar_single, GL2.M6.lamBar_π, GL2.M6.lamBar_comm}
+  \leanok
+  \texttt{resPR}: the restriction of a projective resolution to $K$ (mathlib's \texttt{Rep.resFunctor}, Shapiro). $\lambda(hx)=h\lambda(x)$
+  ($h\in K$). \texttt{lamCx}: the $K$-chain map $\mathrm{res}_KC_\bullet(G)\to C_\bullet(K)$ of homogeneous standard resolutions,
+  $(y_0,\dots,y_n)\mapsto(\lambda y_0,\dots,\lambda y_n)$, over $\mathrm{id}_k$; \texttt{lamBar}: the same on the bar resolutions
+  (through mathlib's \texttt{isoStandardComplex}), on generators $[x]\mapsto\lambda(g)\,[\lambda(gx_{<i})^{-1}\lambda(gx_{\le i})]_i$.
+\end{definition}
+\begin{proof}
+  \leanok
+  The faces of the standard resolution forget coordinates, so they commute with $\lambda$ coordinatewise; the augmentation sums
+  coefficients. \texttt{isoStandardComplex} on generators (LR-Y's \texttt{diagonalSuccIsoFree\_inv\_single},
+  \texttt{Fin.partialProd\_left\_inv}).
+\end{proof}
+
+\begin{lemma}[\texttt{corFin} is the transfer on the bar resolution, cochain level]\label{lem:m6-corfin-cochain}
+  % backs [C] v1.21.0 eq:corconjres: the vendored corFin (M5's corH) is Brown's transfer
+  \lean{GL2.M6.freeLiftLEquiv_symm_single, GL2.M6.barρ_single, GL2.M6.corFin_eq_corHom, GL2.M6.corCx_inhomog}
+  \leanok
+  \uses{def:m6-lam, def:m6-corY, def:m5-corH}
+  Under mathlib's \texttt{inhomogeneousCochainsIso}, the vendored $\texttt{corFin}\,u$ is $\texttt{corY}(\lambda^*u)$ on
+  $\mathrm{Hom}(\mathrm{bar}_G,A)$: an \emph{equality} of cochain maps (no homotopy).
+\end{lemma}
+\begin{proof}
+  \leanok
+  On a generator $[x]$: $\texttt{corY}(\lambda^*u)[x]=\sum_q\sigma_q\,\lambda(\sigma_q^{-1})\,u\bigl(\lambda(\sigma_q^{-1}x_{<i})^{-1}
+  \lambda(\sigma_q^{-1}x_{\le i})\bigr)_i$ and $\lambda(\sigma_q^{-1})=1$ (\texttt{coe\_lam\_σ\_inv}): this is \texttt{corFin\_apply}.
+\end{proof}
+
+\begin{theorem}[The corestriction through any resolution]\label{thm:m6-cor-res}
+  % backs [C] v1.21.0 eq:corconjres (cor in every degree, Brown III.9, on any projective resolution)
+  \lean{GL2.M6.corHm, GL2.M6.corHm_hom, GL2.M6.canIso_bar, GL2.M6.corH_canIso_bar, GL2.M6.corH_canIso}
+  \leanok
+  \uses{lem:m6-corfin-cochain, lem:m6-can-lift, lem:m6-corY-natural}
+  For \emph{every} projective resolution $P$ of $k$ over $G$ and every $n$: $\texttt{corH}$ (M5) is, through \texttt{canIso} of $P$ and of
+  $\mathrm{res}_KP$, induced by \texttt{corY} on $\mathrm{Hom}(P,-)$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  For $P=\mathrm{bar}$: \ref{lem:m6-corfin-cochain}, with \texttt{canIso} of $\mathrm{res}_K\mathrm{bar}_G$ computed by the lift
+  \texttt{lamBar}. In general: \ref{lem:m6-can-lift} for $P\to\mathrm{bar}$ and its restriction, and \ref{lem:m6-corY-natural}.
+\end{proof}
+
+\begin{theorem}[$\mathrm{cor}$ does not depend on the transversal, every degree]\label{thm:m6-corH-indep}
+  % backs [C] v1.21.0 eq:corconjres (well-definedness of cor), every degree (M5: n = 0, 1 only)
+  \lean{GL2.M6.corHm_indep, GL2.M6.corH_indep}
+  \leanok
+  \uses{thm:m6-cor-res, lem:m6-corY-indep}
+  $\texttt{corH}\,\sigma=\texttt{corH}\,\sigma'$ on $H^n$, every $n$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{thm:m6-cor-res} at $P=\mathrm{bar}$ for both transversals, \ref{lem:m6-corY-indep}, and \texttt{canIso} is an isomorphism.
+\end{proof}
+
+\begin{theorem}[{$\mathrm{cor}\circ\mathrm{res}=[G:K]$, every degree}]\label{thm:m6-cor-res-index}
+  % backs [C] v1.21.0 eq:corconjres / thm:classical's normalisation cor o res = [Gamma:Gamma''] (Brown III.9.5(ii)), every degree
+  \lean{GL2.M6.postY_id, GL2.M6.corHm_res, GL2.M6.corH_res}
+  \leanok
+  \uses{thm:m6-cor-res, thm:m6-map-res, lem:m6-corY-res}
+  $\texttt{corH}\circ\mathrm{res}=[G:K]$ on $H^n(G;A)$, every $n$ (the vendored homotopy covers $n=2,3$ only).
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{thm:m6-map-res} with $\alpha=\mathrm{id}$, $\theta=\mathrm{id}$, \ref{thm:m6-cor-res}, \ref{lem:m6-corY-res}; the homology
+  functor is additive.
+\end{proof}
+
+\section{The Hecke operator on any resolution (A1)}
+
+\begin{definition}[The Hecke operator on a resolution]\label{def:m6-heckeY}
+  % backs [C] v1.21.0 def:hecke / eq:heckechain on an arbitrary resolution (the model's T-tilde, P = the model complex)
+  \lean{GL2.M6.heckeY, GL2.M6.Tgen}
+  \leanok
+  \uses{def:m6-corY, thm:m6-map-res}
+  For injective $f\colon K\to G$, $\theta\colon\mathrm{res}_fA\to\mathrm{res}_KA$, a projective resolution $P$ and a chain map
+  $\tau\colon\mathrm{res}_KP\to\mathrm{res}_fP$: $\texttt{heckeY}\,\psi=\bigl(x\mapsto\sum_q\sigma_q\,\theta(\psi(\tau(\sigma_q^{-1}x)))\bigr)$ on
+  $\mathrm{Hom}_G(P,A)$; $\texttt{Tgen}=\mathrm{cor}\circ(f,\theta)_*$ on $H^n(G;A)$.
+\end{definition}
+\begin{proof}
+  \leanok
+  Definitions.
+\end{proof}
+
+\begin{theorem}[The Hecke operator does not depend on the resolution]\label{thm:m6-hecke-res}
+  % backs [C] v1.21.0 thm:classical (resolution-independent form; M6B_brief.md A1)
+  \lean{GL2.M6.hecke_canIso}
+  \leanok
+  \uses{def:m6-heckeY, thm:m6-map-res, thm:m6-cor-res}
+  For \emph{every} projective resolution $P$ of $k$ over $G$ and \emph{every} chain map $\tau\colon\mathrm{res}_KP\to\mathrm{res}_fP$ over
+  $\mathrm{id}_k$, every $n$: $\texttt{canIso}\circ(\mathrm{cor}\circ(f,\theta)_*)=H(\texttt{heckeY})\circ\texttt{canIso}$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{thm:m6-map-res} with $Q=\mathrm{res}_KP$, $\alpha=\tau$, then \ref{thm:m6-cor-res}.
+\end{proof}
+
+\begin{theorem}[M5's \texttt{Tcls} on any resolution; independence of the transversal]\label{thm:m6-Tcls-res}
+  % backs [C] v1.21.0 eq:corconjres (Tcls = cor o (c_g)_* o res, transversal-independent in every degree)
+  \lean{GL2.M6.fConjS, GL2.M6.fConjS_injective, GL2.M6.thetaS, GL2.M6.TclsT_eq, GL2.M6.TclsT_indep, GL2.M6.Tcls_canIso}
+  \leanok
+  \uses{thm:m6-hecke-res, thm:m6-corH-indep, def:m5-Tcls}
+  $\texttt{TclsT}\,g\,\sigma\,n=\mathrm{cor}\circ(f,\theta)_*$ with $f=(h\mapsto g^{-1}hg)$, $\theta=\rho(g)$ (\texttt{groupCohomology.map\_comp});
+  $\texttt{TclsT}$ does not depend on $\sigma$, every $n$; and for every projective resolution $P$ of $R$ over $\mathrm{SL}_2(\mathbb Z)$ and
+  every $\tau$ over $\mathrm{id}_R$, $\texttt{canIso}\circ\texttt{Tcls}\,g\,n=H(\texttt{heckeY})\circ\texttt{canIso}$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{thm:m6-hecke-res} and \ref{thm:m6-corH-indep}.
+\end{proof}
+
+\section{The tree resolution (A-T)}
+
+\begin{lemma}[A twisted chain datum on the tree resolution]\label{lem:m6-tree-tau}
+  \lean{GL2.M6.barIso_eq_canIso, GL2.M6.tree_tau_exists}
+  \leanok
+  \uses{thm:mp-perm-res, def:m6-can}
+  LR-Y's \texttt{PermRes.barIso} is \texttt{canIso}; for every $K\le\mathrm{SL}_2(\mathbb Z)$ and injective $f\colon K\to\mathrm{SL}_2(\mathbb Z)$ a
+  chain map $\mathrm{res}_KP\to\mathrm{res}_fP$ over $\mathrm{id}_k$ exists on the tree resolution $P$, every ring $k$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  $P$ restricted along $f$ is again a free permutation resolution (\texttt{PermRes.resP}); \texttt{ProjectiveResolution.lift}.
+\end{proof}
+
+\begin{theorem}[Hecke operators on the tree resolution, every degree, every ring]\label{thm:m6-tree-hecke}
+  % backs [C] v1.21.0 thm:classical on LR-Y's tree resolution (cl:amalgam, eq:mvamalgam); the LH hand-off (M6B_brief.md §6)
+  \lean{GL2.M6.tree_hecke, GL2.M6.tree_Tcls}
+  \leanok
+  \uses{thm:m6-hecke-res, thm:m6-Tcls-res, lem:m6-tree-tau, thm:mp-tree-mp-comparison}
+  On the tree resolution of $\mathrm{SL}_2(\mathbb Z)$, for \emph{every} $\tau$ over $\mathrm{id}_k$, every $n$ and every $A$: \texttt{heckeY}
+  induces $\mathrm{cor}\circ(f,\theta)_*$ through \texttt{PermRes.barIso}; in particular M5's $\texttt{Tcls}\,g\,n$ on
+  $H^n(\mathrm{SL}_2(\mathbb Z);V_L)$, every ring $R$ (no $6\in R^\times$), $-I$ included. No cup products.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{thm:m6-hecke-res}, \ref{thm:m6-Tcls-res} at $P=$ \texttt{model7TreeRes}.
+\end{proof}
+
+\section{The seven-vertex model (A2)}
+
+\begin{lemma}[The hand-built cohomology on classes]\label{lem:m6-homology-mk}
+  \lean{GL2.Cone.CochainCx.homologyMk_inv_mk, GL2.Cone.CochainCx.homologyMapIso_inv_π, GL2.Cone.CochainCx.homologyIsoSc'_inv_π,
+    GL2.Cone.CochainCx.cyclesIsoSc'_inv_i, GL2.Cone.CochainCx.cyclesMap_i_el, GL2.Cone.CochainCx.moduleCatCyclesIso_inv_i,
+    GL2.Cone.CochainCx.homologyEquivSucc_mk, GL2.Cone.CochainCx.homologyEquivZero_mk, GL2.Cone.CochainCx.homologyEquiv_mk}
+  \leanok
+  \uses{thm:model7-rmkorbifold}
+  \texttt{CochainCx.homologyEquiv} (\texttt{lem:cochaincx-homology}) sends the class of a cocycle $z$ to \texttt{homologyπ} of a cycle
+  with underlying cochain $z$, every degree.
+\end{lemma}
+\begin{proof}
+  \leanok
+  Unfold \texttt{homologyEquivSucc} / \texttt{homologyEquivZero}: \texttt{moduleCatCyclesIso\_inv\_π}, \texttt{homologyπ\_naturality},
+  \texttt{π\_homologyIsoSc'\_inv}; on the cycles \texttt{cyclesIsoSc'\_inv\_iCycles}, \texttt{cyclesMap\_i},
+  \texttt{moduleCatCyclesIso\_inv\_iCycles}.
+\end{proof}
+
+\begin{definition}[$\Theta_{\mathrm{can}}$ on the model]\label{def:m6-thetacan}
+  % backs [C] v1.21.0 thm:classical's Theta ("under thm:explicit_complex_equiv and rmk:orbifold"), with the canonical comparison
+  \lean{GL2.M6.ΘcanE, GL2.M6.Θcan, GL2.M6.Θcan_apply, GL2.M6.Ξ, GL2.M6.Ξ_apply, GL2.M6.Θcan_mk}
+  \leanok
+  \uses{def:m6-can, lem:m6-homology-mk, thm:model7-rmkorbifold, def:m5-Tcls}
+  For $6\in R^\times$: $\Theta_{\mathrm{can}}\colon H^n(\mathrm{model})\cong H^n(\mathrm{SL}_2(\mathbb Z);V_L)$ is $\Psi$, the hand-built-to-mathlib
+  identification, $\mathrm{Hom}_\Gamma(C_\bullet(X_{\mathrm{bulk}}),-)=\mathrm{Hom}_\Gamma(R[\mathrm{Simp}_\bullet],-)$ (\texttt{homEqv\_iso}), then
+  \texttt{canIso} of the model resolution. It differs from M4's $\Theta$ (\ref{def:m4-classical}) only in the last step, where M4 uses
+  mathlib's $\mathrm{Ext}$-built \texttt{groupCohomologyIso}; the two are equal (\ref{thm:m6-theta-ext}). On cochains $\Theta_{\mathrm{can}}$ is
+  $\varphi\mapsto\varphi_R$ (\texttt{Ξ\_apply}), and on the class of a cocycle $w$ it is $\texttt{canIso}^{-1}$ of the class of
+  $\varphi_R$ (\texttt{Θcan\_mk}).
+\end{definition}
+\begin{proof}
+  \leanok
+  $\Phi\Psi=\mathrm{id}$ on equivariant cochains (\texttt{phi\_psi}); \ref{lem:m6-homology-mk}; \texttt{homologyπ\_naturality}.
+\end{proof}
+
+\begin{lemma}[The model's Hecke operator is \texttt{heckeY}, cochain level]\label{lem:m6-model-cochain}
+  % backs [C] v1.21.0 def:hecke (eq:heckechain) against eq:corconjres at cochain level, on the model
+  \lean{GL2.M6.corHom_reps, GL2.M6.ιpp, GL2.M6.fIncl_ιpp, GL2.M6.fConj_ιpp, GL2.M6.tauS, GL2.M6.tauS_f_apply, GL2.M6.tauS_π,
+    GL2.M6.memΔ_of_cd, GL2.M6.cd_bij, GL2.M6.cdEquiv, GL2.M6.linR_single, GL2.M6.embR_orient, GL2.M6.linR_heckeTildeR,
+    GL2.M6.Ξ_hecke}
+  \leanok
+  \uses{def:m4-hecke, def:m6-heckeY, def:m6-thetacan}
+  For every coset datum $s_i$ and every $\tau$ over $R$: $(\widetilde T_g\varphi)_R=\texttt{heckeY}(\varphi_R)$ on
+  $\mathrm{Hom}_\Gamma(R[\mathrm{Simp}_n],V_L)$, with $\tau$ transported to $\Gamma''\le\mathrm{SL}_2(\mathbb Z)$ (\texttt{tauS}),
+  $\theta=\rho(g)$ and any transversal: the representatives $s_i^{-1}$ of $\mathrm{SL}_2(\mathbb Z)/\Gamma''$ (\texttt{cdEquiv})
+  replace the transversal (\texttt{corHom\_reps}), and $\rho(s_i^{-1})\rho(g)=\rho(\delta_i)$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  Both sides are $R$-linear in $x\in R[\mathrm{Simp}_n]$; on $x=e_s$, $\varphi_R(e_s)=\varphi(\mathrm{orient}\,s)$ and
+  \texttt{heckeTildeR\_apply}, \texttt{embR\_smul}. $i\mapsto s_i^{-1}\Gamma''$ is a bijection by the uniqueness clause of the coset
+  datum.
+\end{proof}
+
+\begin{theorem}[{{[C]} \texttt{thm:classical} on the model, for $\Theta_{\mathrm{can}}$}]\label{thm:m6-classical}
+  % backs [C] v1.21.0 thm:classical (Theta o T_{Gamma g Gamma} = (cor o (c_g)_* o res) o Theta, every n) for Theta_can, on the model, 6 in R^x
+  \lean{GL2.M6.Tcls_canIso_inv, GL2.M6.classical_can, GL2.M6.TdcOf_can}
+  \leanok
+  \uses{lem:m6-model-cochain, thm:m6-Tcls-res, def:m6-thetacan, def:m4-hecke}
+  For $6\in R^\times$, every $g\in\Delta$, every coset datum, every $\tau$ over $R$ and every $n$:
+  $\Theta_{\mathrm{can}}\circ T_{\Gamma g\Gamma}=\texttt{Tcls}\,g\,n\circ\Theta_{\mathrm{can}}$, where $\texttt{Tcls}\,g\,n=
+  \mathrm{cor}\circ(c_g)_*\circ\mathrm{res}$ with the genuine corestriction (\ref{def:m5-Tcls}, transversal-independent by
+  \ref{thm:m6-Tcls-res}). Equivalently $\texttt{TdcOf}\,g\,n=\Theta_{\mathrm{can}}^{-1}\circ\texttt{Tcls}\,g\,n\circ\Theta_{\mathrm{can}}$.
+  No literature hypothesis.
+\end{theorem}
+\begin{proof}
+  \leanok
+  On the class of a cocycle $w$: $\Theta_{\mathrm{can}}[\widetilde Tw]=\texttt{canIso}^{-1}[(\widetilde Tw)_R]=
+  \texttt{canIso}^{-1}[\texttt{heckeY}(w_R)]$ (\ref{lem:m6-model-cochain}) $=\texttt{canIso}^{-1}H(\texttt{heckeY})[w_R]=
+  \texttt{Tcls}\,\texttt{canIso}^{-1}[w_R]$ (\ref{thm:m6-Tcls-res} with $P$ the model resolution).
+\end{proof}
+
+\begin{theorem}[\ref{thm:classical-model}'s statement for $\Theta_{\mathrm{can}}$, proved outright]\label{thm:m6-classical-model}
+  % backs [C] v1.21.0 thm:classical (the weak form of thm:classical-model, for Theta_can, without lit:hecke-classical)
+  \lean{GL2.M6.thm_classical_can}
+  \leanok
+  \uses{thm:m6-classical, thm:m6-cor-res-index}
+  For $6\in R^\times$, $g\in\Delta$, every coset datum, every $\tau$ and every $n$: $\mathrm{cor}=\texttt{corH}$ satisfies
+  $\mathrm{cor}\circ\mathrm{res}=[\Gamma:\Gamma'']$ and $\Theta_{\mathrm{can}}\circ T_{\Gamma g\Gamma}=\mathrm{cor}\circ(c_g)_*\circ\mathrm{res}\circ
+  \Theta_{\mathrm{can}}$. This is \ref{thm:classical-model}'s statement with $\Theta_{\mathrm{can}}$ for M4's $\Theta$ and with
+  $\mathrm{cor}$ \emph{the} corestriction; it uses no \ref{lit:hecke-classical}.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{thm:m6-classical} and \ref{thm:m6-cor-res-index}.
+\end{proof}
+
+\section{\texorpdfstring{M4's $\Theta$ is $\Theta_{\mathrm{can}}$ (A-$\Theta$); \texttt{hcl} is a theorem}{M4's Theta is Theta_can (A-Theta); hcl is a theorem}}
+
+\begin{lemma}[$\mathrm{Ext}$ through a projective resolution is natural in the resolution]\label{lem:m6-isoext-lift}
+  \lean{GL2.M6.homologyUnop_nat, GL2.M6.homologyUnop_nat_inv, GL2.M6.isoExt_hom_lift}
+  \leanok
+  \uses{def:mp-prey}
+  For projective resolutions $P$, $Q$ of $k$ over $G$ and a chain map $\varphi\colon P\to Q$ over $\mathrm{id}_k$: mathlib's
+  $\texttt{isoExt}\,P=\texttt{isoExt}\,Q\circ H(\varphi^*)$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  mathlib's \texttt{isoLeftDerivedObj\_inv\_naturality} at $f=\mathrm{id}$ for $F=\mathrm{Hom}(-,A)^{\mathrm{op}}$, and
+  \texttt{homologyUnop} is natural (\texttt{homologyOp\_hom\_naturality}, unopposed).
+\end{proof}
+
+\begin{theorem}[The $\mathrm{Ext}$-built comparison is the canonical one; M4's $\Theta=\Theta_{\mathrm{can}}$]\label{thm:m6-theta-ext}
+  % backs [C] v1.21.0 thm:classical's Theta (rmk:orbifold through Ext = the comparison of resolutions); rmk:mp-open (3) for every P
+  \lean{GL2.M6.groupCohomologyIso_eq_canIso, GL2.M6.Θ_apply, GL2.M6.Θ_eq_Θcan}
+  \leanok
+  \uses{lem:m6-isoext-lift, lem:m6-can-lift, def:m6-thetacan, def:m4-classical}
+  For every projective resolution $P$: mathlib's $\texttt{groupCohomologyIso}\,A\,n\,P$ (through $\mathrm{Ext}$) is
+  $\texttt{canIso}\,P\,A\,n$. Hence M4's $\Theta=\Theta_{\mathrm{can}}$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  $\texttt{groupCohomologyIso}=H(\mathrm{inhom})\circ\texttt{isoExt}(\mathrm{bar})^{-1}\circ\texttt{isoExt}(P)$ and
+  \ref{lem:m6-isoext-lift} for $P$'s comparison with $\mathrm{bar}$; \ref{lem:m6-can-lift}. $\Theta$ and $\Theta_{\mathrm{can}}$ agree
+  in every other step.
+\end{proof}
+
+\begin{theorem}[{{[C]} \texttt{thm:classical} for M4's $\Theta$}]\label{thm:m6-classical-theta}
+  % backs [C] v1.21.0 thm:classical (Theta o T_{Gamma g Gamma} = Tcls o Theta, every n), on the model, 6 in R^x, M4's Theta
+  \lean{GL2.M6.classical_Θ, GL2.M6.TclsM_eq_TdcOf}
+  \leanok
+  \uses{thm:m6-classical, thm:m6-theta-ext, def:m5-Tcls}
+  For $6\in R^\times$, every $g\in\Delta$, coset datum, $\tau$ and $n$: $\Theta\circ T_{\Gamma g\Gamma}=\texttt{Tcls}\,g\,n\circ\Theta$;
+  equivalently M5's $\texttt{TclsM}\,g\,n=\texttt{TdcOf}\,g\,n$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{thm:m6-theta-ext} and \ref{thm:m6-classical}.
+\end{proof}
+
+\begin{theorem}[\texttt{hcl} is a theorem]\label{thm:m6-hcl}
+  % backs [C] v1.21.0 thm:classical; retires the literature hypothesis lit:hecke-classical (hcl) of thm:classical-model
+  \lean{GL2.M6.heckeClassical_holds, GL2.M6.thm_classical_outright}
+  \leanok
+  \uses{thm:m6-classical-theta, thm:m6-cor-res-index, def:m4-classical}
+  The statement of \ref{lit:hecke-classical} (\texttt{HeckeClassical}\,$\rho$) holds, with $\mathrm{cor}=\texttt{corH}$ (\emph{the}
+  corestriction); hence M4's \texttt{thm\_classical\_stmt} holds outright (\ref{thm:classical-model} uses this row, not
+  conversely: no \texttt{\textbackslash uses} cycle).
+\end{theorem}
+\begin{proof}
+  \leanok
+  \ref{thm:m6-classical-theta} and \ref{thm:m6-cor-res-index}; M4's \texttt{thm\_classical} applied to it.
+\end{proof}
+
+\begin{remark}[What M6-A leaves open, and the proposed {[C]} markers]\label{rmk:m6-open}
+  \begin{itemize}
+    \item \textbf{A-$\Theta$ landed} (\ref{thm:m6-theta-ext}): \ref{thm:classical-model} is \texttt{proved} through \ref{thm:m6-hcl}
+      and \ref{lit:hecke-classical} is a theorem (\texttt{GL2.M6.heckeClassical\_holds}), no longer a literature hypothesis.
+    \item \textbf{Proposed [C] markers, applied in [C] v1.24.0-rc.1} (owner-gated contract package, M6B D5; slot-25 RC124, owner question Q4,
+      approved in principle 2026-10-18; not yet an owner-released [C]): a clause-scoped \texttt{\textbackslash LEAN}
+      on [C] \texttt{thm:classical} (\ref{thm:m6-classical-theta}, naming M4's $\Theta$, which is $\Theta_{\mathrm{can}}$ by
+      \ref{thm:m6-theta-ext}), and on [C] \texttt{eq:corconjres} in its degree-$n$ form (\ref{thm:m6-cor-res},
+      \ref{thm:m6-corH-indep}, \ref{thm:m6-cor-res-index}, \ref{thm:m6-Tcls-res}).
+    \item \textbf{C-w landed} (slot 24, M6 close): the \texttt{prop:mpbredon}(2) ``not only if'' witness is \ref{thm:mp-epsmp-witness}
+      (Part MP, through LG-1's \ref{thm:lg-exp2} and \ref{thm:mp-bredon-zero}). The \texttt{TreeCyclic} split of the brief is
+      \textbf{dropped} (no longer needed for replay headroom; slot-24 plan item 10, \texttt{slot24/LEAN\_M6\_report.md}). A-MP (the
+      instance on the MP model) is stretch: \ref{thm:m6-hecke-res} applies to it as soon as a $\tau$ on \texttt{mpRes} is given.
+  \end{itemize}
+\end{remark}

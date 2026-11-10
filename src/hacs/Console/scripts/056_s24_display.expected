@@ -1,0 +1,7 @@
+#! oc-format 1
+Cohomology (declared, not yet computed)
+Cohomology dims = [0, 3, 0]
+[0, 3, 0]
+691
+"dim H^1 = 2 dim S_12 + 1"
+{H0_n: 1, H0_up: 1, H0_Q: 1, H1_n: 4, H1_up: 4, H1_Q: 1}

@@ -1,0 +1,71 @@
+# 023_e7_duality_10_691.oc -- console phase C5a (hecke-extensions slot 9,
+# WP-12): E7's two types at (n, ell) = (10, 691) -- the contragredient local
+# system D_10 with its Hecke action, and the Poincare-duality pairing with the
+# PD adjointness gate ([C] cl:pd, which is OPEN: the gate is a TEST of it).
+#
+# Every E7 object the golden harness freezes at this point (`n=10 ell=691 e7`,
+# GoldenHarness.cpp RunE7Cell32) is pinned through golden(...) with a console
+# hash byte-identical to the harness's; the pins are taken at the defaults
+# (rule R19), and nothing here depends on a stored basis except the Grams,
+# which are tier-B golden objects and are compared by hash only.
+
+include("prelude.oc");
+
+L = symmetric_power(MODEL, N_SYM, ELL);
+D = dual(L);
+PT = "n=10 ell=691 e7";
+
+# ---------------------------------------------------------------------------
+# (1) The contragredient D_n and its cohomology.
+# ---------------------------------------------------------------------------
+# n = 10 < 691, so Phi_n : M_n -> D_n is an isomorphism ([C] lem:symdual) and
+# H^*(D_10) has the dimensions of H^*(M_10).
+assert(D.phi_is_isomorphism, "Phi_10 (x) F_691 is an isomorphism (n < ell)");
+assert(D.dims == D.dims_M, "so H^*(D_n) and H^*(M_n) have the same dimensions");
+for q in [0, 1, 2] {
+    assert(hash(D.dims[q]) == golden(PT, "dim_H_Dn^" + str(q)).hash, "dim_H_Dn^" + str(q));
+}
+print(D.dims);
+
+# ---------------------------------------------------------------------------
+# (2) The Hecke action A(D_n)(T_p), p = 2, 3, 5 -- the harness's primes -- and
+# the UNTWISTED intertwining A(D_n)(T_p) P^q = P^q A(M_n)(T_p), P = H^*(Phi_n).
+# ---------------------------------------------------------------------------
+for p in [2, 3, 5] {
+    for q in [0, 1, 2] {
+        assert(hash(charpoly(D.A(p, q))) ==
+                   golden(PT, "charpoly_A_Dn(T_" + str(p) + ")^" + str(q)).hash,
+               "charpoly_A_Dn(T_" + str(p) + ")^" + str(q));
+    }
+    I = D.intertwines(p);
+    assert(I.q0 and I.q1 and I.q2, "Phi_n intertwines T_" + str(p) + " in every degree, untwisted");
+}
+# Phi_n is an isomorphism intertwining T_2, so T_2 has the same characteristic
+# polynomial on H^1(D_10) as on H^1(M_10): (X + 24)^3, 667 = -24 mod 691 being
+# the one eigenvalue of 020_e2_ramanujan_10_691.
+assert(charpoly(D.A(2, 1)) == charpoly(D.A_M(2, 1)), "charpoly T_2 | H^1(D_10) == charpoly T_2 | H^1(M_10)");
+assert(charpoly(D.A(2, 1)) == mul(poly(ELL, [24, 1]), mul(poly(ELL, [24, 1]), poly(ELL, [24, 1]))),
+       "and it is (X + 24)^3");
+print(charpoly(D.A(2, 1)));
+
+# ---------------------------------------------------------------------------
+# (3) The pairing H^t_c(M_n) x H^{2-t}(D_n) -> F_ell, its perfectness, and the
+# PD adjointness gate A_c^{(t)T} G^t == G^t A(D_n)^{(2-t)} at p = 2, 3, 5.
+# ---------------------------------------------------------------------------
+P = pairing(L, D);
+for t in [0, 1, 2] {
+    assert(P.perfect(t) == (golden(PT, "pairing_perfect^" + str(t)).value == 1),
+           "pairing_perfect^" + str(t));
+    assert(hash(P.gram(t)) == golden(PT, "pairing_matrix^" + str(t)).hash,
+           "pairing_matrix^" + str(t) + " (tier B)");
+}
+G = P.pd_gate([2, 3, 5]);
+assert(G.t0 == (golden(PT, "pd_adjoint^0").value == 1), "pd_adjoint^0");
+assert(G.t1 == (golden(PT, "pd_adjoint^1").value == 1), "pd_adjoint^1");
+assert(G.t2 == (golden(PT, "pd_adjoint^2").value == 1), "pd_adjoint^2");
+assert(P.certificate.failing == 0, "the pairing certificate re-derives");
+assert(P.boundary_perfect(0) and P.boundary_perfect(1), "the circle pairing is perfect");
+print([P.perfect(0), P.perfect(1), P.perfect(2)], G);
+
+assert(fingerprint() == "0x0000000000000000", "every pin taken at the defaults");
+annotate("023_e7_duality_10_691: D_10, 9 charpolys, 3 Grams, the PD gate");
