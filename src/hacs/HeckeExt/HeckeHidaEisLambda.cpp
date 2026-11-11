@@ -40,22 +40,8 @@ Mat MinusScalar(const Mat& A, u128 c, const ZMod& R) {   // A - c I
     return B;
 }
 
-// t generates the algebra Z/ell[t] = the block's algebra mod ell iff 1, t, ..., t^{r-1} are independent mod ell (dimension r = rank,
-// the block's algebra mod ell being of dimension r: Lemma H0(3) asks for generation of R_k / ell R_k, which has dimension r)
-bool GeneratesModEll(const Mat& t, uint64_t ell) {
-    const size_t r = t.size();
-    if (r == 0) return true;
-    const ZMod F(ell, 1);
-    Mat P = L::Ident(r);
-    const Mat tl = Reduced(t, F);
-    Mat V(r * r, Vec(r, 0));
-    for (size_t i = 0; i < r; ++i) {
-        for (size_t a = 0; a < r; ++a)
-            for (size_t b = 0; b < r; ++b) V[a * r + b][i] = P[a][b] % ell;
-        P = L::MatMul(P, tl, F);
-    }
-    return L::IndepColsModEll(V, r, ell).size() == r;
-}
+// (slot-26 Z6) the generator test is lambda::GeneratesModEll (exported from HeckeHidaLambda.cpp, identical semantics: 1, t, ...,
+// t^{r-1} independent mod ell, i.e. t generates the r-dimensional block algebra mod ell, Lemma H0(3)).
 
 // G(x_k) = -(1 - ell^{k-1}) B_k / k mod ell^R.M ([U, lem:u-twistvalues])
 u128 GOf(const ZMod& R, uint64_t ell, uint32_t k, u128 bk) {
@@ -135,7 +121,7 @@ BlockReading ReadBlockFrom(const lambda::FormsWeight& fw, const std::vector<uint
         const Mat Y = MinusScalar(eb.S.at(nm), b.fw.eis.at(nm), R);
         const Vec cp = L::Charpoly(Y, R);   // det(Z - Y): its constant term is (-1)^g det(Y)
         b.v_det.push_back(cp[0] == 0 ? -1 : static_cast<int32_t>(R.val(cp[0], W)));
-        b.gen.push_back(GeneratesModEll(Y, ell));
+        b.gen.push_back(L::GeneratesModEll(Y, ell));
         if (q == 2) b.f2 = L::Charpoly(Reduced(eb.S.at(nm), R), R);
     }
     if (b.g >= 1) {

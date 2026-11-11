@@ -49,11 +49,16 @@ BigInt BigPowMod(const BigInt& base, uint64_t e, const BigInt& mod) {
     return r;
 }
 
+}  // namespace
+
+// (slot-26 Z6) exported, body unchanged (HeckeHidaLambda.h)
 // x_k = (1 + ell)^k - 1 mod ell^e (algebra.py x_of, k >= 0)
 BigInt XOf(uint64_t ell, uint64_t k, uint32_t e) {
     const BigInt mod = BigPow(ell, e);
     return (BigPowMod(BigInt::from_u64(ell + 1), k, mod) - BigInt(1)).floor_mod(mod);
 }
+
+namespace {
 
 u128 RatMod(const BigRational& q, const ZMod& R) {
     if (q.is_zero()) return 0;
@@ -89,6 +94,9 @@ std::vector<BigRational> NewtonExact(const std::vector<BigInt>& xs, const std::v
     return poly;
 }
 
+}  // namespace
+
+// (slot-26 Z6) exported, body unchanged (HeckeHidaLambda.h)
 Vec NewtonMod(const std::vector<BigInt>& xs, const Vec& vals, const ZMod& R) {
     std::vector<BigInt> v;
     for (u128 x : vals) v.push_back(BigFromU128(x));
@@ -104,6 +112,8 @@ u128 PEval(const Vec& p, u128 x, const ZMod& R) {
     for (size_t i = p.size(); i-- > 0;) r = R.add(R.mul(r, x), p[i] % R.M);
     return r;
 }
+
+namespace {
 
 // q(Z) = p(Z + xc), mod R.M
 Vec Recentre(const Vec& p, u128 xc, const ZMod& R) {
@@ -225,6 +235,9 @@ bool IdealsEqual(const Span& I, const Span& J) {
 // ---------------------------------------------------------------------------
 // small block helpers (lambda_trunc.py)
 // ---------------------------------------------------------------------------
+}  // namespace
+
+// (slot-26 Z6) exported, body unchanged (HeckeHidaLambda.h)
 Mat MAddScaledIdent(const Mat& A, u128 c, const ZMod& R) {   // A - c I
     Mat B = A;
     for (size_t i = 0; i < B.size(); ++i) {
@@ -382,6 +395,8 @@ Vec PolyCoords(const Mat& target, const Mat& t, const ZMod& R) {
     }
     return c;
 }
+
+namespace {
 
 // ---- F_ell[Y] (etale test, residue degrees) -----------------------------------
 using FPoly = std::vector<uint64_t>;

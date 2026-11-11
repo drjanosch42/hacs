@@ -5,6 +5,30 @@
 All notable user-visible changes. The format follows Keep a Changelog; versions follow SemVer (`0.x`: interfaces may still
 change).
 
+## [0.2.0] - 2026-11-11
+
+Two additions to the mathematics, each with its own validation; the golden reference (18 385 entries, tier A 12 154, tier B
+6 231) and the four determinism digests are unchanged.
+
+### Mathematics
+- HeckeZ, the Eisenstein U_p systems over Z at level N > 1 (HZ-EISUP; [C] 1.27.0, `prop:heckeZeisup`): on the full
+  level-N records whose anemic Eisenstein count is one, the U_p eigen-systems of the Eisenstein part are computed and
+  certified over Z (CRT under explicit bounds), so these records no longer stop at `blocked(U_p)`. Of the 67 records of
+  HeckeZ edition 2 that were `blocked(U_p)`, 64 become final; 3 full level-N records stay pending (N = 167, 173, 197).
+- Hida theory, H2 ([U] 0.8.1, part 7, `pr:u-H2`; part 7 was signed in 0.8.0): the discriminant series D_F on the eleven
+  ordinary blocks that are ramified (non-reduced mod l), in ten cells; ten are of case (A), and (k, l) = (36, 181) is of
+  case (B) with lambda = 2, ramified at every weight of its family.
+
+### Software
+- New validations `HeckeZEisUpValidation` and `HeckeHidaDiscLambdaValidation` (standard tier): 289 validations (75 fast,
+  166 standard, 48 slow; `--all` runs 241).
+
+### Data
+- The companion data release is `hacs-data` 0.2.0 (HeckeZ edition 3, computed with this release's Eisenstein U_p route).
+
+### Documents
+- [C] gl2_contract 1.27.0, [E] hecke_extensions 1.25.3, [U] hida_hecke_algebra 0.8.1, [CLI] cli_manual 1.5.13, [PG] phenomena_gallery 1.5.4
+
 ## [0.1.1] - 2026-11-10
 
 Citation metadata and title pages; no change of code behaviour or of any computed result (the golden reference, the

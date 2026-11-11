@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski -->
 <!-- SPDX-License-Identifier: CC-BY-4.0 -->
-# Building HACS 0.1.1
+# Building HACS 0.2.0
 
 ## Requirements
 
@@ -65,8 +65,8 @@ Requirements.
 
 Your GPU's compute capability is shown by `nvidia-smi --query-gpu=compute_cap --format=csv`; drop the dot (12.0 ->
 `120`). The GPU is **never** used by default: device routes are
-opt-in (`ENGINE_DEVICE=...`, see the user manual) and bit-identical to the CPU route. Tested at compute capability 12.0 (Blackwell, on two machines): the full suite
-(`--all-full`), the strict golden reference and the determinism digests pass. At 7.5 (Turing) this release builds cleanly on
+opt-in (`ENGINE_DEVICE=...`, see the user manual) and bit-identical to the CPU route. Tested at compute capability 12.0 (Blackwell; earlier versions on two machines): with this release, the full suite
+(`--all-full`), the strict golden reference and the determinism digests pass. At 7.5 (Turing) an earlier version (0.1.1) builds cleanly on
 an sm_75 laptop (2026-11-10); the `--all` suite passed there on an earlier version (2026-10-30).
 
 ## (b) CPU only (no CUDA toolkit)
@@ -120,7 +120,7 @@ GOLDEN_STRICT=1 ./build/hacs GoldenRegressionValidation
 -DCMAKE_CXX_FLAGS_RELEASE="-O2 -DNDEBUG" -DOC_STRIP_BINARY=ON`, or any build followed by
 `cmake --install build --prefix ~/hacs --strip`. A full `--all` (peak about 4.3 GiB) is too heavy for most phones:
 run single named validations (the `fast` tier of `--list`, the golden reference, the digests) and limit threads with
-`ENGINE_THREADS=2`; under 6 GB of RAM the OS may kill the process silently. **What was tested:** with this release, the
+`ENGINE_THREADS=2`; under 6 GB of RAM the OS may kill the process silently. **What was tested:** with an earlier version (0.1.x), the
 `termux` and `aarch64-cpu` presets configure on x86-64 Linux, and the `termux` preset builds there with GCC 11.4 (a
 stripped 39 MB binary that passes the strict golden reference and the determinism digests). The source was checked for
 glibc-only constructs, but **no build on an aarch64 device or with Termux's clang has been run yet**. Reports are

@@ -39,7 +39,10 @@
 #include <functional>
 #include <map>
 #include <string>
+#include <utility>
 #include <vector>
+
+#include "NumberField/BigInt.h"
 
 namespace hecke_ext {
 namespace lambda {
@@ -79,6 +82,29 @@ Vec Charpoly(const Mat& A, const ZMod& R);
 Mat InvUnitMatrix(const Mat& A, const ZMod& R);
 // Greedy columns of P independent mod ell (the prototype's indep_cols_mod_l).
 std::vector<size_t> IndepColsModEll(const Mat& P, size_t ncols, uint64_t ell);
+
+// ---- (slot-26 Z6) block helpers, exported from HeckeHidaLambda.cpp (bodies unchanged; [U, sec:u-H2] code map) ----
+// A - c I mod M.
+Mat MAddScaledIdent(const Mat& A, u128 c, const ZMod& R);
+// A basis Bm (n x s, independent mod ell): s rows of Bm independent mod ell and the inverse of that s x s minor (unit pivots).
+std::pair<std::vector<size_t>, Mat> BasisData(const Mat& Bm, const ZMod& R);
+// The matrix of A on the A-stable summand spanned by the columns of Bm (ENGINE_CHECK: stable), mod M.
+Mat Restrict(const Mat& A, const Mat& Bm, const std::vector<size_t>& rows, const Mat& Rinv, const ZMod& R);
+// The Fitting split of t (N >= W n): {ker t^N, im t^N} as column bases (n x r) mod M; the kernel is the generalised
+// kernel of t mod ell lifted to the Z/ell^W-summand.
+std::pair<Mat, Mat> FittingSplit(const Mat& t, const ZMod& R);
+// A nilpotent mod ell.
+bool NilpotentModEll(const Mat& A, uint64_t ell);
+// 1, t, ..., t^{r-1} independent mod ell (t generates an r-dimensional algebra mod ell).
+bool GeneratesModEll(const Mat& t, uint64_t ell);
+// The coordinates c with target = sum c_i t^i mod M (ENGINE_CHECK: t generates mod ell and target in Z[t]).
+Vec PolyCoords(const Mat& target, const Mat& t, const ZMod& R);
+// The exact Newton interpolant of (xs, vals) in Q, reduced mod M (ENGINE_CHECK: ell-integral), coefficients low -> high.
+Vec NewtonMod(const std::vector<nf::BigInt>& xs, const Vec& vals, const ZMod& R);
+// p(x) mod M (Horner).
+u128 PEval(const Vec& p, u128 x, const ZMod& R);
+// x_k = (1 + ell)^k - 1 mod ell^e (k >= 0).
+nf::BigInt XOf(uint64_t ell, uint64_t k, uint32_t e);
 
 // ---- the q-expansion input arm (Q) ---------------------------------------------
 // One space (M_k or S_k) of the forms side: s = the ordinary rank, N = the power of

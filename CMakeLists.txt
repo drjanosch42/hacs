@@ -1408,6 +1408,8 @@ include(cmake/sources/Binary.cmake)
 include(cmake/sources/Special.cmake)
 include(cmake/slot26/HeckeZUp.cmake)   # slot 26 (open): one fragment per package
 include(cmake/slot26/HeckeZLocalPar.cmake)
+include(cmake/slot26/HeckeZEisUp.cmake)
+include(cmake/slot26/HeckeHidaDiscLambda.cmake)
 
 
 # Link the executable against the ModArithmetic and HeckeCore libraries and
@@ -1575,7 +1577,9 @@ find_package(Git QUIET)
 # The binding contracts of the release, printed by `hacs --version` (metadata; bump with the signed versions).  Checked
 # below against the \date lines of the three documents.  (S26 V011b, HACS 0.1.1) The title-page-only update, signed by
 # the owner 2026-11-10 as [C] 1.26.4, [E] 1.25.3, [U] 0.7.3.
-set(OC_CONTRACT_VERSIONS "[C] 1.26.4, [E] 1.25.3, [U] 0.7.3")
+# (S26 C127, 2026-11-11) [C] 1.27.0, signed by the owner 2026-11-11 (= 1.27.0-pre.1, text unchanged).
+# (S26 U081, 2026-11-11) [U] 0.8.1, signed by the owner 2026-11-11 (= 0.8.0, status sentences of part 7 only).
+set(OC_CONTRACT_VERSIONS "[C] 1.27.0, [E] 1.25.3, [U] 0.8.1")
 # (S26 INTEG, R1 audit M1) Guard: a document whose \date line names a RELEASE version (no -pre / -rc suffix) must name
 # exactly that version in OC_CONTRACT_VERSIONS; a pre-release of the next version is accepted while the string names the
 # last signed one.  (S26 V011) The entry is parsed per tag and compared whole (a FIND of "[C] 1.26.4" also matched

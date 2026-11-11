@@ -55,7 +55,7 @@ int32_t RationalThetaIndex(const RationalResult& Q, uint64_t ell) {
     return -1;
 }
 
-FullG1Words FullG1Rule(bool tag_non_reduced, bool tag_split, const RationalResult* Q, bool route_refused, bool rss_ceiling) {
+FullG1Words FullG1Rule(bool tag_non_reduced, bool tag_split, const RationalResult* Q, bool route_refused, bool rss_ceiling, bool eisup_scope) {
     FullG1Words W;
     if (tag_non_reduced) {   // (d')(ii) the non-reduced branch: T (x) Q is not reduced, deg f_theta < d for every theta
         W.C1 = "refused(non_reduced)";
@@ -76,7 +76,7 @@ FullG1Words FullG1Rule(bool tag_non_reduced, bool tag_split, const RationalResul
     W.C1 = cert ? "certified" : "open(cap)";
     W.reduced_Q = cert || tag_split ? "true" : "undecided";
     W.theta_status = cert ? std::string() : "open(cap)";
-    W.components = cert ? "blocked(U_p)" : "not_run";
+    W.components = cert ? (eisup_scope ? "certified" : "blocked(U_p)") : "not_run";   // (HZ-EISUP) certified in its scope
     W.C2 = cert ? std::string() : "partial(unfactored)";
     W.disc_fields = cert;
     return W;

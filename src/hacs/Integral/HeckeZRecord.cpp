@@ -5,6 +5,7 @@
 
 #include "HeckeZRecord.h"
 
+#include "HeckeZEisUp.h"
 #include "HeckeZTor.h"
 #include "HeckeZUTag.h"
 #include "HeckeZUp.h"
@@ -616,7 +617,10 @@ struct GenTheta {
     std::vector<uint32_t> coeffs;
     std::vector<uint64_t> fbar;      // monic, low -> high, degree dimA1
 };
-GenTheta GeneratingTheta(const RationalSettings& rs, const LatticeModule& M, const std::vector<uint32_t>& P, uint64_t ell, uint32_t dimA1) {
+// (slot-26 HZ-EISUP, design Sec. 1.5) `first` (optional; full records at N > 1 only): a coefficient vector on P tried before the search (the
+// read's own generating theta'); nullptr leaves the search exactly as before.
+GenTheta GeneratingTheta(const RationalSettings& rs, const LatticeModule& M, const std::vector<uint32_t>& P, uint64_t ell, uint32_t dimA1,
+                         const std::vector<uint32_t>* first = nullptr) {
     GenTheta G;
     if (dimA1 == 0 || M.P.size() < P.size() || M.T.size() < P.size() || ell < 2 || P.empty()) return G;
     for (size_t i = 0; i < P.size(); ++i)
@@ -684,6 +688,11 @@ GenTheta GeneratingTheta(const RationalSettings& rs, const LatticeModule& M, con
         G.fbar[dimA1] = 1 % ell;
         return true;
     };
+    if (first && first->size() == m && test(*first)) {
+        G.ok = true;
+        G.coeffs = *first;
+        return G;
+    }
     uint32_t tried = 0;
     for (size_t i = 0; i < m && tried < rs.theta_cap; ++i, ++tried) {
         std::vector<uint32_t> c(m, 0);
@@ -722,6 +731,65 @@ GenTheta GeneratingTheta(const RationalSettings& rs, const LatticeModule& M, con
 uint32_t SturmPrimeBound(uint32_t k) { return k / 12 + 1; }   // level 1: T_n, n <= k/12 span T (Sturm), conservative + 1
 
 }  // namespace
+
+// (HZ-TOR) the support word of a maximal ideal m = (pi) at ell for the decomposing theta (coefficients on thP), from the torsion read rd
+// (nullptr: no read).  The T'-blocks of H^1 / ell^e whose theta-residue is pi: a common block -> both.  The theta-residue of a block is
+// known when theta = T_p (its residue at T_p), or when every residue over the operators theta involves has degree 1 (then theta acts by
+// sum c_p a_p); else not_run ([C] item 8 (d)).  involved_only = false is the rule as the anemic / level-1 rows have always applied it
+// (every operator of thP, zero coefficients included -- equivalent there, every operator of thP being in the read); involved_only = true
+// (the full rows at N > 1, HZ-EISUP code audit m2) skips the operators with coefficient 0, so not_run is written exactly where theta'
+// involves an operator -- a U_p -- that the torsion read does not carry ([C] 1.27.0-pre.1 item 8 (d')(ii), M1), or a residue of degree > 1.
+std::string SupportWordOfRead(const tor::TorRead* rd, uint64_t ell, const std::vector<uint32_t>& th_coeffs, const std::vector<uint32_t>& thP,
+                              const std::vector<uint64_t>& m_pi, bool involved_only) {
+    std::string sup = "free";
+    if (rd && rd->status == "ok") {
+        const tor::TorRead& t = *rd;
+        bool known = true, both = false;
+        for (const auto& b : t.blocks) {
+            std::vector<uint64_t> res;   // the block's theta-residue (monic, low -> high), empty = unknown
+            bool unit_hit = false;
+            for (size_t jj = 0; jj < th_coeffs.size(); ++jj) {
+                if (involved_only && th_coeffs[jj] == 0) continue;   // (code audit m2) an operator theta' does not involve
+                const auto ip = std::find(t.P.begin(), t.P.end(), thP[jj]);
+                if (ip == t.P.end()) { res.clear(); break; }
+                const size_t idx = static_cast<size_t>(ip - t.P.begin());
+                if (idx >= b.residue.size()) { res.clear(); break; }
+                if (th_coeffs[jj] == 1 && std::count(th_coeffs.begin(), th_coeffs.end(), 0u) + 1 == static_cast<long>(th_coeffs.size())) {
+                    res = b.residue[idx];
+                    unit_hit = true;
+                    break;
+                }
+            }
+            if (!unit_hit) {
+                res.clear();
+                uint64_t sum = 0;
+                bool deg1 = true;
+                for (size_t jj = 0; jj < th_coeffs.size() && deg1; ++jj) {
+                    if (involved_only && th_coeffs[jj] == 0) continue;   // (code audit m2) contributes 0 to the residue
+                    const auto ip = std::find(t.P.begin(), t.P.end(), thP[jj]);
+                    const size_t idx = ip == t.P.end() ? b.residue.size() : static_cast<size_t>(ip - t.P.begin());
+                    if (idx >= b.residue.size() || b.residue[idx].size() != 2 || b.residue[idx][1] != 1) {
+                        deg1 = false;
+                        break;
+                    }
+                    const uint64_t a = (ell - b.residue[idx][0] % ell) % ell;   // the root of x - a
+                    sum = (sum + MulMod(th_coeffs[jj] % ell, a, ell)) % ell;
+                }
+                if (deg1) res = {(ell - sum) % ell, 1};
+            }
+            if (res.empty()) {
+                if (b.kind == "common") known = false;
+                continue;
+            }
+            if (res == m_pi && b.kind == "common") both = true;
+        }
+        sup = both ? "both" : (known ? "free" : "not_run");
+    } else if (rd) {
+        sup = rd->status == "blocked(export)" ? ExportWord(rd->detail)
+                                             : (rd->status == "open(precision)" ? "refused(export_word)" : "not_run");
+    }
+    return sup;
+}
 
 HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std::string& algebra, const RecordSettings& s,
                                                const RecordSources& src) {
@@ -856,6 +924,7 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
     std::vector<uint32_t> Ulist;
     up::FullG1Words FW;   // ([C] 1.26.0-pre.3 item 8 (d')(ii)) the one decision of G1's words (HeckeZUp.h FullG1Rule)
     bool utag_nr = false, utag_split = false;
+    const bool eisup_scope = full_N && eisup::InScope(N, n);   // (HZ-EISUP, design D3) e^an_k(N) = 1 written out (audit m1)
     if (full_N) {
         for (const auto& u : utags) {
             utag_nr = utag_nr || u.non_reduced_certified;
@@ -863,16 +932,17 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
         }
         FW = up::FullG1Rule(utag_nr, utag_split, nullptr);
     }
+    std::vector<PrimeRun> qf_runs;   // (HZ-EISUP, audit n2 / Q7) the full step's retained runs, reused by EisUpStep (value-neutral)
     if (full_N && FW.run_search) {
         Ulist = up::PrimesDividing(N);
         try {
             oc_util::CancelPoint("hecke_structure.rational_full");
-            QF = RationalStepFull(N, n, P, Ulist, rs, &rin);
+            QF = RationalStepFull(N, n, P, Ulist, rs, &rin, eisup_scope ? &qf_runs : nullptr);
         } catch (const WordPrimeCapRefusal& e) {
             return refuse_word_prime_cap(e);
         }
         ENGINE_CHECK_MSG(QF.b1 == b1, "HeckeZRecord: b1 of the full rational step differs from the descent's H^1 free rank");
-        FW = up::FullG1Rule(utag_nr, utag_split, &QF);
+        FW = up::FullG1Rule(utag_nr, utag_split, &QF, false, false, eisup_scope);
     }
     if (full_N && Ulist.empty()) {   // the non-reduced branch: the operator list without a search (G1.theta_ops)
         Ulist = up::PrimesDividing(N);
@@ -882,6 +952,33 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
     }
     const bool c1f_ok = full_N && QF.c1_status == "certified" && QF.theta_index >= 0;
     const ThetaEntry* THF = c1f_ok ? &QF.thetas[static_cast<size_t>(QF.theta_index)] : nullptr;
+
+    // (slot-26 HZ-EISUP; design Sec. 2.1, [C] 1.27.0-pre.1 prop:heckeZeisup) the Eisenstein U_p systems on a full record at N > 1 with (C1)
+    // certified and e^an_k(N) = 1; the only refusal is (c)'s whole-record refused(word_prime_cap) (audit m8), every other failure an ENGINE_CHECK
+    eisup::EisUpResult EU;
+    const bool eisup_on = c1f_ok && eisup_scope;
+    ENGINE_CHECK_MSG(!c1f_ok || FW.components == (eisup_scope ? "certified" : "blocked(U_p)"), "HeckeZRecord: the components word");
+    if (eisup_on) {
+        oc_util::CancelPoint("hecke_structure.eisup");
+        eisup::EisUpInput ein;
+        ein.N = N;
+        ein.n = n;
+        ein.ops = QF.P;
+        ein.nU = QF.nU;
+        ein.theta = THF->coeffs;
+        ein.f = THF->f;
+        ein.e_k = QF.e_k;
+        ein.d = QF.d;
+        ein.b1 = b1;
+        ein.rs = rs;
+        ein.runs = &qf_runs;
+        try {
+            EU = eisup::EisUpStep(ein);
+        } catch (const WordPrimeCapRefusal& e) {
+            return refuse_word_prime_cap(e);
+        }
+    }
+    std::vector<PrimeRun>().swap(qf_runs);   // the retained runs are not needed beyond this point
 
     // ---- S_cand ----------------------------------------------------------------------------------------------------------------
     std::map<uint64_t, EllRead> S;
@@ -1075,8 +1172,9 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
     }
     uint32_t irred_tried = 0;        // (re-audit R8) provenance: primes tried, seconds
     double irred_secs = 0;
-    if (has_cusp) {
-        if (Q.d_target - 1 == 1) {
+    // the irreducibility certificate of a cuspidal block c (hex, low to high) of degree deg ((HZ-EISUP) also c_theta = f_theta / e_theta)
+    auto certify_irred = [&](const std::vector<std::string>& cpart, int64_t deg) {
+        if (deg == 1) {
             cusp_irred = "true";
         } else {
             const auto ti = std::chrono::steady_clock::now();
@@ -1085,8 +1183,8 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
             for (uint32_t q = 3; tried < s.irred_primes; q += 2) {
                 if (!IsPrimeU32(q)) continue;
                 ++tried;
-                const hecke::FpPoly64 cq(q, Residues(Q.cusp_part, q));
-                if (cq.coeffs.size() != Q.cusp_part.size() || !cq.is_monic()) continue;   // (c_theta is monic: never)
+                const hecke::FpPoly64 cq(q, Residues(cpart, q));
+                if (cq.coeffs.size() != cpart.size() || !cq.is_monic()) continue;   // (c_theta is monic: never)
                 if (hecke::CertifyIrreducible(cq) == 0) {   // deterministic: irreducible mod q of full degree => irreducible over Q
                     cusp_irred = "true";
                     cusp_irred_q = q;
@@ -1095,7 +1193,10 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
             }
             irred_secs = std::chrono::duration<double>(std::chrono::steady_clock::now() - ti).count();
         }
-    }
+    };
+    if (has_cusp) certify_irred(Q.cusp_part, Q.d_target - 1);
+    const bool full_cusp = eisup_on && QF.d > QF.e_k;   // (HZ-EISUP) the cuspidal block of the full record, absent iff d = e_k
+    if (full_cusp) certify_irred(EU.c_theta, QF.d - QF.e_k);
     if (TH && !full_N) {
         B.add("G1", "G1.theta", Join(TH->coeffs), "", "G1.C1.status");
         if (eis_rational) {
@@ -1140,6 +1241,47 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
         else B.add("G1", "G1.theta", FW.theta_status, "status");
         B.add("G1", "G1.theta_ops", up::ThetaOpsText(QF.P, QF.nU));
         B.add("G1", "G1.components", FW.components, "status");
+        if (eisup_on) {
+            // (HZ-EISUP; design Sec. 3.1, [C] 1.27.0-pre.1 item 8 (d')(ii)) the e_k Eisenstein components (ordered by their U_p tuple), then the
+            // cuspidal block iff d > e_k; (p0, minpoly) is the same for every Eisenstein component, so not a key of the component (audit n3)
+            Limbs lam0 = {1};
+            for (uint32_t j = 0; j + 1 < k; ++j) LimbMul(lam0, P[0]);
+            {
+                size_t i = 0;
+                uint64_t c = 1;
+                while (c) {
+                    if (i == lam0.size()) lam0.push_back(0);
+                    const uint64_t t = uint64_t(lam0[i]) + c;
+                    lam0[i] = static_cast<uint32_t>(t);
+                    c = t >> 32;
+                    ++i;
+                }
+            }
+            const std::vector<uint32_t> Up = EU.Uprimes();
+            for (size_t j = 0; j < EU.lines.size(); ++j) {
+                const std::string cp = "G1.components[" + std::to_string(j) + "]";
+                B.add("G1", cp + ".type", "eis", "component_type");
+                B.add("G1", cp + ".degree", "1", "int");
+                B.add("G1", cp + ".mult", "1", "int");
+                B.add("G1", cp + ".p0", "T_" + std::to_string(P[0]), "op_or_theta");
+                B.add("G1", cp + ".minpoly", "[-" + LimbHex(lam0) + ",0x1]");
+                B.add("G1", cp + ".lambda_theta", EU.lines[j].lambda_theta, "zbig");
+                for (size_t i = 0; i < Up.size(); ++i) B.add("G1", cp + ".U_" + std::to_string(Up[i]), EU.lines[j].U[i], "zbig");
+            }
+            if (full_cusp) {
+                const std::string cp = "G1.components[" + std::to_string(EU.lines.size()) + "]";
+                int32_t unit_T = -1;   // theta = the unit T_p (p !| N): (d)'s p0 rule
+                for (size_t i = 0; i + QF.nU < QF.P.size(); ++i)
+                    if (THF->coeffs[i] == 1 && std::count(THF->coeffs.begin(), THF->coeffs.end(), 0u) + 1 == static_cast<long>(THF->coeffs.size()))
+                        unit_T = static_cast<int32_t>(QF.P[i]);
+                B.add("G1", cp + ".type", "cusp", "component_type");
+                B.add("G1", cp + ".degree", std::to_string(QF.d - QF.e_k), "int");
+                B.add("G1", cp + ".mult", "2", "int");
+                B.add("G1", cp + ".p0", cusp_irred == "true" && unit_T > 0 ? "T_" + std::to_string(unit_T) : "theta", "op_or_theta");
+                B.add("G1", cp + ".minpoly", "[" + Join(EU.c_theta) + "]");
+                B.add("G1", cp + ".irreducible", cusp_irred, "irreducible");
+            }
+        }
     } else {
         B.add("G1", "G1.theta", full_N ? "blocked(U_p)" : "open(cap)", "status");
         B.add("G1", "G1.components", full_N ? "blocked(U_p)" : "not_run", "status");
@@ -1202,6 +1344,24 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
     };
     std::map<uint64_t, G8Ell> g8info;
     std::map<uint64_t, std::string> g8_k9, g8_prov;   // (H1) per ell: K9's integers (G9) and the forms read's provenance (G10)
+    // the local type of T (x) Z_ell at m = (pi) of multiplicity mult in f-bar (monogenic: Z_ell[x]/(pi^mult)); (HZ-EISUP) shared with the full rows
+    auto add_local_type = [&](const std::string& pre, const std::string& mp, uint32_t mult, uint32_t fdeg) {
+        B.add("G2", mp + ".local_type.kind", mult == 1 ? "etale" : "monogenic", "local_kind", pre + ".generation.status");
+        B.add("G2", mp + ".local_type.rank", std::to_string(mult * fdeg), "int", pre + ".generation.status");
+        B.add("G2", mp + ".local_type.embdim", mult > 1 ? "1" : "0", "int", pre + ".generation.status");
+        B.add("G2", mp + ".local_type.gorenstein", "true", "bool", pre + ".generation.status");
+        B.add("G2", mp + ".local_type.length_mod_l", std::to_string(mult), "int", pre + ".generation.status");
+        std::vector<uint32_t> hil(mult, 1);
+        B.add("G2", mp + ".local_type.hilbert", Join(hil), "", pre + ".generation.status");
+        B.add("G2", mp + ".local_type.loewy", std::to_string(mult), "int", pre + ".generation.status");
+    };
+    // (HZ-TOR) the support word of a maximal ideal m = (pi) at ell for the decomposing theta (SupportWordOfRead); (HZ-EISUP) shared by
+    // the anemic / level-1 rows (involved_only = false, byte-identical) and the full rows at N > 1 (involved_only = true, code audit m2)
+    auto support_word = [&](uint64_t ell, const std::vector<uint32_t>& th_coeffs, const std::vector<uint32_t>& thP,
+                            const std::vector<uint64_t>& m_pi, bool involved_only) -> std::string {
+        const auto it = TR.find(ell);
+        return SupportWordOfRead(it == TR.end() ? nullptr : &it->second, ell, th_coeffs, thP, m_pi, involved_only);
+    };
     for (const auto& [ell, e] : S) {
         const std::string pre = "G2.ell=" + std::to_string(ell);
         B.add("G2", pre + ".theory", "H", "theory");
@@ -1259,9 +1419,132 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
                     B.add("G2", pre + ".t_ell", rd.M.t_ell.empty() ? "in_P" : rd.M.t_ell, "t_ell");
                 }
             }
-            B.add("G2", pre + ".maximal_ideals", gs == "certified" ? "blocked(U_p)" : "not_run", "mi_status", pre + ".generation.status");
-            if (gs != "certified" && c1f_ok && rd.read)
-                B.add("G2", pre + ".A1_of_computed.dim_A1", std::to_string(rd.L.dim_A1), "int");
+            if (!eisup_on) {   // outside HZ-EISUP's scope (or no (C1)): blocked(U_p) where generation is certified (pending), else not_run
+                B.add("G2", pre + ".maximal_ideals", gs == "certified" ? "blocked(U_p)" : "not_run", "mi_status", pre + ".generation.status");
+                if (gs != "certified" && c1f_ok && rd.read)
+                    B.add("G2", pre + ".A1_of_computed.dim_A1", std::to_string(rd.L.dim_A1), "int");
+                continue;
+            }
+            // (HZ-EISUP; design Sec. 1.5, [C] 1.27.0-pre.1 item 8 (d')(ii)) (d)'s rule over the operator list: decomposed iff generation is
+            // certified by saturation or rational and some theta' generates A'_1 on the ell-read (Krylov rank = dim A'_1 = d): the read's own
+            // generating theta' first, then theta_search's order over the list, then over the read set (T_ell appended) where t_ell = added
+            const std::vector<uint32_t>& ops = QF.P;
+            GenTheta gt;
+            std::vector<uint32_t> thP = ops;
+            if (gs == "certified" && (route == "saturation" || route == "rational") && rd.read &&
+                rd.L.dim_A1 == static_cast<uint32_t>(QF.d_target) && Zlk::Fits(ell, 1)) {
+                std::vector<uint32_t> own;   // the read's mono "T_<x>": the unit of the operator x of its read set (a U_p is named T_<p> there)
+                std::vector<uint32_t> ownP;
+                const std::string& mono = rd.L.mono;
+                if (mono.compare(0, 2, "T_") == 0 && mono.find_first_not_of("0123456789", 2) == std::string::npos && mono.size() > 2) {
+                    const uint32_t x = static_cast<uint32_t>(std::stoul(mono.substr(2)));
+                    const auto ip = std::find(rd.M.P.begin(), rd.M.P.end(), x);
+                    if (ip != rd.M.P.end()) {
+                        const size_t i = static_cast<size_t>(ip - rd.M.P.begin());
+                        ownP = i < ops.size() ? ops : rd.M.P;
+                        own.assign(ownP.size(), 0);
+                        own[i] = 1;
+                    }
+                }
+                if (!own.empty()) {
+                    gt = GeneratingTheta(s.rat, rd.M, ownP, ell, static_cast<uint32_t>(rd.L.dim_A1), &own);
+                    if (gt.ok && gt.coeffs == own) thP = ownP;
+                    else gt = GenTheta{};
+                }
+                if (!gt.ok) gt = GeneratingTheta(s.rat, rd.M, ops, ell, static_cast<uint32_t>(rd.L.dim_A1));
+                if (!gt.ok && rd.L.t_ell == "added" && rd.M.P.size() == ops.size() + 1 && rd.M.P.back() == ell) {
+                    gt = GeneratingTheta(s.rat, rd.M, rd.M.P, ell, static_cast<uint32_t>(rd.L.dim_A1));
+                    if (gt.ok) thP = rd.M.P;
+                }
+            }
+            if (!gt.ok) {
+                B.add("G2", pre + ".maximal_ideals", "not_run", "mi_status", pre + ".generation.status");
+                if (gs != "certified" && rd.read) B.add("G2", pre + ".A1_of_computed.dim_A1", std::to_string(rd.L.dim_A1), "int");
+                continue;
+            }
+            // theta' = a primitive theta of HZ-RAT's list: its f is exact (C-E7 second part; the Eisenstein--cusp depth)
+            const ThetaEntry* exact = nullptr;
+            if (thP.size() == ops.size())
+                for (uint32_t j : QF.discriminants_used)
+                    if (QF.thetas[j].coeffs == gt.coeffs) exact = &QF.thetas[j];
+            if (exact) {
+                std::vector<uint64_t> fr = Residues(exact->f, ell);
+                ENGINE_CHECK_MSG(fr == gt.fbar, "HeckeZRecord C-E7: the Krylov relation of theta' at ell is not f_theta' mod ell");
+            }
+            // lambda_j(theta') exactly ((F2) for T_p, T_ell included; the line's U_p), the tamper of the validation (audit M4) before it
+            eisup::EisUpResult EUl = EU;
+            if (s.eisup_tamper_ell == ell) {
+                const std::vector<uint32_t> Up = EUl.Uprimes();
+                size_t ip = 0;
+                while (ip < Up.size() && Up[ip] != ell) ++ip;
+                if (ip == Up.size()) ip = 0;
+                EUl.lines[0].U[ip] = eisup::HexPlus(EUl.lines[0].U[ip], 1);
+            }
+            const size_t ne = EUl.lines.size();
+            std::vector<std::string> lamZ(ne);
+            std::vector<uint64_t> lamM(ne);
+            for (size_t j = 0; j < ne; ++j) {
+                lamZ[j] = eisup::LambdaOf(EUl, j, thP, gt.coeffs);
+                lamM[j] = eisup::HexModEll(lamZ[j], ell);
+            }
+            const eisup::Attribution att = eisup::AttributeAtEll(gt.fbar, lamM, ell);   // C-E7: remainder 0, each root at its multiplicity
+            const auto fac = hecke::FactorPoly(hecke::FpPoly64(ell, gt.fbar));
+            struct MI {
+                std::vector<uint64_t> pi;
+                uint32_t mult;
+            };
+            std::vector<MI> mis;
+            for (const auto& fa : fac.factors) mis.push_back(MI{fa.pi.coeffs, fa.multiplicity});
+            std::sort(mis.begin(), mis.end(), [](const MI& a, const MI& b) {
+                if (a.pi.size() != b.pi.size()) return a.pi.size() < b.pi.size();
+                return a.pi < b.pi;
+            });
+            B.add("G2", pre + ".maximal_ideals", "certified", "mi_status", pre + ".generation.status");
+            {
+                std::string on;
+                if (thP.size() != ops.size()) {
+                    std::vector<std::string> names;
+                    for (uint32_t p : thP) names.push_back((N % p == 0 ? "U_" : "T_") + std::to_string(p));
+                    on = " on " + Join(names, ",");
+                }
+                B.add("G2", pre + ".decomposed_by", "theta=(" + Join(gt.coeffs, " ") + ")" + on);
+            }
+            const bool cusp_comp = QF.d > QF.e_k;
+            const size_t ncomp = ne + (cusp_comp ? 1 : 0);
+            for (size_t i = 0; i < mis.size(); ++i) {
+                const MI& m = mis[i];
+                const uint32_t fdeg = static_cast<uint32_t>(m.pi.size() - 1);
+                const std::string mp = pre + ".m[" + std::to_string(i) + "]";
+                B.add("G2", mp + ".residue_degree", std::to_string(fdeg), "int");
+                B.add("G2", mp + ".residue_poly", PolyText(m.pi));
+                B.add("G2", mp + ".support", support_word(ell, gt.coeffs, thP, m.pi, true), "support");
+                if (ell == 2 || ell == 3) B.add("G2", mp + ".degree_attr", "not_run", "degree_attr");
+                add_local_type(pre, mp, m.mult, fdeg);
+                // component j passes through m iff pi | f_j mod ell ([C, prop:heckeZthrough]); f_j = x - lambda_j(theta') (Eisenstein), c-bar (cusp)
+                std::vector<bool> thr(ncomp, false);
+                for (size_t j = 0; j < ne; ++j) thr[j] = fdeg == 1 && m.pi[0] == (ell - lamM[j]) % ell && m.pi[1] == 1;
+                if (cusp_comp) {
+                    const hecke::FpPoly64 piP(ell, m.pi), cP(ell, att.cbar);
+                    thr[ne] = att.cbar.size() > 1 && hecke::FpPoly64::mod(cP, piP).is_zero();
+                }
+                for (size_t j = 0; j < ncomp; ++j)
+                    B.add("G2", mp + ".components_through." + std::to_string(j), thr[j] ? "certified" : "not_run", "through",
+                          pre + ".generation.status");
+                for (size_t j = 0; j < ncomp; ++j)
+                    for (size_t j2 = j + 1; j2 < ncomp; ++j2) {
+                        if (!thr[j] || !thr[j2]) continue;
+                        // depth = v_ell Res(f_j, f_j') at theta': exact for two Eisenstein components, or where f_theta' is exact
+                        int64_t depth = -1;
+                        if (j2 < ne) depth = eisup::ValuationOfDifference(lamZ[j], lamZ[j2], ell);
+                        else if (exact) depth = eisup::CuspResultantValuation(exact->f, lamZ, j, ell);
+                        const std::string pk = mp + ".pair_kinds[" + std::to_string(j) + "," + std::to_string(j2) + "]";
+                        B.add("G2", pk + ".depth", depth >= 0 ? std::to_string(depth) : "not_run", depth >= 0 ? "int" : "not_run",
+                              pre + ".generation.status");
+                        B.add("G2", pk + ".status", depth >= 0 ? "certified" : "not_run", "status", pre + ".generation.status");
+                        const bool deg1 = j2 < ne || QF.d - QF.e_k == 1;
+                        B.add("G2", pk + ".kind", deg1 ? "meeting" : "not_run", "pair_kind", pre + ".generation.status");
+                    }
+            }
             continue;
         }
         if (!full_N && c1_ok) {
@@ -1360,67 +1643,9 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
             const std::string mp = pre + ".m[" + std::to_string(i) + "]";
             B.add("G2", mp + ".residue_degree", std::to_string(fdeg), "int");
             B.add("G2", mp + ".residue_poly", PolyText(m.pi));
-            {
-                // (HZ-TOR) the T'-blocks of H^1 / ell^e whose theta-residue is pi: a common block -> both.  The theta-residue of a block
-                // is known when theta = T_p (its residue at T_p), or when every residue over P has degree 1 (then theta acts by
-                // sum c_p a_p); else not_run.
-                std::string sup = "free";
-                const auto it = TR.find(ell);
-                if (it != TR.end() && it->second.status == "ok") {
-                    const tor::TorRead& t = it->second;
-                    bool known = true, both = false;
-                    for (const auto& b : t.blocks) {
-                        std::vector<uint64_t> res;   // the block's theta-residue (monic, low -> high), empty = unknown
-                        bool unit_hit = false;
-                        for (size_t jj = 0; jj < th_coeffs.size(); ++jj) {
-                            const auto ip = std::find(t.P.begin(), t.P.end(), thP[jj]);
-                            if (ip == t.P.end()) { res.clear(); break; }
-                            const size_t idx = static_cast<size_t>(ip - t.P.begin());
-                            if (idx >= b.residue.size()) { res.clear(); break; }
-                            if (th_coeffs[jj] == 1 && std::count(th_coeffs.begin(), th_coeffs.end(), 0u) + 1 == static_cast<long>(th_coeffs.size())) {
-                                res = b.residue[idx];
-                                unit_hit = true;
-                                break;
-                            }
-                        }
-                        if (!unit_hit) {
-                            res.clear();
-                            uint64_t sum = 0;
-                            bool deg1 = true;
-                            for (size_t jj = 0; jj < th_coeffs.size() && deg1; ++jj) {
-                                const auto ip = std::find(t.P.begin(), t.P.end(), thP[jj]);
-                                const size_t idx = ip == t.P.end() ? b.residue.size() : static_cast<size_t>(ip - t.P.begin());
-                                if (idx >= b.residue.size() || b.residue[idx].size() != 2 || b.residue[idx][1] != 1) {
-                                    deg1 = false;
-                                    break;
-                                }
-                                const uint64_t a = (ell - b.residue[idx][0] % ell) % ell;   // the root of x - a
-                                sum = (sum + MulMod(th_coeffs[jj] % ell, a, ell)) % ell;
-                            }
-                            if (deg1) res = {(ell - sum) % ell, 1};
-                        }
-                        if (res.empty()) {
-                            if (b.kind == "common") known = false;
-                            continue;
-                        }
-                        if (res == m.pi && b.kind == "common") both = true;
-                    }
-                    sup = both ? "both" : (known ? "free" : "not_run");
-                } else if (it != TR.end()) {
-                    sup = it->second.status == "blocked(export)" ? ExportWord(it->second.detail)
-                                                                   : (it->second.status == "open(precision)" ? "refused(export_word)" : "not_run");
-                }
-                B.add("G2", mp + ".support", sup, "support");
-            }
+            B.add("G2", mp + ".support", support_word(ell, th_coeffs, thP, m.pi, false), "support");
             if (ell == 2 || ell == 3) B.add("G2", mp + ".degree_attr", "not_run", "degree_attr");   // B4(2): no route computes it
-            B.add("G2", mp + ".local_type.kind", m.mult == 1 ? "etale" : "monogenic", "local_kind", pre + ".generation.status");
-            B.add("G2", mp + ".local_type.rank", std::to_string(m.mult * fdeg), "int", pre + ".generation.status");
-            B.add("G2", mp + ".local_type.embdim", m.mult > 1 ? "1" : "0", "int", pre + ".generation.status");
-            B.add("G2", mp + ".local_type.gorenstein", "true", "bool", pre + ".generation.status");
-            B.add("G2", mp + ".local_type.length_mod_l", std::to_string(m.mult), "int", pre + ".generation.status");
-            std::vector<uint32_t> hil(m.mult, 1);
-            B.add("G2", mp + ".local_type.hilbert", Join(hil), "", pre + ".generation.status");
-            B.add("G2", mp + ".local_type.loewy", std::to_string(m.mult), "int", pre + ".generation.status");
+            add_local_type(pre, mp, m.mult, fdeg);
             // components through m (01 P 2.6 at a generating theta: component i passes iff pi | f_i mod ell)
             const bool eis_through = fdeg == 1 && m.pi[0] == (ell - lam) % ell && m.pi[1] == 1;
             const hecke::FpPoly64 piP(ell, m.pi), cP(ell, cbar);
@@ -1858,6 +2083,14 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
     } else {   // (H1 audit F3) under `hida` H1 ran and K9 does not apply (no ordinary Eisenstein ideal through a cusp form)
         B.add("G9", "G9.K9", g8_hida ? "absent(not_applicable)" : "absent(H1)", "cert_absent");
     }
+    if (eisup_on) {   // (HZ-EISUP, design Sec. 3.4) the certificate of the Eisenstein U_p systems (cert_sha256 only; none of it depends on threads)
+        B.add("G9", "G9.eisup.e_theta", "[" + Join(EU.e_theta) + "]");
+        B.add("G9", "G9.eisup.primes", std::to_string(EU.primes_used), "int");
+        B.add("G9", "G9.eisup.skipped", Join(EU.skipped));
+        B.add("G9", "G9.eisup.id_prime", std::to_string(EU.id_prime), "int");
+        B.add("G9", "G9.eisup.digest", Hex64(EU.digest()), "hex64");
+        if (cusp_irred_q) B.add("G9", "G9.irreducible.cusp.q", std::to_string(cusp_irred_q), "int");   // (d)'s certificate of c_theta
+    }
     B.add("G9", "G9.K10", N > 1 && IsPrimeU32(N) && n == 0 ? "absent(not_built)" : "absent(not_applicable)", "cert_absent");
     B.add("G9", "G9.trust.tb_chi", R.descent.record_fnv1a64, "hex64");
 
@@ -1867,6 +2100,13 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
     if (full_N) {   // (Z1; audit C6) the contract text the full record was computed under, and the full step's provenance
         B.add("G10", "G10.contract", up::kFullContract);   // (d')(vii)
         B.add("G10", "G10.full.rat.primes_used", std::to_string(THF ? THF->primes_used : 0));
+        if (eisup_on) {   // (HZ-EISUP) provenance; `reused` depends on the thread count (the step's look-ahead), so it is G10, not G9
+            std::ostringstream t;
+            t << EU.secs;
+            B.add("G10", "G10.eisup.secs", t.str());
+            B.add("G10", "G10.eisup.reused", std::to_string(EU.reused));
+            B.add("G10", "G10.eisup.computed", std::to_string(EU.computed));
+        }
         for (const auto& [ell, e] : S) {
             if (ell < 5 || !c1f_ok) continue;
             const std::string pre = "G10.read_full.ell=" + std::to_string(ell);
@@ -2018,6 +2258,206 @@ const std::map<std::string, std::vector<Shape>>& SchemaTable() {
     };
     return t;
 }
+// ---- (slot-26 HZ-EISUP, amendment A4; design Sec. 3.6, audit M2) the full layout at N > 1 -----------------------------------------------
+// NormaliseFullPath = NormalisePath followed by four rewrites, each of a digit run in a fixed context: components[<d>] -> components[#];
+// in a path starting G1.components[#]., a final segment U_<d> -> U_#; a final components_through.<d> -> components_through.#;
+// pair_kinds[<d>,<d>] -> pair_kinds[#,#].  The literal components_through.eis / .cusp and pair_kinds[eis,cusp] have no such digit run.
+// NormalisePath is unchanged (byte-identical), so every path that normalised before normalises identically; the second table is reached
+// only on a full record at N > 1 carrying G1.components = certified (ScanRecord).
+bool AllDigits(const std::string& s, size_t a, size_t b) {
+    if (a >= b) return false;
+    for (size_t i = a; i < b; ++i)
+        if (!std::isdigit(static_cast<unsigned char>(s[i]))) return false;
+    return true;
+}
+std::string NormaliseFullPath(const std::string& p0) {
+    std::string p = NormalisePath(p0);
+    {   // components[<digits>] -> components[#]
+        const std::string t = "components[";
+        std::string o;
+        size_t i = 0;
+        while (i < p.size()) {
+            if (p.compare(i, t.size(), t) == 0) {
+                const size_t a = i + t.size();
+                size_t b = a;
+                while (b < p.size() && std::isdigit(static_cast<unsigned char>(p[b]))) ++b;
+                if (b > a && b < p.size() && p[b] == ']') {
+                    o += t + "#";
+                    i = b;
+                    continue;
+                }
+            }
+            o += p[i++];
+        }
+        p = o;
+    }
+    {   // G1.components[#].U_<digits> (final segment) -> U_#
+        const std::string pre = "G1.components[#].U_";
+        if (p.compare(0, pre.size(), pre) == 0 && AllDigits(p, pre.size(), p.size())) p = pre + "#";
+    }
+    {   // a final components_through.<digits> -> components_through.#
+        const std::string t = ".components_through.";
+        const size_t a = p.rfind(t);
+        if (a != std::string::npos && AllDigits(p, a + t.size(), p.size())) p = p.substr(0, a + t.size()) + "#";
+    }
+    {   // pair_kinds[<digits>,<digits>] -> pair_kinds[#,#]
+        const std::string t = "pair_kinds[";
+        const size_t a = p.find(t);
+        if (a != std::string::npos) {
+            const size_t c = p.find(',', a);
+            const size_t e = p.find(']', a);
+            if (c != std::string::npos && e != std::string::npos && c < e && AllDigits(p, a + t.size(), c) && AllDigits(p, c + 1, e))
+                p = p.substr(0, a + t.size()) + "#,#" + p.substr(e);
+        }
+    }
+    return p;
+}
+const std::map<std::string, std::vector<Shape>>& FullSchemaTable() {
+    static const std::map<std::string, std::vector<Shape>> t = {
+        {"G1.components[#].type", {{"component_type", ""}}}, {"G1.components[#].degree", {{"int", ""}}},
+        {"G1.components[#].mult", {{"int", ""}}}, {"G1.components[#].p0", {{"op_or_theta", ""}}},
+        {"G1.components[#].minpoly", {{"", ""}}}, {"G1.components[#].lambda_theta", {{"zbig", ""}}},
+        {"G1.components[#].irreducible", {{"irreducible", ""}}}, {"G1.components[#].U_#", {{"zbig", ""}}},
+        {"G2.ell=#.m[#].components_through.#", {{"through", "$"}}},
+        {"G2.ell=#.m[#].pair_kinds[#,#].depth", {{"int", "$"}, {"not_run", "$"}}},
+        {"G2.ell=#.m[#].pair_kinds[#,#].status", {{"status", "$"}}},
+        {"G2.ell=#.m[#].pair_kinds[#,#].kind", {{"pair_kind", "$"}}},
+    };
+    return t;
+}
+// (A4 item 4) the full layout of a full record at N > 1 with G1.components = certified; one problem text per violation
+std::vector<std::string> FullLayoutProblems(const HeckeStructureRecord& R, const std::map<std::string, std::string>& val) {
+    std::vector<std::string> out;
+    std::map<size_t, std::map<std::string, std::string>> comp;   // index -> key -> value
+    std::set<size_t> thr_idx;
+    std::vector<std::pair<size_t, size_t>> pairs;
+    for (const Field& f : R.fields) {
+        const std::string& p = f.path;
+        const std::string c0 = "G1.components[";
+        if (p.compare(0, c0.size(), c0) == 0) {
+            const size_t b = p.find(']', c0.size());
+            if (b == std::string::npos || !AllDigits(p, c0.size(), b) || b + 1 >= p.size() || p[b + 1] != '.') {
+                out.push_back("a malformed component path: " + p);
+                continue;
+            }
+            comp[std::stoul(p.substr(c0.size(), b - c0.size()))][p.substr(b + 2)] = f.value;
+            continue;
+        }
+        const std::string t = ".components_through.";
+        const size_t a = p.rfind(t);
+        if (f.group == "G2" && a != std::string::npos && AllDigits(p, a + t.size(), p.size())) thr_idx.insert(std::stoul(p.substr(a + t.size())));
+        const std::string pk = "pair_kinds[";
+        const size_t k = p.find(pk);
+        if (f.group == "G2" && k != std::string::npos) {
+            const size_t c = p.find(',', k), e = p.find(']', k);
+            if (c != std::string::npos && e != std::string::npos && AllDigits(p, k + pk.size(), c) && AllDigits(p, c + 1, e))
+                pairs.push_back({std::stoul(p.substr(k + pk.size(), c - k - pk.size())), std::stoul(p.substr(c + 1, e - c - 1))});
+        }
+    }
+    auto num = [&](const char* key) -> int64_t {
+        const auto it = val.find(key);
+        return it != val.end() && IsDecimal(it->second) ? std::stoll(it->second) : -1;
+    };
+    const int64_t ek = num("G1.e_k"), d = num("G1.d");
+    std::vector<uint32_t> ps;
+    for (uint32_t x = R.N, q = 2; x > 1; ++q) {
+        if (static_cast<uint64_t>(q) * q > x) q = x;
+        if (x % q == 0) {
+            ps.push_back(q);
+            while (x % q == 0) x /= q;
+        }
+    }
+    size_t expect = 0;
+    for (const auto& [j, kv] : comp) {
+        if (j != expect) out.push_back("component indices not contiguous from 0 at " + std::to_string(j));
+        expect = j + 1;
+    }
+    int64_t n_eis = 0, n_cusp = 0;
+    for (const auto& [j, kv] : comp) {
+        const auto it = kv.find("type");
+        const std::string ty = it == kv.end() ? std::string() : it->second;
+        if (ty == "eis") {
+            ++n_eis;
+            if (static_cast<int64_t>(j) >= ek) out.push_back("an Eisenstein component beyond e_k: [" + std::to_string(j) + "]");
+            std::set<std::string> us;
+            for (const auto& [key, v] : kv)
+                if (key.compare(0, 2, "U_") == 0) us.insert(key.substr(2));
+            std::set<std::string> want;
+            for (uint32_t p : ps) want.insert(std::to_string(p));
+            if (us != want) out.push_back("Eisenstein component [" + std::to_string(j) + "] does not carry U_<p> for exactly the p | N");
+        } else if (ty == "cusp") {
+            ++n_cusp;
+            if (static_cast<int64_t>(j) != ek) out.push_back("the cuspidal block is not at index e_k: [" + std::to_string(j) + "]");
+            for (const auto& [key, v] : kv)
+                if (key.compare(0, 2, "U_") == 0) out.push_back("a U_<p> key on the cuspidal block: [" + std::to_string(j) + "]." + key);
+        } else {
+            out.push_back("a component without a type: [" + std::to_string(j) + "]");
+        }
+    }
+    if (n_eis != ek) out.push_back("Eisenstein components " + std::to_string(n_eis) + " != e_k = " + std::to_string(ek));
+    if (n_cusp != (d > ek ? 1 : 0)) out.push_back("cuspidal blocks " + std::to_string(n_cusp) + ", expected " + (d > ek ? "1" : "0"));
+    for (size_t j : thr_idx)
+        if (!comp.count(j)) out.push_back("components_through." + std::to_string(j) + " names no component");
+    for (const auto& [a, b] : pairs)
+        if (!(a < b) || !comp.count(a) || !comp.count(b))
+            out.push_back("pair_kinds[" + std::to_string(a) + "," + std::to_string(b) + "] is not a pair j < j' of components");
+    // (code audit m4) the scope of (d')(ii)'s paragraph: e^an_k(N) = 1 and (C1) certified
+    if (!eisup::InScope(R.N, R.n)) out.push_back("the layout outside HZ-EISUP's scope (e^an_k(N) != 1)");
+    {
+        const auto it = val.find("G1.C1.status");
+        if (it == val.end() || it->second != "certified") out.push_back("the layout without G1.C1.status = certified");
+    }
+    // (code audit m4) per maximal ideal m[i] of an ell with maximal_ideals = certified: components_through.<j> for every component j,
+    // no key components_through.eis / .cusp or pair_kinds[eis,cusp] (those of level-1 and anemic records), and pair_kinds[<j>,<j'>] only
+    // for j < j' both passing (components_through = certified); no m[i] row under any other ell
+    struct MRow {
+        std::map<size_t, std::string> thr;
+        std::set<std::pair<size_t, size_t>> pk;
+        bool legacy = false;
+    };
+    std::map<std::string, std::map<size_t, MRow>> mrows;   // ell -> i -> row
+    for (const Field& f : R.fields) {
+        const std::string& p = f.path;
+        if (f.group != "G2" || p.compare(0, 7, "G2.ell=") != 0) continue;
+        const size_t e = p.find('.', 7);
+        if (e == std::string::npos || p.compare(e, 3, ".m[") != 0) continue;
+        const size_t rb = p.find(']', e + 3);
+        if (rb == std::string::npos || !AllDigits(p, e + 3, rb) || rb + 1 >= p.size() || p[rb + 1] != '.') continue;
+        MRow& M = mrows[p.substr(7, e - 7)][std::stoul(p.substr(e + 3, rb - e - 3))];
+        const std::string rest = p.substr(rb + 2);
+        const std::string ct = "components_through.", pk = "pair_kinds[";
+        if (rest.compare(0, ct.size(), ct) == 0) {
+            if (AllDigits(rest, ct.size(), rest.size())) M.thr[std::stoul(rest.substr(ct.size()))] = f.value;
+            else M.legacy = true;
+        } else if (rest.compare(0, pk.size(), pk) == 0) {
+            const size_t c = rest.find(','), b = rest.find(']');
+            if (c != std::string::npos && b != std::string::npos && c < b && AllDigits(rest, pk.size(), c) && AllDigits(rest, c + 1, b))
+                M.pk.insert({std::stoul(rest.substr(pk.size(), c - pk.size())), std::stoul(rest.substr(c + 1, b - c - 1))});
+            else
+                M.legacy = true;
+        }
+    }
+    for (const auto& [ell, rows] : mrows) {
+        const auto mi = val.find("G2.ell=" + ell + ".maximal_ideals");
+        const bool cert = mi != val.end() && mi->second == "certified";
+        for (const auto& [i, M] : rows) {
+            const std::string at = "G2.ell=" + ell + ".m[" + std::to_string(i) + "]";
+            if (!cert) {
+                out.push_back(at + " under maximal_ideals != certified");
+                continue;
+            }
+            if (M.legacy) out.push_back(at + " carries a level-1 / anemic attribution key (eis / cusp)");
+            for (const auto& [j, kv] : comp)
+                if (!M.thr.count(j)) out.push_back(at + " lacks components_through." + std::to_string(j));
+            for (const auto& [a, b] : M.pk) {
+                const auto ta = M.thr.find(a), tb = M.thr.find(b);
+                if (ta == M.thr.end() || tb == M.thr.end() || ta->second != "certified" || tb->second != "certified")
+                    out.push_back(at + ".pair_kinds[" + std::to_string(a) + "," + std::to_string(b) + "] for a pair not both passing");
+            }
+        }
+    }
+    return out;
+}
 std::string EllOfPath(const std::string& p) {
     const size_t a = p.find("ell=");
     if (a == std::string::npos) return std::string();
@@ -2036,6 +2476,14 @@ ScanResult ScanRecord(const HeckeStructureRecord& R) {
     const bool g8_off = R.settings_text.find("\nheckez.G8 = off ") != std::string::npos ||
                         R.settings_text.compare(0, 14, "heckez.G8 = off") == 0;
     const bool g8_hida = !g8_off && R.settings_text.find("\nheckez.G8 = hida ") != std::string::npos;
+    // (HZ-EISUP, A4 item 3) the second table is reached only on a full record at N > 1 carrying G1.components = certified
+    const auto comp_it = val.find("G1.components");
+    const bool full_layout = R.algebra == "full" && R.N > 1 && comp_it != val.end() && comp_it->second == "certified";
+    if (full_layout)
+        for (const std::string& pr : FullLayoutProblems(R, val)) {
+            ++S.values_outside_lists;
+            S.problems.push_back("the full layout (A4): " + pr);
+        }
     for (const Field& f : R.fields) {
         // (re-audit R5 (b)) the schema of the path decides the vocabulary and the parent; the file's columns must agree with it
         if (Hashed(f.group) || f.group == "G0x") {
@@ -2051,8 +2499,13 @@ ScanResult ScanRecord(const HeckeStructureRecord& R) {
                 S.problems.push_back(std::string("a G8 field in a record whose settings say ") + (g8_off ? "heckez.G8 = off" : "another G8 value") +
                                      ": " + f.path);
             } else if (Hashed(f.group)) {
-                const auto it = SchemaTable().find(NormalisePath(f.path));
-                if (it == SchemaTable().end()) {
+                auto it = SchemaTable().find(NormalisePath(f.path));
+                bool known = it != SchemaTable().end();
+                if (!known && full_layout) {   // (HZ-EISUP, A4) only after the v1 table misses
+                    it = FullSchemaTable().find(NormaliseFullPath(f.path));
+                    known = it != FullSchemaTable().end();
+                }
+                if (!known) {
                     ++S.values_outside_lists;
                     S.problems.push_back("a field the v1 schema does not have: " + f.path + "=" + f.value);
                 } else {

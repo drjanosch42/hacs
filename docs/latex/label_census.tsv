@@ -5,7 +5,7 @@ docs/latex/cli_manual.tex	64	34	64	0	0
 docs/latex/cli_manual/types.tex	3	3	3	0	0	
 docs/latex/gl2_contract.tex	8	3	8	0	0	
 docs/latex/hecke_extensions.tex	493	134	493	0	0	
-docs/latex/hida_hecke_algebra.tex	187	67	187	0	0	
+docs/latex/hida_hecke_algebra.tex	189	67	189	0	0	
 docs/latex/phenomena_gallery.tex	94	61	94	0	0	
 src/ModArithmetic/ENGINE_API.md	2	2	2	0	0	
 src/ModArithmetic/FlatMatrix.h	1	1	1	0	0	
@@ -218,7 +218,7 @@ src/hacs/Integral/HeckeStrictLiftValidation.h	5	3	5	0	0
 src/hacs/Integral/HeckeZLocal.h	13	9	13	0	0	
 src/hacs/Integral/HeckeZRational.cpp	5	3	5	0	0	
 src/hacs/Integral/HeckeZRational.h	8	5	8	0	0	
-src/hacs/Integral/HeckeZRecord.cpp	2	2	2	0	0	
+src/hacs/Integral/HeckeZRecord.cpp	3	3	3	0	0	
 src/hacs/Integral/HeckeZRecord.h	12	11	12	0	0	
 src/hacs/Integral/HeckeZRecordValidation.cpp	1	1	1	0	0	
 src/hacs/Integral/HeckeZTor.h	3	3	3	0	0	
@@ -269,4 +269,4 @@ src/hacs/Registry/Slot23.cpp	1	1	1	0	0
 src/hacs/Registry/Slot24.cpp	6	6	6	0	0	
 src/hacs/Registry/Slot9.cpp	5	4	5	0	0	
 src/hacs/ValidationRegistry.cpp	43	31	43	0	0	
-TOTAL	2908	346	2908	0	0	
+TOTAL	2911	346	2911	0	0	

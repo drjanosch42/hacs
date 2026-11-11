@@ -404,6 +404,8 @@ void RegisterSlot24();
 void RegisterSlot25();
 void RegisterSlot26HeckeZUp();   // slot 26 (open): Registry/Slot26/HeckeZUp.cpp
 void RegisterSlot26HeckeZLocalPar();   // slot 26 (open): Registry/Slot26/HeckeZLocalPar.cpp
+void RegisterSlot26HeckeZEisUp();   // slot 26 (open): Registry/Slot26/HeckeZEisUp.cpp
+void RegisterSlot26HeckeHidaDiscLambda();   // slot 26 (open): Registry/Slot26/HeckeHidaDiscLambda.cpp
 
 void RegisterAllValidations() {
     // ===============================================================    // TIER CLASSIFICATION (Phase-0 owner decision Q13).
@@ -1965,4 +1967,6 @@ void RegisterAllValidations() {
     RegisterSlot25();
     RegisterSlot26HeckeZUp();
     RegisterSlot26HeckeZLocalPar();
+    RegisterSlot26HeckeZEisUp();
+    RegisterSlot26HeckeHidaDiscLambda();
 }

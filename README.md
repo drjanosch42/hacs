@@ -21,7 +21,7 @@ Computing the cohomology of arithmetic groups is hard. This software is Harder.
 
 ---
 
-This is release **0.1.1** (`RELEASE_INFO.txt`). The version follows SemVer; `0.x` means that interfaces (CLI tokens,
+This is release **0.2.0** (`RELEASE_INFO.txt`). The version follows SemVer; `0.x` means that interfaces (CLI tokens,
 console verbs, record schemas) may still change. Changes: `CHANGELOG.md`.
 
 ## Documentation
@@ -43,7 +43,7 @@ Five PDF documents ship with the tree, in `docs/latex/`; their LaTeX sources sit
 | `src/Cuda/` | the optional CUDA device code (and its CPU stub) |
 | `src/hacs/` | the cohomology layer, Hecke operators, Hecke extensions, the integral line over Z, number fields, the console, the campaign driver, and the validation suite |
 | `cmake/`, `CMakeLists.txt`, `CMakePresets.json` | the build |
-| `docs/latex/` | the mathematical documents and their PDFs: [C] gl2_contract 1.26.4, [E] hecke_extensions 1.25.3, [U] hida_hecke_algebra 0.7.3, [CLI] cli_manual 1.5.13, [PG] phenomena_gallery 1.5.4 |
+| `docs/latex/` | the mathematical documents and their PDFs: [C] gl2_contract 1.27.0, [E] hecke_extensions 1.25.3, [U] hida_hecke_algebra 0.8.1, [CLI] cli_manual 1.5.13, [PG] phenomena_gallery 1.5.4 |
 | `docs/console/console.md` | the generated console reference |
 | `lean/` | formal checks in Lean 4 (in progress; **not part of the binding contract**) |
 | `notebook/` | the read-only notebook gateway and page (built with `-DOC_BUILD_NOTEBOOK=ON`), and example console scripts |

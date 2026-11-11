@@ -209,6 +209,10 @@
 %   (Greenberg--Stevens read: a weaker, local, char-0, meromorphic form); an Evidence paragraph after pr:u-msym (P8, P9, P3; COMP); the
 %   code map of part 4 BUILT (P8 96cdaaac, P9).  No statement, label or tag changed.  Companions [C] v1.21.0-pre.2, [E] 1.21.0-pre.1.
 %
+%   VERSION 0.8.1 (slot 26, 2026-11-11: SIGNED BY THE OWNER 2026-11-11 ("I sign the commit update. Fix the two in [U] please."); the text of 0.8.0, unchanged except two status sentences of part 7 (sec:u-status Part 7 sentence; the 'Status and scope' paragraph of part 7), 'pre-release, not signed' -> 'since v0.8.0 (signed by the owner 2026-11-11) released'; no statement, label or value moves)
+%   VERSION 0.8.0 (slot 26, 2026-11-11: SIGNED BY THE OWNER 2026-11-11 ("I sign [U] 0.7.4-pre.2. I agree with the version number."); the text of 0.7.4-pre.2, unchanged: header, date, release record and changelog only -- no statement, label or value moves; numbered 0.8.0 rather than 0.7.4 per the referee's m11, accepted by the owner; the printed key of hida_aif2 became [Hid88b] (was [Hid88]) at pre.2, see the release record; the 0.7.4-pre.2 and earlier history below is kept)
+%   VERSION 0.7.4-pre.2 (slot 26, Z6 fix round, 2026-11-11, pre-release, NOT signed): the U074pre1 referee's m1--m10 (m10 touches signed 0.7.3 text: the Part 6 release sentence of sec:u-status), n1 (Hida AJM 1988 Thm. 0.1, p. 329; VERIFY removed; bib hida_ajm88), n3, n4, n6; code audit F1 in pr:u-H2(a) (the subset agreement is not evidence); NEW rmk:u-H2data (COMP, the eleven rows; (36,181) case B, lambda = 2); code map Built.  No statement, label or number moves.  m11: the referee recommends 0.8.0 for the signed release; the owner chooses.  Companions [C] 1.27.0, [E] 1.25.3.
+%   VERSION 0.7.4-pre.1 (slot 26, Z6 = H2, 2026-11-11, pre-release for a referee, NOT signed): NEW part 7, sec:u-H2, after part 6 (no statement number of 0.7.3 moves): def:u-DF, lem:u-DF, lem:u-DFread, pr:u-H2 ((U25)), code map; abstract count (U1)--(U25) and one clause; sec:u-status Part 7 sentence; release record and changelog of part 7.  Design docs/implementation/slot26/Z6_design.md v0.2.  Companions [C] 1.27.0, [E] 1.25.3.
 %   VERSION 0.7.3 (slot 26, 2026-11-10: SIGNED BY THE OWNER 2026-11-10 ("I sign those title pages."); the text of 0.7.3-pre.1, unchanged: header, date and release record only -- no statement, label, number or tag moves; the title page names no sign-off)
 %   VERSION 0.7.3-pre.1 (slot 26, 2026-11-10, pre-release for owner signature, NOT signed): title page only, no change of mathematical content (public release HACS 0.1.1): the \date line names only the version, the date and the revision history; the words 'signed by the owner 2026-11-09' leave the title page (the sign-off record stays in the release record of Appendix app:u-history). No statement, label, number or tag moves. (0.7.3-pre was the slot-26 plan's reservation for card Z6, which has not started: no branch, commit or scratch; Z6 now feeds 0.7.4-pre, as RELFIX did with 0.7.2-pre.1.)
 %   VERSION 0.7.2 (slot 26, 2026-11-09: SIGNED BY THE OWNER 2026-11-09, effective on the referee's ACCEPT (RELFIX_signed_referee.md); the text of 0.7.2-pre.1, unchanged: header, date and release record only -- no statement, label, number or tag moves)
@@ -306,7 +310,7 @@
 \title{Hida's Universal Ordinary Hecke Algebra at Tame Level One\\[1ex]
 \large Components, their intersections, no CM, and the saturation link to Loewy length}
 \author{Fabian Januszewski\\ Universit\"at Paderborn\\ \texttt{fabian.januszewski@math.uni-paderborn.de}}
-\date{Version 0.7.3 --- 2026-11-10 (revision history: Appendix~\ref{app:u-history})}
+\date{Version 0.8.1 --- 2026-11-11 (revision history: Appendix~\ref{app:u-history})}
 
 \begin{document}
 \maketitle
@@ -323,7 +327,7 @@ they can meet other components, at tame level $N$ prime to $\ell$ with a tame ch
 of the $\Iw$-adic algebra and modular symbols, recovered from finitely many weights; the $\Iw$-action on the ordinary cohomology of
 the tower $\Ga_1(\ell^{r})$, at one level and weight~$2$; and, for $a\not\equiv0$, the Eisenstein component over $\Iw$, whose
 ring-theoretic type one weight decides, at cuspidal rank one and at $(\ell,a)=(547,486)$, the only pair of cuspidal rank two with
-$\ell<10^{5}$. Every non-definitional assertion carries a status tag; the predictions are numbered (U1)--(U24).
+$\ell<10^{5}$; and the discriminant series of eleven ramified ordinary cuspidal families at tame level~$1$. Every non-definitional assertion carries a status tag; the predictions are numbered (U1)--(U25).
 \end{abstract}
 
 \tableofcontents
@@ -352,9 +356,13 @@ It cites [C] v1.21.0 and [E] 1.21.0 since v0.5.0 (v1.20.0 / 1.20.0 at v0.4.0; v1
 truncated $\Iw$-adic modular symbols) was a pre-release, \textbf{not signed}, through v0.5.0-pre.8, written for the slot-21 Fable referee before the code of slot-21 P8 (refereed by F4, F4m and the F4 of P5, all repaired);
 \textbf{since v0.5.0} it is released with the slot-21 close, 2026-10-06 (owner decision D16, accepted as recommended), with the rest; it cites [C] v1.21.0 and [E] 1.21.0 (v1.20.0 / 1.20.0 through v0.5.0-pre.8). \textbf{Part~5} (v0.6.0-pre.1, \S\ref{sec:u-tower}, the tower $\Ga_1(\ell^{r})$, wild characters
 and the $\Om{}$-type truncations) was a pre-release through v0.6.0-pre.3, written before the code of slot-22 P10 and refereed by the slot-22 Fable referee F-U5 (ACCEPT WITH REPAIRS,
-all applied in the inserted text); \textbf{since v0.6.0} (signed by the owner 2026-10-16) it is released with the rest; it cites [C] v1.22.0-pre.1 (\HA{sec:nebwildsec}). \textbf{Part~6} (v0.7.0-pre.1, \S\ref{sec:u-eislambda}, the Eisenstein component over $\Iw$ at irregular pairs) is a pre-release, \textbf{not signed},
-written for an adversarial referee before the code of H1 (refereed by the slot-25 U6 referee, ACCEPT WITH MINORS, repaired at v0.7.0-pre.2); parts~1--5 are as released in 0.6.0 (signed by the owner 2026-10-16). It cites [C] v1.24.0 by label, and [C] 1.25.0-pre.3's
-\HA{sec:heckeZ} (a pre-release; the 0.7.0 release must cite a released [C] 1.25.0) by label.
+all applied in the inserted text); \textbf{since v0.6.0} (signed by the owner 2026-10-16) it is released with the rest; it cites [C] v1.22.0-pre.1 (\HA{sec:nebwildsec}). \textbf{Part~6} (v0.7.0-pre.1, \S\ref{sec:u-eislambda}, the Eisenstein component over $\Iw$ at irregular pairs) was a pre-release through v0.7.0-pre.4,
+written for an adversarial referee before the code of H1 (refereed by the slot-25 U6 referee, ACCEPT WITH MINORS, repaired at v0.7.0-pre.2); \textbf{since v0.7.0} (signed by the owner 2026-11-07)
+it is released with the rest; it cites [C] v1.24.0 by label and [C] v1.25.0 (\HA{sec:heckeZ}).
+\textbf{Part~7} (v0.7.4-pre.1, \S\ref{sec:u-H2}, the discriminant series of the ramified ordinary families of Proposition~\ref{prop:u-loewy}(4)) was a pre-release through v0.7.4-pre.2,
+written for a referee before the code of the slot-26 package Z6 (refereed at pre.1, ACCEPT WITH CHANGES, applied at v0.7.4-pre.2 together with the computed data, Remark~\ref{rmk:u-H2data});
+\textbf{since v0.8.0} (signed by the owner 2026-11-11) it is released with the rest; parts~1--6 are as released in 0.7.3 (signed by the owner 2026-11-10). It cites no label of [C] beyond those of parts~1--6;
+the companion is [C] 1.27.0.
 
 \paragraph{Tags.} Every non-definitional assertion carries one tag. \PROVED: proved here, from the statements it
 names --- when those include a \LIT{} or \STD{} statement the tag says so (``\PROVED{} from \dots''), and the proof is
@@ -2716,6 +2724,161 @@ reproducing (D1) and (D3) and reading $b$ modulo $(\ell^{3},X^{3})$; Proposition
 per pair, \code{decide +kernel}). H1-R (a second workstation, owner-launched) is the test of (U23). Slot-25 HZ-LOC (\code{HeckeZLocalValidation}) supplies the per-maximal-ideal certificate of
 Remark~\ref{rmk:u-H0census} for census rows. No statement of this part rests on code.
 
+%----------------------------------------------------------------------
+\section{The ramified ordinary families at tame level one: the discriminant series (part~7)}\label{sec:u-H2}
+%----------------------------------------------------------------------
+% NEW at v0.7.4-pre.1 (hecke-extensions slot 26, package Z6 = H2; design docs/implementation/slot26/Z6_design.md v0.2, audit Z6_design_audit.md;
+% mathematics docs/implementation/slot24/heckez/05-hida-targets.md v0.3.2 Sec. 4).  Placed after part 6 so that no statement number of 0.7.3 moves.
+% Text first, before the code (rule 22).
+
+\paragraph{Status and scope of this part.} Written as a pre-release (v0.7.4-pre.1) for a referee before the code of the slot-26 package Z6; v0.7.4-pre.2
+applied the referee's changes and added the computed data (Remark~\ref{rmk:u-H2data}); \textbf{since v0.8.0} (signed by the owner 2026-11-11) this part is released with the rest.
+Proposition~\ref{prop:u-loewy}(4) lists eleven ordinary non-Eisenstein blocks of Loewy length~$2$ at tame level~$1$, at ten cells (two blocks at $(68,157)$). This
+part shows that each is a single regular family, ramified over $\Iw$ (Lemma~\ref{lem:u-DF}). It defines the family's discriminant series $D_F$ and states what a
+truncation of $D_F$ modulo $(\ell^{K},(X-x_c)^{m})$ decides (Lemma~\ref{lem:u-DFread}): either a sub-tower of weights on which the specialisation is a non-maximal order, or
+ramification of constant depth at every weight. Only in the first case is the family isomorphic to $\Zl[[Z]]$. The computed truncations are the prediction (U25).
+Tame level~$1$, $\ell\ge5$, $x_k=u^{k}-1$ as in part~3.
+\textbf{Literature.} Hida's congruence module of a family \LIT{\cite[Thm.~0.1, p.~329]{hida_ajm88}; the locator checked against the text of Hida's paper (read-only copy)} is, for a monogenic quadratic family after base change to its normalisation, the different, of norm $(D_F)$;
+it interpolates the algebraic part of $L(1,\mathrm{Ad}\,f_k)$. No statement of this part uses it.
+
+\begin{definition}[The discriminant series]\label{def:u-DF}
+Let $\mathfrak m$ be a maximal ideal of $\hcusp(a)$ with $\rank_\Iw\hcusp(a)_{\mathfrak m}=2$. For $t\in\hcusp(a)_{\mathfrak m}$ with characteristic polynomial $Y^{2}-\tau Y+\nu$ on the free
+$\Iw$-module $\hcusp(a)_{\mathfrak m}$, put $D_t:=\tau^{2}-4\nu\in\Iw$. If $t$ generates $\hcusp(a)_{\mathfrak m}$ over $\Iw$, write $D_F:=D_t$, where $F$ is the family
+$\operatorname{Spec}\hcusp(a)_{\mathfrak m}$. $D_F$ is determined up to $(\Iw^{\times})^{2}$: if $t,t'$ both generate,
+$t'=\alpha+\beta t$ with $\beta\in\Iw^{\times}$ and $D_{t'}=\beta^{2}D_t$ (the proof of Lemma~\ref{lem:u-DF}(3), which uses only that
+$\{1,t\}$ is a $\Iw$-basis). A generator always exists: the fibre $\hcusp(a)_{\mathfrak m}/\mathfrak m_\Iw$ is a local $\Fl$-algebra of dimension~$2$, hence $\Fl[y]/(y^{2})$ or $\mathbb F_{\ell^{2}}$,
+generated by one element, and by Nakayama a lift of that element generates $\hcusp(a)_{\mathfrak m}$ over $\Iw$.
+\end{definition}
+
+\begin{lemma}[The eleven families]\label{lem:u-DF}
+\PROVED{} given Proposition~\ref{prop:u-loewy}(4) (\COMP), from Lemma~\ref{lem:u-H0}, Lemma~\ref{lem:u-levelone}, Theorem~\ref{thm:u-control}, Proposition~\ref{prop:u-lambdaprod}(4), Lemma~\ref{lem:u-DFread} and
+\STD{$q$-expansion duality $S_k(\Zl)_{\mathfrak m}\cong\Hom_{\Zl}(\hcusp_{k,\mathfrak m},\Zl)$}. Let $\mathfrak m$ be one of the eleven blocks of Proposition~\ref{prop:u-loewy}(4), at the cell
+$(n,\ell)$, $k_0=n+2$, $a\equiv k_0$ (in all ten cells $k_0<\ell-1$, so $a\not\equiv0$).
+\begin{enumerate}
+\item $\hcusp(a)_{\mathfrak m}$ is $\Iw$-free of rank $2$ with $\hcusp(a)_{\mathfrak m}/\mathfrak m_\Iw\cong\Fl[y]/(y^{2})$; the residue $\bar\lambda_p$ of $T(p)$ at $\mathfrak m$ is the
+  eigenvalue of $T_p$ on the $\mathfrak m$-part of $\eord S_k$ modulo $\ell$ at every $k\ge3$ in the class.
+\item For a prime $q\ne\ell$, $T(q)$ generates $\hcusp(a)_{\mathfrak m}$ over $\Iw$ iff $T_q-\bar\lambda_q\ne0$ on the $\mathfrak m$-part of $\eord S_k/\ell$ for one (equivalently every)
+  $k\ge3$ in the class; $T(2)$ does. Then $\hcusp(a)_{\mathfrak m}=\Iw[Y]/(F_q)$, and $F_q(x_k;Y)$ is the characteristic polynomial of $T_q$ on the $\mathfrak m$-part of $\eord S_k(\Zl)$.
+\item If $t,t'$ both generate, then $D_{t'}=\beta^{2}D_t$ with $\beta\in\Iw^{\times}$. So the ideal $(D_F)$ is the discriminant ideal of $\hcusp(a)_{\mathfrak m}$ over $\Iw$, and its
+  $\mu$- and $\lambda$-invariants and its zeros do not depend on the generator.
+\item $D_F\in\mathfrak m_\Iw\setminus\mathfrak m_\Iw^{2}$, and $\hcusp(a)_{\mathfrak m}\cong\Zl[[X,Z]]/(Z^{2}-D_F/4)$ is a regular local domain of dimension~$2$: a single family, normal and
+  ramified over $\Iw$ (kind~(ii) of Proposition~\ref{prop:u-loewy}(2), now over $\Iw$). It is isomorphic to $\Zl[[Z]]$ iff case~(A) of Lemma~\ref{lem:u-DFread} holds for $D_F$;
+  in case~(B), $\ell$ lies in the square of its maximal ideal, and it is not (for instance $\Zl[\sqrt\ell][[X]]$ when $D_F=4\ell$).
+\item At every $k\ge3$ in the class, $\hcusp_{k,\mathfrak m}\cong\Zl[x]/(F_q(x_k;x))$ has discriminant $D_F(x_k)\ne0$ up to a unit square. It is the ring of integers of a ramified
+  quadratic extension of $\Ql$ iff $v(D_F(x_k))=1$; if $v(D_F(x_k))=v\ge2$ it is not maximal, of index $\ell^{\lfloor v/2\rfloor}$ in its normalisation.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(1) Theorem~\ref{thm:u-control} and Lemma~\ref{lem:u-H0}(1) with Proposition~\ref{prop:u-loewy}(4) at $k_0$; the maximal ideals of $\hcusp(a)$ and of $\hcusp_k$ correspond with
+$T(p)\mapsto T_p$, and the residue field is $\Fl$. (2) By Lemma~\ref{lem:u-H0}(3) and (1), $t$ generates iff its image in $\hcusp_{k,\mathfrak m}/\ell\cong\Fl[y]/(y^{2})$ is not
+a scalar. By duality (and Lemma~\ref{lem:u-levelone}(1)) the $\mathfrak m$-part of $\eord S_k(\Zl)$ is a faithful $\hcusp_{k,\mathfrak m}$-module,
+free of rank $2$ over $\Zl$, and its reduction is faithful over $\hcusp_{k,\mathfrak m}/\ell$; so the image is a scalar iff
+$T_q-\bar\lambda_q=0$ there. At $k_0$, $\Zl[T_2]$ has discriminant of
+valuation~$1$ (Proposition~\ref{prop:u-loewy}(4)), so it is the maximal order of a ramified quadratic extension and $T_2-\tilde\lambda_2$ is a uniformiser, not $0$ modulo $\ell$. The characteristic polynomial
+specialises (Proposition~\ref{prop:u-lambdaprod}(4) for $\hcusp$), and the transpose of multiplication by $t$ is the action on the dual. (3) $\{1,t\}$ is a basis;
+$t'=\alpha+\beta t$, and $\bar\beta\ne0$ since $t'$ generates modulo $\mathfrak m_\Iw$; the discriminant of $Y^{2}-\tau Y+\nu$ changes by $\beta^{2}$. (4) $v(D_F(x_{k_0}))=1$ by (2) and
+Proposition~\ref{prop:u-loewy}(4), while every element of $\mathfrak m_\Iw^{2}=(\ell^{2},\ell X,X^{2})$ takes values in $\ell^{2}\Zl$ on $\ell\Zl$. $D_F\in\mathfrak m_\Iw$ since the fibre is not
+reduced. Completing the square ($\ell$ odd), $\hcusp(a)_{\mathfrak m}\cong\Zl[[X]][Z]/(Z^{2}-D_F/4)\cong\Zl[[X,Z]]/(Z^{2}-D_F/4)$, which is regular as $Z^{2}-D_F/4\notin(\ell,X,Z)^{2}$
+and a domain as $D_F$ is not a square in $\Iw$ (it lies in $\mathfrak m_\Iw\setminus\mathfrak m_\Iw^{2}$). Its maximal ideal is $(\ell,X,Z)$ and its cotangent space is spanned by the images of $\ell,X,Z$
+modulo the relation $Z^{2}-D_F/4\equiv-(d_0+d_1X)/4$ (Lemma~\ref{lem:u-DFread}'s $d_i$). In case~(A) $d_1$ is a unit, the relation eliminates $X$, so $\ell$ and $Z$ form a regular system of
+parameters with $\ell\notin\mathfrak m^{2}$, and $\Zl[[Z]]\to\hcusp(a)_{\mathfrak m}$ is an isomorphism (Weierstrass: $X-\xi\in(Z^{2})\cdot$unit). In case~(B) $v(d_0)=1$, the relation gives $\ell\in\mathfrak m^{2}$;
+in $\Zl[[Z]]$, $\ell\notin\mathfrak m^{2}$. (5) Theorem~\ref{thm:u-control} and (2). $\hcusp_k\otimes\Q$ is étale at level one (Lemma~\ref{lem:u-levelone}(2)), so $D_F(x_k)\ne0$. For $v(\delta)=v$,
+$\sqrt\delta/\ell^{\lfloor v/2\rfloor}$ is integral over $\Zl$, and $\delta/\ell^{2\lfloor v/2\rfloor}$ has
+valuation $0$ or $1$, so $\Zl[\sqrt\delta/\ell^{\lfloor v/2\rfloor}]$ is the normalisation ($\ell$ odd; $\Zl\times\Zl$ when that quotient is a unit
+square).
+\end{proof}
+
+\begin{lemma}[What a truncation of $D_F$ decides]\label{lem:u-DFread}
+\PROVED{} (elementary; \STD{Weierstrass preparation in $\Iw$}). Let $D=\sum_i d_iX^{i}\in\mathfrak m_\Iw\setminus\mathfrak m_\Iw^{2}$.
+\begin{enumerate}
+\item[(A)] If $d_1\in\Zl^{\times}$, then $D=w\,(X-\xi)$ with $w\in\Iw^{\times}$, $\xi=u^{s}-1$ for a unique $s=s_F\in\Zl$, and $v(D(x_k))=1+v_\ell(k-s_F)$ for every integer $k$. In
+  every class the weights with $v(D(x_k))\ge j+1$ are those with $k\equiv s_F\pmod{\ell^{j}}$, a non-empty sub-tower for every $j\ge1$.
+\item[(B)] If $d_1\in\ell\Zl$, then $v(d_0)=1$ and $v(D(x_k))=1$ for every integer $k$. Either $D=\ell\cdot w$ ($\mu=1$, $\lambda=0$), or $\mu=0$, $\lambda\ge2$ and the zeros of $D$
+  have valuation $1/\lambda$.
+\item[(R)] \textbf{(Reading.)} Let $K,m\ge2$, $x_c\in\ell\Zl$, and $\tilde D=\sum_{i<m}e_iW^{i}$, $W:=X-x_c$, with $\tilde D\equiv D\pmod{(\ell^{K},W^{m})}$. Then (A) holds iff $e_1$ is a unit.
+  In (A), $\tilde D$ has a root $\tilde\zeta\in\ell\Zl$ modulo $\ell^{\min(K,m)}$, every such root satisfies $x_c+\tilde\zeta\equiv\xi\pmod{\ell^{\min(K,m)}}$, and so $\tilde D$ determines $s_F$
+  modulo $\ell^{\min(K,m)-1}$. In (B), if some $e_i$, $2\le i<m$, is a unit, the least such $i$ is $\lambda$ and $\mu=0$; otherwise $\tilde D$ is consistent both with $\mu=1$ and
+  with $\mu=0$, $\lambda\ge m$, and leaves the invariants undecided.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+$x_k\equiv k\ell\pmod{\ell^{2}}$ and $v(x_k-x_{k'})=1+v(k-k')$ (the proof of Lemma~\ref{lem:u-tower}); $k\mapsto u^{k}$ is an isomorphism $\Zl\to1+\ell\Zl$.
+$D\notin\mathfrak m_\Iw^{2}$ means $v(d_0)=1$ or $d_1\in\Zl^{\times}$. (A) Weierstrass: $\lambda=1$, the distinguished factor is $X-\xi$, $\xi\in\ell\Zl$ as $d_0\in\ell\Zl$; $v(D(x_k))=v(x_k-\xi)=v(u^{k}-u^{s})=1+v(k-s)$.
+Non-emptiness: the Chinese remainder theorem for $\ell^{j}$ and $\ell-1$. (B) $v(d_0)=1$, and $v(d_1x_k+d_2x_k^{2}+\dots)\ge2$; Weierstrass as stated, the distinguished factor Eisenstein. (R) Recentring by $x_c\in\mathfrak m_\Iw$
+preserves $\mu$, $\lambda$, and $e_1\equiv D'(x_c)\equiv d_1\pmod\ell$. In (A), $e_0\in\ell\Zl$ and $e_1$ is a unit, so Hensel gives $\tilde\zeta\in\ell\Zl$; then
+$D(x_c+\tilde\zeta)=\tilde D(\tilde\zeta)+O(\ell^{K})+O(\tilde\zeta^{m})\equiv0\pmod{\ell^{\min(K,m)}}$ and $v(D(x_c+\tilde\zeta))=v(x_c+\tilde\zeta-\xi)$. In (B), $e_i\equiv
+d_i\pmod\ell$ for $i<m$. If every $e_i$, $1\le i<m$, lies in $\ell\Zl$, then $\tilde D$ itself ($\mu=1$, as $v(e_0)=1$) and $\tilde D+W^{m}$
+($\mu=0$, $\lambda=m$) both lie in $\mathfrak m_\Iw\setminus\mathfrak m_\Iw^{2}$ and have the truncation $\tilde D$.
+\end{proof}
+
+\begin{prediction}[(U25) The eleven discriminant series]\label{pr:u-H2}
+Stated before the computation (rule~22), at the eleven blocks of Proposition~\ref{prop:u-loewy}(4) and, in~(c), at one known answer.
+\begin{enumerate}
+\item[(a)] \PROVED{} given Proposition~\ref{prop:u-loewy}(4) (\COMP), from Lemmas~\ref{lem:u-DF}, \ref{lem:u-DFread} and Theorem~\ref{thm:u-interp}, applied to
+  $g(W):=D_{T(2)}(x_{k_0}+W)\in\Zl[[W]]$ at the nodes $w_j=x_{k_j}-x_{k_0}\in\ell\Zl$ (its proof and that of Lemma~\ref{lem:u-wtprod} use only
+  $v(w_j)\ge1$ and $v(w_a-w_b)=1$ for $a\ne b$): at each of the eleven blocks, $D_{T(2)}$ modulo
+  $(\ell^{3},(X-x_{k_0})^{3})$ is determined by the characteristic polynomials of $T_2$ on the $\mathfrak m$-parts of $\eord S_{k_j}$ modulo $\ell^{5}$, $k_j=k_0+j(\ell-1)$, $0\le j\le4$;
+  $e_0,e_1,e_2$ are the coefficients of $D_{T(2)}$ in $W=X-x_{k_0}$, and $v(e_0)=1$; $D_F$ falls in exactly one of the cases (A), (B) of Lemma~\ref{lem:u-DFread}; in (A) the truncation determines $s_F$ modulo $\ell^{2}$, hence the least
+  weights $k^{(2)}_F$, $k^{(3)}_F$ ($\ge3$) of the class with $k\equiv s_F$ modulo $\ell$, resp.\ $\ell^{2}$ ($k_0$ is never one: $v(D_F(x_{k_0}))=1$); in (B) it determines $\lambda=2$ or leaves the invariants undecided. The case,
+  $s_F$, $\mu$ and $\lambda$ are invariants of $D_F$ by Lemma~\ref{lem:u-DF}(3). The truncations read through $T(2)$ and through a second generator --- for a prime $q\ne2,\ell$, one of $T(q)$, $T(2)+T(q)$ generates (Lemma~\ref{lem:u-DF}(2): if
+  $T(q)$ is a scalar modulo $\mathfrak m_\Iw$, then $T(2)+T(q)$ is not) --- differ by the square of a unit of $\Iw$; and the interpolation polynomial of
+  the five values predicts $D_{T(2)}(x_{k_5})$ modulo $\ell^{5}$ (Theorem~\ref{thm:u-interp}(3)). The truncation from $k_2,k_3,k_4$ agrees with that from $k_0,\dots,k_4$ modulo
+  $(\ell^{2},(X-x_{k_0})^{2})$; this is a consequence of the $\ell$-integrality of the five-node interpolant (it holds for any five values whose interpolant is $\ell$-integral) and is
+  \emph{not} evidence: it detects no error of the values, and the implementation uses it as a self-check of the code only.
+\item[(b)] \PROVED{} given Proposition~\ref{prop:u-loewy}(4) (\COMP), from Lemma~\ref{lem:u-DF}(5) and Lemma~\ref{lem:u-DFread}(A): in case (A), $v(\operatorname{disc})=1+v(k^{(2)}_F-s_F)\ge2$ at
+  $k^{(2)}_F$ and $\hcusp_{k^{(2)}_F,\mathfrak m}$ is not maximal; at every weight with $k\not\equiv s_F\pmod\ell$ it is a ramified discrete valuation ring. In case (B) every $\hcusp_{k,\mathfrak m}$ is a
+  ramified discrete valuation ring.
+\item[(c)] \textbf{(A known answer.)} \PROVED{} given the data (D1)--(D4) of Proposition~\ref{prop:u-H12}, from its
+parts~(1), (4), (5) and Lemma~\ref{lem:u-DFread}(A): at $(\ell,a)=(547,486)$ the Eisenstein-local
+  $\hcusp(a)_{\mathfrak m}$ has rank~$2$, is generated by $T(2)$, and $D_F=b^{2}-4wG_a$ with $b\in\mathfrak m_\Iw$, $G_a=w_1(X-\xi)$; so $D_F$ is in case (A), its zero is $\equiv\xi$
+  modulo $\ell^{2}$, $s_F\equiv s_a\pmod\ell$, and $k^{(2)}_F=55086$, the rung of Proposition~\ref{prop:u-H12}(5).
+\end{enumerate}
+\emph{As a test of the implementation} (slot-26 Z6, \code{HeckeHidaDiscLambdaValidation}, the forms side on $\eord S_k$ modulo $\ell^{5}$, $K=m=3$):
+the computation reproduces (a) at the eleven blocks and (c) at $(547,486)$, and, under \code{HECKE\_HIDA\_H2\_ALL=1}, checks (b) directly at $k^{(2)}_F$ for $\ell\in\{67,71,73\}$ in case (A).
+(U25) makes no guess at which case occurs at which block (nothing in [U] predicts it); so (a) and (b) can fail only through a defect of the implementation or of
+Proposition~\ref{prop:u-loewy}(4), as for (U23).
+The computed values ($e_0,e_1,e_2$, the case, $s_F$ modulo $\ell^{2}$, $k^{(2)}_F$, $k^{(3)}_F$ per block) are Remark~\ref{rmk:u-H2data}; they are pinned
+in the validation as oracle constants.
+\end{prediction}
+
+\begin{remark}[The eleven discriminant series, computed]\label{rmk:u-H2data}
+\COMP{} (slot-26 Z6: \code{HeckeHidaDiscLambdaValidation}, implementation commit \code{11507416}, binary sha256 \code{82c5b9b2\dots abacf}; the rows are pinned as oracle
+constants from commit \code{4b35b0ba} on, \code{pinned=11/11}; report \file{docs/implementation/slot26/Z6\_report.md} \S3). At each block, $D=[e_0,e_1,e_2]$ is $D_{T(2)}$ modulo
+$(\ell^{3},W^{3})$, $W=X-x_{k_0}$, read from $k_j=k_0+j(\ell-1)$, $0\le j\le4$, modulo $\ell^{5}$; $\bar r_2$ is the residue of $T(2)$ at $\mathfrak m$.
+\begin{center}\small
+\begin{tabular}{rrrlcrrrc}
+cell $(n,\ell)$ & $k_0$ & $\bar r_2$ & $[e_0,e_1,e_2]$ & case & $s_F\bmod\ell^{2}$ & $k^{(2)}_F$ & $k^{(3)}_F$ & $\lambda$\\\hline
+$(30,67)$ & 32 & 14 & $[67670,81595,32906]$ & A & 2079 & 2012 & 293864 & 1\\
+$(26,131)$ & 28 & 52 & $[2028797,1769733,956238]$ & A & 8181 & 13028 & 643138 & 1\\
+$(26,139)$ & 28 & 30 & $[903500,1799153,2635989]$ & A & 18627 & 3754 & 617578 & 1\\
+$(32,479)$ & 34 & 472 & $[61589820,24027696,6939087]$ & A & 163322 & 24412 & 43298230 & 1\\
+$(36,181)$ & 38 & 178 & $[4850076,877126,5105143]$ & \textbf{B} & -- & -- & -- & \textbf{2}\\
+$(36,349)$ & 38 & 171 & $[21863454,40091683,4242504]$ & A & 553 & 63722 & 22046534 & 1\\
+$(38,73)$ & 40 & 61 & $[248054,218975,21318]$ & A & 27 & 976 & 69304 & 1\\
+$(44,227)$ & 46 & 5 & $[5546291,7722249,7001584]$ & A & 17357 & 38014 & 4706496 & 1\\
+$(52,71)$ & 54 & 1 & $[97341,43135,167397]$ & A & 3084 & 1664 & 255134 & 1\\
+$(68,157)$ & 70 & 96 & $[2470552,253158,98053]$ & A & 22529 & 23314 & 145774 & 1\\
+$(68,157)$ & 70 & 111 & $[880770,2234752,1764920]$ & A & 5411 & 24094 & 2938642 & 1\\
+\end{tabular}
+\end{center}
+At every block: rank~$2$ at every weight, $T(2)$ generates (Lemma~\ref{lem:u-DF}(2)), $v(e_0)=1$; the truncation read through $t'=T(3)$ (which generates at all eleven) gives
+the same case and $s_F$ and a unit-square ratio; the held-out weight $k_5$ agrees modulo $\ell^{5}$ wherever computed (all eleven under \code{HECKE\_HIDA\_H2\_ALL=1}).
+Ten blocks are in case (A), $\lambda=1$, $\hcusp(a)_{\mathfrak m}\cong\Zl[[Z]]$ (Lemma~\ref{lem:u-DF}(4)), with the rung sub-tower $k\equiv s_F\pmod\ell$; at $\ell\in\{67,71,73\}$ the
+rung check of (U25)(b) holds: $v(\operatorname{disc})=2=1+v(k^{(2)}_F-s_F)$ at $k^{(2)}_F=2012$, $1664$, $976$ respectively, a non-maximal order.
+\textbf{At $(36,181)$ the family is in case (B)}: $e_1=877126=181\cdot4846$ is not a unit and $e_2\equiv38\pmod{181}$ is, so $\mu=0$, $\lambda=2$ by Lemma~\ref{lem:u-DFread}(R) (not
+undecided); $v(D_F(x_k))=1$ at every weight of the class, so every specialisation $\hcusp_{k,\mathfrak m}$ is a ramified discrete valuation ring and there is no rung; and by
+Lemma~\ref{lem:u-DF}(4) $\hcusp(a)_{\mathfrak m}$ is a regular local ring with $\ell\in\mathfrak m^{2}$, \emph{not} isomorphic to $\Zl[[Z]]$. It is read independently through
+$T(3)$ (case (B), $\lambda=2$, unit-square ratio), the held-out weight $k_5=938$ agrees modulo $181^{5}$, and an independent implementation sharing no code with HACS (the full
+$S_k$, the Hensel factor of $(Y-\bar r_2)^{2}$, exact rational interpolation; slot-26 Z6 code audit \S2) gives the same $[e_0,e_1,e_2]$ and $v(D(x_{k_j})-D(x_{k_0}))=2$ at
+$j=1,\dots,6$. The known answer of (c) agrees: at $(547,486)$, $\chi(T_2\mid\text{block})$ equals Proposition~\ref{prop:u-H12}'s $f_k$ modulo $547^{5}$ at the five weights, case (A), $k^{(2)}_F=55086$.
+\end{remark}
+
+\paragraph{Code map of part 7.} \emph{Built} (slot-26 Z6, after this part's referee; commits \code{11507416}, \code{4b35b0ba}): \file{HeckeExt/HeckeHidaDiscLambda.\{h,cpp\}} (the per-block Fitting split at a
+non-Eisenstein residual system, the truncation of $D_{T(2)}$, the reading of Lemma~\ref{lem:u-DFread}), \code{HeckeHidaDiscLambdaValidation} (standard; the read-only arms
+\code{HECKE\_HIDA\_H2\_ALL=1} and \code{HECKE\_HIDA\_H2\_PROBE=1}; the eleven rows of Remark~\ref{rmk:u-H2data} pinned). No statement of this part rests on code; Remark~\ref{rmk:u-H2data} is \COMP.
+
 \bibliographystyle{alpha}
 \bibliography{gl2_refs,hida_hecke_algebra_refs}
 
@@ -2727,10 +2890,18 @@ Remark~\ref{rmk:u-H0census} for census rows. No statement of this part rests on 
 \section{Revision history}\label{app:u-history}
 [U] keeps [C]'s practice: a published version's text never changes under its own number. This appendix is the record of the
 versions. Its first subsection is the release record, one paragraph per version, newest first (up to 0.7.0-pre.3 it was the date
-field of the title page); the second holds the changelogs of parts~1--6, which up to 0.7.0-pre.3 stood at the end of each part; the
+field of the title page); the second holds the changelogs of parts~1--7 (those of parts~1--6 up to 0.7.0-pre.3 stood at the end of each part); the
 third quotes the earlier title page.
 
 \subsection{Release record}
+Version 0.8.1 --- 2026-11-11 (hecke-extensions slot~26, \textbf{signed by the owner 2026-11-11} (``I sign the commit update. Fix the two in [U] please.''): status sentences only; no statement, label or value moves. Two sentences of 0.8.0 still called part~7 a pre-release, \textbf{not signed}. In \S\ref{sec:u-status}: ``Part~7 \dots{} is a pre-release, not signed, written for a referee before the code of the slot-26 package Z6 \dots; parts~1--6 are as released in 0.7.3 \dots'' now reads ``Part~7 \dots{} was a pre-release through v0.7.4-pre.2, written for a referee \dots; since v0.8.0 (signed by the owner 2026-11-11) it is released with the rest; parts~1--6 are as released in 0.7.3 \dots''. In the ``Status and scope'' paragraph of part~7: ``A pre-release (v0.7.4-pre.1, not signed), written for a referee before the code of the slot-26 package Z6; v0.7.4-pre.2 (not signed) applies the referee's changes and adds the computed data'' now reads ``Written as a pre-release (v0.7.4-pre.1) for a referee before the code of the slot-26 package Z6; v0.7.4-pre.2 applied the referee's changes and added the computed data; since v0.8.0 (signed by the owner 2026-11-11) this part is released with the rest.'' Process rule (owner, 2026-11-11): the commit that records an owner signature may also change the document's own ``pre-release, not signed'' status sentences for the part being signed to ``signed'', and nothing else in the body. Companion pointers: [C] 1.27.0, [E] 1.25.3.)
+
+Version 0.8.0 --- 2026-11-11 (hecke-extensions slot~26, \textbf{signed by the owner 2026-11-11} (``I sign [U] 0.7.4-pre.2. I agree with the version number.''): the owner-signed release of v0.7.4-pre.2; text unchanged --- header, date, this record and the changelog only; no statement, label or value moves; numbered 0.8.0 rather than 0.7.4 per the referee's m11 (every earlier new part took a minor version), accepted by the owner. Touches of signed 0.7.3 text, both signed with this release: the Part~6 release sentence of \S\ref{sec:u-status} (m10, quoted in the record of 0.7.4-pre.2 below), and the printed key of \cite{hida_aif2}, which becomes [Hid88b] (was [Hid88]) at its eight sites in parts~3--4 and this appendix, the source text unchanged, because the new bibliography entry for Hida's 1988 paper is [Hid88a]. Notes of the confirm-read: (U25) ``stated before the computation (rule~22)'' is true of the statement as issued at v0.7.4-pre.1; the \COMP{} tag of Remark~\ref{rmk:u-H2data} names the binary of commit \code{11507416}, the pinned gate being of the \code{4b35b0ba} build, the same eleven rows. Companion pointers: [C] 1.27.0, [E] 1.25.3.)
+
+Version 0.7.4-pre.2 --- 2026-11-11 (hecke-extensions slot 26, Z6 fix round, \textbf{a pre-release, not signed}: the referee's m1--m10 (report \file{U074pre1\_referee.md}, ACCEPT WITH CHANGES) and the notes n1, n3, n4, n6 in part~7 and the front matter; the code audit's F1 (the subset agreement of (U25)(a) is a consequence, not evidence); new Remark~\ref{rmk:u-H2data} (\COMP: the eleven computed rows; $(36,181)$ is in case (B), $\lambda=2$, not $\cong\Zl[[Z]]$); the code map \emph{Built}; a bibliography entry for Hida's 1988 paper (its \VERIFYloc{} lifted). No statement, label or number of 0.7.4-pre.1 moves; one tag gains a citation (Lemma~\ref{lem:u-DF}: Lemma~\ref{lem:u-levelone}), one gains a source ((U25)(c)). \textbf{Touches signed 0.7.3 text} (referee m10, a status sentence of \S\ref{sec:u-status}): ``Part~6 \dots{} is a pre-release, not signed, \dots; parts~1--5 are as released in 0.6.0 \dots. It cites [C] v1.24.0 by label, and [C] 1.25.0-pre.3's \HA{sec:heckeZ} (a pre-release; the 0.7.0 release must cite a released [C] 1.25.0) by label.'' now reads ``Part~6 \dots{} was a pre-release through v0.7.0-pre.4 \dots; since v0.7.0 (signed by the owner 2026-11-07) it is released with the rest; it cites [C] v1.24.0 by label and [C] v1.25.0 (\HA{sec:heckeZ}).'' --- for the owner's sign-off. \textbf{Version:} the referee (m11) recommends that the signed release of part~7 be numbered 0.8.0 (every earlier new part took a minor version); the number stays 0.7.4-pre.2 here, and the owner chooses 0.7.4 or 0.8.0 at signing. Companion pointers: [C] 1.27.0, [E] 1.25.3.)
+
+Version 0.7.4-pre.1 --- 2026-11-11 (hecke-extensions slot 26, Z6, \textbf{a pre-release, not signed}: new part~7, \S\ref{sec:u-H2} --- the eleven ramified ordinary families of Proposition~\ref{prop:u-loewy}(4): regular over $\Iw$, the discriminant series $D_F$, what its truncation decides, the prediction (U25); the abstract's count (U1)--(U25) and one clause; a Part~7 sentence in \S\ref{sec:u-status}; no statement, label, number or tag of 0.7.3 moves; see the changelog of part~7. Companion pointers: [C] 1.27.0, [E] 1.25.3.)
+
 Version 0.7.3 --- 2026-11-10 (hecke-extensions slot 26, \textbf{signed by the owner 2026-11-10}: the owner-signed release of 0.7.3-pre.1; no change of mathematical content --- header, date and this record only; no statement, label, number or tag moves. Companion pointers: [C] v1.26.4, [E] 1.25.3.)
 
 Version 0.7.3-pre.1 --- 2026-11-10 (slot 26, a \textbf{pre-release, not signed}: title page only, no change of mathematical content: the date line of the title page names only the version, the date and this appendix; the words ``signed by the owner 2026-11-09'' leave the title page, and the sign-off record of every version stays in this record; no statement, label, number or tag moves. Companion pointers: [C] v1.26.4, [E] 1.25.3 (the same title-page change; signed with 0.7.3).)
@@ -2896,7 +3067,7 @@ non-binding} (owner question Q5 at its default): the first version with the refe
 \file{docs/implementation/slot14/WP-8\_report.md}, \file{docs/implementation/slot14/WP-9\_referee.md})
 
 \subsection{Changelogs of the parts}
-Part~1 is Sections~\ref{sec:u-status}--\ref{sec:u-scope}; parts~2--6 are Sections~\ref{sec:u-tameN}--\ref{sec:u-eislambda}. The changelogs are quoted verbatim in their original wording.
+Part~1 is Sections~\ref{sec:u-status}--\ref{sec:u-scope}; parts~2--7 are Sections~\ref{sec:u-tameN}--\ref{sec:u-H2}. The changelogs are quoted verbatim in their original wording.
 
 \paragraph{Changelog.} v0.1.0-pre.1 (2026-09-28, slot-14 WP-8): first version.
 v0.1.0-pre.2 (2026-09-28, slot-14 WP-9, repairs half): the referee's findings applied. \textbf{B1}: Theorem~\ref{thm:u-etale}(3)'s second half needs
@@ -3133,6 +3304,19 @@ bibliography key \texttt{bruns\_herzog\_cm} replaced by [C]'s \texttt{bruns\_her
 not yet seen by the owner}): Prediction~\ref{pr:u-H1} (U23) gains the explicit anchor $x^{2}+56702273x+83587893\bmod547^{3}$, $v(\operatorname{disc})=2$, before H1-R runs (F9);
 new Remark~\ref{rmk:u-H12general}, Steps~1--2 of Proposition~\ref{prop:u-H12} at any $g_a\ge2$ (F5), placed last so that no statement number moves; the code map \emph{Built}. No result,
 label or status tag of pre.2 moves.
+
+\paragraph{Changelog of part 7.} \textbf{v0.7.4-pre.1} (2026-11-11, slot~26 Z6, \textbf{a pre-release, not signed}; for a referee, before the code): new \S\ref{sec:u-H2} --- Definition~\ref{def:u-DF}, Lemmas~\ref{lem:u-DF}, \ref{lem:u-DFread}, Prediction~\ref{pr:u-H2} (U25), the code map; from the slot-24 HeckeZ stage 05 v0.3.2 \S4, whose two-way question (``$\ell\cdot$unit or a zero'') is replaced by Lemma~\ref{lem:u-DFread}'s cases (A), (B), and whose ``$\cong\Zl[[Y]]$'' holds only in case (A) (Lemma~\ref{lem:u-DF}(4)).
+\textbf{v0.7.4-pre.2} (2026-11-11, slot~26 Z6 fix round, \textbf{a pre-release, not signed}): the referee's MINOR items --- m1 the generality of Lemma~\ref{lem:u-DF}(3) in
+Definition~\ref{def:u-DF}, (U25)(c) from Proposition~\ref{prop:u-H12}(1), (4), (5) and Lemma~\ref{lem:u-DFread}(A); m2 the proof of Lemma~\ref{lem:u-DFread}(R): $\tilde D$ and $\tilde D+W^{m}$
+instead of $D+X^{M}$ (the statement was right); m3 the centred use of Theorem~\ref{thm:u-interp} in (U25)(a); m4 $D_{T(2)}$ in (U25)(a); m5 which second generator exists; m6 the abstract
+(``eleven'', not ``the eleven''); m7 $W:=X-x_c$ in Lemma~\ref{lem:u-DFread}(R) and (U25)(a) ($Z$ keeps the meaning of Lemma~\ref{lem:u-DF}(4)); m8 Lemma~\ref{lem:u-levelone} in the tag of
+Lemma~\ref{lem:u-DF} and the proof of (2); m9 the normalisation in the proof of (5); m10 the release line of part~6 in \S\ref{sec:u-status} (signed 0.7.3 text, see the release record).
+Notes: n1 the Hida locator (Thm.~0.1, p.~329) verified, \VERIFYloc{} removed, bibliography entry \code{hida\_ajm88}; n3 a generator always exists (Definition~\ref{def:u-DF}); n4 ``$\ge3$''
+and $k_0$ in (U25)(a); n6 (U25) can fail only through a defect (after (U25)). Not adopted: n2 (swapping Lemmas~\ref{lem:u-DF} and \ref{lem:u-DFread} would move numbers); n5 is moot (no
+block is undecided). Code audit F1: the subset agreement in (U25)(a) is stated as a consequence of integrality, not as evidence. New Remark~\ref{rmk:u-H2data} (\COMP) with the eleven rows,
+the finding that $(36,181)$ is in case (B), $\lambda=2$, and the code map \emph{Built}.
+\textbf{v0.8.0} (2026-11-11, slot~26 Z6, \textbf{signed by the owner 2026-11-11}): the owner-signed release of v0.7.4-pre.2; text unchanged; no statement, label or value moves; numbered 0.8.0 per the referee's m11, accepted by the owner; see the release record.
+\textbf{v0.8.1} (2026-11-11, slot~26, \textbf{signed by the owner 2026-11-11}): two status sentences of part~7 (\S\ref{sec:u-status} and the ``Status and scope'' paragraph) say ``released'' instead of ``pre-release, not signed''; no statement, label or value moves; see the release record.
 
 \subsection{The title page of 0.7.0-pre.3: author line and abstract, verbatim}
 \begin{quote}

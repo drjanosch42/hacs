@@ -45,7 +45,9 @@ namespace up {
 
 // G10.contract of every full level-N record (audit C6; [C, sec:recordschema] item 8 (d')(vii)): the contract version whose item 8 (d') the
 // record implements: the last version whose change moved a written word (not the title-page version; a signature alone does not change it).  G10 is in neither hash.
-constexpr const char* kFullContract = "gl2_contract 1.26.0-pre.9, item 8 (d')";   // (Z2) this binary writes the words of "The G3 words from Z2 on"
+// (slot-26 HZ-EISUP, audit M3; design D5) 1.27.0-pre.1: this binary writes the words of "The components and the maximal ideals from HZ-EISUP on";
+// fixed at the pre-release, before any record-writing run (Z1 wrote 1.26.0-pre.3, Z2 1.26.0-pre.9).
+constexpr const char* kFullContract = "gl2_contract 1.27.0-pre.1, item 8 (d')";
 
 // The primes dividing N, ascending (the U_p of a full level-N record).
 std::vector<uint32_t> PrimesDividing(uint32_t N);
@@ -61,7 +63,7 @@ int32_t RationalThetaIndex(const RationalResult& Q, uint64_t ell);
 //    components = not_run, C2 = not_run, no disc fields, no theta-derived S_cand reason, no ell >= 5 read (open(sandwich)).
 //  * otherwise, the search ran: C1 = certified | open(cap) (theta_cap exhausted, final); reduced_Q = true if C1 certified, else true if
 //    the split-degree tag certifies it, else undecided; theta = its coefficients | open(cap); components = blocked(U_p) where (C1) holds
-//    (the Eisenstein U_p systems are not built), else not_run; C2 = the full step's (C2) | partial(unfactored) beside open(cap).
+//    (HZ-EISUP: `certified` where e^an_k(N) = 1, the rows by HeckeZEisUp), else not_run; C2 = the full step's (C2) | partial(unfactored) beside open(cap).
 //  * otherwise, the search did not run (no Z1 route served): C1, reduced_Q, theta, C2 keep blocked(U_p) (blocked(export) at an RSS
 //    ceiling), and so does components ([C] 1.26.0-pre.4 W4: never not_run there); never open(cap) where no search ran.  (Z1 has no such case today: the word-prime cap refuses the whole record.)
 struct FullG1Words {
@@ -70,8 +72,10 @@ struct FullG1Words {
     bool disc_fields = false;        // write G1.disc.*, G1.discriminants_used, C1.deg_f
 };
 // Before the search (search_result == nullptr): run_search and the non-reduced words.  After it: the final words.
+// (slot-26 HZ-EISUP; [C] 1.27.0-pre.1 item 8 (d')(ii)) eisup_scope = e^an_k(N) = 1 (eisup::InScope): where (C1) is certified the components are
+// `certified` (HZ-EISUP writes the rows); outside the scope they keep blocked(U_p) (pending; mover HZ-EISUP (b): psi != 1).
 FullG1Words FullG1Rule(bool tag_non_reduced, bool tag_split, const RationalResult* search_result, bool search_route_refused = false,
-                       bool rss_ceiling = false);
+                       bool rss_ceiling = false, bool eisup_scope = false);
 
 // THE STATUS RULE of G3 on a full record at N > 1 after Z2 ([C] 1.26.0-pre.9 item 8 (d')(ii), "The G3 words from Z2 on"; the one place):
 //  * tag:   G3.C_T[U_p...].status = upper_bound_certified where that tag certifies its bound, else not_run (a U_p tag gives no bound: final);

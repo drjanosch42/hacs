@@ -1169,7 +1169,7 @@ namespace {
 // shipped Heilbronn operator ([C, prop:heilbronn](2), p | N stated); the eigenvalue bound |a| <= p^{k-1} < 1 + p^{k-1} holds for U_p
 // on H^1 as for T_p, so the bit bounds below are unchanged.
 RationalResult RationalStepImpl(uint32_t N, uint32_t n, const std::vector<uint32_t>& P, size_t nU, const RationalSettings& s,
-                                const RationalInputs* in) {
+                                const RationalInputs* in, std::vector<PrimeRun>* keep = nullptr) {
     if (N == 0) throw std::invalid_argument("RationalStep: N >= 1");
     if (n % 2) throw std::invalid_argument("RationalStep: n even (H^1 = 0 for n odd)");
     if (P.size() <= nU || P.size() - nU > 6) throw std::invalid_argument("RationalStep: 1 <= |P| <= 6");
@@ -1312,6 +1312,7 @@ RationalResult RationalStepImpl(uint32_t N, uint32_t n, const std::vector<uint32
     if (R.theta_index < 0) {
         R.c2_status = "open(C1)";
         R.gP_status = R.eis_rational ? "open(C1)" : "general_case";
+        if (keep) { runs.resize(computed); *keep = std::move(runs); }   // (HZ-EISUP) the retained runs, value-neutral
         return R;
     }
 
@@ -1548,6 +1549,7 @@ RationalResult RationalStepImpl(uint32_t N, uint32_t n, const std::vector<uint32
             R.gP_status = R.gP.complete() ? "upper_bound_certified" : "partial(unfactored)";
         }
     }
+    if (keep) { runs.resize(computed); *keep = std::move(runs); }   // (HZ-EISUP) the retained runs, value-neutral
     return R;
 }
 }  // namespace
@@ -1557,12 +1559,12 @@ RationalResult RationalStep(uint32_t N, uint32_t n, const std::vector<uint32_t>&
 }
 
 RationalResult RationalStepFull(uint32_t N, uint32_t n, const std::vector<uint32_t>& P, const std::vector<uint32_t>& U,
-                                const RationalSettings& s, const RationalInputs* in) {
+                                const RationalSettings& s, const RationalInputs* in, std::vector<PrimeRun>* keep) {
     if (N < 2) throw std::invalid_argument("RationalStepFull: N >= 2 (at N = 1 RationalStep is the full algebra)");
     if (U.empty()) throw std::invalid_argument("RationalStepFull: the U_p list is empty");
     std::vector<uint32_t> ops = P;
     ops.insert(ops.end(), U.begin(), U.end());
-    return RationalStepImpl(N, n, ops, U.size(), s, in);
+    return RationalStepImpl(N, n, ops, U.size(), s, in, keep);
 }
 
 }  // namespace heckez

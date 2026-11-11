@@ -55,6 +55,9 @@
 #include "HeckeZRational.h"
 
 namespace heckez {
+namespace tor {
+struct TorRead;
+}
 namespace record {
 
 constexpr const char* kSchema = "integral_hecke_structure/v1";
@@ -117,6 +120,9 @@ struct RecordSettings {
     // measured (G10.rat.primes_used above every U_p tag's chi_Q(U_p) need: (2, 6) 10 vs 3); this lets HeckeZRecordValidation reach the
     // record-level catch after UTagStep.  Never in the settings text; no value at 0.
     uint32_t utag_word_prime_cap = 0;
+    // (slot-26 HZ-EISUP, audit M4) VALIDATION ONLY: at this ell (0 = never) lambda_0(U_ell) (else lambda_0 of the first U_p) is shifted by + 1
+    // before the attribution at ell, which C-E7 must catch (HeckeZEisUpValidation arm (f)).  Never in the settings text; no value at 0.
+    uint64_t eisup_tamper_ell = 0;
     std::string caps_text() const;   // the HeckeZ caps, one line each (the hashed settings text after the math settings)
 };
 
@@ -247,6 +253,13 @@ std::string LiftInnerCodeOf(const std::string& refusal_text);
 // `dir` (which must exist).  `only_ell` != 0 restricts K1 / K3 to that ell.  Returns the file names written (sorted).
 std::vector<std::string> WriteCertFiles(const HeckeStructureRecord& R, const RecordSources& src, const RecordSettings& s,
                                         const std::string& dir, uint64_t only_ell = 0);
+
+// (HZ-TOR; HZ-EISUP code audit m2) the G2 `support` word of a maximal ideal m = (m_pi) at ell for the decomposing theta (coefficients
+// th_coeffs on the operators thP; an operator p | N of a full record at N > 1 is U_p) from the torsion read rd (nullptr: none).
+// involved_only = false: the anemic / level-1 rule (every operator of thP); true: the full rows at N > 1 (operators with coefficient 0
+// skipped), so not_run exactly where theta' involves an operator the read does not carry or a residue of degree > 1.
+std::string SupportWordOfRead(const tor::TorRead* rd, uint64_t ell, const std::vector<uint32_t>& th_coeffs, const std::vector<uint32_t>& thP,
+                              const std::vector<uint64_t>& m_pi, bool involved_only);
 
 }  // namespace record
 }  // namespace heckez

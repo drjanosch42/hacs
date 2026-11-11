@@ -12,3 +12,4 @@ joins `docs/implementation/registry-slot-readmes-9-25.md`, renamed `-9-26`).
 |---|---|---|
 | Z1 (UP-Z (a), `slot26/Z1_report.md`) | `HeckeZUp.cpp`, `cmake/slot26/HeckeZUp.cmake` | `HeckeZUpValidation` (standard) |
 | Z9 (HZ-LOC-PAR, `slot26/Z9_report.md`) | `HeckeZLocalPar.cpp`, `cmake/slot26/HeckeZLocalPar.cmake` | `HeckeZLocalParValidation` (standard) |
+| HZ-EISUP (`slot26/HZEISUP_report.md`) | `HeckeZEisUp.cpp`, `cmake/slot26/HeckeZEisUp.cmake` | `HeckeZEisUpValidation` (standard) |

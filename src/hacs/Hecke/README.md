@@ -517,6 +517,12 @@ cmake -DHECKE_PURE_INTEGER=OFF . && make && ./hacs HeckeFpFilterValidation
 | `HeckeThetaRssDietValidation.{h,cpp}` (PERF-P4a; `standard`, `Registry/Slot23/PERF.cpp`) | the `compute_block()` RSS diet (program 1's arena and ρ₂ released at their last readers, the chunked A-N3 residual `hecke.resid.chunk`, `W` released before the Θ_eq copy): (T) tape == legacy route on Θ_flat / Θ_eq / A^{(q)} / counters, (L) memory-lean == certified on A^{(q)} / Θ_block, (C) ≥ 2- and ≥ 3-chunk residual coverage; 16 arms, ≈ 21 s, ≈ 0.3 GB; line `P4A_RSS_DIET … verdict=OK` |
 | `HeckeRho2StreamValidation.{h,cpp}` (P4R; `standard`, `Registry/Slot23/P4R.cpp`) | route 2 streamed key by key vs the materialised memo (`ScopedRho2Streaming(false)`): (X) captured route-2 blocks equal entrywise and equal to Θ_block, Θ_flat / A^{(q)} / O12(a) on == off, (V) counters non-vacuous, (N) negative control, (M) fused-target mutations throw O12(a) at exactly the mutated entry, both routes; 15 arms, 225 checks, ≈ 1 s, ≈ 0.13 GB; line `P4R_RHO2_STREAM … verdict=OK` |
 
+### Slot 26 — Hida-side addition (Z6 = H2; `docs/implementation/slot26/Z6_report.md`; registration `Registry/Slot26/HeckeHidaDiscLambda.cpp`)
+
+| File | What |
+|---|---|
+| `../HeckeExt/HeckeHidaDiscLambda.{h,cpp}` (Z6, [U] part 7 `sec:u-H2`: `def:u-DF`, `lem:u-DF`, `lem:u-DFread`, `pr:u-H2`) | the per-block Fitting split at a non-Eisenstein residual system (`FindNonReducedSystems`, `ResidualBlock`: sequential generalised kernels, certified by rank 2 + nilpotency; rung weights cut with P′ = Sturm(k0)), D_F mod (ℓ³, Z³) and the reading of `lem:u-DFread` (`ReadDisc`), the parallel forms driver (never bound to a console verb); `HeckeHidaDiscLambdaValidation` |
+
 ## Conventions
 
 * Every validation is a zero-argument `uint32_t SomethingValidation()`

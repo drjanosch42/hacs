@@ -17,8 +17,8 @@ authors:
     affiliation: "Universität Paderborn"
 license: LGPL-3.0-only
 repository-code: "https://github.com/drjanosch42/hacs"
-version: "0.1.1"
-date-released: "2026-11-10"
+version: "0.2.0"
+date-released: "2026-11-11"
 doi: 10.5281/zenodo.24118841
 identifiers:
   - type: doi
@@ -54,5 +54,5 @@ preferred-citation:
       affiliation: "Universität Paderborn"
   repository-code: "https://github.com/drjanosch42/hacs"
   doi: 10.5281/zenodo.24118841
-  version: "0.1.1"
+  version: "0.2.0"
   year: 2026

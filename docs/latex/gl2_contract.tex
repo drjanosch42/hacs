@@ -4,6 +4,15 @@
 %======================================================================
 % gl2_contract.tex --- THE UNIFIED BINDING MATHEMATICAL CONTRACT
 %
+%   VERSION 1.27.0 (slot 26, 2026-11-11: SIGNED BY THE OWNER 2026-11-11 ("I sign [C] 1.27.0-pre.1."); the text of 1.27.0-pre.1, unchanged: header, date, release record and changelog only -- no statement, label, number, tag, status, marker (229 on 88 labels), written word or value moves; the title page names no sign-off; the binding changes of 1.27.0-pre.1 (prop:heckeZeisup, item 8 (c), (d')(ii), (v), (vii), (ix)) are now owner-seen and signed; records written by the HZ-EISUP binary carry G10.contract = 'gl2_contract 1.27.0-pre.1, item 8 (d\')' (fixed at the pre-release, audit M3) and stay valid; the 1.27.0-pre.1 and earlier history below is kept)
+%   VERSION 1.27.0-pre.1 (slot 26, 2026-11-10, HZ-EISUP, contract first): a PRE-RELEASE, NOT owner-released; on top of the signed 1.26.4.  The draft (HZEISUP_design.md v0.2
+%   sec. 4) refereed ACCEPT-WITH-CHANGES (docs/implementation/slot26/C127pre1_referee.md); its conditions M1, M2 and minor items m1-m11 applied in this text (disposition
+%   docs/implementation/slot26/C127pre1_disposition.md); a confirm-read of this text is advisable.  NEW statement prop:heckeZeisup (the last statement of sec:heckeZ, after prop:heckeZeiscert, so no statement number moves: the Eisenstein U_p
+%   systems of the full algebra at N > 1, PROVED; (5) STD, a second route only); sec:recordschema item 8 (d')(ii): new paragraph "The components and the maximal ideals from
+%   HZ-EISUP on" (the full-N layout of G1.components, the index-keyed components_through / pair_kinds, their words, support = not_run final where theta' involves a U_p the
+%   torsion read does not carry (M1), amendment A4; mover HZ-EISUP (b) where e^an_k(N) != 1); (d')(v): HZ-EISUP writes no G9.Up.* key; (d')(vii): G10.contract =
+%   1.27.0-pre.1 for a binary writing those words, 1.26.0-pre.9 restricted to a binary writing the G3 words and not these (M2); (d')(ix): the planned moves; status pointers in
+%   (c), (d')(ii) and sec:heckeZ (level N > 1, full).  Confirm-read C127pre1_confirm_referee.md ACCEPT-WITH-CHANGES: C1-C3 (wording only: multiplicities on the full records of the paragraph; p0/minpoly written on every row; (vii) pre.5 clause) applied before issue.  One label added, none renamed or removed; no marker moves (229 on 88); no golden entry, level-1 or anemic byte moves.
 %   VERSION 1.26.4 (slot 26, 2026-11-10: SIGNED BY THE OWNER 2026-11-10 ("I sign those title pages."); the text of 1.26.4-pre.1, unchanged: header, date, release record and changelog only -- no statement, label, number, tag, status, marker (229 on 88 labels), written word or value moves; the title page names no sign-off; the 1.26.4-pre.1 and earlier history below is kept)
 %   VERSION 1.26.4-pre.1 (slot 26, 2026-11-10, PRE-RELEASE for owner signature, NOT signed): title page only, no change of mathematical content (public release HACS 0.1.1): the \date line names only the version, the date and the revision history; the words 'binding document; signed by the owner 2026-11-09' leave the title page (the sign-off record stays in the Release record and the changelog of Appendix app:changelog). No statement, label, marker (229 on 88), number, tag or value moves.
 %   VERSION 1.26.3 (slot 26, 2026-11-09: SIGNED BY THE OWNER 2026-11-09 ("I resign everything", effective on the referee's ACCEPT, RELFIX_signed_referee.md); the text of 1.26.3-pre.1, unchanged: header, date, release record and changelog only -- no statement, label, number, tag, status, marker (229 on 88 labels), written word or value moves; the 1.26.3-pre.1 and earlier history below is kept)
@@ -1569,7 +1578,7 @@
 for $\GL(2)/\SL_2(\Z)$\\[1ex]
 \large The Binding Mathematical Contract}
 \author{Fabian Januszewski\\ Universit\"at Paderborn\\ \texttt{fabian.januszewski@math.uni-paderborn.de}}
-\date{Version 1.26.4 --- 2026-11-10 (revision history: Appendix~\ref{app:changelog})}
+\date{Version 1.27.0 --- 2026-11-11 (revision history: Appendix~\ref{app:changelog})}
 
 \begin{document}
 \maketitle
@@ -16885,7 +16894,7 @@ campaign driver. Binding content:
     \code{agrees\_on\_P} (not a certificate), \code{partial(unfactored)}, \code{open(sandwich)}, \code{open(cap)}, \code{open(precision)}, \code{refused(<reason>)} with
     $\code{<reason>}\in\{\code{by\_theory},\code{non\_reduced},\code{word\_modulus},\code{no\_lift},\code{precision}\}$, \code{not\_run} --- all \textbf{final} (they change only when the mathematics or
     the settings change; two readings apart (v1.26.0-pre.8, confirm-referee D1): the derived \code{maximal\_ideals = not\_run} of item~(d$'$)(ii), on any record (v1.26.0-pre.6, referee-light R1; v1.26.0-pre.7, confirm-referee C3), and the aggregate \code{G3.C\_T.status} while a \code{C\_T} read or \code{G3.C\_T.lower} it depends on is pending, which is rewritten when those move (no byte of a final record moves: the record is \code{pending} by the pending field beside it)) --- and \code{blocked(export)}, \code{blocked(U\_p)}, \code{refused(export\_word)}, \code{refused(k1\_route)}, \code{refused(word\_prime\_cap)} [v1.25.0-pre.7, below], the only \textbf{pending} statuses (a named package moves them:
-    EXPORT resp.\ UP-Z the first two (\code{HZ-EISUP} for \code{G1.components} and the \code{maximal\_ideals} of item~(d$'$)(ii); v1.26.0-pre.7, confirm-referee W-A), EXPORT-Z step~2 \code{export\_word}, EXPORT-Z or a slot-26 $K=1$ route \code{k1\_route}; v1.25.0-pre.2, Z0 referee F3, lead decision on O1;
+    EXPORT resp.\ UP-Z the first two (\code{HZ-EISUP} for \code{G1.components} and the \code{maximal\_ideals} of item~(d$'$)(ii); v1.26.0-pre.7, confirm-referee W-A; its words from v1.27.0-pre.1 on: \emph{The components and the maximal ideals from \code{HZ-EISUP} on} in~(d$'$)(ii), Proposition~\ref{prop:heckeZeisup}, where $e^{\mathrm{an}}_k(N)=1$, and \code{HZ-EISUP (b)} where $e^{\mathrm{an}}_k(N)\ne1$), EXPORT-Z step~2 \code{export\_word}, EXPORT-Z or a slot-26 $K=1$ route \code{k1\_route}; v1.25.0-pre.2, Z0 referee F3, lead decision on O1;
     a later version with a larger count cap \code{word\_prime\_cap}), or a value
     of the closed enumerations of the plan's \S1.2. The overall \code{status} is \code{pending} iff some field is pending (a pending refusal reason included), \code{refused} iff the cell is refused, else
     \code{final}. \code{by\_theory} is (C3) at $2$, $3$, level $1$, $d\ge4$ (Proposition~\ref{prop:heckeZlevelone23}(6)); \code{non\_reduced} (v1.26.0-pre.3, re-referee W1) is the full (C1) refuted by Theorem~\ref{thm:heckeZcert}(1) at a \code{full} record, $N>1$, whose \code{G1.reduced\_Q} is \code{non\_reduced\_certified}, written in \code{G1.C1.status} only (item~(d$'$)(ii)); \code{word\_modulus} a read whose modulus $\ell^{K}$ is
@@ -17003,14 +17012,51 @@ confirm-refereed ACCEPT, \file{docs/implementation/slot26/C126pre3\_confirm.md},
       \emph{The components and the maximal ideals where the search ran} (v1.26.0-pre.5, Z1 code audit S1(a), \file{docs/implementation/slot26/Z1\_code\_audit.md}; the text
       aligned with the audited code, replacing pre.4's inclusion of \code{G1.components} in the list above): where the search ran and (C1) is \code{certified},
       \code{G1.components} $=$ \code{blocked(U\_p)}, and at every $\ell$ of G2 with \code{generation.status} $=$ \code{certified}, \code{G2.ell=<}$\ell$\code{>.maximal\_ideals}
-      $=$ \code{blocked(U\_p)} --- both \textbf{pending} ((c)): the components and the decomposition of~(d) need the Eisenstein $U_p$ systems, which Z1 does not build; they
+      $=$ \code{blocked(U\_p)} --- both \textbf{pending} ((c)): the components and the decomposition of~(d) need the Eisenstein $U_p$ systems, which Z1 does not build (built by \code{HZ-EISUP} from v1.27.0-pre.1 on, Proposition~\ref{prop:heckeZeisup}); they
       stay \code{blocked(U\_p)} until the package that builds them writes their values, a move pending $\to$ value, never final $\to$ final. (v1.26.0-pre.6, referee-light W1; restated at v1.26.0-pre.7, confirm-referee W-D:) that
       package is \textbf{not} Z2, whose card in \file{docs/implementation/slot26/00-slot26-plan.md} (v0.6) is $U_2$, $U_3$ at $\ell\in\{2,3\}$; it is \code{HZ-EISUP}, the card of that
       plan (\S2.2, sequenced right after Z2 by the owner's ruling of 2026-11-08) that builds the Eisenstein $U_p$ systems. Z2 is therefore necessary and not sufficient: a record carrying one of these
-      fields stays \code{pending} after Z2 until \code{HZ-EISUP} writes it.
+      fields stays \code{pending} after Z2 until \code{HZ-EISUP} writes it (its words: \emph{The components and the maximal ideals from \code{HZ-EISUP} on}, below, v1.27.0-pre.1; where $e^{\mathrm{an}}_k(N)\ne1$ the mover is \code{HZ-EISUP (b)}).
       Where the search ran and (C1) is \code{open(cap)}, \code{G1.components} $=$ \code{not\_run} (final; as for the \code{anemic} record, no component is computed without (C1);
       v1.26.0-pre.6, referee-light W2), and where \code{generation.status} is not \code{certified},
       \code{maximal\_ideals} $=$ \code{not\_run} by the rule of~(d) (\emph{The maximal ideals as v1 writes them}); v1.26.0-pre.5 introduces no final word.
+      \emph{The components and the maximal ideals from \code{HZ-EISUP} on} (v1.27.0-pre.1, slot~26, \code{HZ-EISUP}, contract first;
+      \file{docs/implementation/slot26/HZEISUP\_design.md} v0.2, referee \file{docs/implementation/slot26/C127pre1\_referee.md}, disposition
+      \file{docs/implementation/slot26/C127pre1\_disposition.md}; \textbf{not yet seen by the owner}). A binary carrying \code{HZ-EISUP}'s route writes,
+      on every \code{full} record at $N>1$ with \code{G1.C1.status} $=$ \code{certified} and $e^{\mathrm{an}}_k(N)=1$, the values of the pending
+      fields of the previous paragraph, by Proposition~\ref{prop:heckeZeisup} with $q_0$ the first prime of \code{G1.P}:
+      \code{G1.components} $=$ \code{certified} (final; the key stays beside its rows, unlike the \code{anemic} record), with the rows
+      \code{G1.components[}$j$\code{]}: for $j<e_k$ the Eisenstein components (\code{type = eis}, \code{degree = 1}, \code{mult = 1}, \code{p0} and
+      \code{minpoly} as in~(d), written on every row and the same for every $j$, so they do not distinguish the components; \code{lambda\_theta} and the \code{U\_<p>} do, \code{lambda\_theta} $=\lambda_j(\vartheta)$, and
+      one key \code{U\_<p>} $=\lambda_j(U_p)$ per $p\mid N$), ordered by the tuple $(\lambda_j(U_p))_{p\mid N\text{ ascending}}$ lexicographically
+      as signed integers; then, iff $d>e_k$, the cuspidal block $j=e_k$ (\code{type = cusp}, \code{degree} $=d-e_k$, \code{mult = 2},
+      \code{minpoly} $=c_\vartheta=f_\vartheta/e_\vartheta$, \code{p0} and \code{irreducible} as in~(d), with $c_\vartheta$ there read as
+      $f_\vartheta/e_\vartheta$). The rows of \emph{The components as v1 writes them} in~(d) --- one Eisenstein row of multiplicity
+      $e_k$, the block of degree $d-1$, \code{components[1].mult = not\_run} at $N>1$ --- are those of level-$1$ and \code{anemic} records; on the \code{full} records of this paragraph the multiplicities are $1$ (each Eisenstein row) and $2$ (the cuspidal block) by Proposition~\ref{prop:heckeZrat}(2), $\Talg_\Q$ being reduced. At every $\ell$ of G2 with \code{generation.status} $=$ \code{certified},
+      \code{G2.ell=<}$\ell$\code{>.maximal\_ideals} follows the rule of~(d) over the operator list~((i)): \code{certified} with the rows of~(d),
+      \code{support} being \code{not\_run} also where the generating $\vartheta'$ involves a $U_p$ that the torsion read does not carry (the $\vartheta'$-residue of the
+      torsion point is then not determined); that word is \textbf{final} ((c)), and a read that determines it is a change of the settings text ((viii)), never a move of
+      this word. The attribution is keyed by component index:
+      \code{components\_through.<}$j$\code{>} $\in\{\code{certified},\code{not\_run}\}$ (\code{not\_run}: certified not to pass), and, for $j<j'$
+      both passing, \code{pair\_kinds[<}$j$\code{>,<}$j'$\code{>]} with \code{depth} $=v_\ell\operatorname{Res}(f_j,f_{j'})$ at the generating
+      $\vartheta'$ (the length of $\Talg_\ell/(P_j+P_{j'})$; one of the two has degree $1$, so it is supported at this $\midl$ alone) and
+      \code{status} $=$ \code{certified} where that resultant is exact over $\Z$, else \code{depth} $=$ \code{status} $=$ \code{not\_run},
+      and \code{kind} $=$ \code{meeting} when both components have degree~$1$, else \code{not\_run}; these words are those of the new keys only, and
+      the keys \code{components\_through.eis}, \code{.cusp}, \code{pair\_kinds[eis,cusp]} of~(d) are those of level-$1$ and \code{anemic} records,
+      with their words unchanged. Or \code{maximal\_ideals} $=$ \code{not\_run} (final). The attribution divides the residue relation of the
+      generating $\vartheta'$ by $\prod_j(x-\lambda_j(\vartheta'))$ modulo $\ell$, with remainder $0$ checked (Proposition~\ref{prop:heckeZeisup}(3)
+      applies: a $\vartheta'$ generating $A'_1$ with $\dim A'_1=d$ has $\Z_\ell[\vartheta']=\Talg\otimes\Z_\ell$ of rank $d$, hence satisfies (C1), $\Talg_\Q$
+      being reduced). Where $e^{\mathrm{an}}_k(N)\ne1$ the two
+      fields keep \code{blocked(U\_p)} (pending, (c)); their mover is the backlog item \code{HZ-EISUP (b)} ($\psi\ne1$; its card stub in
+      \file{docs/implementation/slot26/00-slot26-plan.md} v0.8). The only refusal is that
+      of~(c) (\code{refused(word\_prime\_cap)}, whole record); every other failure of the route is a defect, and no record is written.
+      \emph{Amendment A4} (after the freeze; new key rows, as \code{G1.theta\_ops} of~(vi), not new words of a closed list as A1--A3): the keys
+      \code{G1.components[}$j$\code{].}\{\code{type}, \code{degree}, \code{mult}, \code{p0},
+      \code{minpoly}, \code{lambda\_theta}, \code{irreducible}\} for any $j$, \code{G1.components[}$j$\code{].U\_<p>},
+      \code{G2.ell=<}$\ell$\code{>.m[<}$i$\code{>].components\_through.<}$j$\code{>} and \code{.pair\_kinds[<}$j$\code{>,<}$j'$\code{>].}\{\code{depth},
+      \code{status}, \code{kind}\} enter the frozen schema for \code{full} records at $N>1$ carrying \code{G1.components} $=$ \code{certified} only;
+      hash-neutral for every other record, the settings text and its fingerprint do not move, and every record that carries them was
+      \code{pending} before; a scanner pinned to the frozen list rejects a record that carries them. The words of G3 do not move (\emph{The G3 words from Z2 on}), nor does any other field.
       \emph{The derived word} (v1.26.0-pre.6, referee-light R1; v1.26.0-pre.7, confirm-referee C3: the scope ``\code{full} at $N>1$'' dropped). On any record, \code{maximal\_ideals} $=$ \code{not\_run} beside a \code{generation.status} of the
       pending class is a \emph{derived} word: it records that the decomposition was not attempted because generation is pending, it asserts nothing final, and it is rewritten when
       \code{generation.status} moves. The rule ``stays \code{blocked(U\_p)}'' of~(v) does not apply to this field. \code{not\_run} beside a final \code{generation.status}
@@ -17028,7 +17074,7 @@ confirm-refereed ACCEPT, \file{docs/implementation/slot26/C126pre3\_confirm.md},
       \code{G3.C\_T.lower} (lower $=$ upper at every $\ell$, item~(d), G3), never alone (no package of this version does so: \emph{The G3 words from Z2 on}, below); and \code{G3.C\_T.exact} is absent. So every such record stays \code{pending} ((c))
       through \code{G3.C\_T.lower} and none is golden-eligible before then (nor, after Z2 alone, any record carrying one of the \code{blocked(U\_p)} fields of \emph{The components and the maximal ideals where the
       search ran} above; v1.26.0-pre.6, referee-light W1; v1.26.0-pre.7, confirm-referee C1). Those are the records with \code{G1.C1.status} $=$ \code{certified} ($67$ of the $85$
-      records of Z1's recompute). The other $18$ ($9$ with \code{open(cap)}, $9$ with \code{refused(non\_reduced)}) carry no field waiting on \code{HZ-EISUP}: their pending fields are
+      records of Z1's recompute, a count before \code{HZ-EISUP}; from v1.27.0-pre.1 on, those with $e^{\mathrm{an}}_k(N)\ne1$ stay pending through these fields also after \code{HZ-EISUP}, until \code{HZ-EISUP (b)}). The other $18$ ($9$ with \code{open(cap)}, $9$ with \code{refused(non\_reduced)}) carry no field waiting on \code{HZ-EISUP}: their pending fields are
       \code{generation.status} at $\ell\in\{2,3\}$ and G3's \code{C\_T} fields, which the words of \emph{The G3 words from Z2 on} below make final. The per-$\ell$ words at $\ell\in\mathsf S\cap\{2,3\}$ (G2's \code{generation.status}) are governed
       by~(v) and by the non-reduced branch above, not by this rule. No level-$1$ or \code{anemic} byte moves.
       \emph{G3 on the non-reduced branch} (v1.26.0-pre.4, confirm-referee N1). There \code{G3.C\_T.status} is \code{blocked(U\_p)}, never \code{upper\_bound\_certified}: as built
@@ -17047,12 +17093,12 @@ confirm-refereed ACCEPT, \file{docs/implementation/slot26/C126pre3\_confirm.md},
       statement of this document prescribes a read of a lower bound on these rows, \code{G3.C\_T.lower} is not a derived word and does not wait on \code{generation.status}, and on such a record no field is sharpened to
       \code{certified}: the rule ``only together with \code{G3.C\_T.lower}'' above is not exercised, and the reading of the aggregate in~(c) does not apply, since \code{G3.C\_T.lower} is not pending. Where no tag certifies there is no row ($77$ of Z1's $85$ records, a count at this version; v1.26.0-pre.11, confirm-referee W-A), and the partition \code{U\_p\_tags} carries only the fields of this paragraph (item~(d), G3), so \code{G3.C\_T.lower} is \code{not\_run} there too: on the non-reduced branch and on the \code{open(cap)} records, which are outside the scope of Definition~\ref{def:heckeZcong} ((C1) does not pass), and also where $\eta_L$ is defined and Proposition~\ref{prop:heckeZcong}(5) could read it with a $T_p$: e.g.\ $(N,n)=(11,0)$, $d=2$, one Eisenstein system, no certifying tag, whose \code{anemic} record reads \code{G3.C\_T.exact} $=$ \code{0x5}. A \code{full} record of this version does not perform that read. A later value of these fields is a
       settings step or a schema step ((viii)), never a package filling a pending field: the read of Proposition~\ref{prop:heckeZcong}(5) for one rational Eisenstein system against the rest (with $X_p=T_p$ where a $T_p$ separates, $U_p$ where only a $U_p$ does; v1.26.0-pre.11, confirm-referee W-A) would be a new
-      partition row with its own statement, and \code{HZ-EISUP}, which writes \code{G1.components} and \code{maximal\_ideals}, does not move these fields. At $\ell\in\mathsf S\cap\{2,3\}$ on a record whose \code{G1.C1.status} is
+      partition row with its own statement, and \code{HZ-EISUP}, which writes \code{G1.components} and \code{maximal\_ideals}, does not move these fields (Proposition~\ref{prop:heckeZeisup}; \emph{The components and the maximal ideals from \code{HZ-EISUP} on}, above, v1.27.0-pre.1). At $\ell\in\mathsf S\cap\{2,3\}$ on a record whose \code{G1.C1.status} is
       \code{open(cap)}, \code{G2.ell=<ell>.generation.status} $=$ \code{open(sandwich)} (final; no read without (C1), as at $\ell\ge5$ and on the non-reduced branch), \code{maximal\_ideals} then being the final \code{not\_run} of~(d).
       \emph{Amendment A3}: \code{not\_run} joins the closed list \code{utag} of the $U_p$ tag fields, after the freeze, of the kind of A1 and A2: hash-neutral, since that list is not hashed, no record of edition~1 carries
       \code{not\_run} in such a field, every \code{full} record at $N>1$ is pending in edition~1 and moves anyway, and \code{not\_run} is already in the verifier's \code{FINAL} set (no class moves). The rules of this item for a binary without that route stay
       in force for what such a binary writes, so no record it wrote is invalidated; such a record stays \code{pending} until regenerated. On Z1's recompute of the $85$ records (a count at this version, not a rule) these words leave
-      the $18$ records of~(ii) (\code{open(cap)} and \code{refused(non\_reduced)}) with no pending field, hence \code{final}, and the $67$ with (C1) \code{certified} pending through \code{HZ-EISUP}'s fields, $3$ of them also through
+      the $18$ records of~(ii) (\code{open(cap)} and \code{refused(non\_reduced)}) with no pending field, hence \code{final}, and the $67$ with (C1) \code{certified} pending through \code{HZ-EISUP}'s fields (the fields of \emph{The components and the maximal ideals from \code{HZ-EISUP} on}, above; v1.27.0-pre.1), $3$ of them also through
       \code{refused(export\_word)} at $\ell\ge5$.
     \item \emph{The $\vartheta$ search.} HZ-RAT's order on the operator list: the units first, in list order, then the combinations, within \code{theta\_cap} and
       \code{theta\_coeff\_max} $=\binom d2$ with $d=\code{G1.d}$ of the record --- the full $d$, not $d^{\mathrm{an}}$.
@@ -17076,7 +17122,7 @@ confirm-refereed ACCEPT, \file{docs/implementation/slot26/C126pre3\_confirm.md},
       serves the $U_p$ matrix over $\Z$ (its $\tau$ and $M$ included), and written by the package that serves it there; \textbf{no record of Z1 carries it}. Running the $U_p$ dump
       (\code{HECKE\_DUMP\_HZ\_CERT}, \code{WriteUpMatrixFiles}) does not create the key, so \code{cert\_sha256} does not depend on whether a dump ran. That package also adds the key's
       schema row (the table has none at this version) and fixes which digest the key means. The key is absent elsewhere and carries no status word; no level-$1$ or
-      \code{anemic} record carries one, so neither of their digests moves.
+      \code{anemic} record carries one, so neither of their digests moves. (v1.27.0-pre.1:) \code{HZ-EISUP} reads $U_p$ at the word primes restricted to $E$ (Proposition~\ref{prop:heckeZeisup}(2)) and does not serve the $U_p$ matrix over $\Z$; it writes no \code{G9.Up.*} key.
     \item \emph{Self-description (required).} Every \code{full} record at $N>1$ built under this reading carries the hashed G1 field \code{G1.theta\_ops} (free text, with its own
       schema row): the operator list of~(i), in order, comma-separated (e.g.\ \code{T\_2,T\_3,T\_5,U\_2}), by which the coefficient vector \code{G1.theta} is indexed. Level-$1$ and
       \code{anemic} records do not carry it (their index list is \code{G1.P}), so no byte of theirs moves.
@@ -17088,8 +17134,8 @@ confirm-refereed ACCEPT, \file{docs/implementation/slot26/C126pre3\_confirm.md},
       resolving a conflict between two sentences of (d$'$) in favour of a word one of them already prescribed, moves no written word; naming for the first time the word of a field that (d$'$) had left open moves a written word for a binary that writes it (v1.26.0-pre.8, confirm-referee D2). A \emph{written} key or field is one that binary
       writes, so a change to the prescription of a key no binary has written (v1.26.0-pre.6's for \code{G9.Up.*}) moves no written word. It makes no difference whether the code was
       conformed to the text or, as at v1.26.0-pre.5, the text to the code; a later version that moves no written word, and a signature as such, does not change it. At this version
-      \code{<version>} is \code{1.26.0-pre.5} for a binary that does not write the words of \emph{The G3 words from Z2 on} in~(ii) (none of v1.26.0-pre.6, v1.26.0-pre.7 and v1.26.0-pre.8 moves a written word by this test, v1.26.0-pre.9 prescribes for that binary what it wrote before, and neither v1.26.0-pre.10 nor v1.26.0-pre.11 moves one), so its value is
-      \code{gl2\_contract 1.26.0-pre.5, item 8 (d')}; it is \code{1.26.0-pre.9} for a binary that writes those words (v1.26.0-pre.9 names words (d$'$) had left open and changes others, so by this test it moves a written word for that binary; v1.26.0-pre.10 supplies a reason and pointers and adds a proviso for records no binary writes, and v1.26.0-pre.11 supplies status pointers and a reason, so neither moves one), so its value is \code{gl2\_contract 1.26.0-pre.9, item 8 (d')}. A written value of this key is a historical fact and is never rewritten, at a signature or otherwise. The manifest of the integral Hecke dataset edition~2 states both the version of this document under which it is issued (1.26.0 once
+      \code{<version>} is \code{1.26.0-pre.5} for a binary that does not write the words of \emph{The G3 words from Z2 on} in~(ii) nor those of \emph{The components and the maximal ideals from \code{HZ-EISUP} on} (none of v1.26.0-pre.6, v1.26.0-pre.7 and v1.26.0-pre.8 moves a written word by this test, v1.26.0-pre.9 prescribes for that binary what it wrote before, and neither v1.26.0-pre.10 nor v1.26.0-pre.11 moves one), so its value is
+      \code{gl2\_contract 1.26.0-pre.5, item 8 (d')}; it is \code{1.26.0-pre.9} for a binary that writes those words and not the words of \emph{The components and the maximal ideals from \code{HZ-EISUP} on} in~(ii) (this restriction v1.27.0-pre.1, referee M2; v1.26.0-pre.9 names words (d$'$) had left open and changes others, so by this test it moves a written word for that binary; v1.26.0-pre.10 supplies a reason and pointers and adds a proviso for records no binary writes, and v1.26.0-pre.11 supplies status pointers and a reason, so neither moves one; v1.27.0-pre.1 prescribes words only for a binary carrying \code{HZ-EISUP}'s route, so it moves none that this binary or one of \code{1.26.0-pre.5} writes), so its value is \code{gl2\_contract 1.26.0-pre.9, item 8 (d')}. At v1.27.0-pre.1 it is \code{1.27.0-pre.1} for a binary that writes the words of \emph{The components and the maximal ideals from \code{HZ-EISUP} on} in~(ii) (that paragraph names words and keys of fields (d$'$) had left open; v1.26.0-pre.8, D2), so its value is \code{gl2\_contract 1.27.0-pre.1, item 8 (d')}. Such a binary writes this value on every \code{full} record at $N>1$, those on which it writes none of the new words included (the test is per binary); a record regenerated by it is a new record, and the records written before keep their value. A later version, its signature included, that moves no written word does not change it. A written value of this key is a historical fact and is never rewritten, at a signature or otherwise. The manifest of the integral Hecke dataset edition~2 states both the version of this document under which it is issued (1.26.0 once
       signed) and the \code{G10.contract} value(s) its \code{full} records carry, and asserts, by the test of this item, that no version after each such value up to the issuing version
       moved a written word of a record carrying that value (v1.26.0-pre.8, confirm-referee D2); if one did, the affected records are regenerated, never edited.
     \item \emph{Frozen with v1.} This reading is part of \code{integral\_hecke\_structure/v1}. Any later change of it --- another order of the list, $U_p^{\ast}$ for $U_p$, another
@@ -17102,7 +17148,7 @@ confirm-refereed ACCEPT, \file{docs/implementation/slot26/C126pre3\_confirm.md},
       final value under another reading exists; and the index list it refers to is
       hashed (\code{G0.operators}, \code{G1.P} and, by (vi), \code{G1.theta\_ops}). Beside the status fields, non-status hashed values of these records also move between
       edition~1 and Z1: \code{G0.operators} (the enlargement of~(i), on $64$ of the $85$ records) and \code{G1.S\_cand.ell=<}$\ell$\code{>.reason} and \code{.v\_disc} ($123$ fields each, the
-      discriminant reasons now available). None is a status word and every record concerned was \code{pending}, so the conclusion stands.
+      discriminant reasons now available). None is a status word and every record concerned was \code{pending}, so the conclusion stands. (v1.27.0-pre.1:) The moves \code{blocked(U\_p)} $\to$ \code{certified} of \code{G1.components} and \code{blocked(U\_p)} $\to$ \code{certified} or \code{not\_run} of \code{maximal\_ideals} (\emph{The components and the maximal ideals from \code{HZ-EISUP} on} in~(ii)) are the planned ones of~(c); the rows written beside them are new keys (A4), not moves of existing ones.
     \end{enumerate}
   \item \textbf{G2, per prime $\ell\in\mathsf S$ and per maximal ideal} (sorted by residue degree and the monic residue factor of $\chi(X_{p_0})\bmod\ell$): \code{generation}
     with its \code{status} and \code{route} $\in\{\code{saturation},\code{eis\_single},\code{rational},\code{cyclic},\code{commutant},\code{AK\_unsaturated},\code{mazur}\}$
@@ -28441,7 +28487,7 @@ $H^{1}(\Ga;\Vcoef/\ell^{K})$ at a torsion prime of the cell}. With $U_p$ over $\
   Proposition~\ref{prop:heckeZcong}(4) when $e^{\mathrm{an}}_k(N)=1$; Proposition~\ref{prop:heckeZeiscert}(1) is not available (Sturm needs every $T_n$, the $U_p$-words
   included). \textbf{Reachable today: (C1), (C2) and the upper bound $g_{\mathcal P}$ only}; (C3) and the lower bound after the export of the whole module
   $H^{1}_{(\ell)}/\ell^{K}$ with the matrices of every computed $T_p$ by cochain-level lifts (Proposition~\ref{prop:heckeZuct}(3)) --- the free quotient alone is not enough;
-\item \emph{level $N>1$, full} (at v1.25.0 this line read ``nothing is certified but two tags''; v1.26.0-pre.11, confirm-referee C1): what a record writes is item~8~(d$'$)(ii), (v), by the binary that wrote it. (C1) for the full algebra needs no $U_p$ over $\Z$: the $\vartheta$ search reads $U_p$ at the word primes by Proposition~\ref{prop:heilbronn}, so \code{G1.C1.status} can be \code{certified} ($67$ of the $85$ records of Z1's recompute, a count at this version), and the words of G2 at $\ell\ge5$ are read on that operator; the fields at $\ell\in\{2,3\}$ follow item~8~(d$'$)(v), according to whether the binary carries the route over $\Z$. Two tags are computable without any lattice from $\chi_\Q(U_p)$ assembled by CRT from the level-$N$ route over word primes:
+\item \emph{level $N>1$, full} (at v1.25.0 this line read ``nothing is certified but two tags''; v1.26.0-pre.11, confirm-referee C1): what a record writes is item~8~(d$'$)(ii), (v), by the binary that wrote it. (C1) for the full algebra needs no $U_p$ over $\Z$: the $\vartheta$ search reads $U_p$ at the word primes by Proposition~\ref{prop:heilbronn}, so \code{G1.C1.status} can be \code{certified} ($67$ of the $85$ records of Z1's recompute, a count at this version), and the words of G2 at $\ell\ge5$ are read on that operator; the fields at $\ell\in\{2,3\}$ follow item~8~(d$'$)(v), according to whether the binary carries the route over $\Z$; \code{G1.components} and the \code{maximal\_ideals} need the Eisenstein $U_p$ systems (built by \code{HZ-EISUP} from v1.27.0-pre.1 on, Proposition~\ref{prop:heckeZeisup}, where $e^{\mathrm{an}}_k(N)=1$; item~8~(d$'$)(ii)). Two tags are computable without any lattice from $\chi_\Q(U_p)$ assembled by CRT from the level-$N$ route over word primes:
   \code{upper\_bound\_certified} (Proposition~\ref{prop:heckeZcong}(2) for $\vartheta=U_p\in\Talg^{\mathrm{fr}}$; e.g.\ $(2,6)$: $C(f,E^{(1)})=0$, $C(f,E^{(2^{7})})\mid2^{3}\cdot17$,
   $C(E^{(1)},E^{(2^{7})})\mid127$) and, \textbf{for $N$ a power of $p$}, \code{non\_reduced\_certified} (the counting criterion: e.g.\ $(8,10)$, $\chi_\Q(U_2)=x^{16}(x-1)(x-2048)(x^{2}+24x+2048)^{2}$, $d=13$,
   $d^{\mathrm{an}}=6$; a reduced full $\Talg_\Q$ would need $\ge7$ distinct systems with $U_2\ne0$, but $H^{1}\otimes\Cx\supseteq M_{12}$ carries only $6$ non-zero $U_2$-roots with
@@ -28675,6 +28721,69 @@ $\midl$-block is $\Z_\ell[x]/((x-1-q)\mathsf F_q)$ (the minimal polynomial there
 both inclusions of index $\ell^{v_\ell(\nu)}$ in the outer ring --- the first by Proposition~\ref{prop:heckeZmono}(3) for $\Z_\ell[x]/((x-1-q)\mathsf F_q)$, the second by
 Proposition~\ref{prop:heckeZcong}(3) with $C_\midl=\Talg/I_\midl=\Z/\ell^{v_\ell(\nu)}$ ($I_{\mathcal S}$ maps onto the Eisenstein ideal, $U_N-1=-(1+w)$) --- so they are equal, and $U_N$
 lies in the anemic algebra at $\midl$. For $\ell\,\|\,\nu$: $\bar{\mathsf F}_q(x+1+q)=x^{e}$ ($\Talg$ local, $\eta_q\in\midl$) and its constant term has valuation $1$.
+\end{proof}
+
+\begin{proposition}[The Eisenstein $U_p$ systems of the full algebra]\label{prop:heckeZeisup}
+\PROVED{} given Proposition~\ref{prop:heckeZrat}(2), (3), (3$'$) and the bounds in the proof of Theorem~\ref{thm:heckeZcert}(3)(b); (5)
+\STD{\cite[Thms.~5.8--5.10]{stein}; $[\Ga\alpha\Ga]\mapsto[\Ga\alpha^{\iota}\Ga]$ is conjugation by $W_N$, \cite[\S3.4]{shimura}\VERIFYloc, \cite{atkin_lehner}\VERIFYloc}, a second route only.
+(v1.27.0-pre.1, slot~26, \code{HZ-EISUP}; \file{docs/implementation/slot26/HZEISUP\_design.md} v0.2 \S1, \S4; refereed ACCEPT-with-changes,
+\file{docs/implementation/slot26/C127pre1\_referee.md}, its conditions applied at v1.27.0-pre.1; \textbf{not yet seen by the owner}.)
+Let $n$ be even and $k=n+2$ (the notation of this subsection), $N>1$, the algebra \code{full}, $\Talg_\Q$ reduced, and $e^{\mathrm{an}}_k(N)=1$; then $e_k\ge1$
+($\Ga_0(N)$ has at least two cusps). Let $q_0\nmid N$ be prime, $c_0:=1+q_0^{k-1}$, $E:=\ker(T_{q_0}-c_0)\subseteq L\otimes\Q$, $E_\Z:=E\cap L$. The symbols $q_0$,
+$c_0$, $E$, $E_\Z$, $K_q$, $e_\vartheta$, $g_p$ are new symbols of this proposition and of the paragraph of item~8~(d$'$)(ii) of \S\ref{sec:recordschema} that cites it
+(rule~\ref{A5}); $c_\vartheta$ is that of item~8~(d).
+\begin{enumerate}
+\item $E\otimes\overline\Q$ is the sum of the eigenlines of the $e_k$ Eisenstein systems of $\Talg_\Q$, each occurring once; $\dim E=e_k$; every $T_p$, $p\nmid N$, acts
+  on $E$ as $1+p^{k-1}$; on the line of a system $\lambda$, $U_p$ ($p\mid N$) acts by an algebraic integer $\lambda(U_p)$ with
+  $|\lambda(U_p)|\le p^{k-1}$. $E_\Z$ is saturated in $L$ and $\Talg$-stable.
+\item Let $q\nmid6N$, $q>n+1$, be prime and $K_q:=\ker(T_{q_0}-c_0)$ on $L/q$. Then $E_\Z/q\subseteq K_q$, with equality iff $\dim K_q=e_k$,
+  and then every element of $\Talg$ restricted to $K_q$ is the reduction of its restriction to $E_\Z$. $\dim K_q>e_k$ holds for at most
+  finitely many $q$.
+\item Let $\vartheta=\sum_Xc_XX$ be an integer combination of finitely many $X\in\{T_p:p\nmid N\}\cup\{U_p:p\mid N\}$, $e_\vartheta:=\operatorname{charpoly}(\vartheta|E)\in\Z[x]$,
+  monic of degree $e_k$ with roots $\lambda(\vartheta)=\sum_{p\nmid N}c_{T_p}(1+p^{k-1})+\sum_{p\mid N}c_{U_p}\lambda(U_p)$ over the Eisenstein
+  systems $\lambda$. If (C1) holds for $\vartheta$, then $e_\vartheta$ is separable, $e_\vartheta\mid f_\vartheta$, and
+  $c_\vartheta:=f_\vartheta/e_\vartheta$ has degree $d-e_k$, each of its systems occurring twice in $H^{1}$. (Without (C1) $e_\vartheta$ may
+  be inseparable: $e_{T_p}=(x-1-p^{k-1})^{e_k}$ for $e_k\ge2$.)
+\item (Identification.) Let $g_p:=\operatorname{charpoly}(U_p|E)\in\Z[x]$. Suppose $g_p$ splits over $\Z$ for every $p\mid N$ (then every
+  $\lambda(U_p)$, hence every $\lambda(\vartheta)$, is a rational integer, and $e_\vartheta$ splits over $\Z$). This always holds: the roots of $g_p$
+  lie in $\{0,1,p^{k-1}\}$ (the proof of Proposition~\ref{prop:heckeZrat}(4)(b), (c), and (5)'s conjugation); the route checks it and does not
+  use it. Let $q$ be as in (2) with $\dim K_q=e_k$, $e_\vartheta\bmod q$ separable, and the distinct roots of every $g_p$ pairwise
+  incongruent mod $q$. Then the $\vartheta$-eigenlines of $K_q$ are the reductions of the Eisenstein lines, and on the line of $\lambda$ the
+  scalar of $U_p$ is $\lambda(U_p)\bmod q$; $\lambda(U_p)$ is the unique root of $g_p$ in that residue class. So each Eisenstein system is
+  determined at one such $q$.
+\item (Second route.) For $N$ squarefree the tuples $(\lambda(U_p))_{p\mid N}$ are the elements of $\prod_{p\mid N}\{1,p^{k-1}\}$ for
+  $k\ge4$, and of that set without $(p)_{p\mid N}$ for $k=2$, each once. No record field depends on (5).
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+(1) By Proposition~\ref{prop:heckeZrat}(2) and reducedness, $L\otimes\overline\Q$ is the direct sum of the eigenspaces of the $d$ systems of $M_k(\Ga)$, a line for each
+Eisenstein system and a plane for each cuspidal one; the Eisenstein systems are $e_k$ in number, as $M_k(\Ga)\otimes\overline\Q$ is free of rank $1$ over the reduced
+$\Talg_{\overline\Q}$ (the perfect pairing of the proof of Proposition~\ref{prop:heckeZrat}(3)) and $\dim\mathrm{Eis}_k=e_k$. By (3$'$) and $e^{\mathrm{an}}_k(N)=1$ the only character $\psi$ with
+$\mathrm{cond}(\psi)^{2}\mid N$ is trivial, so every Eisenstein system has $\lambda(T_p)=1+p^{k-1}$, $p\nmid N$. A cuspidal system has
+$|\lambda(T_{q_0})|\le2q_0^{(k-1)/2}<1+q_0^{k-1}$ (the bound in the proof of Theorem~\ref{thm:heckeZcert}(3)(b); strict as $q_0^{(k-1)/2}\ne1$). So $E$ is
+the Eisenstein part, of dimension $e_k$, and $T_p$ acts on it as stated; the bound on $\lambda(U_p)$ is that in the proof of
+Theorem~\ref{thm:heckeZcert}(3)(b), integrality as for any eigenvalue of an endomorphism of $L$. $E_\Z$ is the intersection of $L$ with a
+subspace, hence saturated; it is $\Talg$-stable as $\Talg$ is commutative and $E$ is a kernel of an element of $\Talg$.
+(2) $L/q=H^{1}(\Ga;\Sym^n\F_q)$, equivariantly for $T_p$, $p\nmid N$ (Proposition~\ref{prop:crtcharpolyN}(2)) and for $U_p$, $p\mid N$, read as $H_{N,p}$ on the cokernel
+presentation (Proposition~\ref{prop:heilbronn}(1), (2); \S\ref{sec:recordschema} item~8~(d$'$)(v)). $E_\Z$ saturated gives $E_\Z/q\hookrightarrow L/q$, and
+$T_{q_0}-c_0$ kills $E_\Z$, so $E_\Z/q\subseteq K_q$; equality iff the dimensions agree, and the restriction statement follows since $E_\Z$
+is $\Talg$-stable. $\dim K_q>e_k$ forces $q$ to divide $\det\big((T_{q_0}-c_0)|_{L\otimes\Q/E}\big)\ne0$ ($T_{q_0}$ is semisimple, $\Talg_\Q$ being reduced, so $c_0$ is not an
+eigenvalue on the quotient; the determinant is that of $T_{q_0}-c_0$ on the lattice $L/E_\Z$), finitely many $q$.
+(3) $E$ is $\Q$-rational and $\vartheta$-stable, so $e_\vartheta\in\Z[x]$ (monic, integral endomorphism of $E_\Z$); its roots are the
+values on the Eisenstein lines, by (1). Under (C1), $\vartheta$ separates the $d$ systems, so the $e_k$ Eisenstein values are distinct and
+are roots of the separable $f_\vartheta$; the cuspidal systems are the remaining $d-e_k$ roots, each twice in $H^{1}$ by
+Proposition~\ref{prop:heckeZrat}(2).
+(4) Integrality of the roots is immediate. As $e_\vartheta\bmod q$ is separable, $R:=\Z_{(q)}[x]/(e_\vartheta)$ is étale over $\Z_{(q)}$ and
+split ($e_\vartheta$ splits over $\Z$), so $R\cong\prod_\lambda\Z_{(q)}$ with idempotents $\epsilon_\lambda\in\Z_{(q)}[\vartheta|_{E}]$;
+hence $E_\Z\otimes\Z_{(q)}=\bigoplus_\lambda\epsilon_\lambda(E_\Z\otimes\Z_{(q)})$, each summand a $\Talg$-stable line on which $\vartheta$
+acts by $\lambda(\vartheta)$, and reduction mod $q$ maps it onto the $\bar\lambda(\vartheta)$-eigenline of $K_q$ (by (2) and separability
+mod $q$). On it $U_p$ acts by $\lambda(U_p)\bmod q$; distinct roots of $g_p$ being incongruent mod $q$, the root is determined.
+(5) As in the proof of Proposition~\ref{prop:heckeZrat}(3$'$): on $E_k(q^{t})$, $E_k(q^{pt})$ ($p\nmid t$) the classical $U_p$ has the
+eigenvectors $E_k(q^{t})-\gamma E_k(q^{pt})$, eigenvalue $1$ for $\gamma=p^{k-1}$ and $p^{k-1}$ for $\gamma=1$; at $k=2$ the combination
+$\prod_p(1-\gamma_pV_p)E_2$ is holomorphic iff $\prod_p(1-\gamma_p/p)=0$. The record's $U_p$ is $W_NU_p^{\mathrm{cl}}W_N^{-1}$ for all $p\mid N$ at once
+($w_N\,\mathrm{diag}(p,1)\,w_N^{-1}=\mathrm{diag}(1,p)$; on $p$-old spaces this is Proposition~\ref{prop:levelconehecke}(3)(d), as $W_{p'}$ commutes with $U_p$ for
+$p'\ne p$), $W_N$ commutes with $T_p$, $p\nmid N$, and preserves $\mathrm{Eis}_k$; so the set of tuples is the same.
 \end{proof}
 
 \paragraph{Code map and reach} (v1.25.0-pre.0). \textbf{Nothing of this subsection is built yet}; the C++ programme is the plan's slot-25 packages (\file{06-work-packages.md}
@@ -30409,18 +30518,19 @@ either total as the other is the misreading \ref{CL4} exists to stop.
 \end{contractbox}
 
 \paragraph{The counts.}
-$434$ numbered statements across Chapters \ref{sec:framework}--\ref{sec:implementation},
+$435$ numbered statements across Chapters \ref{sec:framework}--\ref{sec:implementation},
 \ref{sec:integral}, \ref{sec:dicksontheta}, \ref{sec:ordinary}, \ref{sec:hida}, \ref{sec:hidafull}, \ref{sec:levelN}, \ref{sec:nebentypus},
 \ref{sec:saturation}, \ref{sec:isomodelell} and \ref{sec:mpmodel} (Chapters
 \ref{sec:scope} and \ref{sec:notation} carry rules and tables, not numbered statements). By kind: $119$
-\code{rmk}, $115$ \code{prop}, $71$ \code{def}, $64$ \code{lem}, $15$ \code{obl}, $22$ \code{thm}, $7$ \code{cl}, $5$
+\code{rmk}, $116$ \code{prop}, $71$ \code{def}, $64$ \code{lem}, $15$ \code{obl}, $22$ \code{thm}, $7$ \code{cl}, $5$
 \code{ass}, $7$ \code{cor}, $4$ \code{alg}, $3$ \code{ex}, $2$ \code{open} (the first decided at
 v1.3.0, the kind kept, rule~\ref{L1}; the second \ref{open:ordprecision}, answered at v1.12.0, the kind
 kept likewise). By status, counting tag
-\emph{occurrences} (so a multi-tag statement is counted once per tag): \PROVED{} $261$, \BSTD{} $116$,
-\COMP{} $58$ ($29$ registered, $29$ ad hoc), \CONJ{} $19$, \OPENSTAT{} $6$. $299$ statements carry at
+\emph{occurrences} (so a multi-tag statement is counted once per tag): \PROVED{} $262$, \BSTD{} $117$,
+\COMP{} $58$ ($29$ registered, $29$ ad hoc), \CONJ{} $19$, \OPENSTAT{} $6$. $300$ statements carry at
 least one tag and $135$ carry none --- $68$ definitions, $11$ obligations, $5$
 assumptions, $4$ algorithms, $1$ example, $45$ remarks, and \textbf{one corollary}.
+(v1.27.0-pre.1, a pre-release: one line added, \BNEW{} --- \S\ref{sec:heckeZ}'s \ref{prop:heckeZeisup} (\PROVED, \BSTD), the last statement of its section, so no number moves; so $434\to435$ lines, \code{prop} $115\to116$; \PROVED{} $261\to262$, \BSTD{} $116\to117$; tagged $299\to300$. No tag set of an existing line moves.)
 (v1.25.0-pre.0, a branch pre-release: twenty-three lines added, \BNEW{} --- \S\ref{sec:heckeZ}'s \ref{def:heckeZ} and \ref{def:heckeZcong} (untagged), \ref{prop:heckeZspec}, \ref{prop:heckeZrat} (with \CONJ), \ref{prop:heckeZmax}, \ref{prop:heckeZmono}, \ref{prop:heckeZuct}, \ref{prop:heckeZglue}, \ref{thm:heckeZcert}, \ref{prop:heckeZcong}, \ref{prop:heckeZeiscert} (\PROVED, \BSTD), \ref{lem:heckeZbridge}, \ref{prop:heckeZgen}, \ref{prop:heckeZetale}, \ref{prop:heckeZlocal}, \ref{prop:heckeZthrough}, \ref{prop:heckeZsplit}, \ref{prop:heckeZlevelone23}, \ref{thm:heckeZdescent}, \ref{rmk:heckeZcaveat} (\PROVED) and \ref{rmk:heckeZcbone}, \ref{rmk:heckeZcbtwo}, \ref{rmk:heckeZcbthree} (\CONJ); so $411\to434$ lines, \code{def} $69\to71$, \code{lem} $63\to64$, \code{prop} $101\to115$, \code{thm} $20\to22$, \code{rmk} $115\to119$; \PROVED{} $243\to261$, \BSTD{} $107\to116$, \CONJ{} $15\to19$; tagged $278\to299$, untagged $133\to135$ (definitions $66\to68$). No tag set of an existing line moves; the statements are the last of their section, so no number moves.)
 (v1.23.0-pre.33: four lines added, \BNEW{} --- \S\ref{sec:treepair}'s \ref{def:treepair} (untagged), \ref{lem:treepaircyl} (\PROVED, \BSTD), \ref{prop:treepair} (\PROVED, \BSTD) and \ref{rmk:treepairscope} (\PROVED); so $407\to411$ lines, \code{def} $68\to69$, \code{lem} $62\to63$, \code{prop} $100\to101$, \code{rmk} $114\to115$; \PROVED{} $240\to243$, \BSTD{} $105\to107$; tagged $275\to278$, untagged $132\to133$ (definitions $65\to66$). No tag set of an existing line moves; the statements are the last of their section, so no number moves.)
 (v1.23.0-pre.24: five lines added, \BNEW{} --- \S\ref{sec:descenthecke}'s \ref{prop:strictliftN} (\PROVED, \BSTD), \ref{prop:crtcharpolyN} (\PROVED, \BSTD), \ref{prop:torsionhecke} (\PROVED), \ref{thm:descentcert} (\PROVED) and \ref{rmk:descentcertscope} (\PROVED); so $397\to402$ lines, \code{prop} $95\to98$, \code{thm} $19\to20$, \code{rmk} $112\to113$; \PROVED{} $231\to236$, \BSTD{} $100\to102$; tagged $266\to271$. No tag set of an existing line moves; the statements are the last of their section, so no number moves.)
@@ -31144,6 +31254,7 @@ no. & kind & label & status & provenance \\
 \ref{def:heckeZcong} & def & \texttt{\detokenize{def:heckeZcong}} & \Bdef & \BNEW \\
 \ref{prop:heckeZcong} & prop & \texttt{\detokenize{prop:heckeZcong}} & \PROVED \BSTD{}~\cite{deligne_weil1} & \BNEW \\
 \ref{prop:heckeZeiscert} & prop & \texttt{\detokenize{prop:heckeZeiscert}} & \PROVED \BSTD{}~\cite[II (9.7), (16.1), Cor.~(16.2), (16.6)]{mazur} & \BNEW \\
+\ref{prop:heckeZeisup} & prop & \texttt{\detokenize{prop:heckeZeisup}} & \PROVED \BSTD{}~\cite[Thms.~5.8--5.10]{stein} & \BNEW \\
 \midrule
 \multicolumn{5}{@{}l}{\textbf{\S\ref{sec:mpmodel} The Moerdijk--Pronk model (v1.22.0-pre.5)}}\\
 \midrule
@@ -32088,6 +32199,10 @@ This is the supersession record of rule~\ref{V1}: one entry per version, newest 
 title page; the entries from v1.25.0-pre.7 down to v0.1.0, the sentence naming the superseded documents and the companion pointer that
 follow them are that date line's text, verbatim. The changelog proper, one entry per version with one line per changed statement
 (rule~\ref{V3}), follows the rules below.
+
+Version 1.27.0 --- 2026-11-11 (hecke-extensions slot~26, \textbf{signed by the owner 2026-11-11}: the owner-signed release of v1.27.0-pre.1; header, date and changelog only --- no statement's mathematics, label, number, tag, status, written word or marker count ($229$ on $88$ labels) changes; records written by the \code{HZ-EISUP} binary carry \code{G10.contract} $=$ \code{gl2\_contract 1.27.0-pre.1, item 8 (d')}, fixed at the pre-release, and stay valid; see the changelog)
+
+Version 1.27.0-pre.1 --- 2026-11-10 (hecke-extensions slot~26, \code{HZ-EISUP}, contract first; \textbf{a pre-release, not owner-released}; the draft refereed ACCEPT-with-changes, \file{docs/implementation/slot26/C127pre1\_referee.md}, its conditions M1, M2 and minor items m1--m11 applied in this text (disposition \file{docs/implementation/slot26/C127pre1\_disposition.md}), the confirm-read \file{docs/implementation/slot26/C127pre1\_confirm\_referee.md} ACCEPT-with-changes, its three minor corrections C1--C3 applied before issue (wording only in (d$'$)(ii) and (vii)): a new statement, Proposition~\ref{prop:heckeZeisup}; item~8~(c), (d$'$)(ii), (v), (vii), (ix) of \S\ref{sec:recordschema} and \S\ref{sec:heckeZ}'s line on level $N>1$, \code{full} (binding changes \textbf{not yet seen by the owner}); one label added, none renamed or removed; no golden entry, level-$1$ or \code{anemic} byte moves; no marker ($229$ on $88$) moves; see the changelog)
 
 Version 1.26.4 --- 2026-11-10 (hecke-extensions slot~26, \textbf{signed by the owner 2026-11-10}: the owner-signed release of v1.26.4-pre.1, title page only; header, date and changelog only --- no statement's mathematics, label, number, tag, status, written word or marker count ($229$ on $88$ labels) changes; see the changelog)
 
@@ -33514,6 +33629,33 @@ tags \PNEW{} whose subject is not a \code{rmk}.
   \file{docs/implementation/slot25/Z0\_merge\_report.md}: item~8~(c), (d), (f), (j) and the code map; \S\ref{sec:heckeZ}'s two \emph{As built} paragraphs, the cofactor route as built,
   the counting criterion's scope) are what a re-referee should read first.
 \end{itemize}
+
+\subsection*{v1.27.0 --- 2026-11-11 --- hecke-extensions slot 26: the owner-signed release of v1.27.0-pre.1}
+
+\noindent\emph{This version.} \textbf{Signed by the owner 2026-11-11} (``I sign [C] 1.27.0-pre.1.''): the owner-signed release of v1.27.0-pre.1; no change of content. v1.27.0-pre.1 (a pre-release on top of v1.26.4) adds Proposition~\ref{prop:heckeZeisup} and the binding changes listed in its entry below, now seen and signed by the owner. \textbf{No statement's content changes; no label is added, renamed or removed; no status tag moves; the marker count stays $229$ on $88$ labels.}
+\begin{itemize}\setlength{\itemsep}{0pt}
+\item Header and \verb|\date| (the version only; the title page names no sign-off); the Release record's first entry; this entry.
+\item Records written by the \code{HZ-EISUP} binary carry \code{G10.contract} $=$ \code{gl2\_contract 1.27.0-pre.1, item 8 (d')} (item~8 (d$'$)(vii), M2: the value is fixed at the pre-release and not re-stamped); they stay valid.
+\end{itemize}
+Companion pointers: [E] 1.25.3, [U] 0.7.3, [X] v1.28.
+
+\subsection*{v1.27.0-pre.1 --- 2026-11-10 --- hecke-extensions slot 26, HZ-EISUP: the Eisenstein $U_p$ systems of the full algebra, contract first}
+\textbf{This version} is a pre-release, \textbf{not owner-released}, on top of the signed v1.26.4. Its text is the draft of \file{docs/implementation/slot26/HZEISUP\_design.md} v0.2 \S4, refereed ACCEPT-with-changes (\file{docs/implementation/slot26/C127pre1\_referee.md}), with the referee's conditions M1, M2 and minor items m1--m11 applied; disposition \file{docs/implementation/slot26/C127pre1\_disposition.md}. A confirm-read of this text is advisable. Its binding changes are \textbf{not yet seen by the owner}.
+\paragraph{New statement.}
+\begin{itemize}\setlength{\itemsep}{0pt}
+\item \cl{prop:heckeZeisup} (the last statement of \S\ref{sec:heckeZ}, after \cl{prop:heckeZeiscert}, so that no statement number moves), \PROVED{}: at $N>1$, \code{full}, $\Talg_\Q$ reduced, $e^{\mathrm{an}}_k(N)=1$, the kernel $E$ of $T_{q_0}-(1+q_0^{k-1})$ is the Eisenstein part, its lines the $e_k$ Eisenstein systems, each once (1); its reduction at almost every word prime $q$ (2); $e_\vartheta\mid f_\vartheta$ under (C1), $c_\vartheta=f_\vartheta/e_\vartheta$ (3); the identification of the Eisenstein $U_p$ systems at one word prime, $g_p$ split over $\Z$ in scope (4); for $N$ squarefree the closed form of the tuples, \STD, a second route on which no record field depends (5).
+\end{itemize}
+\paragraph{Normative.}
+\begin{itemize}\setlength{\itemsep}{0pt}
+\item Item~8~(d$'$)(ii), new paragraph \emph{The components and the maximal ideals from \code{HZ-EISUP} on}: on \code{full} records at $N>1$ with (C1) \code{certified} and $e^{\mathrm{an}}_k(N)=1$, \code{G1.components} $=$ \code{certified} with the rows per component (Eisenstein rows of multiplicity $1$ with \code{U\_<p>}, the cuspidal block of multiplicity $2$; m8: the rows of (d) are those of level-$1$ and \code{anemic} records), \code{maximal\_ideals} by the rule of~(d) over the operator list with the attribution keyed by component index (\code{components\_through.<j>}, \code{pair\_kinds[<j>,<j'>]}; m7: why Proposition~\ref{prop:heckeZeisup}(3) applies to the generating $\vartheta'$, \code{depth} local); \code{support} $=$ \code{not\_run}, \textbf{final}, also where $\vartheta'$ involves a $U_p$ the torsion read does not carry, a later read being a settings change (M1); \code{blocked(U\_p)} kept where $e^{\mathrm{an}}_k(N)\ne1$, mover \code{HZ-EISUP (b)} (m11); amendment A4 (new key rows, as \code{G1.theta\_ops} of~(vi); m9).
+\item Item~8~(d$'$)(v): \code{HZ-EISUP} writes no \code{G9.Up.*} key.
+\item Item~8~(d$'$)(vii) (M2): \code{1.26.0-pre.9} is the value for a binary that writes the G3 words and not the words of the new paragraph; \code{gl2\_contract 1.27.0-pre.1, item 8 (d')} for a binary that writes them, on every \code{full} record at $N>1$ it writes (the test is per binary); records written before keep their value.
+\item Item~8~(d$'$)(ix) (m10): the moves \code{blocked(U\_p)} $\to$ \code{certified} of \code{G1.components} and $\to$ \code{certified} or \code{not\_run} of \code{maximal\_ideals} are the planned ones of~(c).
+\end{itemize}
+\paragraph{Status sentences (m11).} Item~8~(c) (the movers of the pending words), (d$'$)(ii) (the paragraph \emph{The components and the maximal ideals where the search ran}, the rule \emph{No full record at $N>1$ is final before Z2}, \emph{The G3 words from Z2 on} twice) and \cl{thm:heckeZcert}'s line on level $N>1$, \code{full}: pointers to the new paragraph and to \cl{prop:heckeZeisup}; each sentence holds before and after \code{HZ-EISUP}'s merge, and the counts there stay tagged as counts of Z1's recompute.
+\paragraph{Unchanged.} One label is added (\cl{prop:heckeZeisup}, with its row in Appendix~\ref{app:status}); none is renamed or removed; no \verb|\LEAN| marker ($229$ on $88$) moves; no golden entry, level-$1$ or \code{anemic} byte, settings text or fingerprint moves; no G3 word moves; records already written keep their value of \code{G10.contract} and stay valid.
+
+Companion pointers: [E] 1.25.3, [U] 0.7.3, [X] v1.28.
 
 \subsection*{v1.26.4 --- 2026-11-10 --- hecke-extensions slot 26: the owner-signed release of v1.26.4-pre.1}
 

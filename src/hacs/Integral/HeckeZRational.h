@@ -199,8 +199,12 @@ RationalResult RationalStep(uint32_t N, uint32_t n, const std::vector<uint32_t>&
 // p !| N, the anemic record's P) followed by U (U_p for every prime p | N, ascending); theta's coefficients are indexed by that list
 // (RationalResult::P, nU = |U|), the (C1) target is d = dim M_k(Gamma_0(N)) and eis_rational = false.  RationalStep's checks on P;
 // U must be the primes dividing N, ascending.
+// (slot-26 HZ-EISUP, HZEISUP_design.md Sec. 2.1 step 2; audit n2 / Q7) `keep` (optional, non-hashed, no value depends on it): receives the
+// PrimeRuns the step computed and retained (the operator list, the word primes in CrtPrimes order without the divisors of N, index order:
+// keep[i].ell is the i-th word prime), for HZ-EISUP's restriction to the Eisenstein part.  Its length depends on the thread count.
+struct PrimeRun;
 RationalResult RationalStepFull(uint32_t N, uint32_t n, const std::vector<uint32_t>& P, const std::vector<uint32_t>& U,
-                                const RationalSettings& s = {}, const RationalInputs* in = nullptr);
+                                const RationalSettings& s = {}, const RationalInputs* in = nullptr, std::vector<PrimeRun>* keep = nullptr);
 
 // Text of a factored integer: "2^8*3*691" (+ "*[c:<hex>]" for an unfactored cofactor, "probable" factors marked "?").
 std::string FactoredText(const Factored& f);
