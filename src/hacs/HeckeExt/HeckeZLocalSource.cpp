@@ -121,8 +121,9 @@ LatticeModule LoadLattice(uint32_t N, uint32_t n, uint64_t ell, uint32_t K, cons
 }
 
 CellLocalRead ReadCellLocal(uint32_t N, uint32_t n, uint64_t ell, uint32_t K, const std::vector<uint32_t>& P, uint32_t b1,
-                            const ReadOptions& opt, uint32_t max_steps, LatticeModule* h1_side) {
+                            const ReadOptions& opt, uint32_t max_steps, LatticeModule* h1_side, const FreeSource* fz) {
     CellLocalRead C;
+    if (fz) ENGINE_CHECK_MSG(fz->G != nullptr, "ReadCellLocal: the free source has no block");
     for (uint32_t step = 0; step <= max_steps; ++step) {
         if (step > 0 && !Zlk::Fits(ell, K)) {
             // (audit F2) the escalation stops at the word: the record word is the refusal, not open(precision)
@@ -131,7 +132,16 @@ CellLocalRead ReadCellLocal(uint32_t N, uint32_t n, uint64_t ell, uint32_t K, co
             C.escalation = "refused(word_modulus) at K=" + std::to_string(K);
             break;
         }
-        LatticeModule M = LoadLattice(N, n, ell, K, P, b1, h1_side, opt.allow_bad_primes);
+        LatticeModule M;
+        if (fz) {   // (EXW) the free route: F mod ell^K on the read set (T_ell by ReadPrimes, as LoadLattice)
+            std::string t_ell;
+            const std::vector<uint32_t> Pr = ReadPrimes(N, ell, P, &t_ell);
+            M = LatticeFromFreeZ(N, n, ell, K, Pr, *fz->G, fz->ops);
+            M.t_ell = t_ell;
+            if (M.ok) ENGINE_CHECK_MSG(M.D == b1, "ReadCellLocal: the free block's rank differs from b1");
+        } else {
+            M = LoadLattice(N, n, ell, K, P, b1, h1_side, opt.allow_bad_primes);
+        }
         if (!M.ok) {
             if (!C.read) {
                 C.M = M;

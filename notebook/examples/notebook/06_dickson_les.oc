@@ -1,13 +1,16 @@
 # SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
 # SPDX-License-Identifier: LGPL-3.0-only WITH LicenseRef-CUDA-exception
 
-# %% [md] 06 -- the Dickson long exact sequence.
-# Over F_ell (ell >= 5) multiplication by the Dickson invariant gives a short exact sequence
-#   0 -> Sym^n (x) det -> Sym^{n+ell+1} -> Q_n -> 0,
-# hence a long exact sequence in cohomology
-#   0 -> H^0(Sym^n (x) det) -> H^0(Sym^{n'}) -> H^0(Q_n) -> H^1(Sym^n (x) det) -> H^1(Sym^{n'}) -> H^1(Q_n) -> 0,
-# n' = n + ell + 1. dickson_les(n, ell) computes the six terms, the five maps theta^0, pi^0, delta,
-# theta^1, pi^1 (each rendered with its source and target) and certifies exactness at every spot.
+# %% [md] 06 -- the Dickson long exact sequence
+# Over $\mathbb{F}_\ell$ ($\ell\ge5$), multiplication by the Dickson invariant $\theta = XY^\ell - X^\ell Y$ gives a short exact sequence of
+# $\mathrm{SL}_2(\mathbb{Z})$-modules, with $n'=n+\ell+1$,
+#
+# $$0\longrightarrow\mathrm{Sym}^n\otimes\det\xrightarrow{\ \theta\ }\mathrm{Sym}^{n'}\longrightarrow Q_n\longrightarrow0,$$
+#
+# hence a six-term sequence in cohomology:
+#
+# > $$0\to H^0(\mathrm{Sym}^n\!\otimes\!\det)\xrightarrow{\theta^0}H^0(\mathrm{Sym}^{n'})\xrightarrow{\pi^0}H^0(Q_n)\xrightarrow{\delta}H^1(\mathrm{Sym}^n\!\otimes\!\det)\xrightarrow{\theta^1}H^1(\mathrm{Sym}^{n'})\xrightarrow{\pi^1}H^1(Q_n)\to0 .$$
+# > At $(n,\ell)=(16,7)$, so $n'=24$, the dimensions are $1,1,1,4,4,1$ and the ranks of the five maps are $1,0,1,3,1$.
 
 # %% The sequence and its five maps
 # The coefficient ring is the default F_ell, stated here so that the file runs in any order in one session (08 sets Z).
@@ -17,3 +20,17 @@ display(L);
 
 # %% Dimensions and exactness
 display(L.dims, L.exact);
+d = L.dims;
+assert([d.H0_n, d.H0_up, d.H0_Q, d.H1_n, d.H1_up, d.H1_Q] == [1, 1, 1, 4, 4, 1], "dimensions 1, 1, 1, 4, 4, 1");
+r = L.ranks;
+assert([r.theta0, r.pi0, r.delta, r.theta1, r.pi1] == [1, 0, 1, 3, 1] and L.exact and L.ker_equals_im, "ranks 1, 0, 1, 3, 1; exact");
+
+# %% [md] Reading the output
+# | Mathematics | What HACS computed, and how |
+# |---|---|
+# | The sequence is exact at all six places. With the dimensions $1,1,1,4,4,1$ the ranks are forced: $\theta^0$ is injective,
+#   so $\pi^0=0$ and $\delta$ is injective; $\ker\theta^1=\operatorname{im}\delta$ is a line, so $\theta^1$ has rank 3 and $\pi^1$ is onto. |
+#   `dickson_les(16, 7)`: the six terms (`dims`: `H0_n`, `H0_up`, `H0_Q`, `H1_n`, `H1_up`, `H1_Q`), the five maps in the stored bases (each
+#   typeset with its source and target), `ranks`, and `exact` (exactness certified as subspaces). [E] `sec:thetaobj`; validation `HeckeDicksonThetaValidation`. |
+# | $H^0(\mathrm{Sym}^{24}\mathbb{F}_7^2)\neq0$: an invariant of $\mathrm{SL}_2(\mathbb{F}_7)$ in degree $24=7+1+16$. |
+#   `dickson_count` $=\#\{(a,b):a(\ell+1)+b(\ell^2-\ell)=n\}$ counts the Dickson monomials of degree $n$. |

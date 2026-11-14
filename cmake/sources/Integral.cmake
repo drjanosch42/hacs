@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
 # SPDX-License-Identifier: LGPL-3.0-only WITH LicenseRef-CUDA-exception
 
-# cohomology_app sources under src/hacs/Integral/ added by slots 9..25 (S24 CL-10, CL-10b, S25 FOLD; slot order kept).
+# cohomology_app sources under src/hacs/Integral/ added by slots 9..26 (S24 CL-10, CL-10b, S25 FOLD, S26 FOLD; slot order kept).
 target_sources(cohomology_app PRIVATE
     src/hacs/Integral/HeckeBredonTreeRingValidation.cpp
     src/hacs/Integral/Model/IsotropyModel.cpp
@@ -122,4 +122,19 @@ target_sources(cohomology_app PRIVATE
     # --- slot 25 HeckeZExportZ2
     src/hacs/Integral/Descent/DescentModuleExportZ2.cpp
     src/hacs/Integral/Descent/HeckeZExportZ2Validation.cpp
+)
+
+# Slot 26 (folded at the slot-26 close, S26 FOLD; the former cmake/slot26/<pkg>.cmake, slot order kept).
+target_sources(cohomology_app PRIVATE
+    # --- slot 26 HeckeZUp (Z1, UP-Z (a): U_p, p | N, over Z_(ell), ell >= 5)
+    src/hacs/Integral/HeckeZUp.cpp
+    src/hacs/Integral/HeckeZUpValidation.cpp
+    # --- slot 26 HeckeZLocalPar (Z9 HZ-LOC-PAR): HeckeZLocalParValidation (standard)
+    src/hacs/Integral/HeckeZLocalParValidation.cpp
+    # --- slot 26 HeckeZEisUp (HZ-EISUP: the Eisenstein U_p systems of the full algebra at N > 1)
+    src/hacs/Integral/HeckeZEisUp.cpp
+    src/hacs/Integral/HeckeZEisUpValidation.cpp
+    # --- slot 26 HeckeZCrossedHomOracle (Z3b: an M oracle at ell = 2, 3 independent of T~_Iso)
+    src/hacs/Integral/Descent/HeckeZCrossedHomOracle.cpp
+    src/hacs/Integral/Descent/HeckeZCrossedHomOracleValidation.cpp
 )

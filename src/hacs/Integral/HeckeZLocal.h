@@ -52,6 +52,12 @@
 
 #include "../../ModArithmetic/ModCtx.h"
 
+namespace integral_descent {
+namespace modexport {
+struct FreeBlockZ;   // Descent/DescentModuleExportZ.h (EXW)
+}  // namespace modexport
+}  // namespace integral_descent
+
 namespace heckez {
 namespace local {
 
@@ -192,6 +198,13 @@ std::vector<uint32_t> ReadPrimes(uint32_t N, uint64_t ell, const std::vector<uin
 // (S26 Z1) allow_bad_primes: p | N in P is U_p (ExportOptions::allow_bad_primes, the cokernel route at ell >= 5); default false.
 LatticeModule LatticeFromExport(uint32_t N, uint32_t n, uint64_t ell, uint32_t K, const std::vector<uint32_t>& P,
                                 bool allow_bad_primes = false);
+// (slot-27 EXW, docs/implementation/slot27/EXW_design.md Sec. 3.1) L / ell^K read on the free block over Z of EXPORT-Z step 2:
+// T_o = F_o mod ell^K for o in P (looked up by operator in G_ops, the operator list of G; a missing operator is an ENGINE_CHECK), F_o the
+// proven matrix of T_o on L = H^1 / tors in the certified Z-basis B.  ell^K >= 2^63 -> refused(word_modulus) first (as every route);
+// otherwise D = r = rank L, is_lattice, source = "free_block_z", word = "u64", K_max = 0 (no bound below the word modulus).  Calls no
+// export: nothing is lost to ell-torsion (the torsion never enters L).
+LatticeModule LatticeFromFreeZ(uint32_t N, uint32_t n, uint64_t ell, uint32_t K, const std::vector<uint32_t>& P,
+                               const integral_descent::modexport::FreeBlockZ& G, const std::vector<uint32_t>& G_ops);
 // Reduce a lattice module to K' <= K (the matrices mod ell^{K'}).
 LatticeModule ReduceLattice(const LatticeModule& M, uint32_t K);
 
@@ -215,6 +228,9 @@ struct ReadOptions {
     RationalInput rat;
     // (slot-26 Z1) a prime p | N in the read set is U_p (the full level-N record of HeckeZUp.h); passed to the export.  Default false.
     bool allow_bad_primes = false;
+    // (slot-27 EXW) the free block's CPU lanes on the free route (RecordSources::local_read_free; 0: ENGINE_THREADS).  No value depends
+    // on it; ReadLocal does not read it.
+    uint32_t free_threads = 0;
 };
 
 struct RootRead {

@@ -1,0 +1,4 @@
+integral_hecke_structure/v1  ( 1 , 10 , full )
+  generation per ell: ["2:certified(saturation)", "3:certified(saturation)", "691:certified(saturation)"]
+  C_T: certified:0x2b3   (0x2b3 = 691: true )
+level 11, n = 0 (anemic): generation ["2:certified(saturation)", "5:certified(saturation)"]  C_T: certified:0x5

@@ -257,7 +257,24 @@ FreeView ModuleZ::free_view(size_t o, size_t l) const {
     v.F_block = free_mod(o, P.ell, P.K);
     return v;
 }
-std::vector<uint64_t> ModuleZ::free_mod(size_t o, uint32_t ell, uint32_t K) const {
+std::vector<uint64_t> FreeBlockModQ(const FreeBlockZ& G, size_t o, uint64_t q) {
+    ENGINE_CHECK_MSG(o < G.F.size(), "FreeBlockModQ: operator index");
+    ENGINE_CHECK_MSG(q >= 2 && q < (uint64_t(1) << 63), "FreeBlockModQ: 2 <= q < 2^63");
+    const nf::BigInt QB = nf::BigInt::from_u64(q);
+    std::vector<uint64_t> out(G.F[o].size());
+    for (size_t e = 0; e < out.size(); ++e) {
+        const nf::BigInt m = G.F[o][e].floor_mod(QB);
+        const auto& mg = m.magnitude();
+        ENGINE_CHECK_MSG(mg.size() <= 2, "FreeBlockModQ: a residue mod q < 2^63 has at most two limbs");
+        uint64_t v = 0;
+        if (mg.size() > 0) v = mg[0];
+        if (mg.size() > 1) v |= uint64_t(mg[1]) << 32;
+        ENGINE_CHECK(v < q);
+        out[e] = v;
+    }
+    return out;
+}
+std::vector<uint64_t> ModuleZ::free_mod(size_t o, uint64_t ell, uint32_t K) const {
     ENGINE_CHECK_MSG(ok && free_block == "exact" && o < global.F.size(), "ModuleZ::free_mod: F over Z is not computed (free_block != exact)");
     ENGINE_CHECK_MSG(ell >= 2 && K >= 1, "ModuleZ::free_mod: ell >= 2, K >= 1");
     uint64_t Q = 1;
@@ -265,17 +282,7 @@ std::vector<uint64_t> ModuleZ::free_mod(size_t o, uint32_t ell, uint32_t K) cons
         ENGINE_CHECK_MSG(Q <= ((1ull << 63) - 1) / ell, "ModuleZ::free_mod: ell^K must be < 2^63");
         Q *= ell;
     }
-    const nf::BigInt QB = nf::BigInt::from_u64(Q);
-    std::vector<uint64_t> out(global.F[o].size());
-    for (size_t e = 0; e < out.size(); ++e) {
-        const nf::BigInt m = global.F[o][e].floor_mod(QB);
-        const auto& mg = m.magnitude();
-        uint64_t v = 0;
-        if (mg.size() > 0) v = mg[0];
-        if (mg.size() > 1) v |= uint64_t(mg[1]) << 32;
-        out[e] = v;
-    }
-    return out;
+    return FreeBlockModQ(global, o, Q);
 }
 std::vector<nf::BigInt> ModuleZ::full_matrix(size_t o) const {
     ENGINE_CHECK_MSG(ok && free_block == "exact" && M_basis == "global" && o < ps.size(), "ModuleZ::full_matrix: step 2 only");
@@ -360,6 +367,7 @@ FreeBlockRun RunFreeBlock(const freez::IsoTreeCarrierZ& car, const std::vector<u
     freez::FreeBlockOptions bo;
     bo.threads = opt.threads;
     bo.rss_cap_bytes = opt.rss_cap_bytes;
+    bo.rss_lanes = opt.rss_lanes;
     bo.bound_with = opt.bound;
     bo.allow_bad_primes = opt.allow_bad_primes;   // (S26 Z1) default false
     // (fix round 1, audit F5) the lanes' route by the existing ENGINE_DEVICE switch (opt-in; bit-identical routes)

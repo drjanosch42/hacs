@@ -6,6 +6,7 @@
 #include "HeckeZLocal.h"
 
 #include "Descent/DescentModuleExport.h"
+#include "Descent/DescentModuleExportZ.h"
 #include "../../ModArithmetic/EngineCheck.h"
 #include "../../ModArithmetic/Fnv.h"
 #include "../../Engine/EngineRuntime.h"
@@ -730,6 +731,49 @@ LatticeModule LatticeFromExport(uint32_t N, uint32_t n, uint64_t ell, uint32_t K
     }
     ENGINE_CHECK_MSG(A.ps == P, "HeckeZLocal: the export's operator list differs from P");
     M.regime = Zlk::Make(ell, K).regime();
+    M.is_lattice = true;
+    M.ok = true;
+    M.status = "ok";
+    return M;
+}
+
+// ---- (slot-27 EXW) the lattice module from the free block over Z ----------------------------------------------------------------
+LatticeModule LatticeFromFreeZ(uint32_t N, uint32_t n, uint64_t ell, uint32_t K, const std::vector<uint32_t>& P,
+                               const integral_descent::modexport::FreeBlockZ& G, const std::vector<uint32_t>& G_ops) {
+    LatticeModule M;
+    M.N = N;
+    M.n = n;
+    M.ell = ell;
+    M.K = K;
+    M.P = P;
+    M.source = "free_block_z";
+    M.word = "u64";
+    if (!Zlk::Fits(ell, K)) {
+        M.status = "refused(word_modulus)";
+        M.detail = "ell^K >= 2^63";
+        return M;
+    }
+    ENGINE_CHECK_MSG(G.F.size() == G_ops.size(), "LatticeFromFreeZ: the free block's operator list does not match its matrices");
+    const Zlk R = Zlk::Make(ell, K);
+    uint32_t r = 0;
+    bool have_r = false;
+    for (uint32_t p : P) {
+        const auto it = std::find(G_ops.begin(), G_ops.end(), p);
+        ENGINE_CHECK_MSG(it != G_ops.end(), std::string("LatticeFromFreeZ: T_" + std::to_string(p) + " is not in the free block").c_str());
+        const size_t o = static_cast<size_t>(it - G_ops.begin());
+        const size_t sz = G.F[o].size();
+        uint32_t ro = 0;
+        while (size_t(ro) * ro < sz) ++ro;
+        ENGINE_CHECK_MSG(size_t(ro) * ro == sz, "LatticeFromFreeZ: F is not square");
+        ENGINE_CHECK_MSG(!have_r || ro == r, "LatticeFromFreeZ: the operators disagree on rank L");
+        r = ro;
+        have_r = true;
+        M.T.push_back(integral_descent::modexport::FreeBlockModQ(G, o, R.q));
+    }
+    M.D = r;
+    M.h1_rank = r;
+    M.K_max = 0;
+    M.regime = R.regime();
     M.is_lattice = true;
     M.ok = true;
     M.status = "ok";

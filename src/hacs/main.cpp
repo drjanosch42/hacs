@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
+#include <cstdio>
 
 #include "ValidationRegistry.h"
 #include "ValidationShard.h"   // (S24 SHARD) --all --shard i/N
@@ -33,6 +34,15 @@
 #include "HeckeExt/HeckeFormsHeckeAlgebra.h"            // S25 LEVERS-25: HECKE_FORMS_FASTMUL
 #include "Orbifold/L23/AmalgamReader.h"                 // S25 LEVERS-25: L23_TERNARY_F3, L23_BIN3O1
 #include "BuildInfo.h"                                  // R1 / X1: oc::HacsVersionLine()
+#include "../ModArithmetic/Kernels.h"                   // S26 LEVERS-26: ENGINE_VNNI
+#include "../Engine/EngineRuntime.h"                   // S27 LEV-K: ENGINE_HOST_ELIM_HOOK's EFFECTIVE line
+#include "../ModArithmetic/Binary/SmithPar.h"           // S26 LEVERS-26: HECKE_DESCENT_SMITH_MT / _F2_MT
+#include "Util/FieldDiet.h"                             // S26 LEVERS-26: HECKE_FIELD_DIET
+#include "Integral/Descent/DescentTree.h"               // S26 LEVERS-26: HECKE_DESCENT_TREE
+#include "Integral/Descent/DescentTreePair.h"           // S26 LEVERS-26: HECKE_DESCENT_TREE_PAIR
+#include "Integral/Descent/DescentAssembly.h"           // S26 LEVERS-26: HECKE_DESCENT_GOOD_SPARSE / _GOOD_DENSE
+#include "Integral/Descent/DescentSmith.h"              // S26 LEVERS-26: HECKE_DESCENT_SMITH_BLOCKED
+#include "Integral/Descent/DescentParAsm.h"             // S26 LEVERS-26: HECKE_DESCENT_PAR_ASM / _PAR_ELL / _EMBED_MAP / _PAR_LN
 
 // Prints usage for the validation-harness CLI (Stage S0).  Frozen by
 // ConsoleCliPreservationValidation (Console/scripts/cli_frozen/help.stdout) and
@@ -68,6 +78,7 @@ static void print_usage(const char* argv0)
 // whichever read comes first (or never, in a run that does not reach the route: the vacuous-arm lesson).  ON build:
 // nothing is read here, so the ON build behaves exactly as before.  ENGINE_GPU_LEAN is read by
 // refuse_retired_device_levers_at_startup().  docs/implementation/slot25/LEVERS25_report.md.
+// (S26 LEVERS-26) + the eleven retired slot-24 descent env arms, HECKE_FIELD_DIET and ENGINE_VNNI (slot26/LEVERS26_plan.md).
 static void refuse_retired_env_arms_at_startup() {
 #if !OC_ENABLE_LEGACY
     (void)engine::elim::module_stream_lever().env_state();     // HECKE_MODULE_STREAM=0
@@ -81,6 +92,19 @@ static void refuse_retired_env_arms_at_startup() {
     (void)hecke_ext::forms::FormsFastMulEnabled();             // HECKE_FORMS_FASTMUL=0
     (void)l23::ternary_f3_reader_enabled();                    // L23_TERNARY_F3=0
     (void)l23::bin3o1_enabled();                               // L23_BIN3O1=0
+    // (S26 LEVERS-26) the slot-24 descent levers, HECKE_FIELD_DIET and ENGINE_VNNI (slot26/LEVERS26_plan.md Sec. 1)
+    (void)integral_descent::DescentTreeLever().env_state();        // HECKE_DESCENT_TREE=0
+    (void)integral_descent::DescentTreePairLever().env_state();    // HECKE_DESCENT_TREE_PAIR=0
+    (void)integral_descent::DescentGoodSparseLever().env_state();  // HECKE_DESCENT_GOOD_SPARSE=0
+    (void)integral_descent::DescentGoodDenseLever().env_state();   // HECKE_DESCENT_GOOD_DENSE=0
+    (void)integral_descent::maps::DescentSmithBlockedLever().env_state();  // HECKE_DESCENT_SMITH_BLOCKED=0
+    (void)engine::smithpar::mt_lever().env_state();                // HECKE_DESCENT_SMITH_MT=0
+    (void)engine::smithpar::f2_lever().env_state();                // HECKE_DESCENT_SMITH_F2_MT=0
+    for (const auto l : {integral_descent::par::Lever::Asm, integral_descent::par::Lever::Ell, integral_descent::par::Lever::Embed,
+                         integral_descent::par::Lever::EllN})
+        (void)integral_descent::par::LeverOf(l).env_state();       // HECKE_DESCENT_PAR_ASM / _PAR_ELL / _EMBED_MAP / _PAR_LN =0
+    (void)oc_util::field_diet_env_on();                            // HECKE_FIELD_DIET=0
+    engine::kernels::vnni_env_check();                             // ENGINE_VNNI=0 / off
 #endif
 }
 
@@ -224,7 +248,16 @@ int main(int argc, char** argv) {
     if (arg1 == "--campaign") {
         // matrix-engine Phase 6: the sweep driver. Same reason as --bench for
         // living in a plain C++ TU; main.cpp only dispatches.
-        return campaign::RunCampaign(argc - 2, argv + 2);
+        const int rc = campaign::RunCampaign(argc - 2, argv + 2);
+        // (S27 LEV-K) ENGINE_HOST_ELIM_HOOK's check line (EngineRuntime.h): on stderr, after a campaign that bound the
+        // host elimination hook at least once, or with the variable set; never after --help / --dry-run.  Counters only.
+        bool help_or_dry = false;
+        for (int i = 2; i < argc; ++i)
+            if (std::strcmp(argv[i], "--help") == 0 || std::strcmp(argv[i], "-h") == 0 || std::strcmp(argv[i], "--dry-run") == 0)
+                help_or_dry = true;
+        if (!help_or_dry && (engine::tape::host_elim_hook_binds() > 0 || std::getenv("ENGINE_HOST_ELIM_HOOK") != nullptr))
+            std::fprintf(stderr, "%s\n", engine::tape::host_elim_hook_effective_line().c_str());
+        return rc;
     }
 
     if (arg1 == "--atlas") {

@@ -1,30 +1,51 @@
 # SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
 # SPDX-License-Identifier: LGPL-3.0-only WITH LicenseRef-CUDA-exception
 #
-# The whole notebook tour (01_ ... 09_) as one notebook: the cells of the nine files in order.
+# The whole notebook tour (01_ ... 10_) as one notebook: the cells of the 10 files in order.
 # Open it in the notebook (Open notebook...) or run it with hacs --script tour_all.oc.
 
-# %% [md] 01 -- the space and the coefficients.
-# SL_2(Z) acts on the upper half plane; the console's model is a finite triangulation of the quotient
-# with its isotropy (sl2z_model()). A coefficient system is the representation Sym^n of the standard
-# representation over F_ell, here n = 10 and ell = 691, so d_V = n + 1 = 11.
-# In the notebook every display(...) is rendered (TeX, tables); in a script it prints the canonical text.
+# %% [md] 01 -- the space and the coefficients
+# $\Gamma=\mathrm{SL}_2(\mathbb{Z})$ acts on the upper half plane $\mathfrak{H}$. The quotient $\Gamma\backslash\mathfrak{H}$ is an orbifold: a
+# disc with two cone points, where the stabilisers are $\mathbb{Z}/4$ (at $i$) and $\mathbb{Z}/6$ (at $e^{2\pi i/3}$); the element $-1$
+# acts trivially. HACS works with a finite triangulation of this quotient together with its isotropy groups.
+#
+# > **Coefficients.** For a prime $\ell$ and $n\ge0$ the coefficient system is the representation
+# > $$V_n = \mathrm{Sym}^n\,\mathbb{F}_\ell^2,\qquad \dim V_n = n+1,$$
+# > of $\Gamma$ (homogeneous polynomials of degree $n$ in two variables). Here $n=10$ and $\ell=691$, so $\dim V_{10}=11$.
+#
+# In the notebook every `display(...)` is rendered (TeX, tables); in a script it prints the canonical text.
 
 # %% The model of SL_2(Z)\H
 # The coefficient ring is the default F_ell, stated here so that the file runs in any order in one session (08 sets Z).
 set coefficient_ring = "F_ell";
 M = sl2z_model();
 display(M);
+assert(M.vertices == 7 and M.dims == [7, 11, 5], "7 vertices, 11 edges, 5 triangles");
 
 # %% The coefficients Sym^10 over F_691
 L = symmetric_power(M, 10, 691);
 display(L);
+assert(L.d_V == 11 and L.n + 1 == L.d_V, "dim Sym^10 = 11");
 
-# %% [md] 02 -- cohomology, and what "declared" means.
-# cohomology(L) returns a HANDLE: nothing is computed until a value is needed. In the notebook a bare
-# `H` shows the handle as "declared" with a compute button; display(H) forces it first.
-# Eichler--Shimura: for ell > n + 1, dim H^1(SL_2(Z); Sym^n F_ell^2) = 2 dim S_{n+2} + 1 (n even, n > 0),
-# and H^0 = H^2 = 0. At n = 10 (weight 12) S_12 is spanned by Delta, so dim H^1 = 3.
+# %% [md] Reading the output
+# | Mathematics | What HACS computed, and how |
+# |---|---|
+# | A triangulation of $\Gamma\backslash\mathfrak{H}$ (compactified by a boundary circle: a disc, Euler characteristic 1), and the two
+#   finite stabilisers $\mathbb{Z}/4$, $\mathbb{Z}/6$. |
+#   `sl2z_model()`: the 7-vertex model `sl2z_7vertex` (7 vertices, 11 edges, 5 triangles), with its exact tessellation tables.
+#   Everything later is computed from this finite object. |
+# | The local system $V_{10}=\mathrm{Sym}^{10}\mathbb{F}_{691}^2$ on the orbifold. |
+#   `symmetric_power(M, 10, 691)`: a `LocalSystem` with `d_V = 11` (the rank) and its monodromy relations along the edges. |
+
+# %% [md] 02 -- cohomology, and the boundary exact sequence
+# For $\Gamma=\mathrm{SL}_2(\mathbb{Z})$ HACS computes $H^q(\Gamma, V_n)$ from the triangulated model of step 01.
+#
+# > **Eichler–Shimura.** For even $n>0$ and $\ell>n+1$,
+# > $$\dim_{\mathbb{F}_\ell} H^1(\Gamma, \mathrm{Sym}^n\mathbb{F}_\ell^2) = 2\dim S_{n+2} + 1,\qquad H^0 = H^2 = 0 .$$
+# > For $n=10$ (weight 12), $S_{12}=\mathbb{C}\Delta$, so $\dim H^1 = 3$.
+#
+# `cohomology(L)` returns a **handle**: nothing is computed until a value is needed. In the notebook a bare `H` shows the handle as
+# "declared" with a compute button; `display(H)` forces it.
 
 # %% Setting and model
 # The coefficient ring is the default F_ell, stated here so that the file runs in any order in one session (08 sets Z).
@@ -37,16 +58,51 @@ H
 
 # %% display forces the handle
 display(H);
+assert(H.dims == [0, 3, 0], "Eichler-Shimura at n = 10");
+
+# %% [md] The boundary and the short exact sequence
+# The Borel–Serre boundary of $\Gamma\backslash\mathfrak{H}$ is a circle, and restriction $r$ to it gives the long exact sequence of the
+# pair, $H^\bullet_c$ being cohomology with compact support:
+#
+# $$0\to H^0 \xrightarrow{r} H^0_\partial \xrightarrow{\delta} H^1_c \xrightarrow{\iota} H^1 \xrightarrow{r} H^1_\partial \xrightarrow{\delta} H^2_c\to0,\qquad \dim:\ 0,\ 1,\ 3,\ 3,\ 1,\ 0 .$$
+#
+# The image of $\iota$ is the interior cohomology $H^1_!$ (the cusp form $\Delta$, once per sign), so
+#
+# > $$0 \longrightarrow H^1_! \longrightarrow H^1 \xrightarrow{\;r\;} H^1_\partial \longrightarrow 0,\qquad \dim = 2,\ 3,\ 1 .$$
+#
+# Mod 691 this sequence of Hecke modules does not split: that is Ramanujan's congruence (steps 03–05, and the showcases).
+
+# %% The boundary, the cone and its long exact sequence
+B = boundary(H);
+C = cone(H);
+display(B.dims, C.dims, C.les);
+assert(B.dims == [1, 1] and C.dims == [0, 3, 0] and C.les_exact, "dim H_bd = (1, 1), dim H_c = (0, 3, 0), the LES is exact");
+assert(C.H1_shriek == 2, "dim H^1_! = 2");
 
 # %% A small prime sees more
-# A small prime sees more: at ell = 5 and n = 20 (a Dickson degree, 20 = 5 * 4) H^0 is non-zero: dims [1, 4, 0].
 display(cohomology(symmetric_power(M, 20, 5)));
+assert(cohomology(symmetric_power(M, 20, 5)).dims == [1, 4, 0], "(20, 5): H^0 != 0");
 
-# %% [md] 03 -- Hecke operators as matrices.
-# hecke(H, p) is the operator T_p on H^*; T.A(q) is its matrix on H^q in the stored basis, and charpoly
-# its characteristic polynomial over F_ell. On H^1(SL_2(Z); Sym^10 F_691^2) the eigenvalues of T_2 are
-# tau(2) = -24 on the two-dimensional cusp part (Delta, both signs) and 1 + 2^11 on the Eisenstein line -- and mod
-# 691 these agree: -24 = 2049 (mod 691), Ramanujan's congruence.
+# %% [md] Reading the output
+# | Mathematics | What HACS computed, and how |
+# |---|---|
+# | $\dim H^\bullet = (0,3,0)$ over $\mathbb{F}_{691}$, as Eichler–Shimura predicts. |
+#   `cohomology(L)` is lazy; `display` computes it (type `Cohomology`, typeset by the page). |
+# | The six-term sequence with dimensions $0,1,3,3,1,0$; $\dim H^1_!=\operatorname{rk}\iota=2$. |
+#   `cone(H).les`: one row per term, `term` (`Hc` $=H_c$, `H_bulk` $=H$, `H_bd` $=H_\partial$), `q`, `dim`, `rank_in` / `rank_out` (the
+#   ranks of the maps into and out of the term) and `exact` ($\texttt{rank\_in}+\texttt{rank\_out}=\dim$). `H1_shriek` $=\dim\ker r^1$.
+#   [C] `sec:cone`, `thm:conewelldef`; validation `HeckeConeValidation`. |
+# | At $(n,\ell)=(20,5)$: $\dim H^\bullet=(1,4,0)$. Mod a small prime the invariants of $\mathrm{SL}_2(\mathbb{F}_\ell)$ on $\mathrm{Sym}^n$
+#   can be non-zero ($20=5\cdot4$ is a Dickson degree). |
+#   `cohomology(symmetric_power(M, 20, 5))`; step 06 (the Dickson sequence) explains the jump. |
+
+# %% [md] 03 -- Hecke operators as matrices
+# The Hecke operator $T_p$ acts on $H^1=H^1(\mathrm{SL}_2(\mathbb{Z}),\mathrm{Sym}^{10}\mathbb{F}_{691}^2)$. By Eichler–Shimura its eigenvalues are
+# $\tau(2)=-24$ on the two-dimensional cusp part ($\Delta$, both signs) and $1+2^{11}=2049$ on the Eisenstein line. Mod 691 they agree:
+#
+# > $$-24\equiv 2049 \equiv 667 \pmod{691},\qquad \operatorname{char}(T_2\,|\,H^1) = (X+24)^3 = X^3+72X^2+346X+4 \in\mathbb{F}_{691}[X].$$
+#
+# This is Ramanujan's congruence at $p=2$.
 
 # %% Setting, model and cohomology
 # The coefficient ring is the default F_ell, stated here so that the file runs in any order in one session (08 sets Z).
@@ -58,16 +114,31 @@ H = cohomology(symmetric_power(M, 10, 691));
 T2 = hecke(H, 2);
 display(T2.A(1));
 display(charpoly(T2.A(1)));
+f = poly(691, [24, 1]);
+assert(charpoly(T2.A(1)) == mul(f, mul(f, f)), "char(T_2) = (X + 24)^3 over F_691");
+assert((2049 + 24) % 691 == 0 and 2049 % 691 == 667, "1 + 2^11 = -24 = 667 mod 691");
 
 # %% The operator handle
 # The operator handle itself: its matrices per degree and their characteristic polynomials.
 display(T2);
 
-# %% [md] 04 -- maximal ideals of the Hecke algebra and their characters.
-# ext_record(n, ell) decomposes H^* under the Hecke algebra T. Each maximal ideal m has a character
-# T_p -> T/m = F_ell[w]/(pi_w) = F_{ell^f}; m.character(p) is the value at T_p, written in the witness w.
-# At (10, 691) there is ONE ideal: the cusp form Delta and the Eisenstein series E_12 share the
-# character T_p -> 1 + p^11 (mod 691), and the local algebra is F_691[eps]/eps^2 (Hilbert function (1, 1)).
+# %% [md] Reading the output
+# | Mathematics | What HACS computed, and how |
+# |---|---|
+# | $T_2|_{H^1}=\begin{pmatrix}667&0&0\\0&667&0\\23&0&667\end{pmatrix}$ over $\mathbb{F}_{691}$: one eigenvalue, $667$, and not a scalar.
+#   The entry 23 below the diagonal is the extension class of step 05. |
+#   `hecke(H, p)` is the operator $T_p$ on $H^\bullet$ (for $p=\ell$ the same code computes $U_\ell$); `.A(q)` is its matrix on $H^q$ in the
+#   stored basis, column convention. [C] `sec:operatordef`; validations `HeckeOperatorSmokeValidation`, `HeckeEndToEndValidation`. |
+# | $\operatorname{char}(T_2)=(X+24)^3$. |
+#   `charpoly` (Berkowitz, division-free) prints $X^3+72X^2+346X+4$; the code cell checks it equals $(X+24)^3$. |
+
+# %% [md] 04 -- maximal ideals of the Hecke algebra and their characters
+# Let $\mathbb{T}$ be the $\mathbb{F}_\ell$-algebra generated by the Hecke operators on $H^\bullet$. Each maximal ideal $\mathfrak{m}$ gives a system
+# of eigenvalues, the character $\mathbb{T}\to\mathbb{T}/\mathfrak{m}=\mathbb{F}_{\ell^f}$, and $H^\bullet$ splits into the blocks $H_\mathfrak{m}$.
+#
+# > **At $(n,\ell)=(10,691)$** there is one maximal ideal, the Eisenstein ideal
+# > $$\mathfrak{m}=(691,\ T_p-1-p^{11}),\qquad T_p\longmapsto 1+p^{11}\equiv\tau(p)\in\mathbb{F}_{691},$$
+# > shared by $\Delta$ and $E_{12}$; its local algebra is $\mathbb{T}_\mathfrak{m}\cong\mathbb{F}_{691}[\varepsilon]/(\varepsilon^2)$, Hilbert function $(1,1)$.
 
 # %% The maximal ideal of ext_record(10, 691)
 # The coefficient ring is the default F_ell, stated here so that the file runs in any order in one session (08 sets Z).
@@ -75,18 +146,37 @@ set coefficient_ring = "F_ell";
 R = ext_record(10, 691);
 m = R.ideal(0);
 display(m);
+assert(R.num_ideals == 1 and m.local and m.residue_degree == 1 and m.dim == 3, "one local ideal, f = 1, dim H_m = 3");
 
 # %% Its character
 display(m.character(2), m.character(3));
+assert(m.character(2) == poly(691, [(1 + 2^11) % 691]) and m.character(3) == poly(691, [(1 + 3^11) % 691]), "T_p -> 1 + p^11");
+assert(m.character(3) == poly(691, [252]), "T_3 -> 252 = tau(3)");
 
 # %% The local algebra
-display(local_algebra(m));
+A = local_algebra(m);
+display(A);
+assert(A.dim == 2 and A.hilbert == [1, 1] and A.embdim == 1 and A.gorenstein, "T_m = F_691[eps]/eps^2");
 
-# %% [md] 05 -- how H_m sits over T_m: Loewy layers, socle layers, Jordan types.
-# module_structure(m) is the LoewyProfile of the block H^1_m over the local algebra T_m. Its Loewy layers
-# (the radical filtration) and socle layers are dimensions in units of f; jordan(p) is the Jordan type of
-# T_p - a_p on the block. At (10, 691) the block is 3-dimensional with Loewy layers 2 | 1 and Jordan type
-# (2, 1): T_p - (1 + p^11) is nilpotent but not zero -- a non-split extension of Eisenstein by cusp.
+# %% [md] Reading the output
+# | Mathematics | What HACS computed, and how |
+# |---|---|
+# | One maximal ideal $\mathfrak{m}$, with residue field $\mathbb{F}_{691}$ ($f=1$), and $\dim H^1_\mathfrak{m}=3$: all of $H^1$. |
+#   `ext_record(10, 691)` is the cell's `hecke_ext/v5` record; `.ideal(0)` the `MaximalIdeal` handle (`dim 3, f = 1, local`).
+#   [E] `cl:ramanujan`; validations `HeckeExtRecordValidation`, `HeckeExtRamanujanValidation`. |
+# | The character: $T_2\mapsto 667\equiv1+2^{11}$, $T_3\mapsto252=\tau(3)\equiv1+3^{11}$. |
+#   `m.character(p)` is the eigenvalue of $T_p$ written as a polynomial in a witness $w$ of the residue field; for $f=1$ a constant. |
+# | $\mathbb{T}_\mathfrak{m}\cong\mathbb{F}_{691}[\varepsilon]/(\varepsilon^2)$, $\varepsilon$ the image of $T_2+24$: local, Gorenstein, not reduced. |
+#   `local_algebra(m)`: `dim 2 over F_691, f = 1, embdim 1, nu = 2, Gorenstein`; `hilbert` $=(1,1)$ is $\dim\mathfrak{m}^i/\mathfrak{m}^{i+1}$. |
+
+# %% [md] 05 -- how H_m sits over T_m: Loewy layers, socle layers, Jordan types
+# The block $H^1_\mathfrak{m}$ is a module over the local algebra $\mathbb{T}_\mathfrak{m}$ of step 04. Its **Loewy layers**
+# $\mathfrak{m}^jH/\mathfrak{m}^{j+1}H$ and **socle layers** measure how far it is from semisimple.
+#
+# > **At $(10,691)$.** $H^1_\mathfrak{m}$ is a non-split extension of the Eisenstein line by the cusp part:
+# > $$0\to H^1_!\to H^1_\mathfrak{m}\to H^1_\partial\to0\ \text{ does not split},\qquad \text{Loewy layers } 2\mid1,\qquad \text{Jordan type of } T_p-(1+p^{11}):\ (2,1).$$
+#
+# This is the sequence of step 02, now seen from the Hecke algebra: $T_p-(1+p^{11})$ is nilpotent on $H^1_\mathfrak{m}$ but not zero.
 
 # %% Setting and the maximal ideal
 # The coefficient ring is the default F_ell, stated here so that the file runs in any order in one session (08 sets Z).
@@ -97,17 +187,32 @@ m = R.ideal(0);
 # %% The Loewy profile
 P = module_structure(m);
 display(P);
+assert(P.D == 3 and P.loewy == [2, 1] and P.socle == [2, 1] and not P.semisimple, "Loewy layers 2 | 1: not semisimple");
 
 # %% The Jordan type of T_2
 display(P.jordan(2));
+assert(P.jordan(2) == [2, 1], "Jordan type (2, 1)");
 
-# %% [md] 06 -- the Dickson long exact sequence.
-# Over F_ell (ell >= 5) multiplication by the Dickson invariant gives a short exact sequence
-#   0 -> Sym^n (x) det -> Sym^{n+ell+1} -> Q_n -> 0,
-# hence a long exact sequence in cohomology
-#   0 -> H^0(Sym^n (x) det) -> H^0(Sym^{n'}) -> H^0(Q_n) -> H^1(Sym^n (x) det) -> H^1(Sym^{n'}) -> H^1(Q_n) -> 0,
-# n' = n + ell + 1. dickson_les(n, ell) computes the six terms, the five maps theta^0, pi^0, delta,
-# theta^1, pi^1 (each rendered with its source and target) and certifies exactness at every spot.
+# %% [md] Reading the output
+# | Mathematics | What HACS computed, and how |
+# |---|---|
+# | $H^1_\mathfrak{m}/\mathfrak{m}H^1_\mathfrak{m}$ has dimension 2 and $\mathfrak{m}H^1_\mathfrak{m}$ dimension 1, so $H^1_\mathfrak{m}$ needs two
+#   generators and has Loewy length 2: it is not semisimple, so the extension does not split. |
+#   `module_structure(m)`: the `LoewyProfile` of $H^1_\mathfrak{m}$, printed `loewy [2, 1], socle [2, 1], not cyclic` (dimensions in units of
+#   $f=1$). `semisimple` is false. [E] `alg:stage5`; validation `HeckeExtAlgebraInvariantsValidation`. |
+# | $T_2-667$ has Jordan type $(2,1)$: one block of size 2 (the extension) and one of size 1. |
+#   `P.jordan(p)`: the Jordan type of the nilpotent part $n_p=t_p-P_p(\hat w)$ on the block. |
+
+# %% [md] 06 -- the Dickson long exact sequence
+# Over $\mathbb{F}_\ell$ ($\ell\ge5$), multiplication by the Dickson invariant $\theta = XY^\ell - X^\ell Y$ gives a short exact sequence of
+# $\mathrm{SL}_2(\mathbb{Z})$-modules, with $n'=n+\ell+1$,
+#
+# $$0\longrightarrow\mathrm{Sym}^n\otimes\det\xrightarrow{\ \theta\ }\mathrm{Sym}^{n'}\longrightarrow Q_n\longrightarrow0,$$
+#
+# hence a six-term sequence in cohomology:
+#
+# > $$0\to H^0(\mathrm{Sym}^n\!\otimes\!\det)\xrightarrow{\theta^0}H^0(\mathrm{Sym}^{n'})\xrightarrow{\pi^0}H^0(Q_n)\xrightarrow{\delta}H^1(\mathrm{Sym}^n\!\otimes\!\det)\xrightarrow{\theta^1}H^1(\mathrm{Sym}^{n'})\xrightarrow{\pi^1}H^1(Q_n)\to0 .$$
+# > At $(n,\ell)=(16,7)$, so $n'=24$, the dimensions are $1,1,1,4,4,1$ and the ranks of the five maps are $1,0,1,3,1$.
 
 # %% The sequence and its five maps
 # The coefficient ring is the default F_ell, stated here so that the file runs in any order in one session (08 sets Z).
@@ -117,12 +222,30 @@ display(L);
 
 # %% Dimensions and exactness
 display(L.dims, L.exact);
+d = L.dims;
+assert([d.H0_n, d.H0_up, d.H0_Q, d.H1_n, d.H1_up, d.H1_Q] == [1, 1, 1, 4, 4, 1], "dimensions 1, 1, 1, 4, 4, 1");
+r = L.ranks;
+assert([r.theta0, r.pi0, r.delta, r.theta1, r.pi1] == [1, 0, 1, 3, 1] and L.exact and L.ker_equals_im, "ranks 1, 0, 1, 3, 1; exact");
 
-# %% [md] 07 -- from F_ell to Z/ell^K: the Hecke algebra over a ring.
-# hecke_ring_algebra(n, ell, kmax) runs the module route over Z/ell^K and reads, per block (one system of
-# Hecke eigenvalues mod ell), the lattice Lambda_m = Z_ell^f (+) (+)_i Z/ell^{e_i} (free_rank f, torsion
-# rendered as a sum of cyclic groups), the Hilbert functions of A_1 = T_m / ell and of A_K, and whether
-# the algebra is stable in K. At (48, 7) one block carries 7-torsion.
+# %% [md] Reading the output
+# | Mathematics | What HACS computed, and how |
+# |---|---|
+# | The sequence is exact at all six places. With the dimensions $1,1,1,4,4,1$ the ranks are forced: $\theta^0$ is injective,
+#   so $\pi^0=0$ and $\delta$ is injective; $\ker\theta^1=\operatorname{im}\delta$ is a line, so $\theta^1$ has rank 3 and $\pi^1$ is onto. |
+#   `dickson_les(16, 7)`: the six terms (`dims`: `H0_n`, `H0_up`, `H0_Q`, `H1_n`, `H1_up`, `H1_Q`), the five maps in the stored bases (each
+#   typeset with its source and target), `ranks`, and `exact` (exactness certified as subspaces). [E] `sec:thetaobj`; validation `HeckeDicksonThetaValidation`. |
+# | $H^0(\mathrm{Sym}^{24}\mathbb{F}_7^2)\neq0$: an invariant of $\mathrm{SL}_2(\mathbb{F}_7)$ in degree $24=7+1+16$. |
+#   `dickson_count` $=\#\{(a,b):a(\ell+1)+b(\ell^2-\ell)=n\}$ counts the Dickson monomials of degree $n$. |
+
+# %% [md] 07 -- from F_ell to Z/ell^K: the Hecke algebra over a ring
+# Over $\mathbb{F}_\ell$ a block only sees a system of eigenvalues mod $\ell$. Over $\mathbb{Z}/\ell^K$ it sees the lattice: for each block
+# (maximal ideal $\mathfrak{m}$) the localised cohomology is
+#
+# > $$\Lambda_\mathfrak{m}\cong\mathbb{Z}_\ell^{\,f}\oplus\bigoplus_i\mathbb{Z}/\ell^{e_i},$$
+# > a free part of rank $f$ and torsion. With $A_1=\mathbb{T}_\mathfrak{m}/\ell$ and $A_K=\mathbb{T}_\mathfrak{m}/\ell^K$, the Hilbert functions of
+# > $A_1$ and $A_K$ say how non-reduced the algebra is and whether that is stable in $K$.
+#
+# At $(n,\ell)=(48,7)$ there are four blocks; one has rank 4 with Hilbert function $(1,1)$ (a congruence), and one is pure torsion, $\Lambda_\mathfrak{m}\cong\mathbb{Z}/7$.
 
 # %% The module route over Z/7^2
 # The coefficient ring is the default F_ell, stated here so that the file runs in any order in one session (08 sets Z).
@@ -131,13 +254,28 @@ R = hecke_ring_algebra(48, 7, 2);
 
 # %% Blocks, lattices, Hilbert functions
 display(R);
+assert(len(R.blocks) == 4, "four blocks");
+assert(R.blocks[0].free_rank == 4 and R.blocks[0].torsion == [] and R.blocks[0].A1_hilbert == [1, 1] and R.blocks[0].verdict == "stable", "block 0: Z_7^4, A_1 = (1, 1), stable");
+assert(R.blocks[2].free_rank == 0 and R.blocks[2].torsion == [1], "block 2: Z/7, pure torsion");
 
-# %% [md] 08 -- over Z: the integral cohomology as abelian groups.
-# With coefficient_ring = "Z" the descent computes H^q(Gamma_0(N); Sym^n Z^2) as abelian groups
-# Z^r (+) (+) Z/p^k, and char_Z(T_p), the characteristic polynomial of T_p on the free part, over Z.
-# At level 1 and n = 10: H^1 = Z^3 (+) Z/2 (+) Z/4 (+) Z/3 -- the torsion primes 2 and 3 are the small
-# primes. charpoly_factored shows char_Z(T_p) factored over Z (exact, the product checked against char_Z):
-# char_Z(T_2) = (X + 24)^2 (X - 2049), the roots tau(2) = -24 (twice: Delta, both signs) and 1 + 2^11 (Eisenstein).
+# %% [md] Reading the output
+# | Mathematics | What HACS computed, and how |
+# |---|---|
+# | Block 0: $\Lambda_\mathfrak{m}\cong\mathbb{Z}_7^4$, $A_1$ and $A_K$ with Hilbert function $(1,1)$: a non-reduced algebra, stable from $K=2$ on. |
+#   `hecke_ring_algebra(48, 7, 2)`: per block `system` (the eigenvalues mod 7 of $T_2,T_3,T_5,T_7$), `D`, `free_rank`, `torsion` (the $e_i$),
+#   `A1_hilbert`, `AK_hilbert`, `K_stab`, `verdict`. [C] `cor:stablecert`; validation `HeckeRingLoewyValidation`. |
+# | Block 2: $\Lambda_\mathfrak{m}\cong\mathbb{Z}/7$, a system of eigenvalues mod 7 that lifts to no eigenform of the same weight and level in characteristic 0. |
+#   `free_rank: 0, torsion: [1]`, `verdict: "torsion_stable"`. Tours 08–10 read such torsion over $\mathbb{Z}$. |
+
+# %% [md] 08 -- over Z: the integral cohomology as abelian groups
+# With `coefficient_ring = "Z"` HACS computes $H^q(\Gamma_0(N),\mathrm{Sym}^n\mathbb{Z}^2)$ as finitely generated abelian groups
+# $\mathbb{Z}^r\oplus\bigoplus(\mathbb{Z}/p^k)^m$, and the characteristic polynomial $\operatorname{char}_\mathbb{Z}(T_p)$ of $T_p$ on the free part, over $\mathbb{Z}$.
+#
+# > **At level 1, $n=10$.**
+# > $$H^1(\mathrm{SL}_2(\mathbb{Z}),\mathrm{Sym}^{10}\mathbb{Z}^2)\cong\mathbb{Z}^3\oplus\mathbb{Z}/2\oplus\mathbb{Z}/4\oplus\mathbb{Z}/3,$$
+# > $$\begin{aligned} \operatorname{char}_{\mathbb{Z}}(T_2) &= (X+24)^2\,(X-2049) = (X-\tau(2))^2\,(X-\sigma_{11}(2)),\\ \operatorname{char}_{\mathbb{Z}}(T_3) &= (X-252)^2\,(X-177148),\\ \operatorname{char}_{\mathbb{Z}}(T_5) &= (X-4830)^2\,(X-48828126). \end{aligned}$$
+# > The double root is $\tau(p)$ ($\Delta$, both signs), the simple root $\sigma_{11}(p)=1+p^{11}$ ($E_{12}$); the torsion primes 2 and 3 divide
+# > the orders of the stabilisers.
 
 # %% Descent at level 1, n = 10
 set coefficient_ring = "Z";
@@ -146,21 +284,37 @@ display(D);
 
 # %% The integral groups
 display(D.groups_inv);
+assert(D.groups[1] == "Z^3 + Z/2 + Z/2^2 + Z/3", "H^1 = Z^3 + Z/2 + Z/4 + Z/3");
 
 # %% char_Z(T_p), factored over Z
 display(D.charpoly_factored);
+assert(D.charpoly_factored[0].factored == "(X + 24)^2 (X - 2049)", "char_Z(T_2)");
+assert(D.charpoly_factored[1].factored == "(X - 252)^2 (X - 177148)", "char_Z(T_3)");
+assert(D.charpoly_factored[2].factored == "(X - 4830)^2 (X - 48828126)", "char_Z(T_5)");
+assert(1 + 2^11 == 2049 and 1 + 3^11 == 177148 and 1 + 5^11 == 48828126, "the simple roots are 1 + p^11");
 
-# %% [md] 09 -- over Z: the Hecke operators as integer matrices, torsion included.
-# H^1(Gamma_0(N); Sym^n Z^2) = T (+) Z^r: T the torsion, Z^r the free part. In generators "torsion first, then a basis
-# of the free part" every T_p is a block matrix [[tau, M], [0, F]]: tau acts on T, F on Z^r, and M records how the free
-# generators are moved into the torsion. module_Z() computes all three. F is exact over Z, in one picked basis B
-# (rule iso_dixon/v3) that is certified to be a Z-basis by one determinant, det(Phi_cert^T B) = +-1; its integers
-# are printed in full (strings). The free generators are the classes [b_j] of the cocycles of B themselves, so
-# T_p b_j = sum_i F_ij b_i + sum_a M_aj g_a holds as printed (g_a the torsion generators, row a of M mod d_a).
-# pi_B (in retractions, per torsion prime) gives the torsion coordinates of the b_j: subtracting them gives the
-# other natural complement, and M changes by pi_B F - tau pi_B. At level 1 and n = 30 the torsion is
-# (Z/2)^3 + (Z/4)^3 + (Z/3)^2 + Z/9 + Z/25 + Z/29, r = 5, and the entries of F(T_3) have up to 89 bits.
-# module_Z("local") is the same object without F.
+# %% [md] Reading the output
+# | Mathematics | What HACS computed, and how |
+# |---|---|
+# | $H^q$ over $\mathbb{Z}$ for $q=0,\dots,3$: $0$, $\mathbb{Z}^3\oplus\mathbb{Z}/2\oplus\mathbb{Z}/4\oplus\mathbb{Z}/3$, $\mathbb{Z}/2$, $(\mathbb{Z}/2)^5\oplus\mathbb{Z}/3$
+#   (higher degrees are periodic). |
+#   `descent(1, 10)`: the record `integral_descent_record/v1`; `groups_inv` per degree `{free_rank, torsion: [[p, k, m], ...]}`
+#   $=\mathbb{Z}^r\oplus\bigoplus(\mathbb{Z}/p^k)^m$; `groups` the same as text (`Z^3 + Z/2 + Z/2^2 + Z/3`). [C] `thm:descentcert`; validation `IntegralDescentGroupsValidation`. |
+# | $\operatorname{char}_\mathbb{Z}(T_p)=(X-\tau(p))^2(X-\sigma_{11}(p))$ for $p=2,3,5$; the roots differ by multiples of 691 (Ramanujan, tour 10). |
+#   `charpoly_factored`: per $p$ the expanded polynomial, its factorisation over $\mathbb{Z}$ (Yun + Zassenhaus, exact), and `verified: true`
+#   (the product of the factors equals $\operatorname{char}_\mathbb{Z}$). Validation `IntegralDescentRecordValidation`, arm (Z). |
+
+# %% [md] 09 -- over Z: the Hecke operators as integer matrices, torsion included
+# Write $H^1=H^1(\Gamma_0(N),\mathrm{Sym}^n\mathbb{Z}^2)=T\oplus\mathbb{Z}^r$ with $T$ the torsion. In generators "torsion first, then a basis
+# $B=(b_1,\dots,b_r)$ of a free complement", every Hecke operator is block triangular:
+#
+# > $$T_p=\begin{pmatrix}\tau_p & M_p\\ 0 & F_p\end{pmatrix},\qquad T_p\,b_j=\sum_i (F_p)_{ij}\,b_i+\sum_a (M_p)_{aj}\,g_a ,$$
+# > $\tau_p$ on $T$, $F_p\in M_r(\mathbb{Z})$ on the free part (exact integers), and $M_p$ recording how free generators move into the torsion
+# > ($g_a$ the torsion generators). $B$ is certified to be a $\mathbb{Z}$-basis by one determinant, $\det(\Phi^{\top}B)=\pm1$.
+#
+# At level 1 and $n=30$: $T\cong(\mathbb{Z}/2)^3\oplus(\mathbb{Z}/4)^3\oplus(\mathbb{Z}/3)^2\oplus\mathbb{Z}/9\oplus\mathbb{Z}/25\oplus\mathbb{Z}/29$ and $r=5$;
+# the entries of $F_3$ have up to 89 bits. The matrices are a presentation, unique up to the block-triangular group; $M$ depends on the
+# choice of complement (tour 10 says what decides splitting).
 
 # %% H^1 over Z at level 1, n = 30
 set coefficient_ring = "Z";
@@ -168,10 +322,13 @@ D = descent(1, 30, [2, 3]);
 Z = D.module_Z();
 display(Z.invariant_factors);
 display(Z.basis);
+assert(Z.free_rank == 5 and Z.invariant_factors == [2, 2, 2, 4, 4, 4, 3, 3, 9, 25, 29], "T and r = 5");
+assert(Z.basis.saturation == "det_pm1", "B certified by det = +-1");
 
 # %% T_3: the free block F over Z and its characteristic polynomial
 display(Z.ops[1].F);
 display(Z.ops[1].charpoly_Z);
+assert(Z.ops[1].p == 3, "T_3");
 
 # %% T_3: the torsion block tau and the mixed block M (per torsion prime, against the classes of B)
 display(Z.ops[1].tau);
@@ -180,92 +337,126 @@ display(Z.ops[1].M);
 # %% The torsion coordinates of the basis B at ell = 5 (pi_B: one row per generator of the 5-torsion)
 display(Z.retractions[2].ell);
 display(Z.retractions[2].pi_B);
+assert(Z.retractions[2].ell == 5, "the 5-torsion");
 
-# %% [md] 10 -- over Z: congruences and the torsion-by-free extension, as certified statements.
-# Tour 09 gave the Hecke operators over Z as matrices. hecke_structure(N, n) ([C] sec:recordschema, item 8) says what they do to
-# the Hecke algebra T over Z: T^fr is its image on L = H^1/torsion, and the record gives the congruences between the components of
-# T^fr and how the torsion sits against L. Every field is a certified value or a named status, and the record as a whole is
-# final or pending. The four records and the descent below take about two seconds and 0.25 GiB together.
+# %% [md] Reading the output
+# | Mathematics | What HACS computed, and how |
+# |---|---|
+# | The torsion $T$ by its elementary divisors, and a $\mathbb{Z}$-basis $B$ of a free complement. |
+#   `module_Z()`: `invariant_factors` (the $d_i$), `basis` = `{rule: "iso_dixon/v3", saturation: "det_pm1", ...}`: $B$ is picked by Dixon
+#   lifting on the free tree model and certified by $\det(\Phi_{\mathrm{cert}}^\top B)=\pm1$. [C] `prop:torsionhecke`; validation `HeckeZExportZ2Validation`. |
+# | $F_3\in M_5(\mathbb{Z})$ and its characteristic polynomial, the same as the record's $\operatorname{char}_\mathbb{Z}(T_3)$. |
+#   `ops[1].F` (decimal strings, any size: the CRT over many primes is proven), `ops[1].charpoly_Z` (high to low). |
+# | $\tau_3$ and $M_3$: the action on the torsion and the mixed block. |
+#   `ops[1].tau` (row $i$ mod $d_i$), `ops[1].M` per torsion prime $\ell$. Changing the complement changes $M$ by $\pi_BF-\tau\pi_B$, where
+#   $\pi_B$ (`retractions[].pi_B`) gives the torsion coordinates of the $b_j$. |
+
+# %% [md] 10 -- over Z: congruences and the torsion-by-free extension, as certified statements
+# Tour 09 gave the Hecke operators over $\mathbb{Z}$ as matrices. The record `hecke_structure(N, n)` says what they do to the Hecke algebra.
+# Let $\mathbb{T}$ be the ring generated by the $T_p$ on the free part $L=H^1/\mathrm{tors}$. At level 1, $L\otimes\mathbb{Q}$ splits into an
+# Eisenstein component and cuspidal components, and the **congruence module** $C_\mathbb{T}=\mathbb{T}/(I_{\mathrm{Eis}}+I_{\mathrm{cusp}})$ measures
+# how they are glued.
 #
-# Level 1, n = 10 (weight 12). L has two components: Eisenstein, T_p -> 1 + p^11, and cuspidal, T_p -> tau(p) (T_2 gives 2049 and -24).
-# C_T is the algebra congruence module T^fr/(I_Eis + I_cusp) ([C] def:heckeZcong). The record prints certified:0x2b3, and 0x2b3 = 691.
-# It is cyclic, and T^fr = Z x_{Z/691} Z is the ring of pairs (a, b) with a = b mod 691 ([C] prop:heckeZcong(3), (4); fp=certified). The
-# pair of T_n is (sigma_11(n), tau(n)), so this one ring statement is Ramanujan's tau(n) = sigma_11(n) mod 691 (for T_2: 2049 + 24 = 3 * 691).
-# G2 at 691: one maximal ideal, residue X + 24 (polynomials low to high), through both components; its local ring is monogenic of
-# rank 2, embedding dimension 1, Gorenstein, Hilbert function 1,1, Loewy length 2. G3's second route, v_691(B_12/12) = 1, agrees.
+# > **Ramanujan over $\mathbb{Z}$ (level 1, $n=10$).**
+# > $$\mathbb{T}\;\cong\;\mathbb{Z}\times_{\mathbb{Z}/691}\mathbb{Z}=\{(a,b): a\equiv b\bmod 691\},\qquad T_n\longmapsto(\sigma_{11}(n),\tau(n)),\qquad C_\mathbb{T}\cong\mathbb{Z}/691 .$$
+# > Locally at 691: $\mathbb{T}_\mathfrak{m}\cong\mathbb{Z}_{691}[x]/(x(x-691))$, Gorenstein, $\mathfrak{m}=(691,T_2+24)$; and $v_{691}(B_{12}/12)=1$ agrees.
 #
-# The torsion is Z/2 (+) Z/4 (+) Z/3 (tour 08). G5: at 2 and at 3 the torsion point is common_certified with a free system (route
-# T_ell_level1, [C] thm:heckeZdescent(5)(i)). G6 says split_on_P at both: the extension splits for T' = Z[computed T_p], here
-# T_2, T_3, T_5. split_on_P is a statement about T' only: split for all of T would need [C] rmk:heckeZcbthree, a conjecture.
+# > **Level 1, $n=30$ (weight 32).** $C_\mathbb{T}\cong\mathbb{Z}/7709321041217$, and $7709321041217=37\cdot683\cdot305065927$ is the numerator of
+# > the Bernoulli number $B_{32}$: the Eisenstein congruences of weight 32 (Kummer, Herbrand–Ribet), all at once.
+#
+# The record's fields are certified values or named statuses, and the record as a whole is `final` or `pending`. The records and the
+# descent of this file take a few seconds and about 0.25 GiB together.
 
 # %% Ramanujan over Z: the record of (1, 10)
 set coefficient_ring = "Z";
 R = hecke_structure(1, 10);
-display(R.status);
-display(R.C_T);
-display(R.signature);
+display(R.status, R.C_T);
+assert(R.status == "final" and R.C_T == "certified:0x2b3" and 0x2b3 == 691, "C_T = Z/691, final");
+fields = ["G3.C_T.exact=0x2b3", "G3.fibre_product=certified", "G3.second_route.ell=691.v_Bk=1", "G3.second_route.ell=691.agrees=true",
+          "G2.ell=691.m[0].residue_poly=[24,1]", "G2.ell=691.m[0].local_type.kind=monogenic", "G2.ell=691.m[0].local_type.gorenstein=true",
+          "G2.ell=691.m[0].local_type.hilbert=1,1", "G6.q=1.ell=2.pt[0].split=split_on_P", "G6.q=1.ell=3.pt[0].split=split_on_P"];
+for w in fields { k = 0; for s in R.body { if s == w { k = k + 1 } }; assert(k == 1, w); }
+display(fields);
 
-# %% The local type at 691, and the congruence module (G2 and G3 of the body)
-assert(R.body[118] == "G2.ell=691.m[0].residue_degree=1", "the body of (1,10) moved");
-for i in range(118, 151) { display(R.body[i]); }
+# %% Weight 32: C_T is the numerator of B_32
+R30 = hecke_structure(1, 30);
+display(R30.status, R30.C_T);
+assert(R30.status == "final" and R30.C_T == "certified:0x702f7579541", "C_T at (1, 30)");
+assert(0x702f7579541 == 7709321041217 and 37 * 683 * 305065927 == 7709321041217, "= 37 * 683 * 305065927");
 
-# %% The torsion at 2 and 3: glue bounds, relation to the free part, split verdict (G4, G5, G6 of the body)
-for i in range(151, 176) { display(R.body[i]); }
+# %% [md] Reading the output
+# | Mathematics | What HACS computed, and how |
+# |---|---|
+# | $C_\mathbb{T}\cong\mathbb{Z}/691$ and $\mathbb{T}\cong\mathbb{Z}\times_{\mathbb{Z}/691}\mathbb{Z}$: one ring statement equivalent to $\tau(n)\equiv\sigma_{11}(n)\bmod691$
+#   for all $n$ (for $T_2$: $2049+24=3\cdot691$). |
+#   `C_T = "certified:0x2b3"`: the record stores integers in signed hexadecimal ($\mathtt{0x2b3}=691$); the page shows the decimal and,
+#   on hover, the stored form. "certified" = the lower and upper bounds for $|C_\mathbb{T}|$ meet. `G3.fibre_product=certified`.
+#   [C] `def:heckeZcong`, `prop:heckeZcong` (3), (4); validation `HeckeZRecordValidation`. |
+# | Locally at 691: one maximal ideal $\mathfrak{m}$, residue polynomial $X+24$, $\mathbb{T}_\mathfrak{m}$ monogenic of rank 2, Gorenstein,
+#   Hilbert function $(1,1)$; the second route $v_{691}(B_{12}/12)=1$ agrees. |
+#   `G2.ell=691.m[0]...` (`residue_poly=[24,1]` lists coefficients low to high), `G3.second_route.ell=691.v_Bk=1`, `agrees=true`. |
+# | At weight 32, $C_\mathbb{T}\cong\mathbb{Z}/(37\cdot683\cdot305065927)$, the numerator of $B_{32}$. |
+#   `certified:0x702f7579541`; per prime `G3.C_T.ell=37/683/305065927` with lower = upper valuation 1. The Bernoulli cross-check
+#   (`second_route`) ran at 37 and 683 and agrees; at 305065927 it reads `not_run`. |
 
-# %% [md] Torsion-by-free extensions: where the torsion does not split off.
-# Fix ell; tors_ell is the ell-torsion of H^1, e_ell its exponent. For K >= e_ell let eps_K be the class of the Hecke-module sequence
-# 0 -> tors_ell -> H^1_ell/ell^K -> L_ell/ell^K -> 0; the class of H^1_ell itself splits iff eps_K does ([C] prop:heckeZglue(2)(a)).
-# In a basis adapted to the torsion, T_p = [[B_p, 0], [beta_p, c_p]] with B_p on L/ell^K and c_p on tors_ell; a complement of the torsion
-# is the graph of an h in Hom(L/ell^e_ell, tors_ell), and it is stable under the computed T_p iff h B_p - c_p h = beta_p for all of them.
-# Unsolvable for the computed subalgebra T' implies non-split for T ([C] prop:heckeZglue(2)(b)): a certificate.
-# So non_split at a torsion point means exactly this: at that point the system has no solution, and hence no complement of the torsion
-# is stable under T. It also certifies that this torsion system equals a free one for all p (prop:heckeZglue(4), thm:heckeZdescent(5)(ii);
-# in G5: common_certified, route nonsplit). It does not give a non-zero element of the glue J: split implies J_ell = 0 and the converse
-# fails (prop:heckeZglue(2)(c)), and G4 stays at bounds.
+# %% [md] Torsion-by-free extensions: where the torsion does not split off
+# Fix a prime $\ell$; let $T_\ell$ be the $\ell$-torsion of $H^1$, of exponent $e_\ell$, and $L_\ell=L\otimes\mathbb{Z}_\ell$. The Hecke modules sit in
 #
-# These three records have overall status final (binary cf93a542, which has U_2 and U_3 over Z_(2) and Z_(3), plan card Z2). They are
-# non-reduced (redQ=non_reduced_certified, C1=refused(non_reduced)); generation at 2 and 3 reads open(sandwich), and C_T reads not_run.
-# (The card HZ-EISUP, the Eisenstein U_p systems, is for the records with (C1) certified, which these are not.)
-# The non_split verdict does not wait: the certificate uses only T_p with p not dividing N (T_3, T_5, T_7 at N = 16), U_p is not among
-# them, and [C] sec:recordschema, item 8, states that non_split and split_by_support are statements about T. split_on_P is not: at
-# (27, 2), ell = 2, and (8, 4), ell = 3, it stays a statement about T'.
+# > $$0\longrightarrow T_\ell\longrightarrow H^1_\ell\longrightarrow L_\ell\longrightarrow0,$$
+# > and the question is whether a complement of $T_\ell$ is stable under $\mathbb{T}$. In a basis adapted to the torsion,
+# > $T_p=\begin{pmatrix}B_p&0\\ \beta_p&c_p\end{pmatrix}$, and a complement is the graph of some $h\in\mathrm{Hom}(L/\ell^{e_\ell},T_\ell)$; it is stable under the
+# > computed $T_p$ iff $h B_p-c_ph=\beta_p$ for all of them. **Unsolvable for the computed subalgebra $\mathbb{T}'$ implies non-split for $\mathbb{T}$**:
+# > a certificate ([C] `prop:heckeZglue` (2)(b)).
+#
+# So `non_split` at a torsion point is a theorem about $\mathbb{T}$. `split_on_P` is weaker: split for $\mathbb{T}'=\mathbb{Z}[T_p : p\in P]$ only; split for
+# all of $\mathbb{T}$ would need [C] `rmk:heckeZcbthree`, a conjecture. A basis-free class in $\mathrm{Ext}^1$ is not computed: the record stores the verdict.
 
 # %% Level 16, n = 2: non_split at 2
 R = hecke_structure(16, 2);
-display(R.status);
-display(R.C_T);
-display(R.signature);
-display(R.body);
+display(R.status, R.signature);
+for w in ["G6.q=1.ell=2.pt[0].split=non_split", "G5.q=1.ell=2.pt[0].route=nonsplit"] { k = 0; for s in R.body { if s == w { k = k + 1 } }; assert(k == 1, w); }
 
 # %% Level 27, n = 2: non_split at 3, split_on_P at 2
 R = hecke_structure(27, 2);
-display(R.status);
-display(R.C_T);
-display(R.signature);
+display(R.status, R.signature);
+for w in ["G6.q=1.ell=3.pt[0].split=non_split", "G6.q=1.ell=2.pt[0].split=split_on_P"] { k = 0; for s in R.body { if s == w { k = k + 1 } }; assert(k == 1, w); }
 
 # %% Level 8, n = 4: non_split at 2, split_on_P at 3
 R = hecke_structure(8, 4);
-display(R.status);
-display(R.C_T);
-display(R.signature);
+display(R.status, R.signature);
+for w in ["G6.q=1.ell=2.pt[0].split=non_split", "G6.q=1.ell=3.pt[0].split=split_on_P"] { k = 0; for s in R.body { if s == w { k = k + 1 } }; assert(k == 1, w); }
+assert(R.status == "final", "final");
 
-# %% [md] Against tour 09: the block M is not the verdict.
-# module_Z() of tour 09 prints T_p = [[tau, M], [0, F]] on H^1 = T (+) Z^r. M is the Hom(free, torsion) block, and it depends on the chosen
-# basis: moving to another complement changes M by pi_B F - tau pi_B (tour 09), the same shape as h B_p - c_p h above. So M != 0 proves
-# nothing, and module_Z() does not decide: its field split is "unknown". The HeckeZ record is what decides. At (1, 30) M of T_2 is
-# non-zero at 2, 3 and 29, and yet the record reads G6=[2.pt[0]=split_on_P;3.pt[0]=split_on_P;5.pt[0]=split_on_P;29.pt[0]=split_by_support].
-#
-# Two limits, plainly. No level-1 non_split occurs in HeckeZ edition 1: its 12 non_split lines are (8,4), (8,10), (16,2), (16,4), (27,2),
-# (27,4), each full and anemic. And a basis-free class in Ext^1 is not computed: the record stores the verdict, not the class
-# ([C] thm:descentcert(7)(a) leaves the extension class open).
+# %% [md] Reading the output
+# | Mathematics | What HACS computed, and how |
+# |---|---|
+# | $\Gamma_0(16)$, $n=2$: $H^1\cong\mathbb{Z}^{12}\oplus\mathbb{Z}/2\oplus\mathbb{Z}/8$, and its 2-torsion has **no** Hecke-stable complement. |
+#   `G6=[2.pt[0]=non_split]` in the signature; `G5...route=nonsplit`, `relation_to_free=common_certified`: the certificate also shows that this
+#   torsion system equals a free one for all $p$ ([C] `prop:heckeZglue` (4), `thm:heckeZdescent` (5)(ii)). |
+# | $\Gamma_0(27)$, $n=2$: non-split at 3; at 2 split for $\mathbb{T}'$. $\Gamma_0(8)$, $n=4$: non-split at 2; at 3 split for $\mathbb{T}'$. |
+#   `split_on_P` = split for the subalgebra generated by the computed $T_p$. These records are non-reduced (`redQ=non_reduced_certified`), so
+#   `C_T` reads `not_run`; the `non_split` verdicts use only $T_p$ with $p\nmid N$ and do not wait for that. |
+
+# %% [md] Against tour 09: the block M is not the verdict
+# Tour 09 printed $T_p=\begin{pmatrix}\tau&M\\0&F\end{pmatrix}$ on $H^1=T\oplus\mathbb{Z}^r$. $M$ depends on the chosen complement: another complement changes it
+# by $\pi_BF-\tau\pi_B$, the same shape as $hB_p-c_ph$ above. So $M\neq0$ proves nothing, and `module_Z()` does not decide (its field `split` is
+# `unknown`); the record decides. At $(1,30)$, $M$ of $T_2$ is non-zero at 2, 3 and 29, and yet the record reads `split_on_P` at 2, 3 and 5,
+# and `split_by_support` at 29 (the 29-torsion lives on a system of eigenvalues different from the free ones).
 
 # %% module_Z at (1, 30): M of T_2 is printed, split is unknown
 D = descent(1, 30, [2, 3]);
 Z = D.module_Z();
 display(Z.split);
 display(Z.ops[0].M);
+assert(Z.split == "unknown", "module_Z does not decide");
 
 # %% The record of the same cell decides
-R = hecke_structure(1, 30);
-display(R.status);
-display(R.signature);
+display(R30.signature);
+for w in ["G6.q=1.ell=29.pt[0].split=split_by_support", "G5.q=1.ell=29.pt[0].relation_to_free=distinct_certified"] { k = 0; for s in R30.body { if s == w { k = k + 1 } }; assert(k == 1, w); }
+
+# %% [md] The full record (optional)
+# The last cell prints the whole hashed body of the record at $(1,10)$, sections G0 to G8, one `key=value` line each ([C] `sec:recordschema`,
+# item 8). The cells above read the lines that carry the mathematics.
+
+# %% The full body of the record (1, 10)
+display(hecke_structure(1, 10).body);

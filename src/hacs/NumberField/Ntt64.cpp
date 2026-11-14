@@ -209,24 +209,31 @@ inline uint64_t Ntt64Plan::omegaL(std::size_t e, bool inv) const {
     return mt_.mul(aL_[s][e & ((std::size_t(1) << hL_) - 1)], bL_[s][e >> hL_]);
 }
 
-void Ntt64Plan::pow2_forward(uint64_t* x, unsigned threads) const {
+// The power-of-two transforms of the nsub consecutive blocks x + s * M_ (s < nsub). Slot-27 BIGNTT M1 (audit B2):
+// the blocks of all sub-transforms share one parallel pass per phase instead of one sequence of passes per
+// sub-transform; every block and row is computed exactly as before, so the output is unchanged.
+void Ntt64Plan::pow2_forward(uint64_t* x, unsigned nsub, unsigned threads) const {
     if (R_ == 1) {
-        dif(x, M_, twC_[0].data(), mt_);
+        parallel_ranges(nsub, threads, [&](std::size_t s0, std::size_t s1, unsigned) {
+            for (std::size_t s = s0; s < s1; ++s) dif(x + s * M_, M_, twC_[0].data(), mt_);
+        });
         return;
     }
     const std::size_t nblk = (C_ + kColBlock - 1) / kColBlock;
-    parallel_ranges(nblk, threads, [&](std::size_t b0, std::size_t b1, unsigned) {
+    parallel_ranges(nsub * nblk, threads, [&](std::size_t b0, std::size_t b1, unsigned) {
         std::vector<uint64_t> sc(R_ * kColBlock);
-        for (std::size_t blk = b0; blk < b1; ++blk) {
+        for (std::size_t sb = b0; sb < b1; ++sb) {
+            uint64_t* xs = x + (sb / nblk) * M_;
+            const std::size_t blk = sb % nblk;
             const std::size_t c0 = blk * kColBlock, B = std::min(kColBlock, C_ - c0);
             for (std::size_t r = 0; r < R_; ++r) {
-                const uint64_t* row = x + r * C_ + c0;
+                const uint64_t* row = xs + r * C_ + c0;
                 for (std::size_t b = 0; b < B; ++b) sc[b * R_ + r] = row[b];
             }
             for (std::size_t b = 0; b < B; ++b) dif(sc.data() + b * R_, R_, twR_[0].data(), mt_);
             for (std::size_t r = 0; r < R_; ++r) {
                 const std::size_t k1 = revR_[r];
-                uint64_t* row = x + r * C_ + c0;
+                uint64_t* row = xs + r * C_ + c0;
                 for (std::size_t b = 0; b < B; ++b) {
                     const std::size_t e = ((c0 + b) * k1) & (M_ - 1);
                     row[b] = mt_.mul(sc[b * R_ + r], omegaM(e, false));
@@ -234,27 +241,31 @@ void Ntt64Plan::pow2_forward(uint64_t* x, unsigned threads) const {
             }
         }
     });
-    parallel_ranges(R_, threads, [&](std::size_t r0, std::size_t r1, unsigned) {
-        for (std::size_t r = r0; r < r1; ++r) dif(x + r * C_, C_, twC_[0].data(), mt_);
+    parallel_ranges(nsub * R_, threads, [&](std::size_t r0, std::size_t r1, unsigned) {
+        for (std::size_t sr = r0; sr < r1; ++sr) dif(x + (sr / R_) * M_ + (sr % R_) * C_, C_, twC_[0].data(), mt_);
     });
 }
 
-void Ntt64Plan::pow2_inverse(uint64_t* x, unsigned threads) const {
+void Ntt64Plan::pow2_inverse(uint64_t* x, unsigned nsub, unsigned threads) const {
     if (R_ == 1) {
-        dit(x, M_, twC_[1].data(), mt_);
+        parallel_ranges(nsub, threads, [&](std::size_t s0, std::size_t s1, unsigned) {
+            for (std::size_t s = s0; s < s1; ++s) dit(x + s * M_, M_, twC_[1].data(), mt_);
+        });
         return;
     }
-    parallel_ranges(R_, threads, [&](std::size_t r0, std::size_t r1, unsigned) {
-        for (std::size_t r = r0; r < r1; ++r) dit(x + r * C_, C_, twC_[1].data(), mt_);
+    parallel_ranges(nsub * R_, threads, [&](std::size_t r0, std::size_t r1, unsigned) {
+        for (std::size_t sr = r0; sr < r1; ++sr) dit(x + (sr / R_) * M_ + (sr % R_) * C_, C_, twC_[1].data(), mt_);
     });
     const std::size_t nblk = (C_ + kColBlock - 1) / kColBlock;
-    parallel_ranges(nblk, threads, [&](std::size_t b0, std::size_t b1, unsigned) {
+    parallel_ranges(nsub * nblk, threads, [&](std::size_t b0, std::size_t b1, unsigned) {
         std::vector<uint64_t> sc(R_ * kColBlock);
-        for (std::size_t blk = b0; blk < b1; ++blk) {
+        for (std::size_t sb = b0; sb < b1; ++sb) {
+            uint64_t* xs = x + (sb / nblk) * M_;
+            const std::size_t blk = sb % nblk;
             const std::size_t c0 = blk * kColBlock, B = std::min(kColBlock, C_ - c0);
             for (std::size_t r = 0; r < R_; ++r) {
                 const std::size_t k1 = revR_[r];
-                const uint64_t* row = x + r * C_ + c0;
+                const uint64_t* row = xs + r * C_ + c0;
                 for (std::size_t b = 0; b < B; ++b) {
                     const std::size_t e = ((c0 + b) * k1) & (M_ - 1);
                     sc[b * R_ + r] = mt_.mul(row[b], omegaM(e, true));
@@ -262,7 +273,7 @@ void Ntt64Plan::pow2_inverse(uint64_t* x, unsigned threads) const {
             }
             for (std::size_t b = 0; b < B; ++b) dit(sc.data() + b * R_, R_, twR_[1].data(), mt_);
             for (std::size_t r = 0; r < R_; ++r) {
-                uint64_t* row = x + r * C_ + c0;
+                uint64_t* row = xs + r * C_ + c0;
                 for (std::size_t b = 0; b < B; ++b) row[b] = sc[b * R_ + r];
             }
         }
@@ -285,23 +296,11 @@ void Ntt64Plan::forward(uint64_t* a, unsigned threads) const {
             }
         });
     }
-    if (R_ == 1 && f_ > 1) {
-        parallel_ranges(f_, threads, [&](std::size_t k0, std::size_t k1, unsigned) {
-            for (std::size_t k = k0; k < k1; ++k) pow2_forward(a + k * M_, 1);
-        });
-    } else {
-        for (unsigned k = 0; k < f_; ++k) pow2_forward(a + k * M_, threads);
-    }
+    pow2_forward(a, f_, threads);
 }
 
 void Ntt64Plan::inverse(uint64_t* a, unsigned threads) const {
-    if (R_ == 1 && f_ > 1) {
-        parallel_ranges(f_, threads, [&](std::size_t k0, std::size_t k1, unsigned) {
-            for (std::size_t k = k0; k < k1; ++k) pow2_inverse(a + k * M_, 1);
-        });
-    } else {
-        for (unsigned k = 0; k < f_; ++k) pow2_inverse(a + k * M_, threads);
-    }
+    pow2_inverse(a, f_, threads);
     if (f_ > 1) {
         parallel_ranges(M_, threads, [&](std::size_t n0, std::size_t n1, unsigned) {
             uint64_t v[5], y[5];

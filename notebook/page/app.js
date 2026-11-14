@@ -733,7 +733,7 @@
   // The switch changes presentation only: the envelopes are kept and re-rendered; values never change.
   const texBox = $("tex-toggle");
   texBox.checked = OCRender.texEnabled();
-  texBox.addEventListener("change", () => { OCRender.setTeX(texBox.checked); OCRender.rerenderAll(document); });
+  texBox.addEventListener("change", () => { OCRender.setTeX(texBox.checked); OCRender.rerenderAll(document); OCCells.rerenderText(cells); });
   function download(name, text, type) {
     const blob = new Blob([text], { type: `${type};charset=utf-8` });
     const a = el("a");
@@ -836,7 +836,9 @@
   fetch("/examples/index.json", { cache: "no-store" }).then((r) => (r.ok ? r.json() : null)).then((ix) => {
     if (!ix || !Array.isArray(ix.files) || !ix.files.length) return;
     const sel = $("example-select");
-    for (const n of ix.files) if (/^[A-Za-z0-9][A-Za-z0-9_-]*\.oc$/.test(n)) { const o = el("option", "", n); o.value = n; sel.appendChild(o); }
+    // (slot-26 NBMATH A3) the showcases first, then the tour in its order
+    const files = ix.files.filter((n) => /^showcase_/.test(n)).concat(ix.files.filter((n) => !/^showcase_/.test(n)));
+    for (const n of files) if (/^[A-Za-z0-9][A-Za-z0-9_-]*\.oc$/.test(n)) { const o = el("option", "", n); o.value = n; sel.appendChild(o); }
     sel.hidden = false;
     sel.addEventListener("change", async () => {
       const n = sel.value; sel.value = "";

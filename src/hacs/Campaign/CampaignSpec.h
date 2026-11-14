@@ -444,6 +444,11 @@ struct CampaignSpec {
     // value, so a new settings fingerprint and cell ids, never golden)
     std::string hz_g8 = "off";
     uint32_t hz_g8_line = 0;
+    // (slot-27 TS, TS_design.md Sec. 6.2) `hz_theta_order = lex | lex_then_greedy` -- HZ-RAT's RationalSettings::theta_order ([C] item 8
+    // (j)).  ABSENT is not `lex`: an absent key leaves the RationalSettings default, an explicit `lex` sets Lex (the two differ once the
+    // default flips).  Empty = absent.  A structure = hecke key, like hz_g8.
+    std::string hz_theta_order;
+    uint32_t hz_theta_order_line = 0;
     uint64_t ext_memory_mb = kExtMemoryMbDefault;
     // (slot-8 WP-6b) The device worker's two SCHEDULING KNOBS, outside
     // ExtSpec for the same reason: `ext_gpu` (above) and `ext_gpu_cells`, an

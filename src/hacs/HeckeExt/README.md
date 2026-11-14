@@ -3,7 +3,7 @@
 > **Registry paths (S24 CL-10, 2026-11-01).** Registry fragments `Registry/Slot<S>/<pkg>.cpp` and `cmake/slot<S>/<pkg>.cmake` named in this file for
 > slots S <= 23 are historical: they are folded into `Registry/Slot<S>.cpp` (the package function `RegisterSlot<S><pkg>()` is kept there, called by
 > `RegisterSlot<S>()` in the old order) and `cmake/sources/<Module>.cmake`; the old READMEs are in
-> `docs/implementation/registry-slot-readmes-9-25.md`, the convention in force in `src/hacs/Registry/README.md`.
+> `docs/implementation/registry-slot-readmes-9-26.md`, the convention in force in `src/hacs/Registry/README.md`.
 
 The engine of the **hecke-extensions** programme: the local-algebra / module-structure
 layer that sits *on top of* the shipped pipeline and consumes it one-way.

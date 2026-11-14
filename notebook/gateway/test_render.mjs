@@ -11,7 +11,8 @@
 // Then the LaTeX switch: with LaTeX off no envelope produces TeX, and the text behind every value
 // (plainText) is its canonical text, unchanged, in both states.
 // Every envelope carrying a `hint`, at any depth, must typeset too (hinted=<h>).
-// Last line: RENDER_TEST fixtures=<k> tex=<t> text=<x> hinted=<h> failures=<f> verdict=OK|FAIL. Exit 0 iff OK.
+// Last line: RENDER_TEST fixtures=<k> tex=<t> text=<x> hinted=<h> texcells=<m> failures=<f> verdict=OK|FAIL. Exit 0 iff OK.
+// (slot-26 NBMATH) texcells = the formulas of the example notebooks' text cells, each typeset with throwOnError: true.
 //
 //     node notebook/gateway/test_render.mjs
 import { createRequire } from "node:module";
@@ -315,6 +316,142 @@ eq(P.hintTeX({ t: "List", v: [fac(["1", "24"], 2), fac(["1", "-2049"], 1)], hint
 eq(P.factoredTeX({ t: "List", v: [fac(["1", "0", "0", "0", "1"], 1)] }, { order: "high_to_low", var: "X" }), "X^{4} + 1", "factoredTeX one factor");
 eq(P.factoredTeX({ t: "List", v: [] }, { order: "high_to_low" }), null, "factoredTeX refuses an empty product");
 
+// (slot-26 NBMATH A1) Text cells: $...$ / $$...$$ through KaTeX and a minimal markdown, built from text nodes only;
+// the reading panels fold; a certified hexadecimal order shows in decimal. Then every formula of every text cell of
+// the example notebooks (the tour and the showcases) must typeset under KaTeX with throwOnError: true (texcells=<k>).
+let texcells = 0;
+{
+  const B = (src) => JSON.stringify(P.mdBlocks(src));
+  eq(B("a $x^2$ b\nc"), JSON.stringify([{ t: "p", c: [{ t: "text", s: "a " }, { t: "math", s: "x^2" }, { t: "text", s: " b\nc" }] }]), "md: paragraph with inline math");
+  eq(B("one\n\ntwo"), JSON.stringify([{ t: "p", c: [{ t: "text", s: "one" }] }, { t: "p", c: [{ t: "text", s: "two" }] }]), "md: a blank line ends a paragraph");
+  eq(B("$$\n\\begin{aligned} a&=b\\\\ c&=d \\end{aligned}\n$$"), JSON.stringify([{ t: "display", s: "\\begin{aligned} a&=b\\\\ c&=d \\end{aligned}" }]), "md: display over lines");
+  eq(B("$$x$$"), JSON.stringify([{ t: "display", s: "x" }]), "md: display on one line");
+  eq(B("costs \\$5 and $"), JSON.stringify([{ t: "p", c: [{ t: "text", s: "costs $5 and $" }] }]), "md: escaped and unmatched dollars stay text");
+  eq(B("- a\n- b $y$\n  more"), JSON.stringify([{ t: "ul", items: [[{ t: "text", s: "a" }], [{ t: "text", s: "b " }, { t: "math", s: "y" }, { t: "text", s: "\nmore" }]] }]), "md: list with a continued item");
+  eq(B("> **S.** $a|b$"), JSON.stringify([{ t: "quote", blocks: [{ t: "p", c: [{ t: "bold", c: [{ t: "text", s: "S." }] }, { t: "text", s: " " }, { t: "math", s: "a|b" }] }] }]), "md: statement box, bold, | inside math");
+  const tb = P.mdBlocks("| M | H |\n|---|---|\n| $x$ | `f(1, 2)`\n  and more |\n| a | b |");
+  eq(tb.length === 1 && tb[0].t === "table" && tb[0].head.length === 2 && tb[0].rows.length === 2, true, "md: table with header, two rows");
+  eq(JSON.stringify(tb[0].rows[0][1]), JSON.stringify([{ t: "code", s: "f(1, 2)" }, { t: "text", s: " and more" }]), "md: a table row continued over two lines");
+  const tb2 = P.mdBlocks("| M | H |\n|---|---|\n| first cell\n  ends here. |\n  second cell |\n| a | b |");
+  eq(tb2[0].rows.length === 2 && JSON.stringify(tb2[0].rows[0][1]) === JSON.stringify([{ t: "text", s: "second cell" }]), true,
+     "md: a row whose first cell ends a line with | continues until it has the header's cells");
+  eq(JSON.stringify(P.mdMath("a $x$ b\n\n$$y$$\n\n| $z$ | w |")), JSON.stringify([{ tex: "x", display: false }, { tex: "y", display: true }, { tex: "z", display: false }]), "md: mdMath");
+  // injection: markup stays text, KaTeX runs with trust: false
+  const inj = P.mdBlocks("<img src=x onerror=alert(1)> <script>alert(2)</script>");
+  eq(inj.length === 1 && inj[0].c.length === 1 && inj[0].c[0].t === "text", true, "md: HTML is a text segment");
+  const href = katex.renderToString("\\href{javascript:alert(1)}{x}\\url{javascript:alert(2)}", { throwOnError: false, trust: false, strict: "ignore" });
+  if (/<a\b|javascript:alert\(1\)"/.test(href) && /href="javascript/.test(href)) fail("md: KaTeX made a link with trust: false: " + href);
+  // certified orders in signed hexadecimal
+  eq(P.certifiedDecimal("certified:0x2b3"), "691", "certifiedDecimal 691");
+  eq(P.certifiedDecimal("certified:-0x5"), "-5", "certifiedDecimal signed");
+  eq(P.certifiedDecimal("certified:0x2B3"), null, "certifiedDecimal: lower-case hex only (the canonical form)");
+  eq(P.certifiedDecimal("not_run"), null, "certifiedDecimal: not a certified order");
+  eq(P.certifiedDecimal("certified:0x" + "f".repeat(40)), (2n ** 160n - 1n).toString(), "certifiedDecimal beyond 2^64");
+
+  // under the fake DOM (the KaTeX stub of the outbox block): rendering, the switch, the reading fold
+  const C = require(join(here, "..", "page", "cellbox.js"));
+  const node = R.el("div", "mdtext");
+  const src = "Let $x$ be.\n\n$$y$$\n\n<b>not markup</b>";
+  R.setTeX(true);
+  R.renderMarkdown(node, src);
+  const kids = node.children.map((c) => c.className);
+  eq(JSON.stringify(kids), JSON.stringify(["md-p", "md-display", "md-p"]), "md DOM: blocks");
+  if (!node.textContent.includes("<<TEX x>>") || !node.textContent.includes("<<TEX y>>")) fail("md DOM: math not through KaTeX: " + node.textContent);
+  const htmlP = node.children[2];
+  if (htmlP.children.length !== 1 || htmlP.children[0].tagName !== "#text" || htmlP.textContent !== "<b>not markup</b>") fail("md DOM: HTML not a text node");
+  if (node.dataset.text !== src) fail("md DOM: data-text is not the source");
+  R.setTeX(false);
+  R.renderMarkdown(node, src);
+  if (node.textContent !== src || node.children.length !== 0 || !node.classList.contains("md-raw")) fail("md DOM: LaTeX off must show the source verbatim");
+  R.setTeX(true);
+  const rd = C.createCell(1, "| a | b |", { kind: "md", title: "Reading the output" });
+  const det = rd.view.children[0];
+  if (!det || det.tagName !== "details" || det.open !== false) fail("md: a reading panel is a closed fold by default");
+  const rd2 = C.createCell(2, "| a | b |", { kind: "md", title: "Reading the output", open: true });
+  if (rd2.view.children[0].open !== true) fail("md: a reading panel opens with opts.open");
+  rd.view.children[0].open = true; for (const f of rd.view.children[0].handlers.toggle || []) f();
+  C.rerenderText([rd]);
+  if (rd.view.children[0].open !== true) fail("md: the fold state survives a re-render");
+  const plain = C.createCell(3, "plain $x$", { kind: "md", title: "Statement" });
+  if (plain.view.children[0].tagName === "details") fail("md: an ordinary text cell does not fold");
+  const snapText = C.snapshot([plain])[0].code;
+  if (snapText !== "plain $x$") fail("md: export keeps the source");
+  // a showcase opens its reading panels; a tour file does not
+  const F2 = require(join(here, "..", "page", "ocfile.js"));
+  const nbHost = { mount() {}, unmount() {}, wire() {} };
+  const nb1 = C.makeNotebook(nbHost);
+  const file = "# %% [md] Reading the output\n# | a | b |\n";
+  nb1.openParsed(F2.parse(file), "showcase_x.oc");
+  if (nb1.cells[0].view.children[0].open !== true) fail("md: showcase_*.oc opens its reading panels");
+  nb1.openParsed(F2.parse(file), "02_x.oc");
+  if (nb1.cells[0].view.children[0].open !== false) fail("md: a tour file keeps its reading panels closed");
+  // a String "certified:0x..." in decimal with LaTeX on, canonical text unchanged
+  const ct = { t: "String", v: "certified:0x2b3", canonical: "\"certified:0x2b3\"" };
+  const box = R.renderValue(ct);
+  if (!box.textContent.includes("certified: 691")) fail("certified: decimal not shown: " + box.textContent);
+  if (R.plainText(ct) !== ct.canonical || box.dataset.text !== ct.canonical) fail("certified: canonical text changed");
+  R.setTeX(false);
+  if (R.renderValue(ct).textContent.includes("certified: 691")) fail("certified: decimal shown with LaTeX off");
+  R.setTeX(true);
+
+  // every formula of every text cell of the example notebooks typesets (real KaTeX, throwOnError: true)
+  const { readdirSync } = require("node:fs");
+  const exDir = join(here, "..", "examples", "notebook");
+  const exFiles = readdirSync(exDir).filter((n) => n.endsWith(".oc")).sort();
+  let showcases = 0;
+  for (const n of exFiles) {
+    if (n.startsWith("showcase_")) ++showcases;
+    const q = F2.parse(readFileSync(join(exDir, n), "utf8"));
+    for (const c of q.cells) {
+      if (c.kind !== "md") continue;
+      if (/^Reading\b/.test(c.title)) {   // a reading panel: one two-column table, Mathematics | What HACS computed
+        const bl = P.mdBlocks(c.code).filter((b) => b.t === "table");
+        if (bl.length !== 1 || !bl[0].head || bl[0].head.length !== 2 || bl[0].rows.some((r) => r.length !== 2) || !bl[0].rows.length)
+          fail(`texcells: ${n}: a "Reading..." text cell must hold one two-column table with a header`);
+      }
+      for (const m of P.mdMath(c.code)) {
+        ++texcells;
+        try { katex.renderToString(m.tex, { throwOnError: true, displayMode: m.display, trust: false, strict: "ignore", maxExpand: 1000 }); }
+        catch (e) { fail(`texcells: ${n} [${c.title}]: KaTeX refuses ${JSON.stringify(m.tex)}: ${e.message}`); }
+      }
+    }
+  }
+  if (showcases < 2) fail(`texcells: expected at least two showcase_*.oc files, found ${showcases}`);
+  console.log(`ok   text cells: markdown + math, the switch, reading folds, certified decimal; ${texcells} formulas in ${exFiles.length} example files typeset`);
+}
+
+// (slot-27 NB-A' C1) Copy as LaTeX: copyTeX == the TeX the page renders (toTeXRaw), with the switch on or off; null for a
+// value without math; outputTeX joins the values of an output node as display formulas.
+{
+  let n = 0, hintedN = 0;
+  const texOf = [];
+  for (const l of lines) {
+    const f = JSON.parse(l);
+    if (f.expect !== "tex") continue;
+    ++n;
+    const a = R.copyTeX(f.env);
+    if (a === null || a !== R.toTeXRaw(f.env, 0)) fail(`copytex: ${f.name}: copyTeX differs from the rendered TeX`);
+    R.setTeX(false);
+    if (R.copyTeX(f.env) !== a) fail(`copytex: ${f.name}: copyTeX changes with the LaTeX switch`);
+    R.setTeX(true);
+    try { katex.renderToString(a, { throwOnError: true, displayMode: true, trust: false, strict: "ignore", maxExpand: 1000 }); }
+    catch (e) { fail(`copytex: ${f.name}: KaTeX refuses the copied TeX: ${e.message}`); }
+    if (f.env.hint) ++hintedN;
+    if (texOf.length < 2) texOf.push({ env: f.env, t: a });
+  }
+  for (const l of lines) { const f = JSON.parse(l); if (f.expect === "text" && R.copyTeX(f.env) !== null) fail(`copytex: ${f.name}: text value has TeX`); }
+  if (n === 0) fail("copytex: no tex fixtures");
+  if (texOf.length === 2) {
+    const mk = (env) => ({ classList: { contains: (c) => c === "value" }, _env: env });
+    const plain = { classList: { contains: () => false }, textContent: "x" };
+    const o = R.outputTeX({ children: [mk(texOf[0].env), plain, mk(texOf[1].env)] });
+    const want = `\\[\n${texOf[0].t}\n\\]\n\n\\[\n${texOf[1].t}\n\\]`;
+    if (o !== want) fail("copytex: outputTeX is not the display-formula join of the cell's values");
+    if (R.outputTeX({ children: [plain] }) !== "") fail("copytex: outputTeX of a cell without values is not empty");
+  }
+  console.log(`ok   copy as LaTeX: ${n} tex fixtures copy exactly the rendered TeX, switch-independent, KaTeX-valid`);
+}
+
 const ok = failures === 0;
-console.log(`RENDER_TEST fixtures=${fixtures.length} tex=${tex} text=${text} hinted=${hinted} failures=${failures} verdict=${ok ? "OK" : "FAIL"}`);
+console.log(`RENDER_TEST fixtures=${fixtures.length} tex=${tex} text=${text} hinted=${hinted} texcells=${texcells} failures=${failures} verdict=${ok ? "OK" : "FAIL"}`);
 process.exit(ok ? 0 : 1);

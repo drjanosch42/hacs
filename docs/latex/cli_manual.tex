@@ -7,7 +7,7 @@
 %
 %   Created in hecke-extensions slot 18, package WP-M (owner ruling
 %   2026-10-03: a full LaTeX/PDF user manual of the command-line interface
-%   and the console). 1.5.13: the program is hacs throughout; the census-runbook sections 8.7-8.8 replaced by a neutral section (release audit). 1.5.11: machine names and private paths removed (public release). 1.5.10: the env row ENGINE_VNNI2_FLOOR (S25 PERF-VF). 1.5.9: slot-23 env arms retired (S25 LEVERS-25). 1.5.8: Ctrl-C / interrupt at cancellation points (S25 NBCONFIRM S5). 1.5.7: LaTeX polish stage 1 (uniform author block, dedication; no table or count changed). 1.5.6: the verb hecke_structure, campaign keys structure / algebra / hz_cert (S25 HZ-REC). 1.5.5: retired GPU levers (S24 close, CL-R2 audit M6). 1.5.4: descent charpoly `exact' (S24 FMTMP). 1.5.3: no argument prints the usage, exit 1 (S24 CL-7). 1.5.2: the verb display (NB-R34). 1.5.1: referee fixes (DOCS-FIX). Restructured by subject at 1.5.0 (slot 24, DOCS-CLI;
+%   and the console). 1.5.15: the campaign key hz_theta_order (S27 TS). 1.5.14: LEVERS-26 retired env arms (wording). 1.5.13: the program is hacs throughout; the census-runbook sections 8.7-8.8 replaced by a neutral section (release audit). 1.5.11: machine names and private paths removed (public release). 1.5.10: the env row ENGINE_VNNI2_FLOOR (S25 PERF-VF). 1.5.9: slot-23 env arms retired (S25 LEVERS-25). 1.5.8: Ctrl-C / interrupt at cancellation points (S25 NBCONFIRM S5). 1.5.7: LaTeX polish stage 1 (uniform author block, dedication; no table or count changed). 1.5.6: the verb hecke_structure, campaign keys structure / algebra / hz_cert (S25 HZ-REC). 1.5.5: retired GPU levers (S24 close, CL-R2 audit M6). 1.5.4: descent charpoly `exact' (S24 FMTMP). 1.5.3: no argument prints the usage, exit 1 (S24 CL-7). 1.5.2: the verb display (NB-R34). 1.5.1: referee fixes (DOCS-FIX). Restructured by subject at 1.5.0 (slot 24, DOCS-CLI;
 %   owner direction 2026-10-29: a logically consistent manual that makes the
 %   mathematical, algorithmic and implementation structure transparent, not
 %   the history of the implementation).
@@ -141,7 +141,7 @@
 
 \title{\app: the command line and the OC console\\[0.4ex]\large A user manual}
 \author{Fabian Januszewski\\ Universit\"at Paderborn\\ \texttt{fabian.januszewski@math.uni-paderborn.de}}
-\date{Version 1.5.13, 2026-11-09 (restructured by subject; not binding; history in Appendix~\ref{app:versions})}
+\date{Version 1.5.15, 2026-11-13 (restructured by subject; not binding; history in Appendix~\ref{app:versions})}
 
 \begin{document}
 \maketitle
@@ -1941,6 +1941,7 @@ read-only hooks of individual validations. Unless a variable of Section~\ref{sec
 \env{ENGINE_TILE_MULT}, \env{ENGINE_TILE_COLS}, \env{ENGINE_SPIN}, \env{ENGINE_ELIM_BASE}, \env{ENGINE_ELIM_PANEL}, \env{ENGINE_ELIM_TRSM_BASE} & tuning of the tiles, the spin-wait and the blocked elimination (panel, base case, triangular-solve base), read once at start-up (env-only settings)\\
 \env{ENGINE_HOST_ELIM_HOOK} & \texttt{0}: rollback arm; the cone and $\iota^*$ certificates no longer bind the elimination's inner parallel hook to the pool\\
 \env{ENGINE_LADIC_WIDTH} & \texttt{32}, \texttt{64} or \texttt{128}: the digit width of the $\ell$-adic route for $\ell^k\ge2^{64}$; the records are width-independent\\
+\env{ENGINE_BIGNTT_MIN_LIMBS} & a positive integer (default \texttt{1024}): the size in 32-bit limbs from which the untrusted big-integer factor finder multiplies modulo $n$ by an NTT product with Barrett's reduction instead of BigInt's Karatsuba and Knuth-D route; a route knob, it cannot change a value (slot~27 BIGNTT)\\
 \bottomrule
 \end{longtable}
 }
@@ -1957,8 +1958,8 @@ chosen at run time from what the CPU offers; all give the same residues.
 \textbf{Variable} & \textbf{Effect}\\\midrule\endhead
 \env{ENGINE_KERNEL} & \texttt{auto} (default: AVX-512 if the CPU has it, else AVX2, else portable), \texttt{avx512}, \texttt{avx2} or \texttt{portable}: the 32-bit GEMM microkernel. \texttt{avx2} on an AVX-512 machine imitates a CPU without AVX-512 (e.g.\ Zen~3). An unavailable value warns and stays \texttt{auto}; a set value prints \texttt{EFFECTIVE ENGINE\_KERNEL path= value= cpu=avx2:<0|1>,avx512:<0|1>}\\
 \env{ENGINE_AVX2_PAIR} & \texttt{0} (or \texttt{off}): rollback arm of the AVX2 pair route (16-bit products, $p\le4096$); the AVX2 path then runs its 64-bit microkernel for every $p$\\
-\env{ENGINE_VNNI}, \env{ENGINE_VNNI_SHADOW} & the AVX-512 VNNI route for $p\le128$ and its two-limb form for $128<p\le2^{14}$, on by default where the CPU has \texttt{avx512\_vnni}; \texttt{ENGINE\_VNNI=0} is the rollback arm, \texttt{ENGINE\_VNNI\_SHADOW=1} recomputes every routed product on the 32-bit kernel and stops on a difference\\
-\env{ENGINE_VNNI2_FLOOR} & the two-limb VNNI route's work-per-thread floor ($mnk\ge$ floor $\times$ threads, default $2^{18}$, threads = the configured pool size); \texttt{0} restores the slot-24 rule; a value that is not a string of digits (or overflows 64 bits) warns and keeps the default; a set value prints \texttt{EFFECTIVE ENGINE\_VNNI2\_FLOOR floor= value= threads=} when the floor is first consulted (under \texttt{auto}, at the first two-limb product that passes the large-$p$ test); it cannot change a value\\
+\env{ENGINE_VNNI}, \env{ENGINE_VNNI_SHADOW} & the AVX-512 VNNI route for $p\le128$ and its two-limb form for $128<p\le2^{14}$, on by default where the CPU has \texttt{avx512\_vnni}; \texttt{ENGINE\_VNNI=0} (or \texttt{off}, the former rollback arm) is retired (S26 LEVERS-26): refused in a default build, a comparison arm in a legacy build; \texttt{ENGINE\_VNNI\_SHADOW=1} recomputes every routed product on the 32-bit kernel and stops on a difference\\
+\env{ENGINE_VNNI2_FLOOR} & the two-limb VNNI route's work-per-thread floor ($mnk\ge$ floor $\times$ threads, default $2^{20}$ (S26 LEVERS-26; was $2^{18}$), threads = the configured pool size); \texttt{0} restores the slot-24 rule; a value that is not a string of digits (or overflows 64 bits) warns and keeps the default; a set value prints \texttt{EFFECTIVE ENGINE\_VNNI2\_FLOOR floor= value= threads=} when the floor is first consulted (under \texttt{auto}, at the first two-limb product that passes the large-$p$ test); it cannot change a value\\
 \env{ENGINE_BINARY_F2} & \texttt{1}: opt-in; the dense eliminations over $\F_2$ run bit-packed (Four Russians), Section~\ref{sec:env-slot22}\\
 \env{ENGINE_TERNARY_F3} & \texttt{1}: opt-in; the dense eliminations over $\F_3$ run bit-sliced (two bit planes per row), proved entrywise by \vb{TernaryF3Validation}\\
 \bottomrule
@@ -1983,7 +1984,7 @@ asked for. The reference machine's card is (temporarily) an NVIDIA RTX PRO 6000 
 \env{ENGINE_GPU_LEAN} & by default a program whose GPU nodes are all memory-bound runs on the host, and the arena keeps a sixteenth of the card as slack; \texttt{0\dots} (the former rollback arm) is retired (S25 LEVERS-25): refused in a default build, the old route in a legacy build\\
 \env{ENGINE_GPU_IMMA} & the int8 tensor-core GEMM for $p\le127$, always on; \texttt{0\dots} (the former rollback arm) is retired (CL-R2): refused in a default build, a comparison arm in a legacy build (Section~\ref{sec:env-slot22})\\
 \env{ENGINE_GPU_ELIM}, \env{ENGINE_GPU_ELIM_MIN}, \env{ENGINE_GPU_ELIM_VERIFY} & the device-resident elimination for $p\le127$: \texttt{0\dots} retired (CL-R2; refused in a default build), size floor in matrix entries (default $2^{20}$), host cross-check (Section~\ref{sec:env-slot22})\\
-\env{ENGINE_GPU_SMITH2K}, \env{ENGINE_GPU_SMITH2K_MIN}, \env{ENGINE_GPU_SMITH2K_VRAM_MB}, \env{ENGINE_GPU_SMITH2K_HOST_MB}, \env{ENGINE_GPU_SMITH2K_VERIFY} & the device 2-adic Smith LU of the descent, under \texttt{ENGINE\_DEVICE=gpu} only (Section~\ref{sec:env-descent}): rollback arm (\texttt{0}), size floor $m\cdot n$ (default $2^{24}$), device budget (default the free memory less 512\,MiB and $1/32$ of the card), the host store of the tiled route per phase (default 4096\,MiB), and a host re-run of every device LU (\texttt{1})\\
+\env{ENGINE_GPU_SMITH2K}, \env{ENGINE_GPU_SMITH2K_MIN}, \env{ENGINE_GPU_SMITH2K_VRAM_MB}, \env{ENGINE_GPU_SMITH2K_HOST_MB}, \env{ENGINE_GPU_SMITH2K_VERIFY} & the device 2-adic Smith LU of the descent, under \texttt{ENGINE\_DEVICE=gpu} only (Section~\ref{sec:env-descent}); the switches of this opt-in route (not rollback levers, S26 LEVERS-26: \texttt{0} is the host fallback of the opt-in device route, kept while that route exists; a card decision, unlike the retired \texttt{ENGINE\_GPU\_ELIM}/\texttt{\_IMMA}): host LU under \texttt{gpu} (\texttt{0}), size floor $m\cdot n$ (default $2^{24}$), device budget (default the free memory less 512\,MiB and $1/32$ of the card), the host store of the tiled route per phase (default 4096\,MiB), and a host re-run of every device LU (\texttt{1})\\
 \bottomrule
 \end{longtable}
 }
@@ -2043,8 +2044,11 @@ forces the fallback path.
 
 The descent of Chapter~\ref{ch:integral} spends almost all of its time in Smith forms over $\Z/2^k$ and $\Z/3^k$ of large
 dense matrices (the 2-adic piece at level $N$ has about $\psi(N)(n+1)\cdot\tfrac43$ rows). Its routes, all value-preserving,
-are on by default; each lever below is a rollback arm (\texttt{0}) gated by the validation named in
-\file{docs/validation-catalogue.md}.
+are on by default; each lever below had a rollback arm (\texttt{0}) gated by the validation named in
+\file{docs/validation-catalogue.md}. Since S26 LEVERS-26 these arms are \emph{retired}: a default build refuses them
+(\texttt{REFUSED <NAME>=0: compiled out (OC\_ENABLE\_LEGACY=OFF)}, exit 1), a legacy build still reads them, and the validations
+reach the earlier routes in process. \texttt{HECKE\_DESCENT\_SMITH\_PANEL} and \texttt{HECKE\_DESCENT\_SMITH\_SIMD} are tuning knobs and
+accept every documented value in every build.
 {\small
 \begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.33\linewidth}>{\raggedright\arraybackslash}p{0.61\linewidth}@{}}
 \toprule
@@ -2052,7 +2056,7 @@ are on by default; each lever below is a rollback arm (\texttt{0}) gated by the 
 \env{HECKE_DESCENT_TREE}, \env{HECKE_DESCENT_TREE_PAIR} & the tree models of the 2- and 3-adic pieces and of the pair (closed-form cochains); \texttt{0} restores the dense isotropy model (same groups and maps)\\
 \env{HECKE_DESCENT_GOOD_SPARSE}, \env{HECKE_DESCENT_GOOD_DENSE} & the good-prime step at level~1: the sparse cokernel (rollback: the seven-vertex pipeline), read as dense ranks of the averaging idempotents (rollback: the sparse elimination)\\
 \env{HECKE_DESCENT_SMITH_MT} & the threaded 2-/3-adic Smith forms on \texttt{ENGINE\_THREADS} threads; \texttt{0} (or \texttt{ENGINE\_THREADS=1}) the serial code. Prints \texttt{EFFECTIVE HECKE\_DESCENT\_SMITH\_MT phase=start|exit \dots} when set\\
-\env{HECKE_DESCENT_SMITH_PANEL} & the LU panel width of the threaded Smith form. \textbf{Unset = auto}: the 2-adic host LU takes \textbf{512} columns when the matrix it factors has $\ge$\textbf{12\,000} rows, else 128; the 3-adic LU 128; the device LU always 128. An explicit width in $[1,4096]$ wins for every size; \texttt{128} restores the earlier default (the rollback), \texttt{64} the first threaded one\\
+\env{HECKE_DESCENT_SMITH_PANEL} & the LU panel width of the threaded Smith form. \textbf{Unset = auto}: the 2-adic host LU takes \textbf{512} columns when the matrix it factors has $\ge$\textbf{12\,000} rows, else 128; the 3-adic LU 128; the device LU always 128. An explicit width in $[1,4096]$ wins for every size (a tuning knob, not a lever); \texttt{128} is the earlier default, \texttt{64} the first threaded one\\
 \env{HECKE_DESCENT_SMITH_F2_MT} & the lazy blocked $\F_2$/$\F_3$ rank profile of each Smith level and the vectorised level passes\\
 \env{HECKE_DESCENT_SMITH_BLOCKED}, \env{HECKE_DESCENT_SMITH_SIMD} & the blocked, threaded integer Smith form of the maps and presentations (rollback: the scalar oracle); \texttt{\_SIMD=scalar|avx2|avx512} forces its kernel body\\
 \env{HECKE_DESCENT_PAR_ASM}, \env{HECKE_DESCENT_PAR_ELL}, \env{HECKE_DESCENT_PAR_LN}, \env{HECKE_DESCENT_EMBED_MAP} & concurrency of the assembly: the pair's complex assembly, the $\ell\ge5$ pieces, the level-$N$ stages (each under a joint memory prediction), and the cone maps without a dense cochain map\\
@@ -2086,7 +2090,7 @@ works as before in a legacy build (\texttt{-DOC\_ENABLE\_LEGACY=ON}); the earlie
 \env{HECKE_MODULE_PARALLEL}, \env{HECKE_MODULE_MT}, \env{HECKE_MODULE_TILE_WORK}, \env{HECKE_MODULE_LEAN_PEAK} & its parallel assembly, threaded decompositions, the minimum work per parallel tile, and the lean peak memory; \texttt{HECKE\_MODULE\_PARALLEL=0} retired (S25 LEVERS-25)\\
 \env{HECKE_PRECISION_REUSE} & one module run per cell with the lower precisions derived (\texttt{0}, one run per level: retired, S25 LEVERS-25)\\
 \env{HECKE_SAT_PERF} & per-cell memos of the saturation certificates\\
-\env{HECKE_FIELD_DIET} & the memory diet of a field cell (dense programs in parts, early release, \texttt{malloc\_trim})\\
+\env{HECKE_FIELD_DIET} & the memory diet of a field cell (dense programs in parts, early release, \texttt{malloc\_trim}); \texttt{0} retired (S26 LEVERS-26)\\
 \env{HECKE_FORMS_FASTMUL}, \env{HECKE_FORMS_NTT_CACHE}, \env{HECKE_FORMS_NTT3} & the forms algebra's $q$-series products by number-theoretic transforms, their cache, and the three-prime route for $\ell\ge2^{16}$; \texttt{HECKE\_FORMS\_FASTMUL=0} retired (S25 LEVERS-25)\\
 \env{HECKE_LEVEL_N_GEN_ORDER} & \texttt{sorted} (default) or \texttt{as\_built}: the generator order of the level-$N$ cokernel (any other value is an error)\\
 \bottomrule
@@ -2410,6 +2414,17 @@ as \verb|\env{NAME}| in the environment chapter (Sections~\ref{sec:env}--\ref{se
 files is not checked beyond (6)--(9): when a front end changes, revise the matching section too.
 
 \chapter{Versions}\label{app:versions}
+
+\textbf{1.5.15} (2026-11-13, S27 TS; not binding). The campaign key \texttt{hz\_theta\_order} (\texttt{lex} /
+\texttt{lex\_then\_greedy}, \texttt{structure = hecke} only): the order of the record's $\vartheta$ search, a row of the generated spec-token
+table; the validation roster gains \texttt{HeckeZThetaSearchValidation} (S27 TS-FIX). No other table or count changed.
+
+\textbf{1.5.14} (2026-11-12, S26 LEVERS-26; not binding). Wording only: the rollback arms \texttt{=0} of the eleven
+\texttt{HECKE\_DESCENT\_*} levers, \texttt{HECKE\_FIELD\_DIET=0} and \texttt{ENGINE\_VNNI=0}/\texttt{off} are retired (refused in a default
+build, read in a legacy build), Sections~\ref{sec:env-cpu}, \ref{sec:env-descent}, \ref{sec:env-module};
+\texttt{HECKE\_DESCENT\_SMITH\_PANEL} is a tuning knob; the \texttt{ENGINE\_GPU\_SMITH2K*} switches belong to the opt-in device route;
+the default of \texttt{ENGINE\_VNNI2\_FLOOR} is now $2^{20}$ (a speed choice, measured).
+No table, count, verb, type, setting or token changes.
 
 \textbf{1.5.13} (2026-11-09, release audit fixes; not binding). No change of mathematical content and no table, count,
 verb, type, setting or token changes. The program is called \texttt{hacs} throughout (title, quick start, examples, the

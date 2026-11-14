@@ -1,11 +1,14 @@
 # SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
 # SPDX-License-Identifier: LGPL-3.0-only WITH LicenseRef-CUDA-exception
 
-# %% [md] 05 -- how H_m sits over T_m: Loewy layers, socle layers, Jordan types.
-# module_structure(m) is the LoewyProfile of the block H^1_m over the local algebra T_m. Its Loewy layers
-# (the radical filtration) and socle layers are dimensions in units of f; jordan(p) is the Jordan type of
-# T_p - a_p on the block. At (10, 691) the block is 3-dimensional with Loewy layers 2 | 1 and Jordan type
-# (2, 1): T_p - (1 + p^11) is nilpotent but not zero -- a non-split extension of Eisenstein by cusp.
+# %% [md] 05 -- how H_m sits over T_m: Loewy layers, socle layers, Jordan types
+# The block $H^1_\mathfrak{m}$ is a module over the local algebra $\mathbb{T}_\mathfrak{m}$ of step 04. Its **Loewy layers**
+# $\mathfrak{m}^jH/\mathfrak{m}^{j+1}H$ and **socle layers** measure how far it is from semisimple.
+#
+# > **At $(10,691)$.** $H^1_\mathfrak{m}$ is a non-split extension of the Eisenstein line by the cusp part:
+# > $$0\to H^1_!\to H^1_\mathfrak{m}\to H^1_\partial\to0\ \text{ does not split},\qquad \text{Loewy layers } 2\mid1,\qquad \text{Jordan type of } T_p-(1+p^{11}):\ (2,1).$$
+#
+# This is the sequence of step 02, now seen from the Hecke algebra: $T_p-(1+p^{11})$ is nilpotent on $H^1_\mathfrak{m}$ but not zero.
 
 # %% Setting and the maximal ideal
 # The coefficient ring is the default F_ell, stated here so that the file runs in any order in one session (08 sets Z).
@@ -16,6 +19,18 @@ m = R.ideal(0);
 # %% The Loewy profile
 P = module_structure(m);
 display(P);
+assert(P.D == 3 and P.loewy == [2, 1] and P.socle == [2, 1] and not P.semisimple, "Loewy layers 2 | 1: not semisimple");
 
 # %% The Jordan type of T_2
 display(P.jordan(2));
+assert(P.jordan(2) == [2, 1], "Jordan type (2, 1)");
+
+# %% [md] Reading the output
+# | Mathematics | What HACS computed, and how |
+# |---|---|
+# | $H^1_\mathfrak{m}/\mathfrak{m}H^1_\mathfrak{m}$ has dimension 2 and $\mathfrak{m}H^1_\mathfrak{m}$ dimension 1, so $H^1_\mathfrak{m}$ needs two
+#   generators and has Loewy length 2: it is not semisimple, so the extension does not split. |
+#   `module_structure(m)`: the `LoewyProfile` of $H^1_\mathfrak{m}$, printed `loewy [2, 1], socle [2, 1], not cyclic` (dimensions in units of
+#   $f=1$). `semisimple` is false. [E] `alg:stage5`; validation `HeckeExtAlgebraInvariantsValidation`. |
+# | $T_2-667$ has Jordan type $(2,1)$: one block of size 2 (the extension) and one of size 1. |
+#   `P.jordan(p)`: the Jordan type of the nilpotent part $n_p=t_p-P_p(\hat w)$ on the block. |

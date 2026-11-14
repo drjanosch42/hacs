@@ -1,8 +1,8 @@
 HACS -- Harder Arithmetic Cohomology System
-version: 0.2.0
-date: 2026-11-11
-source: 652d0dad6368276e34b656788554511e8fd5079d
-content_tree: f92ddf25d8abac88e51cd87e8f85b6dcc281e12f
-files: 3008
-documents: [C] gl2_contract 1.27.0, [E] hecke_extensions 1.25.3, [U] hida_hecke_algebra 0.8.1, [CLI] cli_manual 1.5.13, [PG] phenomena_gallery 1.5.4
+version: 0.2.1
+date: 2026-11-14
+source: 0ea75f737d005f8b2ee0c766df19e1ed5e571c9c
+content_tree: ff846ca3768848bcbdcbfd8792523e4345efe4a5
+files: 3031
+documents: [C] gl2_contract 1.28.0, [E] hecke_extensions 1.25.3, [U] hida_hecke_algebra 0.8.1, [CLI] cli_manual 1.5.15, [PG] phenomena_gallery 1.5.5
 note: this file marks a release tree; content_tree is the git tree of every other file.

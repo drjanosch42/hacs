@@ -1,0 +1,18 @@
+# ramanujan_691_over_Z.oc -- Ramanujan's congruence at 691 as a certified statement over Z, and its level-11 companion.
+# Phenomena gallery [PG] sec:pg-descent-congruence.  The HeckeZ record hecke_structure(N, n) ([C] sec:recordschema, item 8, sec:heckeZ).
+#   (1) level 1, n = 10 (weight 12): the congruence module C_T between the Eisenstein and the cuspidal part of the Hecke algebra
+#       over Z is Z/691, "certified" (lower and upper bound meet, [C] prop:heckeZcong); 0x2b3 = 691;
+#   (2) the second route, not computed here: v_691(B_12/12) = 1, since B_12/12 = -691/32760 and 32760 is prime to 691;
+#   (3) level 11, n = 0 (weight 2), the anemic algebra: C_T = Z/5, Mazur's Eisenstein prime.
+# Read_only verbs only (notebook-safe).  Cost: about 1 s, < 0.3 GB.
+set coefficient_ring = "Z";
+
+R = hecke_structure(1, 10);
+print(R.schema, " (", R.N, ",", R.n, ",", R.algebra, ")");
+print("  generation per ell:", R.generation);
+print("  C_T:", R.C_T, "  (0x2b3 = 691:", 691 == 2 * 256 + 11 * 16 + 3, ")");
+assert(R.C_T == "certified:0x2b3", "the 691 congruence module is exact");
+
+E = hecke_structure(11, 0, "anemic");
+print("level 11, n = 0 (anemic): generation", E.generation, " C_T:", E.C_T);
+assert(E.C_T == "certified:0x5", "Mazur's congruence module at level 11 is Z/5");

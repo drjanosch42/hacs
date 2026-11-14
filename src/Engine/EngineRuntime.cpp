@@ -208,7 +208,9 @@ bool program_cache_bypassed() { return g_cache_bypass.load(std::memory_order_acq
 void set_program_cache_bypassed(bool on) { g_cache_bypass.store(on, std::memory_order_release); }
 
 // ---- host fan-out ------------------------------------------------------------------
-// (S24 CL-5, C-08) the two silent rollback levers: exactly "0" = off, anything else (unset, "" included) = on; read once.
+// (S24 CL-5, C-08) the two silent on/off switches: exactly "0" = off, anything else (unset, "" included) = on; read once.
+// ENGINE_HOST_ELIM_HOOK is a rollback lever (register row); ENGINE_HOST_THREADS is not (a 2026-09-06 tape switch and the
+// console setting host_threads, a thread-count choice; named in the register's "Not levers" sentence, S26 LEVERS-26 F2).
 constexpr lever::Policy kSilentOnPolicy{true, lever::Empty::Unset, lever::Match::Exact01, lever::Cache::Once, nullptr};
 static lever::EnvLever g_host_threads_lever("ENGINE_HOST_THREADS", kSilentOnPolicy);
 static lever::EnvLever g_host_elim_hook_lever("ENGINE_HOST_ELIM_HOOK", kSilentOnPolicy);
@@ -249,12 +251,19 @@ void run_concurrently(const std::vector<std::function<void()>>& tasks) {
 // ---- the host eliminations' inner parallelism (slot-23 PERF-P2; EngineRuntime.h) ------------
 namespace {
 std::atomic<uint64_t> g_host_elim_regions{0};
+std::atomic<uint64_t> g_host_elim_binds{0};   // (S27 LEV-K) installs, for the EFFECTIVE line only
 thread_local uint32_t g_host_elim_depth = 0;   // installed ScopedHostElimHooks on this thread (0 or 1)
 }
 
 bool host_elim_hook_enabled() { return g_host_elim_hook_lever.env_enabled(); }
 bool host_elim_hook_active() { return g_host_elim_depth > 0; }
 uint64_t host_elim_hook_regions() { return g_host_elim_regions.load(std::memory_order_relaxed); }
+uint64_t host_elim_hook_binds() { return g_host_elim_binds.load(std::memory_order_relaxed); }
+std::string host_elim_hook_effective_line() {
+    return std::string("EFFECTIVE ENGINE_HOST_ELIM_HOOK mode=") + (host_elim_hook_enabled() ? "on" : "off") +
+           " source=" + g_host_elim_hook_lever.source() + " binds=" + std::to_string(host_elim_hook_binds()) +
+           " regions=" + std::to_string(host_elim_hook_regions());
+}
 
 ScopedHostElimHook::ScopedHostElimHook() {
     // (audit L4) Precedence: an elimination hook already in effect on this thread -- ours (depth > 0) or
@@ -271,6 +280,7 @@ ScopedHostElimHook::ScopedHostElimHook() {
     };
     scoped_ = std::make_unique<elim::ScopedParallelHook>(&hook_);
     ++g_host_elim_depth;
+    g_host_elim_binds.fetch_add(1, std::memory_order_relaxed);
 }
 ScopedHostElimHook::~ScopedHostElimHook() {
     if (scoped_ == nullptr) return;

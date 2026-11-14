@@ -13,6 +13,10 @@
 // Re-pinned 2026-11-10 by slot-26 HZ-EISUP (HZEISUP_report.md, slot26/golden_ledger.md "non-golden lines moved"): (2,6,full) only, its two pending
 // fields moved as [C] 1.27.0-pre.1 item 8 (d')(ii) says (G1.components blocked(U_p) -> certified with the rows G1.components[0..2].*;
 // G2.ell=5,17,127.maximal_ideals -> certified with their m-rows, ell=3 -> not_run), hence G0.status pending -> final; no other path moved.
+// Re-pinned 2026-11-13 by slot-27 EXW (EXW_design.md v0.2 Sec. 5, rule (alpha); not golden): (8,10,anemic) only, one of edition 3's 22 pending
+// records -- its at-root read at ell = 2 (K0 = 33 > the export's K_max = 25, refused(export_word)) is made on the free block over Z:
+// G3.C_T.ell=2.{read,status} refused(export_word) -> upper_bound_certified, + lower_v 18 and G3.eta_L.ell=2.* (exponents 18,8), G9.K3.ell=2.*
+// new, hence G0.status pending -> final (0x45bdc565b75b660b -> 0xb16a763da2fc4205); every other path as before (HeckeZExportWordValidation (E)).
 {"1,10,full",
  {"(1,10,full) C1=certified redQ=true C2=complete gen=[2:certified(saturation);3:certified(saturation);691:certified(saturation)] C_T=certified:0x2b3 fp=certified G6=[2.pt[0]=split_on_P;3.pt[0]=split_on_P] status=final",
   "0x5e84b4c2540ff22a"}},
@@ -29,8 +33,8 @@
  {"(2,6,full) C1=certified redQ=true C2=complete gen=[2:open(sandwich);3:certified(saturation);5:certified(saturation);17:certified(saturation);127:certified(saturation)] C_T=upper_bound_certified fp=not_certified G6=[2.pt[0]=split_on_P;3.pt[0]=split_on_P;5.pt[0]=split_on_P] status=final",
   "0xaa516b325e24eed5"}},
 {"8,10,anemic",
- {"(8,10,anemic) C1=certified redQ=true C2=complete gen=[2:open(sandwich);3:open(sandwich);5:certified(saturation);7:certified(saturation);109:certified(saturation);691:certified(saturation)] C_T=upper_bound_certified fp=not_certified G6=[2.pt[0]=non_split;3.pt[0]=split_on_P] status=pending",
-  "0x45bdc565b75b660b"}},
+ {"(8,10,anemic) C1=certified redQ=true C2=complete gen=[2:open(sandwich);3:open(sandwich);5:certified(saturation);7:certified(saturation);109:certified(saturation);691:certified(saturation)] C_T=upper_bound_certified fp=not_certified G6=[2.pt[0]=non_split;3.pt[0]=split_on_P] status=final",
+  "0xb16a763da2fc4205"}},
 {"8,10,full",
  {"(8,10,full) C1=refused(non_reduced) redQ=non_reduced_certified C2=not_run gen=[2:open(sandwich);3:open(sandwich)] C_T=not_run fp=not_certified G6=[2.pt[0]=non_split;3.pt[0]=split_on_P] status=final",
   "0xe15555ccce92ed3e"}},

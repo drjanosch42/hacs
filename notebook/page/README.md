@@ -47,6 +47,8 @@ table. Anything else shows its canonical text.
   the cell has run. The code box holds only code; *Copy code* copies only code.
 - **Output copy.** *Copy output* in the output box (visible on hover or focus, always on touch devices, always in the
   tab order) copies the plain text behind every display, with LaTeX on or off. Per-value *text* / *copy* stay.
+- **Copy as LaTeX** (slot 27). A value block has *LaTeX* (when the value has a math rendering), the output box *Copy as LaTeX* (the values as
+  `\\[ … \\]` formulas), a text cell *Copy as LaTeX* (its source). The TeX is the page's own (`toTeXRaw`), switch-independent; none comes from the binary.
 - **Re-run replaces.** The old output is cleared when the new run starts. An error (`parse_error: …`, a failed
   `assert`, a refusal) goes into the output box, whose rule turns red.
 - **State label** in the code bar: `[ ]` not run, `[…]` queued, `[*]` running (a spinner; dashed frame while queued),
@@ -117,13 +119,33 @@ display(T.A(1));
   and clears the unsaved mark (shown as a bullet after the name beside the status). **+ text** adds a text cell. Drag a
   file onto a cell to insert it below that cell; drop it elsewhere to open it. Files are read locally (≤ 1 MiB).
 - **Examples…** appears when the gateway offers a directory of example notebooks (`--examples-dir`, default the tour
-  `notebook/examples/notebook/`: `01_…` to `10_…` and `tour_all.oc`, the whole tour as one notebook); choosing one opens it as
+  `notebook/examples/notebook/`: the `showcase_*.oc` notebooks first, then `01_…` to `10_…` and `tour_all.oc`, the whole tour as one notebook); choosing one opens it as
   the notebook. A text cell with a body line that does not start with `#` is refused with its line number.
 - **Restart session** also resets the execution count (as Colab does); cells and their outputs stay.
 - **Tests.** `notebook/gateway/test_render.mjs`: parse / serialise round trip, canonicalisation, the edge cases above,
   every tour file byte-identical on a round trip and `tour_all.oc` equal to the ten files' cells, insert as cells, open as
   session, save; `test_gateway.py`: the examples route and its confinement; `Console/scripts/057_s24_notebook_file.oc`: a
   notebook-format file runs as a script.
+
+## Text cells with formulas, reading panels (slot-26 NBMATH A1; [P] 3.15.0-pre.8 §18.18 (e), (g))
+
+- **Typeset text.** With LaTeX on, a text cell renders `$…$` (inline) and `$$…$$` (display, may span lines) through the vendored
+  KaTeX (`trust: false`), plus a minimal markdown: a blank line ends a block, `- ` list items, `> ` a statement box, `| a | b |`
+  table rows (a row may continue over lines that do not start with `|`; a dash row after the first row makes it the header),
+  `**bold**`, `` `code` ``, `\$` a literal dollar. `OCRender.renderMarkdown` builds it from text nodes and KaTeX only (never
+  `innerHTML`); it is not a value renderer, so the render coverage gate is unaffected. With LaTeX off the cell shows its
+  source verbatim; *Copy*, the exports and *Save* always use the source.
+- **Reading panels.** A text cell titled `Reading…` folds (closed by default; open when the notebook is opened from a file
+  named `showcase_*.oc`). The examples use it for one two-column table per output: *Mathematics* ↔ *What HACS computed, and
+  how* (the verb, the raw field names with a gloss, the contract label, the validation name).
+- **Certified orders in decimal.** A String value `certified:0x2b3` (the HeckeZ record's signed hexadecimal) shows as
+  `certified: 691` with LaTeX on, the stored form on hover; the canonical text is unchanged.
+- **Showcases.** *Examples…* lists the `showcase_*.oc` notebooks first (one theorem each, theorem first), then the tour.
+- **Tests.** `test_render.mjs`: the markdown parser (paragraphs, display math over lines, escaped and unmatched dollars,
+  lists, statement boxes, tables with continued rows), HTML staying text, KaTeX without links under `trust: false`, the
+  switch, the reading fold (and its state across a re-render), the decimal display; and every formula of every example
+  text cell under KaTeX with `throwOnError: true` (`texcells=` on the `RENDER_TEST` line). `test_gateway.py`
+  `test_showcases`: every showcase runs ok / exit 0 in one served session.
 
 ## `display`, compute and show all (slot-24 NB-RENDER R3 + R4)
 

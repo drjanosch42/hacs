@@ -6,7 +6,7 @@ docs/latex/cli_manual/types.tex	3	3	3	0	0
 docs/latex/gl2_contract.tex	8	3	8	0	0	
 docs/latex/hecke_extensions.tex	493	134	493	0	0	
 docs/latex/hida_hecke_algebra.tex	189	67	189	0	0	
-docs/latex/phenomena_gallery.tex	94	61	94	0	0	
+docs/latex/phenomena_gallery.tex	99	63	99	0	0	
 src/ModArithmetic/ENGINE_API.md	2	2	2	0	0	
 src/ModArithmetic/FlatMatrix.h	1	1	1	0	0	
 src/ModArithmetic/Matrix.h	1	1	1	0	0	
@@ -183,6 +183,10 @@ src/hacs/Integral/Descent/DescentPair.cpp	2	1	2	0	0
 src/hacs/Integral/Descent/DescentTree.cpp	4	2	4	0	0	
 src/hacs/Integral/Descent/DescentTree.h	7	4	7	0	0	
 src/hacs/Integral/Descent/HeckeIsotropyModelTreeValidation.cpp	1	1	1	0	0	
+src/hacs/Integral/Descent/HeckeZCrossedHomOracle.cpp	1	1	1	0	0	
+src/hacs/Integral/Descent/HeckeZCrossedHomOracle.h	3	2	3	0	0	
+src/hacs/Integral/Descent/HeckeZCrossedHomOracleValidation.cpp	2	1	2	0	0	
+src/hacs/Integral/Descent/HeckeZCrossedHomOracleValidation.h	1	1	1	0	0	
 src/hacs/Integral/Descent/IntegralDescentGroupsValidation.cpp	4	3	4	0	0	
 src/hacs/Integral/Descent/IntegralDescentGroupsValidation.h	4	3	4	0	0	
 src/hacs/Integral/Descent/IntegralDescentLevelNValidation.cpp	1	1	1	0	0	
@@ -267,6 +271,7 @@ src/hacs/Registry/Slot11.cpp	3	3	3	0	0
 src/hacs/Registry/Slot16.cpp	3	2	3	0	0	
 src/hacs/Registry/Slot23.cpp	1	1	1	0	0	
 src/hacs/Registry/Slot24.cpp	6	6	6	0	0	
+src/hacs/Registry/Slot26.cpp	1	1	1	0	0	
 src/hacs/Registry/Slot9.cpp	5	4	5	0	0	
 src/hacs/ValidationRegistry.cpp	43	31	43	0	0	
-TOTAL	2911	346	2911	0	0	
+TOTAL	2924	348	2924	0	0	

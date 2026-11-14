@@ -118,8 +118,11 @@ inline cpu::IsaPath isa_auto(bool has_avx2, bool has_avx512) {
 //           p <= VNNI2_MAX_MODULUS and the shape passes the size threshold
 //           (m >= 8, n >= 32, k >= 16; for p >= 2^13 also m, n >= 128)
 //           (default; ENGINE_VNNI=0 or off at process start selects Off for
-//           BOTH limb counts; a set ENGINE_VNNI prints one EFFECTIVE line on
-//           stderr, and a value other than 0 / off / 1 also a WARNING)
+//           BOTH limb counts -- retired by S26 LEVERS-26: refused in an
+//           OC_ENABLE_LEGACY=OFF build, read only in a legacy build; Off stays
+//           reachable through set_vnni_path(Off) in every build; a set
+//           ENGINE_VNNI prints one EFFECTIVE line on stderr, and a value other
+//           than 0 / off / 1 also a WARNING)
 //   Off   : never route (the pre-P5 u32 path; the cross_config arm)
 //   Force : route every p <= VNNI2_MAX_MODULUS call whatever its shape
 //           (validation use; ENGINE_CHECK if VNNI is unavailable)
@@ -134,6 +137,7 @@ constexpr uint32_t vnni_limbs_for(uint32_t p) {
 }
 void     set_vnni_path(VnniPath path);
 VnniPath vnni_path();                     // the setting (ENGINE_VNNI read once at first use)
+void     vnni_env_check();                // (S26 LEVERS-26) read ENGINE_VNNI now (OFF builds: `0` / `off` refused, exit 1); main() start-up
 bool     vnni_kernel_available();         // CPU supports avx512_vnni + the AVX-512 set AND the build emits it
 bool     vnni_route_taken(uint32_t p, uint32_t m, uint32_t n, uint32_t k);   // would gemm<uint32_t> route this call
 uint64_t vnni_routed_calls();             // process-wide count of routed gemm calls, both limb counts (diagnostics)
@@ -141,14 +145,16 @@ uint64_t vnni2_routed_calls();            // of which the two-limb route (128 < 
 // (slot-25 PERF-VF (a)) The two-limb route's work-per-thread floor: under Auto a 128 < p <= 2^14 call routes only if
 // also m*n*k >= vnni2_work_floor() * vnni_route_threads().  At 16 threads on small cells the packing and the per-thread
 // scratch cost more than the route saves (slot24/CLOSE_H2H_diagnosis.md Sec. 3); a 1-thread shard keeps the route
-// for its large GEMMs.  The default 2^18 is provisional, TO BE CALIBRATED at ext n = 160, ell = 691 under gate.lock
-// (slot25/PERFVF_report.md Sec. 3, the timing phase; PERF-VF audit S6): at 1 thread it drops only shapes below 64^3.
-// If the measurement picks another value, change it here and the (R) boundary block of VnniGemmBitIdentityValidation.
+// for its large GEMMs.  (S26 LEVERS-26) Calibrated at ext n = 160, ell = 691 under gate.lock (slot26/LEVERS26_report.md Sec. 3,
+// 7 rounds, floors rotated; re-take of slot25/PERFVF_report.md Sec. 3): t16 median 2^20 0.2426 s vs 2^18 0.2544 s (-4.6 %),
+// min 0.2411 vs 0.2501 (-3.6 %); t1 median 0.8531 vs 0.8632 (-1.2 %); floor 0 (every shape) 0.2741 / 0.8625, off 0.2472 / 1.1704.
+// So the default is 2^20 (was 2^18 from slot-25 PERF-VF (a)); at 1 thread it drops only shapes below 128 x 128 x 64.
+// Another value means changing it here and the (R) boundary block of VnniGemmBitIdentityValidation.
 // A speed choice only: the routes are bit-identical.  ENGINE_VNNI2_FLOOR=<digits> overrides the floor (0 = the slot-24
 // rule; anything else warns and keeps the default), read once; a set value prints one EFFECTIVE line on stderr when the
 // floor is first consulted (under Auto, at the first two-limb call that passes the large-p test; PERF-VF audit N4).
 // floor * threads saturates at UINT64_MAX (PERF-VF audit S1).
-constexpr uint64_t VNNI2_WORK_FLOOR_DEFAULT = uint64_t(1) << 18;
+constexpr uint64_t VNNI2_WORK_FLOOR_DEFAULT = uint64_t(1) << 20;   // (S26 LEVERS-26) was 1 << 18
 uint64_t vnni2_work_floor();              // the floor in effect (default or ENGINE_VNNI2_FLOOR)
 uint32_t vnni_route_threads();            // the global pool's configured size (ENGINE_THREADS rule), resolved once
 bool     vnni2_work_passes(uint32_t m, uint32_t n, uint32_t k, uint32_t threads);   // m*n*k >= floor * threads

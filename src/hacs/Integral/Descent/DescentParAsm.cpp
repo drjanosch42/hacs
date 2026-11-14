@@ -32,7 +32,9 @@ namespace {
     {NAME, engine::lever::Policy{true, engine::lever::Empty::Unset, engine::lever::Match::Exact01, engine::lever::Cache::Once, \
                                  "WARNING: " NAME "=%s is neither 0 nor 1; the lever stays on (default)\n", "default", "env", "default"}}
 constexpr int kLevers = 4;
-engine::lever::EnvLever g_levers[kLevers] = {PARASM_LEVER("HECKE_DESCENT_PAR_ASM"), PARASM_LEVER("HECKE_DESCENT_PAR_ELL"),
+// (S26 LEVERS-26) The four env arms (=0) are RETIRED in OC_ENABLE_LEGACY=OFF builds (refused, exit 1: EnvLever.h
+// EnvArmRetiredLever); the serial / dense code of record stays via par::ScopedLever.
+engine::lever::EnvArmRetiredLever g_levers[kLevers] = {PARASM_LEVER("HECKE_DESCENT_PAR_ASM"), PARASM_LEVER("HECKE_DESCENT_PAR_ELL"),
                                              PARASM_LEVER("HECKE_DESCENT_EMBED_MAP"), PARASM_LEVER("HECKE_DESCENT_PAR_LN")};
 #undef PARASM_LEVER
 std::atomic<uint32_t> g_threads_scoped{0};

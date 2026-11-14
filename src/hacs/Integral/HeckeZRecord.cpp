@@ -6,6 +6,7 @@
 #include "HeckeZRecord.h"
 
 #include "HeckeZEisUp.h"
+#include "HeckeZEisUpChar.h"
 #include "HeckeZTor.h"
 #include "HeckeZUTag.h"
 #include "HeckeZUp.h"
@@ -351,6 +352,58 @@ std::string ExportWord(const std::string& text) {
     return "blocked(export)";
 }
 
+// ---- (slot-27 EXW) the chi_Z check of a free-route module ---------------------------------------------------------------------------
+bool FreeReadChiAgrees(const local::LatticeModule& M, const std::map<uint32_t, std::vector<std::string>>& chi_z, std::string* why) {
+    if (!M.ok || M.T.size() != M.P.size()) {
+        if (why) *why = "the module is not served";
+        return false;
+    }
+    const Zlk R = Zlk::Make(M.ell, M.K);
+    // a canonical signed hex ("0x..", "-0x..") or decimal integer, reduced mod ell^K
+    auto residue = [&R](const std::string& t, uint64_t* out) -> bool {
+        size_t i = 0;
+        const bool neg = !t.empty() && t[0] == '-';
+        if (neg) i = 1;
+        const bool hex = t.compare(i, 2, "0x") == 0;
+        if (hex) i += 2;
+        if (i >= t.size()) return false;
+        const unsigned __int128 q = R.q;
+        unsigned __int128 acc = 0;
+        for (; i < t.size(); ++i) {
+            const char c = t[i];
+            uint32_t d;
+            if (c >= '0' && c <= '9') d = static_cast<uint32_t>(c - '0');
+            else if (hex && c >= 'a' && c <= 'f') d = static_cast<uint32_t>(c - 'a' + 10);
+            else return false;
+            if (d >= (hex ? 16u : 10u)) return false;
+            acc = (acc * (hex ? 16u : 10u) + d) % q;
+        }
+        const uint64_t v = static_cast<uint64_t>(acc);
+        *out = neg ? R.neg(v) : v;
+        return true;
+    };
+    for (size_t i = 0; i < M.P.size(); ++i) {
+        const auto it = chi_z.find(M.P[i]);
+        if (it == chi_z.end() || it->second.size() != size_t(M.D) + 1) continue;
+        const local::Poly C = local::Charpoly(R, M.T[i], M.D);   // low -> high, monic (as chi_z)
+        bool ok = C.size() == it->second.size();
+        std::string at;
+        for (size_t j = 0; ok && j < C.size(); ++j) {
+            uint64_t r = 0;
+            const std::string& t = it->second[j];
+            if (t.empty() || t[0] == '[' || t == "?") continue;   // a coefficient beyond 2^63 in the descent's short text: not compared
+            ok = residue(t, &r) && r == C[j];
+            if (!ok) at = " at x^" + std::to_string(j) + ": " + std::to_string(C[j]) + " vs " + t;
+        }
+        if (!ok) {
+            if (why) *why = "chi(T_" + std::to_string(M.P[i]) + ") mod ell^K differs from the descent's chi_Z (ell = " + std::to_string(M.ell) +
+                            ", K = " + std::to_string(M.K) + ")" + at;
+            return false;
+        }
+    }
+    return true;
+}
+
 // ---- settings ----------------------------------------------------------------------------------------------------------------------
 namespace {
 // (slot-25 H1) the G8 settings line.  The `off` line is the frozen default (schema audit F2) and must stay byte for byte; `hida` is
@@ -394,8 +447,12 @@ std::string RecordSettings::caps_text() const {
       << "; (C3) at K = 1 when the K0 read is not served\n"
       << "heckez.maximal_ideals = decomposed iff generation is certified by saturation or rational and theta mod ell generates A'_1 "
          "(Krylov rank = dim A'_1 = d), theta = the read's own generating theta, else the first of theta_search's order over P, else "
-         "(theta_search = P u {T_ell}) the first of theta_search's order over the read set P u {T_ell} when t_ell = added; else not_run "
-         "(eis_single: not_run)\n"
+         "(theta_search = P u {T_ell}) the first of theta_search's order over the read set P u {T_ell} when t_ell = added"
+      << (rat.theta_order != ThetaOrder::Lex
+              ? "; else (theta_order = lex_then_greedy) the greedy continuation over P, then over the read set (score: Krylov rank, target "
+                "t mod ell, c <= min(binom(d,2), ell - 1), at most theta_cap tests per list)"
+              : "")
+      << "; else not_run (eis_single: not_run)\n"
       << "heckez.irreducible = c_theta irreducible mod q for some prime q >= 3, the first " << irred_primes << " primes tried in order\n"
       << "heckez.second_route = v_ell(B_k/k) mod ell^(e+2), e = v_ell(g_P), level 1, ell >= 5, (ell-1) !| k, BernoulliOverK; served iff "
          "ell^(e+5) < 2^"
@@ -512,8 +569,11 @@ local::RationalInput RatFor(const RationalResult& R, uint64_t ell) {
     ri.lambda_hex = t.lambda_hex;
     ri.c_hex = R.cusp_part;
     ri.v_c_lambda = CertVal(t.eis_res, ell);
-    ri.v_gP = CertVal(R.gP, ell);
-    ri.gP_complete = R.gP.complete();
+    // (S27 TS-FIX, TS_design.md Sec. 5.4 item 2) without a g_P bound (open(no primitive T_p)) the read gets no g_P: it uses its own
+    // local value (v_gP_local) or none, by its own rule -- never the default Factored's "1"
+    const bool gp_bound = GPIsBound(R);
+    ri.v_gP = gp_bound ? CertVal(R.gP, ell) : -1;
+    ri.gP_complete = gp_bound && R.gP.complete();
     return ri;
 }
 
@@ -578,6 +638,9 @@ struct EllRead {
     std::string root;                // the at-root word (record vocabulary)
     uint32_t K0 = 0;
     double secs = 0;
+    // (slot-27 EXW) the G10 provenance of a trigger of rule (alpha): "free_block_z; export: <the replaced read's status>" or
+    // "refused(<Name>)" (the free block refused: the pending word kept); empty: no trigger at ell
+    std::string exw;
 };
 
 std::vector<uint64_t> Residues(const std::vector<std::string>& hex, uint64_t ell) {
@@ -619,8 +682,11 @@ struct GenTheta {
 };
 // (slot-26 HZ-EISUP, design Sec. 1.5) `first` (optional; full records at N > 1 only): a coefficient vector on P tried before the search (the
 // read's own generating theta'); nullptr leaves the search exactly as before.
+// (S27 TS, TS_design.md Sec. 3 "S2-c capped") `continuation`: instead of `first` + the lex search, the capped greedy continuation over P
+// (KrylovContinuation, score = the Krylov rank, a fresh budget of theta_cap tests); called only under theta_order = lex_then_greedy and
+// only after every lex search of the chain has failed (the last-resort placement).
 GenTheta GeneratingTheta(const RationalSettings& rs, const LatticeModule& M, const std::vector<uint32_t>& P, uint64_t ell, uint32_t dimA1,
-                         const std::vector<uint32_t>* first = nullptr) {
+                         const std::vector<uint32_t>* first = nullptr, bool continuation = false) {
     GenTheta G;
     if (dimA1 == 0 || M.P.size() < P.size() || M.T.size() < P.size() || ell < 2 || P.empty()) return G;
     for (size_t i = 0; i < P.size(); ++i)
@@ -631,6 +697,7 @@ GenTheta GeneratingTheta(const RationalSettings& rs, const LatticeModule& M, con
         T[i].resize(D * D);
         for (size_t x = 0; x < D * D; ++x) T[i][x] = M.T[i][x] % ell;
     }
+    uint32_t last_rank = 0;   // (S27 TS) the Krylov rank of the last test (= dimA1 when it generates)
     auto test = [&](const std::vector<uint32_t>& c) -> bool {
         std::vector<uint64_t> A(D * D, 0);
         for (size_t i = 0; i < m; ++i)
@@ -673,6 +740,7 @@ GenTheta GeneratingTheta(const RationalSettings& rs, const LatticeModule& M, con
             pc.push_back(col);
             ++rank;
         }
+        last_rank = rank;
         if (rank != dimA1) return false;
         std::vector<uint64_t> v = pw[dimA1], w(dimA1, 0);   // v = theta^d - sum w_i theta^i
         for (uint32_t r = 0; r < dimA1; ++r) {
@@ -688,6 +756,21 @@ GenTheta GeneratingTheta(const RationalSettings& rs, const LatticeModule& M, con
         G.fbar[dimA1] = 1 % ell;
         return true;
     };
+    if (continuation) {
+        const uint64_t B2 = rs.theta_coeff_max ? rs.theta_coeff_max : std::max<uint64_t>(1, uint64_t(dimA1) * (dimA1 - 1) / 2);
+        const uint64_t tbar = kThetaGreedyTarget % ell ? kThetaGreedyTarget % ell : 1;
+        const ContinuationResult C = KrylovContinuation(static_cast<uint32_t>(m), dimA1, B2, ell, tbar, rs.theta_cap,
+                                                        [&](const std::vector<uint32_t>& c) -> uint32_t {
+                                                            test(c);
+                                                            return last_rank;
+                                                        });
+        if (C.found) {
+            ENGINE_CHECK_MSG(test(C.theta), "HeckeZRecord: the continuation's theta does not generate A'_1");
+            G.ok = true;
+            G.coeffs = C.theta;
+        }
+        return G;
+    }
     if (first && first->size() == m && test(*first)) {
         G.ok = true;
         G.coeffs = *first;
@@ -859,6 +942,7 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
     std::vector<uint32_t> P = drec::DefaultRecordPrimes(N);
     RationalSettings rs = s.rat;
     rs.threads = s.threads;
+    rs.p_rule_cap = s.p_rule_cap;   // (S27 TS) the last-round rule of a step without U_p (unprinted; printed in heckez.P_rule)
     // (HZ-RAT-PERF (b2)) the descent's certified chi_Z(T_p | H^1/tors): a unit theta = T_p reads its residues from it (value-neutral;
     // RationalStep compares both routes at its probe primes)
     RationalInputs rin;
@@ -901,6 +985,9 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
     const bool c1_ok = Q.c1_status == "certified" && Q.theta_index >= 0;
     const ThetaEntry* TH = c1_ok ? &Q.thetas[static_cast<size_t>(Q.theta_index)] : nullptr;
     const bool eis_rational = Q.eis_rational && c1_ok;
+    // the cuspidal block exists (schema audit F5): G3's congruence branch, G3.C_T.ell=<l> written per certified factor of g_P.
+    // (slot-27 EXW) defined here so that rule (alpha)'s root trigger reads the same predicate as the G3 writer (CtListed below).
+    const bool has_cusp = eis_rational && TH && !full_N && Q.d_target >= 2;
 
     // full at N > 1: HZ-UTAG per p | N
     std::vector<UTagResult> utags;
@@ -925,6 +1012,8 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
     up::FullG1Words FW;   // ([C] 1.26.0-pre.3 item 8 (d')(ii)) the one decision of G1's words (HeckeZUp.h FullG1Rule)
     bool utag_nr = false, utag_split = false;
     const bool eisup_scope = full_N && eisup::InScope(N, n);   // (HZ-EISUP, design D3) e^an_k(N) = 1 written out (audit m1)
+    // (slot-27 EISUPb, HZEISUPb_design.md v0.4 D1) e^an_k(N) != 1: HZ-EISUP (b)'s scope ([C] 1.28.0-pre.1 prop:heckeZeisupchar)
+    const bool eisupb_scope = full_N && eisup::InScopeChar(N, n);
     if (full_N) {
         for (const auto& u : utags) {
             utag_nr = utag_nr || u.non_reduced_certified;
@@ -937,12 +1026,12 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
         Ulist = up::PrimesDividing(N);
         try {
             oc_util::CancelPoint("hecke_structure.rational_full");
-            QF = RationalStepFull(N, n, P, Ulist, rs, &rin, eisup_scope ? &qf_runs : nullptr);
+            QF = RationalStepFull(N, n, P, Ulist, rs, &rin, (eisup_scope || eisupb_scope) ? &qf_runs : nullptr);
         } catch (const WordPrimeCapRefusal& e) {
             return refuse_word_prime_cap(e);
         }
         ENGINE_CHECK_MSG(QF.b1 == b1, "HeckeZRecord: b1 of the full rational step differs from the descent's H^1 free rank");
-        FW = up::FullG1Rule(utag_nr, utag_split, &QF, false, false, eisup_scope);
+        FW = up::FullG1Rule(utag_nr, utag_split, &QF, false, false, eisup_scope || eisupb_scope);
     }
     if (full_N && Ulist.empty()) {   // the non-reduced branch: the operator list without a search (G1.theta_ops)
         Ulist = up::PrimesDividing(N);
@@ -957,7 +1046,9 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
     // certified and e^an_k(N) = 1; the only refusal is (c)'s whole-record refused(word_prime_cap) (audit m8), every other failure an ENGINE_CHECK
     eisup::EisUpResult EU;
     const bool eisup_on = c1f_ok && eisup_scope;
-    ENGINE_CHECK_MSG(!c1f_ok || FW.components == (eisup_scope ? "certified" : "blocked(U_p)"), "HeckeZRecord: the components word");
+    const bool eisupb_on = c1f_ok && eisupb_scope;   // (EISUPb) the (b) branch: taken on e^an_k(N) != 1 only, (a)'s path untouched
+    eisup::EisUpCharResult EB;
+    ENGINE_CHECK_MSG(!c1f_ok || FW.components == ((eisup_scope || eisupb_scope) ? "certified" : "blocked(U_p)"), "HeckeZRecord: the components word");
     if (eisup_on) {
         oc_util::CancelPoint("hecke_structure.eisup");
         eisup::EisUpInput ein;
@@ -978,6 +1069,26 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
             return refuse_word_prime_cap(e);
         }
     }
+    if (eisupb_on) {   // (slot-27 EISUPb; design Sec. 6, [C] 1.28.0-pre.1 prop:heckeZeisupchar) the only refusal is (c)'s
+        oc_util::CancelPoint("hecke_structure.eisupb");
+        eisup::EisUpCharInput ein;
+        ein.N = N;
+        ein.n = n;
+        ein.ops = QF.P;
+        ein.nU = QF.nU;
+        ein.theta = THF->coeffs;
+        ein.f = THF->f;
+        ein.e_k = QF.e_k;
+        ein.d = QF.d;
+        ein.b1 = b1;
+        ein.rs = rs;
+        ein.runs = &qf_runs;
+        try {
+            EB = eisup::EisUpCharStep(ein);
+        } catch (const WordPrimeCapRefusal& e) {
+            return refuse_word_prime_cap(e);
+        }
+    }
     std::vector<PrimeRun>().swap(qf_runs);   // the retained runs are not needed beyond this point
 
     // ---- S_cand ----------------------------------------------------------------------------------------------------------------
@@ -992,7 +1103,7 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
             addReason(se.ell, se.reason);
             S[se.ell].v_disc = se.v_disc;   // (F16) v_disc = 1 stays in S (the S_rule of the caps text): no reason word for it
         }
-        if (eis_rational)
+        if (eis_rational && GPIsBound(Q))   // (S27 TS-FIX) no factors without a bound; the predicate states it
             for (const auto& pp : Q.gP.factors)
                 if (pp.proof != "probable" && pp.q != 0) addReason(pp.q, "congruence");
     }
@@ -1082,6 +1193,69 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
         }
     }
 
+    // ---- (slot-27 EXW, EXW_design.md v0.2 Sec. 3.2) rule (alpha), "the word is written": the at-root read is made again on the free block
+    //      over Z of EXPORT-Z step 2 where its word would be WRITTEN as G3.C_T.ell=<l>.read = refused(export_word).  CtListed is the G3
+    //      writer's own condition (a certified factor of g_P, the cuspidal block present); the (C3) word is not touched here (step (4)).
+    //      With the seam empty (src.local_read_free unset) no trigger fires: the pre-EXW record byte for byte.
+    std::map<uint32_t, std::vector<std::string>> chi_free;   // the descent's chi_Z(T_p) per p (the free reads' production check)
+    for (const auto& [p, c] : rin.chi_z) chi_free[p] = c;
+    auto ct_factor = [](const auto& pp) { return pp.proof != "probable" && pp.q != 0; };
+    auto ct_listed = [&](uint64_t ell) {
+        if (!has_cusp || !GPIsBound(Q)) return false;   // the writer's branch: the cuspidal block and (S27 TS-FIX) g_P a bound
+        for (const auto& pp : Q.gP.factors)
+            if (ct_factor(pp) && pp.q == ell) return true;
+        return false;
+    };
+    auto module_status = [](const LocalReadOut& o) {
+        return o.read ? std::string("ok") : o.M.status + " (" + o.M.detail + ")";
+    };
+    // a served or word-modulus-refused free read; false: the free block was refused by name (*exw set, nothing else moves)
+    auto free_read = [&](uint64_t ell, uint32_t K, const std::vector<uint32_t>& ops, const local::ReadOptions& o, uint32_t steps,
+                         LocalReadOut* out, std::string* exw) -> bool {
+        local::ReadOptions of = o;
+        of.free_threads = s.threads;
+        *out = src.local_read_free(N, n, ell, K, ops, b1, of, steps);
+        if (out->M.status == "blocked(free_block)") {
+            std::string name = "Unnamed";
+            if (out->M.detail.compare(0, 9, "REFUSED [") == 0 && out->M.detail.find(']') != std::string::npos)
+                name = out->M.detail.substr(9, out->M.detail.find(']') - 9);
+            *exw = "refused(" + name + ")";
+            return false;
+        }
+        std::string why;
+        if (out->read)
+            ENGINE_CHECK_MSG(FreeReadChiAgrees(out->M, chi_free, &why),
+                             std::string("HeckeZRecord (EXW): the free read at ell = " + std::to_string(ell) + " fails the chi_Z check: " + why)
+                                 .c_str());
+        return true;
+    };
+    if (src.local_read_free && !full_N && c1_ok) {
+        for (auto& [ell, e] : S) {
+            if (!(ct_listed(ell) && e.root == "refused(export_word)")) continue;
+            oc_util::CancelPoint("hecke_structure.local_read_free");
+            const auto te = std::chrono::steady_clock::now();
+            local::ReadOptions o = ro;
+            o.rat = RatFor(Q, ell);
+            LocalReadOut fr;
+            std::string exw;
+            const std::string old_status = module_status(e.out) + (e.out.escalation.empty() ? "" : "; escalation: " + e.out.escalation);
+            if (free_read(ell, e.K0, P, o, s.K_steps, &fr, &exw)) {
+                // the (C3) path keeps the module it had: a served EXPORT read whose escalation stopped at the export's K_max (origin (b)
+                // of the design's Sec. 1) moves to c3out, so that G2, G9.K1 and the tb_mat entry stay byte for byte (only the root moves)
+                if (!e.c3_from_fallback) {
+                    e.c3out = e.out;
+                    e.c3_from_fallback = true;
+                }
+                e.out = fr;
+                e.root = fr.read ? RootWord(fr) : RootRefusal(fr.M);
+                e.exw = "free_block_z; export: " + old_status;
+            } else {
+                e.exw = exw;
+            }
+            e.secs += std::chrono::duration<double>(std::chrono::steady_clock::now() - te).count();
+        }
+    }
+
     // ---- the Tor reads (HZ-TOR, merged e0ddc957): ReadTor at every ell with tors H^1_(ell) != 0 (HZ-TOR audit N2: ReadTor, not
     //      SplitFromModuleZ -- the read set P u {T_ell} and K_J >= e)
     std::map<uint64_t, tor::TorRead> TR;
@@ -1092,7 +1266,7 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
         }
 
     // ---- derived: eis_single ([C, prop:heckeZeiscert](1)), rational route ------------------------------------------------------
-    bool every_closes = eis_rational && Q.gP.complete();
+    bool every_closes = eis_rational && GPIsBound(Q) && Q.gP.complete();   // (S27 TS-FIX) no eis_single without a g_P bound
     if (eis_rational)
         for (const auto& pp : Q.gP.factors) {
             if (pp.proof == "probable") continue;
@@ -1112,6 +1286,69 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
         }
         return -1;
     };
+    // (slot-27 EXW, design M1) the generation decision of G2.ell=<l>.generation.status, ONE function for the writer (G2 below) and for the
+    // (C3) trigger: falls_to_c3 iff the written word is the (C3) word e.c3 (no route certifies generation otherwise)
+    struct GenDecision {
+        std::string gs, route;
+        bool falls_to_c3 = false;
+    };
+    auto decide_gen = [&](uint64_t ell, const EllRead& e) -> GenDecision {
+        GenDecision g;
+        if (full_N) {
+            // (Z1; Z2) the anemic rule, every ell: no read without (C1); the read's certificate, then the rational route
+            if (!c1f_ok) g.gs = "open(sandwich)";
+            else if (e.c3 == "certified") { g.gs = "certified"; g.route = "saturation"; }
+            else if (up::RationalThetaIndex(QF, ell) >= 0) { g.gs = "certified"; g.route = "rational"; }
+            else { g.gs = e.c3; g.falls_to_c3 = true; }
+        } else if (!c1_ok) {
+            g.gs = "open(sandwich)";
+        } else if (e.c3 == "certified") {
+            g.gs = "certified";
+            g.route = "saturation";
+        } else if (eis_single) {
+            g.gs = "certified";
+            g.route = "eis_single";
+        } else if (rational_theta(ell) >= 0) {
+            g.gs = "certified";
+            g.route = "rational";
+        } else {
+            g.gs = e.c3;
+            g.falls_to_c3 = true;
+        }
+        return g;
+    };
+    // ---- (slot-27 EXW, design Sec. 3.2 step (4)) rule (alpha) for (C3): the (C3) read at K = 1 is made again on the free block where its
+    //      word would be WRITTEN as G2.ell=<l>.generation.status = refused(export_word) / refused(k1_route)
+    if (src.local_read_free && (full_N ? c1f_ok : c1_ok)) {
+        for (auto& [ell, e] : S) {
+            if (!(decide_gen(ell, e).falls_to_c3 && (e.c3 == "refused(export_word)" || e.c3 == "refused(k1_route)"))) continue;
+            oc_util::CancelPoint("hecke_structure.local_read_free");
+            const auto te = std::chrono::steady_clock::now();
+            local::ReadOptions o = ro;
+            if (full_N) {
+                o.d_target = QF.d_target;
+                o.eis_rational = false;
+                o.full_algebra = true;
+                o.allow_bad_primes = true;
+            } else {
+                o.rat = RatFor(Q, ell);
+            }
+            LocalReadOut fr;
+            std::string exw;
+            const std::string old_status = "c3_fallback_K1 " + (e.c3_from_fallback ? module_status(e.c3out) : std::string("not_run"));
+            if (free_read(ell, 1, full_N ? QF.P : P, o, 0, &fr, &exw)) {
+                e.c3out = fr;
+                e.c3_from_fallback = true;
+                e.c3 = fr.read ? fr.L.c3 : C3Refusal(fr.M);
+                ENGINE_CHECK_MSG(e.c3 != "A1_of_computed", "HeckeZRecord (EXW): a torsion-prime read reached the record");
+                const std::string w = "free_block_z; export: " + old_status;
+                e.exw = e.exw.empty() ? w : e.exw + " | (C3) " + w;
+            } else {
+                e.exw = e.exw.empty() ? exw : e.exw + " | (C3) " + exw;
+            }
+            e.secs += std::chrono::duration<double>(std::chrono::steady_clock::now() - te).count();
+        }
+    }
 
     // =================================================================================================================================
     // G0
@@ -1161,7 +1398,6 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
     // can hold with e_k > 1, and d = e_k with a cusp form); irreducibility certified by a prime q
     // modulo which c_theta is irreducible (count cap irred_primes, the prime in G9); p0 = T_p when theta is the unit T_p and the block
     // is irreducible (theta_search tries the units in ascending order, so p is the smallest prime whose eigenvalue generates).
-    const bool has_cusp = eis_rational && TH && !full_N && Q.d_target >= 2;
     std::string cusp_irred;          // "true" | "open(cap)"
     uint64_t cusp_irred_q = 0;       // the certifying prime (0: degree 1, or none found)
     int32_t theta_unit_p = -1;       // theta = T_p
@@ -1195,8 +1431,8 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
         }
     };
     if (has_cusp) certify_irred(Q.cusp_part, Q.d_target - 1);
-    const bool full_cusp = eisup_on && QF.d > QF.e_k;   // (HZ-EISUP) the cuspidal block of the full record, absent iff d = e_k
-    if (full_cusp) certify_irred(EU.c_theta, QF.d - QF.e_k);
+    const bool full_cusp = (eisup_on || eisupb_on) && QF.d > QF.e_k;   // (HZ-EISUP) the cuspidal block of the full record, absent iff d = e_k
+    if (full_cusp) certify_irred(eisupb_on ? EB.c_theta : EU.c_theta, QF.d - QF.e_k);
     if (TH && !full_N) {
         B.add("G1", "G1.theta", Join(TH->coeffs), "", "G1.C1.status");
         if (eis_rational) {
@@ -1279,6 +1515,43 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
                 B.add("G1", cp + ".mult", "2", "int");
                 B.add("G1", cp + ".p0", cusp_irred == "true" && unit_T > 0 ? "T_" + std::to_string(unit_T) : "theta", "op_or_theta");
                 B.add("G1", cp + ".minpoly", "[" + Join(EU.c_theta) + "]");
+                B.add("G1", cp + ".irreducible", cusp_irred, "irreducible");
+            }
+        }
+        if (eisupb_on) {
+            // (slot-27 EISUPb; design Sec. 5.1, [C] 1.28.0-pre.1 item 8 (d')(ii) "... from HZ-EISUP (b) on") one row per Eisenstein component:
+            // degree 1 first (lambda_theta, U_<p>), then degree >= 2 (theta_poly, U_<p>.charpoly); psi_cond, psi_order on every row; then the
+            // cuspidal block iff d > e_k
+            const std::vector<uint32_t> Up = EB.Uprimes();
+            for (size_t j = 0; j < EB.comps.size(); ++j) {
+                const eisup::EisCharComp& c = EB.comps[j];
+                const std::string cp = "G1.components[" + std::to_string(j) + "]";
+                B.add("G1", cp + ".type", "eis", "component_type");
+                B.add("G1", cp + ".degree", std::to_string(c.degree), "int");
+                B.add("G1", cp + ".mult", "1", "int");
+                B.add("G1", cp + ".p0", "T_" + std::to_string(P[0]), "op_or_theta");
+                B.add("G1", cp + ".minpoly", "[" + Join(c.minpoly) + "]");
+                if (c.degree == 1) {
+                    B.add("G1", cp + ".lambda_theta", c.lambda_theta, "zbig");
+                    for (size_t i = 0; i < Up.size(); ++i) B.add("G1", cp + ".U_" + std::to_string(Up[i]), c.U[i], "zbig");
+                } else {
+                    B.add("G1", cp + ".theta_poly", "[" + Join(c.theta_poly) + "]");
+                    for (size_t i = 0; i < Up.size(); ++i) B.add("G1", cp + ".U_" + std::to_string(Up[i]) + ".charpoly", "[" + Join(c.Ucharpoly[i]) + "]");
+                }
+                B.add("G1", cp + ".psi_cond", std::to_string(c.psi_cond), "int");
+                B.add("G1", cp + ".psi_order", std::to_string(c.psi_order), "int");
+            }
+            if (full_cusp) {
+                const std::string cp = "G1.components[" + std::to_string(EB.comps.size()) + "]";
+                int32_t unit_T = -1;   // theta = the unit T_p (p !| N): (d)'s p0 rule
+                for (size_t i = 0; i + QF.nU < QF.P.size(); ++i)
+                    if (THF->coeffs[i] == 1 && std::count(THF->coeffs.begin(), THF->coeffs.end(), 0u) + 1 == static_cast<long>(THF->coeffs.size()))
+                        unit_T = static_cast<int32_t>(QF.P[i]);
+                B.add("G1", cp + ".type", "cusp", "component_type");
+                B.add("G1", cp + ".degree", std::to_string(QF.d - QF.e_k), "int");
+                B.add("G1", cp + ".mult", "2", "int");
+                B.add("G1", cp + ".p0", cusp_irred == "true" && unit_T > 0 ? "T_" + std::to_string(unit_T) : "theta", "op_or_theta");
+                B.add("G1", cp + ".minpoly", "[" + Join(EB.c_theta) + "]");
                 B.add("G1", cp + ".irreducible", cusp_irred, "irreducible");
             }
         }
@@ -1365,19 +1638,12 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
     for (const auto& [ell, e] : S) {
         const std::string pre = "G2.ell=" + std::to_string(ell);
         B.add("G2", pre + ".theory", "H", "theory");
-        std::string gs, route;
+        // (slot-27 EXW) the decision is decide_gen's (shared with the (C3) trigger); gen_theta follows its route
+        const GenDecision gdec = decide_gen(ell, e);
+        const std::string gs = gdec.gs, route = gdec.route;
         int32_t gen_theta = -1;   // the theta generating T (x) Z_ell, an index into Q.thetas
-        if (full_N) {
-            // (Z1; Z2) the anemic rule, every ell: no read without (C1); the read's certificate, then the rational route
-            if (!c1f_ok) gs = "open(sandwich)";
-            else if (e.c3 == "certified") { gs = "certified"; route = "saturation"; }
-            else if (up::RationalThetaIndex(QF, ell) >= 0) { gs = "certified"; route = "rational"; }
-            else gs = e.c3;
-        } else if (!c1_ok) {
-            gs = "open(sandwich)";
-        } else if (e.c3 == "certified") {
-            gs = "certified";
-            route = "saturation";
+        if (full_N || !c1_ok) {
+        } else if (route == "saturation") {
             const std::string& mono = e.c3_from_fallback ? e.c3out.L.mono : e.out.L.mono;
             if (mono == "theta") {
                 gen_theta = Q.theta_index;
@@ -1392,16 +1658,8 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
                     if (unit) gen_theta = static_cast<int32_t>(j);
                 }
             }
-        } else if (eis_single) {
-            gs = "certified";
-            route = "eis_single";
+        } else if (route == "eis_single" || route == "rational") {
             gen_theta = rational_theta(ell);
-        } else if (rational_theta(ell) >= 0) {
-            gs = "certified";
-            route = "rational";
-            gen_theta = rational_theta(ell);
-        } else {
-            gs = e.c3;
         }
         gen_status[ell] = gs;
         B.add("G2", pre + ".generation.status", gs, "generation");
@@ -1419,7 +1677,7 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
                     B.add("G2", pre + ".t_ell", rd.M.t_ell.empty() ? "in_P" : rd.M.t_ell, "t_ell");
                 }
             }
-            if (!eisup_on) {   // outside HZ-EISUP's scope (or no (C1)): blocked(U_p) where generation is certified (pending), else not_run
+            if (!eisup_on && !eisupb_on) {   // no (C1): blocked(U_p) where generation is certified (pending), else not_run
                 B.add("G2", pre + ".maximal_ideals", gs == "certified" ? "blocked(U_p)" : "not_run", "mi_status", pre + ".generation.status");
                 if (gs != "certified" && c1f_ok && rd.read)
                     B.add("G2", pre + ".A1_of_computed.dim_A1", std::to_string(rd.L.dim_A1), "int");
@@ -1456,6 +1714,14 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
                     gt = GeneratingTheta(s.rat, rd.M, rd.M.P, ell, static_cast<uint32_t>(rd.L.dim_A1));
                     if (gt.ok) thP = rd.M.P;
                 }
+                // (S27 TS) lex_then_greedy: the capped continuation as the last resort, over the list, then over the read set
+                if (!gt.ok && s.rat.theta_order == ThetaOrder::LexThenGreedy) {
+                    gt = GeneratingTheta(s.rat, rd.M, ops, ell, static_cast<uint32_t>(rd.L.dim_A1), nullptr, true);
+                    if (!gt.ok && rd.L.t_ell == "added" && rd.M.P.size() == ops.size() + 1 && rd.M.P.back() == ell) {
+                        gt = GeneratingTheta(s.rat, rd.M, rd.M.P, ell, static_cast<uint32_t>(rd.L.dim_A1), nullptr, true);
+                        if (gt.ok) thP = rd.M.P;
+                    }
+                }
             }
             if (!gt.ok) {
                 B.add("G2", pre + ".maximal_ideals", "not_run", "mi_status", pre + ".generation.status");
@@ -1470,6 +1736,93 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
             if (exact) {
                 std::vector<uint64_t> fr = Residues(exact->f, ell);
                 ENGINE_CHECK_MSG(fr == gt.fbar, "HeckeZRecord C-E7: the Krylov relation of theta' at ell is not f_theta' mod ell");
+            }
+            if (eisupb_on) {
+                // (slot-27 EISUPb; design Sec. 2.9, [C] 1.28.0-pre.1 item 8 (d')(ii)) f_j = charpoly(theta' | E_j) exactly (the orbit product of
+                // the certified systems; T_ell by lambda_psi(T_ell), prop:heckeZeisupchar (7)); C-B7; component j passes through m iff pi | f-bar_j
+                const size_t ne = EB.comps.size();
+                std::vector<std::vector<std::string>> fZ(ne);
+                std::vector<hecke::FpPoly64> fM;
+                for (size_t j = 0; j < ne; ++j) {
+                    fZ[j] = eisup::LambdaPolyOf(EB, j, thP, gt.coeffs);
+                    if (s.eisup_tamper_ell == ell && j == 0) fZ[0][0] = eisup::HexPlus(fZ[0][0], 1);   // (validation) the C-B7 tamper
+                    fM.push_back(hecke::FpPoly64(ell, eisup::PolyModEll(fZ[j], ell)));
+                }
+                hecke::FpPoly64 cb(ell, gt.fbar);
+                for (size_t j = 0; j < ne; ++j) {   // C-B7: prod_j f-bar_j divides f-bar with remainder 0, at multiplicity
+                    hecke::FpPoly64 qq, rr;
+                    hecke::FpPoly64::divrem(cb, fM[j], qq, rr);
+                    ENGINE_CHECK_MSG(rr.is_zero(), "HeckeZRecord C-B7: prod_j charpoly(theta' | E_j) does not divide f-bar_{theta'} mod ell (remainder != 0)");
+                    cb = qq;
+                }
+                const auto fac = hecke::FactorPoly(hecke::FpPoly64(ell, gt.fbar));
+                struct MI {
+                    std::vector<uint64_t> pi;
+                    uint32_t mult;
+                };
+                std::vector<MI> mis;
+                for (const auto& fa : fac.factors) mis.push_back(MI{fa.pi.coeffs, fa.multiplicity});
+                std::sort(mis.begin(), mis.end(), [](const MI& a, const MI& b) {
+                    if (a.pi.size() != b.pi.size()) return a.pi.size() < b.pi.size();
+                    return a.pi < b.pi;
+                });
+                B.add("G2", pre + ".maximal_ideals", "certified", "mi_status", pre + ".generation.status");
+                {
+                    std::string on;
+                    if (thP.size() != ops.size()) {
+                        std::vector<std::string> names;
+                        for (uint32_t p : thP) names.push_back((N % p == 0 ? "U_" : "T_") + std::to_string(p));
+                        on = " on " + Join(names, ",");
+                    }
+                    B.add("G2", pre + ".decomposed_by", "theta=(" + Join(gt.coeffs, " ") + ")" + on);
+                }
+                const bool cusp_comp = QF.d > QF.e_k;
+                const size_t ncomp = ne + (cusp_comp ? 1 : 0);
+                std::vector<std::set<std::vector<uint64_t>>> irr(ncomp);   // the distinct irreducible factors mod ell of each f-bar_j, c-bar
+                for (size_t j = 0; j < ne; ++j)
+                    for (const auto& fa : hecke::FactorPoly(fM[j]).factors) irr[j].insert(fa.pi.coeffs);
+                if (cusp_comp && cb.coeffs.size() > 1)
+                    for (const auto& fa : hecke::FactorPoly(cb).factors) irr[ne].insert(fa.pi.coeffs);
+                std::vector<std::string> cZ;   // c_theta' over Z where f_theta' is exact
+                if (cusp_comp && exact) {
+                    cZ = exact->f;
+                    for (size_t j = 0; j < ne; ++j) cZ = eisup::PolyDivExact(cZ, fZ[j]);
+                }
+                auto degree_of = [&](size_t j) -> int64_t { return j < ne ? static_cast<int64_t>(EB.comps[j].degree) : QF.d - QF.e_k; };
+                for (size_t i = 0; i < mis.size(); ++i) {
+                    const MI& m = mis[i];
+                    const uint32_t fdeg = static_cast<uint32_t>(m.pi.size() - 1);
+                    const std::string mp = pre + ".m[" + std::to_string(i) + "]";
+                    B.add("G2", mp + ".residue_degree", std::to_string(fdeg), "int");
+                    B.add("G2", mp + ".residue_poly", PolyText(m.pi));
+                    B.add("G2", mp + ".support", support_word(ell, gt.coeffs, thP, m.pi, true), "support");
+                    if (ell == 2 || ell == 3) B.add("G2", mp + ".degree_attr", "not_run", "degree_attr");
+                    add_local_type(pre, mp, m.mult, fdeg);
+                    std::vector<bool> thr(ncomp, false);
+                    for (size_t j = 0; j < ncomp; ++j) thr[j] = irr[j].count(m.pi) > 0;
+                    for (size_t j = 0; j < ncomp; ++j)
+                        B.add("G2", mp + ".components_through." + std::to_string(j), thr[j] ? "certified" : "not_run", "through",
+                              pre + ".generation.status");
+                    for (size_t j = 0; j < ncomp; ++j)
+                        for (size_t j2 = j + 1; j2 < ncomp; ++j2) {
+                            if (!thr[j] || !thr[j2]) continue;
+                            // depth = v_ell Res(f_j, f_j') iff exactly one residue factor is common to the two (then the local length at m)
+                            size_t common = 0;
+                            for (const auto& pi : irr[j]) common += irr[j2].count(pi);
+                            int64_t depth = -1;
+                            if (common == 1) {
+                                if (j2 < ne) depth = eisup::ResultantValuation(fZ[j], fZ[j2], ell);
+                                else if (!cZ.empty()) depth = eisup::ResultantValuation(fZ[j], cZ, ell);
+                            }
+                            const std::string pk = mp + ".pair_kinds[" + std::to_string(j) + "," + std::to_string(j2) + "]";
+                            B.add("G2", pk + ".depth", depth >= 0 ? std::to_string(depth) : "not_run", depth >= 0 ? "int" : "not_run",
+                                  pre + ".generation.status");
+                            B.add("G2", pk + ".status", depth >= 0 ? "certified" : "not_run", "status", pre + ".generation.status");
+                            const bool deg1 = degree_of(j) == 1 && degree_of(j2) == 1;
+                            B.add("G2", pk + ".kind", deg1 ? "meeting" : "not_run", "pair_kind", pre + ".generation.status");
+                        }
+                }
+                continue;
             }
             // lambda_j(theta') exactly ((F2) for T_p, T_ell included; the line's U_p), the tamper of the validation (audit M4) before it
             eisup::EisUpResult EUl = EU;
@@ -1568,6 +1921,14 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
                 if (!searched.ok && rd.L.t_ell == "added" && rd.M.P.size() == P.size() + 1 && rd.M.P.back() == ell) {
                     searched = GeneratingTheta(s.rat, rd.M, rd.M.P, ell, static_cast<uint32_t>(rd.L.dim_A1));
                     if (searched.ok) thP = rd.M.P;
+                }
+                // (S27 TS) lex_then_greedy: the capped continuation as the last resort, over P, then over the read set
+                if (!searched.ok && s.rat.theta_order == ThetaOrder::LexThenGreedy) {
+                    searched = GeneratingTheta(s.rat, rd.M, P, ell, static_cast<uint32_t>(rd.L.dim_A1), nullptr, true);
+                    if (!searched.ok && rd.L.t_ell == "added" && rd.M.P.size() == P.size() + 1 && rd.M.P.back() == ell) {
+                        searched = GeneratingTheta(s.rat, rd.M, rd.M.P, ell, static_cast<uint32_t>(rd.L.dim_A1), nullptr, true);
+                        if (searched.ok) thP = rd.M.P;
+                    }
                 }
             }
             if (searched.ok && thP.size() == P.size())   // a theta of HZ-RAT's own list: its exact f and c_theta(lambda) are used
@@ -1709,73 +2070,82 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
         B.add("G3", "G3.partition", "eisenstein", "partition");   // S = the Eisenstein component, S' = the cuspidal block
         B.add("G3", "G3.S", "0", "list:int");
         B.add("G3", "G3.S_prime", "1", "list:int");
-        bool all_cert = Q.gP.complete();
-        Limbs exact = {1};
-        std::vector<std::string> upper_txt;
-        for (const auto& pp : Q.gP.factors) {
-            if (pp.proof == "probable" || pp.q == 0) continue;
-            const uint64_t ell = pp.q;
-            const auto it = S.find(ell);
-            ENGINE_CHECK(it != S.end());
-            const EllRead& e = it->second;
-            int32_t v_up = static_cast<int32_t>(pp.e);
-            if (e.out.read && e.out.L.v_gP >= 0) v_up = std::min(v_up, e.out.L.v_gP);   // g_{P u {ell}}, ell-wise (item 8 (j))
-            const std::string pre = "G3.C_T.ell=" + std::to_string(ell);
-            B.add("G3", pre + ".upper_v", std::to_string(v_up), "int");
-            B.add("G3", pre + ".read", e.root, "read_word");
-            std::string st;
-            if (e.root == "certified") st = "certified";
-            else if (e.root == "upper_bound_certified" || e.root == "refused(word_modulus)") st = "upper_bound_certified";
-            else st = e.root;   // open(precision) final; refused(export_word) / refused(k1_route) / blocked(export) pending
-            B.add("G3", pre + ".status", st, "ct_ell");
-            if (e.out.read && e.out.L.v_eta >= 0) {
-                B.add("G3", pre + ".lower_v", std::to_string(e.out.L.v_eta), "int");
-                B.add("G3", "G3.eta_L.ell=" + std::to_string(ell) + ".exponents", Join(e.out.L.eta));
-                B.add("G3", "G3.eta_L.ell=" + std::to_string(ell) + ".r", std::to_string(e.out.L.eta.size()), "int");
-                B.add("G3", "G3.eta_L.ell=" + std::to_string(ell) + ".sign", N == 1 ? "+" : "both", "sign");
-            }
-            if (st == "certified") {
-                for (int32_t j = 0; j < v_up; ++j) LimbMul(exact, ell);
-            } else {
-                all_cert = false;
-            }
-            upper_txt.push_back(std::to_string(ell) + "^" + std::to_string(v_up));
-        }
-        std::string ups = upper_txt.empty() ? "1" : Join(upper_txt, "*");
-        if (!Q.gP.complete()) ups += "*[c:" + Q.gP.cofactor_hex + "]";
-        B.add("G3", "G3.C_T.upper", ups);
-        B.add("G3", "G3.C_T.cofactor", Q.gP.cofactor_hex, "zbig");
-        B.add("G3", "G3.C_T.cofactor_test", Q.gP.cofactor_test, "cofactor_test");
-        const std::string cts = !Q.gP.complete() ? "partial(unfactored)" : (all_cert ? "certified" : "upper_bound_certified");
-        B.add("G3", "G3.C_T.status", cts, "ct_status");
-        if (cts == "certified") B.add("G3", "G3.C_T.exact", LimbHex(exact), "zbig", "G3.C_T.status");
-        B.add("G3", "G3.fibre_product", cts == "certified" ? "certified" : "not_certified", "fibre_product");
-        // second route (never lifts a status)
-        if (N == 1) {
+        if (!GPIsBound(Q)) {
+            // (S27 TS-FIX, TS_design.md Sec. 5.4 item 4; [C] item 8 (j)) g_P open(no primitive T_p) -- the step was certified by a combination,
+            // so it has no primitive unit -- is not a bound: G3 has no global set of primes to read ell-wise and the congruence module is not
+            // run.  No upper / upper_v / read / cofactor / cofactor_test / exact / lower_v / eta_L / second-route / Mazur word (before the fix
+            // the default Factored was read as g_P = 1, and G3 would have claimed C_T certified with exact 0x1).
+            B.add("G3", "G3.C_T.status", "not_run", "ct_status");
+            B.add("G3", "G3.fibre_product", "not_certified", "fibre_product");
+        } else {
+            bool all_cert = Q.gP.complete();
+            Limbs exact = {1};
+            std::vector<std::string> upper_txt;
             for (const auto& pp : Q.gP.factors) {
-                if (pp.proof == "probable" || pp.q < 5 || k % (pp.q - 1) == 0) continue;
+                if (!ct_factor(pp)) continue;   // (EXW) the predicate of the root trigger (ct_listed)
                 const uint64_t ell = pp.q;
-                const EllRead& e = S.at(ell);
-                const int32_t vB = src.v_bernoulli(ell, k, pp.e + 2);
-                const std::string pre = "G3.second_route.ell=" + std::to_string(ell);
-                B.add("G3", pre + ".v_Bk", vB >= 0 ? std::to_string(vB) : "not_run", vB >= 0 ? "int" : "not_run");
-                std::string ag = "not_read";
-                if (vB >= 0 && e.out.read && e.out.L.v_eta >= 0 && e.root == "certified") ag = vB == e.out.L.v_eta ? "true" : "false";
-                B.add("G3", pre + ".agrees", ag, "agrees");
-            }
-        } else if (n == 0 && IsPrimeU32(N)) {
-            uint64_t num = N - 1, den = 12;
-            const uint64_t g = std::gcd(num, den);
-            num /= g;
-            for (const auto& pp : Q.gP.factors) {
-                if (pp.proof == "probable" || pp.q < 5) continue;
-                uint32_t v = 0;
-                uint64_t x = num;
-                while (x % pp.q == 0) {
-                    x /= pp.q;
-                    ++v;
+                const auto it = S.find(ell);
+                ENGINE_CHECK(it != S.end());
+                const EllRead& e = it->second;
+                int32_t v_up = static_cast<int32_t>(pp.e);
+                if (e.out.read && e.out.L.v_gP >= 0) v_up = std::min(v_up, e.out.L.v_gP);   // g_{P u {ell}}, ell-wise (item 8 (j))
+                const std::string pre = "G3.C_T.ell=" + std::to_string(ell);
+                B.add("G3", pre + ".upper_v", std::to_string(v_up), "int");
+                B.add("G3", pre + ".read", e.root, "read_word");
+                std::string st;
+                if (e.root == "certified") st = "certified";
+                else if (e.root == "upper_bound_certified" || e.root == "refused(word_modulus)") st = "upper_bound_certified";
+                else st = e.root;   // open(precision) final; refused(export_word) / refused(k1_route) / blocked(export) pending
+                B.add("G3", pre + ".status", st, "ct_ell");
+                if (e.out.read && e.out.L.v_eta >= 0) {
+                    B.add("G3", pre + ".lower_v", std::to_string(e.out.L.v_eta), "int");
+                    B.add("G3", "G3.eta_L.ell=" + std::to_string(ell) + ".exponents", Join(e.out.L.eta));
+                    B.add("G3", "G3.eta_L.ell=" + std::to_string(ell) + ".r", std::to_string(e.out.L.eta.size()), "int");
+                    B.add("G3", "G3.eta_L.ell=" + std::to_string(ell) + ".sign", N == 1 ? "+" : "both", "sign");
                 }
-                B.add("G3", "G3.second_route.ell=" + std::to_string(pp.q) + ".mazur_v_n", std::to_string(v), "int");
+                if (st == "certified") {
+                    for (int32_t j = 0; j < v_up; ++j) LimbMul(exact, ell);
+                } else {
+                    all_cert = false;
+                }
+                upper_txt.push_back(std::to_string(ell) + "^" + std::to_string(v_up));
+            }
+            std::string ups = upper_txt.empty() ? "1" : Join(upper_txt, "*");
+            if (!Q.gP.complete()) ups += "*[c:" + Q.gP.cofactor_hex + "]";
+            B.add("G3", "G3.C_T.upper", ups);
+            B.add("G3", "G3.C_T.cofactor", Q.gP.cofactor_hex, "zbig");
+            B.add("G3", "G3.C_T.cofactor_test", Q.gP.cofactor_test, "cofactor_test");
+            const std::string cts = !Q.gP.complete() ? "partial(unfactored)" : (all_cert ? "certified" : "upper_bound_certified");
+            B.add("G3", "G3.C_T.status", cts, "ct_status");
+            if (cts == "certified") B.add("G3", "G3.C_T.exact", LimbHex(exact), "zbig", "G3.C_T.status");
+            B.add("G3", "G3.fibre_product", cts == "certified" ? "certified" : "not_certified", "fibre_product");
+            // second route (never lifts a status)
+            if (N == 1) {
+                for (const auto& pp : Q.gP.factors) {
+                    if (pp.proof == "probable" || pp.q < 5 || k % (pp.q - 1) == 0) continue;
+                    const uint64_t ell = pp.q;
+                    const EllRead& e = S.at(ell);
+                    const int32_t vB = src.v_bernoulli(ell, k, pp.e + 2);
+                    const std::string pre = "G3.second_route.ell=" + std::to_string(ell);
+                    B.add("G3", pre + ".v_Bk", vB >= 0 ? std::to_string(vB) : "not_run", vB >= 0 ? "int" : "not_run");
+                    std::string ag = "not_read";
+                    if (vB >= 0 && e.out.read && e.out.L.v_eta >= 0 && e.root == "certified") ag = vB == e.out.L.v_eta ? "true" : "false";
+                    B.add("G3", pre + ".agrees", ag, "agrees");
+                }
+            } else if (n == 0 && IsPrimeU32(N)) {
+                uint64_t num = N - 1, den = 12;
+                const uint64_t g = std::gcd(num, den);
+                num /= g;
+                for (const auto& pp : Q.gP.factors) {
+                    if (pp.proof == "probable" || pp.q < 5) continue;
+                    uint32_t v = 0;
+                    uint64_t x = num;
+                    while (x % pp.q == 0) {
+                        x /= pp.q;
+                        ++v;
+                    }
+                    B.add("G3", "G3.second_route.ell=" + std::to_string(pp.q) + ".mazur_v_n", std::to_string(v), "int");
+                }
             }
         }
     }
@@ -2008,11 +2378,11 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
         std::vector<std::string> tb_mat;
         for (const auto& [ell, e] : S) {
             const LocalReadOut& rd = e.c3_from_fallback ? e.c3out : e.out;
-            if (!rd.read) continue;
-            const std::string dsha = Sha256Hex(DumpText(rd.M));
-            tb_mat.push_back(std::to_string(ell) + ":" + dsha);
+            // (slot-27 EXW) K3 below follows the root and no longer sits behind rd.read (byte-neutral before EXW: rd = e.out there)
+            const std::string dsha = rd.read ? Sha256Hex(DumpText(rd.M)) : std::string();
+            if (rd.read) tb_mat.push_back(std::to_string(ell) + ":" + dsha);
             const std::string pre = "G9.K1.ell=" + std::to_string(ell);
-            if (gen_status[ell] == "certified" && e.c3 == "certified") {
+            if (rd.read && gen_status[ell] == "certified" && e.c3 == "certified") {
                 B.add("G9", pre + ".K", std::to_string(rd.M.K), "int");
                 B.add("G9", pre + ".f_m", std::to_string(rd.M.D), "int");
                 B.add("G9", pre + ".r", std::to_string(Q.d_target), "int");
@@ -2021,7 +2391,10 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
                 B.add("G9", pre + ".scope", "global");
                 B.add("G9", pre + ".satcert_sha256", dsha, "sha256");
             }
-            if (!e.c3_from_fallback && eis_rational && CertVal(Q.gP, ell) > 0) {   // K3: ell | g_P only
+            // K3: ell | g_P only (S27 TS-FIX: a bound).  (slot-27 EXW, design Sec. 3.2) the guard follows the root (e.out.read), not the (C3)
+            // path: before EXW c3_from_fallback == !e.out.read on every record (byte-neutral); with a root trigger a served root stands beside
+            // a K = 1 (C3).
+            if (e.out.read && eis_rational && GPIsBound(Q) && CertVal(Q.gP, ell) > 0) {
                 const std::string p3 = "G9.K3.ell=" + std::to_string(ell);
                 const local::RootRead* th = nullptr;
                 for (const auto& rr : e.out.L.roots)
@@ -2057,7 +2430,8 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
                 B.add("G9", p3 + ".witness", "(" + std::to_string(wi) + "," + std::to_string(wj) + "):v=" + std::to_string(vmin));
                 B.add("G9", p3 + ".lambda", "formula:1+p^(k-1)");
                 B.add("G9", p3 + ".c_theta", "ref:G1.components[1].minpoly");
-                B.add("G9", p3 + ".dump_sha256", dsha, "sha256");
+                // (EXW) the dump of the root's own module (= rd's before EXW, where e.out is rd whenever K3 is written)
+                B.add("G9", p3 + ".dump_sha256", e.c3_from_fallback ? Sha256Hex(DumpText(e.out.M)) : dsha, "sha256");
             }
         }
         if (cusp_irred_q) B.add("G9", "G9.irreducible.cusp.q", std::to_string(cusp_irred_q), "int");   // (F5) c_theta irreducible mod q
@@ -2091,6 +2465,19 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
         B.add("G9", "G9.eisup.digest", Hex64(EU.digest()), "hex64");
         if (cusp_irred_q) B.add("G9", "G9.irreducible.cusp.q", std::to_string(cusp_irred_q), "int");   // (d)'s certificate of c_theta
     }
+    if (eisupb_on) {   // (EISUPb, design Sec. 5.3) the certificate of the Eisenstein U_p systems with characters (none of it depends on threads)
+        B.add("G9", "G9.eisupb.s_N", std::to_string(EB.s_N), "int");
+        B.add("G9", "G9.eisupb.o_N", std::to_string(EB.o_N), "int");
+        B.add("G9", "G9.eisupb.P_eis", "[" + Join(EB.P_eis) + "]");
+        B.add("G9", "G9.eisupb.e_theta", "[" + Join(EB.e_theta) + "]");
+        B.add("G9", "G9.eisupb.primes", std::to_string(EB.primes_used), "int");
+        B.add("G9", "G9.eisupb.skipped", Join(EB.skipped));
+        B.add("G9", "G9.eisupb.id_prime", std::to_string(EB.id_prime), "int");
+        B.add("G9", "G9.eisupb.id_prime_extra", std::to_string(EB.id_prime_extra), "int");
+        B.add("G9", "G9.eisupb.S", Join(EB.S));
+        B.add("G9", "G9.eisupb.digest", Hex64(EB.digest()), "hex64");
+        if (cusp_irred_q) B.add("G9", "G9.irreducible.cusp.q", std::to_string(cusp_irred_q), "int");
+    }
     B.add("G9", "G9.K10", N > 1 && IsPrimeU32(N) && n == 0 ? "absent(not_built)" : "absent(not_applicable)", "cert_absent");
     B.add("G9", "G9.trust.tb_chi", R.descent.record_fnv1a64, "hex64");
 
@@ -2107,7 +2494,15 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
             B.add("G10", "G10.eisup.reused", std::to_string(EU.reused));
             B.add("G10", "G10.eisup.computed", std::to_string(EU.computed));
         }
+        if (eisupb_on) {   // (EISUPb) provenance
+            std::ostringstream t;
+            t << EB.secs;
+            B.add("G10", "G10.eisupb.secs", t.str());
+            B.add("G10", "G10.eisupb.reused", std::to_string(EB.reused));
+            B.add("G10", "G10.eisupb.computed", std::to_string(EB.computed));
+        }
         for (const auto& [ell, e] : S) {
+            if (!e.exw.empty()) B.add("G10", "G10.read_full.ell=" + std::to_string(ell) + ".exw", e.exw);   // (slot-27 EXW) not hashed
             if (ell < 5 || !c1f_ok) continue;
             const std::string pre = "G10.read_full.ell=" + std::to_string(ell);
             B.add("G10", pre + ".source", e.out.read ? e.out.L.source : e.out.M.source);
@@ -2133,6 +2528,7 @@ HeckeStructureRecord BuildHeckeStructureRecord(uint32_t N, uint32_t n, const std
         if (!e.out.escalation.empty()) B.add("G10", pre + ".escalation", e.out.escalation);
         if (e.c3_from_fallback)
             B.add("G10", pre + ".c3_fallback_K1", e.c3out.read ? "read" : e.c3out.M.status + " (" + e.c3out.M.detail + ")");
+        if (!e.exw.empty()) B.add("G10", pre + ".exw", e.exw);   // (slot-27 EXW) the trigger of rule (alpha); not hashed
         std::ostringstream t;
         t << e.secs;
         B.add("G10", pre + ".secs", t.str());
@@ -2295,6 +2691,12 @@ std::string NormaliseFullPath(const std::string& p0) {
         const std::string pre = "G1.components[#].U_";
         if (p.compare(0, pre.size(), pre) == 0 && AllDigits(p, pre.size(), p.size())) p = pre + "#";
     }
+    {   // (slot-27 EISUPb, amendment A5) G1.components[#].U_<digits>.charpoly -> G1.components[#].U_#.charpoly
+        const std::string pre = "G1.components[#].U_", suf = ".charpoly";
+        if (p.compare(0, pre.size(), pre) == 0 && p.size() > pre.size() + suf.size() &&
+            p.compare(p.size() - suf.size(), suf.size(), suf) == 0 && AllDigits(p, pre.size(), p.size() - suf.size()))
+            p = pre + "#" + suf;
+    }
     {   // a final components_through.<digits> -> components_through.#
         const std::string t = ".components_through.";
         const size_t a = p.rfind(t);
@@ -2318,6 +2720,9 @@ const std::map<std::string, std::vector<Shape>>& FullSchemaTable() {
         {"G1.components[#].mult", {{"int", ""}}}, {"G1.components[#].p0", {{"op_or_theta", ""}}},
         {"G1.components[#].minpoly", {{"", ""}}}, {"G1.components[#].lambda_theta", {{"zbig", ""}}},
         {"G1.components[#].irreducible", {{"irreducible", ""}}}, {"G1.components[#].U_#", {{"zbig", ""}}},
+        // (slot-27 EISUPb, amendment A5) reached only on full records at N > 1 with G1.components = certified and e^an_k(N) != 1
+        {"G1.components[#].psi_cond", {{"int", ""}}}, {"G1.components[#].psi_order", {{"int", ""}}},
+        {"G1.components[#].theta_poly", {{"", ""}}}, {"G1.components[#].U_#.charpoly", {{"", ""}}},
         {"G2.ell=#.m[#].components_through.#", {{"through", "$"}}},
         {"G2.ell=#.m[#].pair_kinds[#,#].depth", {{"int", "$"}, {"not_run", "$"}}},
         {"G2.ell=#.m[#].pair_kinds[#,#].status", {{"status", "$"}}},
@@ -2372,29 +2777,76 @@ std::vector<std::string> FullLayoutProblems(const HeckeStructureRecord& R, const
         if (j != expect) out.push_back("component indices not contiguous from 0 at " + std::to_string(j));
         expect = j + 1;
     }
-    int64_t n_eis = 0, n_cusp = 0;
+    int64_t n_eis = 0, n_cusp = 0, sum_deg = 0;
+    // (slot-27 EISUPb, amendment A5) e^an_k(N) != 1: the degrees of the eis rows sum to e_k; degree-1 rows carry U_<p>, degree >= 2 rows
+    // U_<p>.charpoly, for exactly the p | N; psi_cond | s_N, psi_order | o_N, phi(psi_order) = degree.  e^an_k(N) = 1: unchanged.
+    const bool bscope = R.N > 1 && eisup::InScopeChar(R.N, R.n);
+    uint32_t s_N = 1, o_N = 1;
+    if (bscope)
+        for (uint32_t p : ps)
+            if (p % 2 == 1 && static_cast<uint64_t>(R.N) % (static_cast<uint64_t>(p) * p) == 0) {   // (audit m3) 64-bit
+                s_N *= p;
+                o_N = o_N / std::gcd(o_N, p - 1) * (p - 1);
+            }
     for (const auto& [j, kv] : comp) {
         const auto it = kv.find("type");
         const std::string ty = it == kv.end() ? std::string() : it->second;
         if (ty == "eis") {
             ++n_eis;
-            if (static_cast<int64_t>(j) >= ek) out.push_back("an Eisenstein component beyond e_k: [" + std::to_string(j) + "]");
-            std::set<std::string> us;
-            for (const auto& [key, v] : kv)
-                if (key.compare(0, 2, "U_") == 0) us.insert(key.substr(2));
             std::set<std::string> want;
             for (uint32_t p : ps) want.insert(std::to_string(p));
-            if (us != want) out.push_back("Eisenstein component [" + std::to_string(j) + "] does not carry U_<p> for exactly the p | N");
+            if (!bscope) {
+                if (static_cast<int64_t>(j) >= ek) out.push_back("an Eisenstein component beyond e_k: [" + std::to_string(j) + "]");
+                std::set<std::string> us;
+                for (const auto& [key, v] : kv)
+                    if (key.compare(0, 2, "U_") == 0) us.insert(key.substr(2));
+                if (us != want) out.push_back("Eisenstein component [" + std::to_string(j) + "] does not carry U_<p> for exactly the p | N");
+            } else {
+                const std::string at = "Eisenstein component [" + std::to_string(j) + "]";
+                auto num_of = [&](const char* key) -> int64_t {
+                    const auto f = kv.find(key);
+                    return f != kv.end() && IsDecimal(f->second) ? std::stoll(f->second) : -1;
+                };
+                const int64_t deg = num_of("degree"), pc = num_of("psi_cond"), po = num_of("psi_order");
+                if (!kv.count("psi_cond") && !kv.count("psi_order"))   // an (a) row (A4) where e^an_k(N) != 1: (a)'s scope message stands
+                    out.push_back("the layout outside HZ-EISUP's scope (e^an_k(N) != 1): " + at + " is an HZ-EISUP row without psi_cond / psi_order");
+                if (deg < 1) {
+                    out.push_back(at + " without a degree");
+                    continue;
+                }
+                sum_deg += deg;
+                std::set<std::string> us, uc;
+                for (const auto& [key, v] : kv) {
+                    if (key.compare(0, 2, "U_") != 0) continue;
+                    const size_t dot = key.find('.');
+                    if (dot == std::string::npos) us.insert(key.substr(2));
+                    else if (key.substr(dot) == ".charpoly") uc.insert(key.substr(2, dot - 2));
+                    else out.push_back(at + " carries an unknown U_ key " + key);
+                }
+                if (deg == 1) {
+                    if (us != want || !uc.empty() || !kv.count("lambda_theta") || kv.count("theta_poly"))
+                        out.push_back(at + " of degree 1 does not carry lambda_theta and U_<p> for exactly the p | N");
+                } else {
+                    if (uc != want || !us.empty() || kv.count("lambda_theta") || !kv.count("theta_poly"))
+                        out.push_back(at + " of degree >= 2 does not carry theta_poly and U_<p>.charpoly for exactly the p | N");
+                }
+                int64_t phi = 0;
+                for (int64_t u = 1; po >= 1 && u <= po; ++u) phi += std::gcd(u, po) == 1;
+                if (pc < 1 || po < 1 || s_N % pc != 0 || o_N % po != 0 || phi != deg)
+                    out.push_back(at + ": psi_cond | s_N, psi_order | o_N, phi(psi_order) = degree violated");
+            }
         } else if (ty == "cusp") {
             ++n_cusp;
-            if (static_cast<int64_t>(j) != ek) out.push_back("the cuspidal block is not at index e_k: [" + std::to_string(j) + "]");
+            if (!bscope && static_cast<int64_t>(j) != ek) out.push_back("the cuspidal block is not at index e_k: [" + std::to_string(j) + "]");
+            if (bscope && static_cast<int64_t>(j) != n_eis) out.push_back("the cuspidal block is not after the Eisenstein rows: [" + std::to_string(j) + "]");
             for (const auto& [key, v] : kv)
                 if (key.compare(0, 2, "U_") == 0) out.push_back("a U_<p> key on the cuspidal block: [" + std::to_string(j) + "]." + key);
         } else {
             out.push_back("a component without a type: [" + std::to_string(j) + "]");
         }
     }
-    if (n_eis != ek) out.push_back("Eisenstein components " + std::to_string(n_eis) + " != e_k = " + std::to_string(ek));
+    if (!bscope && n_eis != ek) out.push_back("Eisenstein components " + std::to_string(n_eis) + " != e_k = " + std::to_string(ek));
+    if (bscope && sum_deg != ek) out.push_back("the degrees of the Eisenstein rows sum to " + std::to_string(sum_deg) + " != e_k = " + std::to_string(ek));
     if (n_cusp != (d > ek ? 1 : 0)) out.push_back("cuspidal blocks " + std::to_string(n_cusp) + ", expected " + (d > ek ? "1" : "0"));
     for (size_t j : thr_idx)
         if (!comp.count(j)) out.push_back("components_through." + std::to_string(j) + " names no component");
@@ -2402,7 +2854,7 @@ std::vector<std::string> FullLayoutProblems(const HeckeStructureRecord& R, const
         if (!(a < b) || !comp.count(a) || !comp.count(b))
             out.push_back("pair_kinds[" + std::to_string(a) + "," + std::to_string(b) + "] is not a pair j < j' of components");
     // (code audit m4) the scope of (d')(ii)'s paragraph: e^an_k(N) = 1 and (C1) certified
-    if (!eisup::InScope(R.N, R.n)) out.push_back("the layout outside HZ-EISUP's scope (e^an_k(N) != 1)");
+    if (!eisup::InScope(R.N, R.n) && !bscope) out.push_back("the layout outside HZ-EISUP's scope (e^an_k(N) != 1)");
     {
         const auto it = val.find("G1.C1.status");
         if (it == val.end() || it->second != "certified") out.push_back("the layout without G1.C1.status = certified");
@@ -2544,7 +2996,8 @@ ScanResult ScanRecord(const HeckeStructureRecord& R) {
             static const std::set<std::string> kFree = {"schema", "coefficient_ring", "object", "conventions", "operators", "P", "theta",
                                                         "minpoly", "discriminants_used", "decomposed_by", "residue_poly", "hilbert",
                                                         "upper", "exponents", "system", "tor_ref",
-                                                        "theta_ops"};   // (S26 Z1, audit C2)
+                                                        "theta_ops",   // (S26 Z1, audit C2)
+                                                        "theta_poly", "charpoly"};   // (S27 EISUPb, amendment A5: polynomials)
             const std::string last = f.path.substr(f.path.rfind('.') + 1);
             if (Hashed(f.group) && !kFree.count(last)) {
                 ++S.values_outside_lists;
@@ -2871,8 +3324,18 @@ std::vector<std::string> WriteCertFiles(const HeckeStructureRecord& R, const Rec
         o.d_target = std::stoll(val("G1.d"));
         o.k_weight = R.n + 2;
         o.full_algebra = R.N == 1;
-        const LocalReadOut rd = src.local_read(R.N, R.n, ell, K, P, R.descent.b1, o, 0);
-        if (!(rd.M.ok)) throw std::logic_error("WriteCertFiles: the module at ell = " + ells + " is not served on re-read");
+        // (slot-27 EXW, design M2) the module whose dump sha256 equals G9's: the EXPORT / level-1 route first, then the free route; the
+        // sha256 is the proof of which module was written (G10's unhashed source is not read).  Neither -> a defect.
+        const std::string want = f.value;
+        LocalReadOut rd = src.local_read(R.N, R.n, ell, K, P, R.descent.b1, o, 0);
+        bool found = rd.M.ok && Sha256Hex(DumpText(rd.M)) == want;
+        if (!found && src.local_read_free) {
+            o.allow_bad_primes = false;
+            rd = src.local_read_free(R.N, R.n, ell, K, P, R.descent.b1, o, 0);
+            found = rd.M.ok && Sha256Hex(DumpText(rd.M)) == want;
+        }
+        if (!found)
+            throw std::logic_error("WriteCertFiles: the module at ell = " + ells + " re-reads to G9's sha256 on neither route");
         const std::string dump = DumpText(rd.M);
         std::ostringstream t;
         t << "schema\thzcert/v1\nchecker\t" << (k1 ? "K1" : "K3") << "\nrecord_fnv1a64\t" << R.record_fnv1a64 << "\nk\t" << R.n + 2 << "\n";

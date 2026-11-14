@@ -1392,8 +1392,8 @@ add_executable(cohomology_app
     src/hacs/Hecke/HeckeReductionCoverageSlowValidation.cpp
 )
 
-# Slots 9..25 are closed: their source lists are folded per module into cmake/sources/*.cmake (S24 CL-10, CL-10b, S25 FOLD);
-# registrations of slots 9..25 live in Registry/Slot<S>.cpp. The open slot (26) will keep one fragment per package.
+# Slots 9..26 are closed: their source lists are folded per module into cmake/sources/*.cmake (S24 CL-10, CL-10b, S25 FOLD, S26 FOLD);
+# registrations of slots 9..26 live in Registry/Slot<S>.cpp. The open slot (27) will keep one fragment per package.
 include(cmake/sources/Registry.cmake)
 include(cmake/sources/Integral.cmake)
 include(cmake/sources/Root.cmake)
@@ -1406,10 +1406,10 @@ include(cmake/sources/NumberField.cmake)
 include(cmake/sources/Orbifold.cmake)
 include(cmake/sources/Binary.cmake)
 include(cmake/sources/Special.cmake)
-include(cmake/slot26/HeckeZUp.cmake)   # slot 26 (open): one fragment per package
-include(cmake/slot26/HeckeZLocalPar.cmake)
-include(cmake/slot26/HeckeZEisUp.cmake)
-include(cmake/slot26/HeckeHidaDiscLambda.cmake)
+include(cmake/slot27/HeckeZThetaSearch.cmake)   # slot 27 (open): one fragment per package
+include(cmake/slot27/HeckeZExportWord.cmake)   # slot 27 (open): one fragment per package
+include(cmake/slot27/BigIntNtt.cmake)           # slot 27 (open): BIGNTT
+include(cmake/slot27/HeckeZEisUpChar.cmake)     # slot 27 (open): EISUPb
 
 
 # Link the executable against the ModArithmetic and HeckeCore libraries and
@@ -1579,7 +1579,8 @@ find_package(Git QUIET)
 # the owner 2026-11-10 as [C] 1.26.4, [E] 1.25.3, [U] 0.7.3.
 # (S26 C127, 2026-11-11) [C] 1.27.0, signed by the owner 2026-11-11 (= 1.27.0-pre.1, text unchanged).
 # (S26 U081, 2026-11-11) [U] 0.8.1, signed by the owner 2026-11-11 (= 0.8.0, status sentences of part 7 only).
-set(OC_CONTRACT_VERSIONS "[C] 1.27.0, [E] 1.25.3, [U] 0.8.1")
+# (S27, 2026-11-14) [C] 1.28.0, signed by the owner 2026-11-14 (= 1.28.0-pre.1, text unchanged).
+set(OC_CONTRACT_VERSIONS "[C] 1.28.0, [E] 1.25.3, [U] 0.8.1")
 # (S26 INTEG, R1 audit M1) Guard: a document whose \date line names a RELEASE version (no -pre / -rc suffix) must name
 # exactly that version in OC_CONTRACT_VERSIONS; a pre-release of the next version is accepted while the string names the
 # last signed one.  (S26 V011) The entry is parsed per tag and compared whole (a FIND of "[C] 1.26.4" also matched

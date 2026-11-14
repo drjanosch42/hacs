@@ -65,10 +65,19 @@ std::string Ed1RowsPath() {
 #endif
 }
 
+// (slot-27 TS) hz_theta_order: an explicit key sets RationalSettings::theta_order; an absent key leaves the default (absent != lex)
+void ApplyThetaOrder(const CampaignSpec& spec, hzr::RecordSettings& rs) {
+    if (spec.hz_theta_order.empty()) return;
+    heckez::ThetaOrder o;
+    ENGINE_CHECK_MSG(heckez::ParseThetaOrder(spec.hz_theta_order, &o), "campaign: hz_theta_order was validated at parse time");
+    rs.rat.theta_order = o;
+}
+
 std::string FingerprintOf(const CampaignSpec& spec) {
     const hecke::ScopedMathSettings scope(spec.math, hecke::SettingSource::Spec);
     hzr::RecordSettings rs;
     rs.g8 = spec.hz_g8;   // (slot-25 H1) hz_g8 = hida: a non-default settings value, its own fingerprint
+    ApplyThetaOrder(spec, rs);
     const std::string text = hecke::math_settings().canonical_text() + rs.caps_text();
     std::ostringstream o;
     o << "0x" << std::hex << std::setw(16) << std::setfill('0') << engine::FnvBytes(engine::kFnvOffset64, text);
@@ -143,6 +152,7 @@ int RunHeckeZCampaignCli(const CampaignSpec& spec, bool dry_run, bool verbose) {
     hzr::RecordSettings rs;
     rs.threads = spec.threads ? spec.threads : 1;
     rs.g8 = spec.hz_g8;
+    ApplyThetaOrder(spec, rs);
     // (S26 Z1, plan Z1 card / audit S2) the twelve descent levers as this process reads them, once per process (stdout only)
     heckez::up::PrintDescentEffectiveOnce();
     uint32_t ran = 0, resumed = 0, refused = 0, pending = 0, fin = 0, failed = 0, outside = 0, under = 0, ed1_mismatch = 0, rejected = 0;

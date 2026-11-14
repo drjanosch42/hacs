@@ -33,7 +33,9 @@ namespace integral_descent {
 // ---------------------------------------------------------------------------------------------------------------------------------
 // (S24 CL-5) on EnvLever: "" = unset; an invalid value warns once and reads as the default (source=default).
 namespace {
-engine::lever::EnvLever g_pair("HECKE_DESCENT_TREE_PAIR",
+// (S26 LEVERS-26) The env arm HECKE_DESCENT_TREE_PAIR=0 is RETIRED in OC_ENABLE_LEGACY=OFF builds (refused, exit 1: EnvLever.h
+// EnvArmRetiredLever); the dense pair stays via ScopedDescentTreePair.
+engine::lever::EnvArmRetiredLever g_pair("HECKE_DESCENT_TREE_PAIR",
                                engine::lever::Policy{true, engine::lever::Empty::Unset, engine::lever::Match::Exact01, engine::lever::Cache::Once, "WARNING: HECKE_DESCENT_TREE_PAIR=%s is neither 0 nor 1; the tree cusp pair stays on (default)\n", "default", "env", "default"});
 bool pair_scoped() { return std::strcmp(g_pair.source(), "scoped") == 0; }
 }  // namespace

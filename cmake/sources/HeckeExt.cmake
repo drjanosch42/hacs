@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
 # SPDX-License-Identifier: LGPL-3.0-only WITH LicenseRef-CUDA-exception
 
-# cohomology_app sources under src/hacs/HeckeExt/ added by slots 9..25 (S24 CL-10, CL-10b, S25 FOLD; slot order kept).
+# cohomology_app sources under src/hacs/HeckeExt/ added by slots 9..26 (S24 CL-10, CL-10b, S25 FOLD, S26 FOLD; slot order kept).
 target_sources(cohomology_app PRIVATE
     src/hacs/HeckeExt/HeckeAlgebraInvariants.cpp
     src/hacs/HeckeExt/HeckeExtBindingSupport.cpp
@@ -104,4 +104,11 @@ target_sources(cohomology_app PRIVATE
     src/hacs/HeckeExt/HeckeHidaEisLambda.cpp
     # HeckeHidaEisLambdaValidation (standard)
     src/hacs/HeckeExt/HeckeHidaEisLambdaValidation.cpp
+)
+
+# Slot 26 (folded at the slot-26 close, S26 FOLD; the former cmake/slot26/<pkg>.cmake, slot order kept).
+target_sources(cohomology_app PRIVATE
+    # --- slot 26 HeckeHidaDiscLambda (Z6 = H2: the discriminant series of the ramified ordinary families at tame level 1)
+    src/hacs/HeckeExt/HeckeHidaDiscLambda.cpp
+    src/hacs/HeckeExt/HeckeHidaDiscLambdaValidation.cpp
 )

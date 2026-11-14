@@ -1,9 +1,9 @@
 $ ENGINE_KERNEL=avx2 ENGINE_AVX2_PAIR=0 hacs --bench micro gemm 256
-EFFECTIVE ENGINE_KERNEL path=avx2 value=avx2 cpu=avx2:1,avx512:1
+EFFECTIVE ENGINE_KERNEL path=avx2 value=avx2 cpu=avx2:1,avx512:1 governs=gemm,ring2k,ring3k(portable),bitmatrix,tritmatrix,rho_fill,descent_smith
 === bench micro gemm (backend=engine, repeat=1) ===
-    gemm            0.000749 s (min)
-      rate        = 22.399 Gmodmul/s  (0.0168 Gmodmul of work)
+    gemm            0.000750 s (min)
+      rate        = 22.365 Gmodmul/s  (0.0168 Gmodmul of work)
       note        = AVX2 microkernel
       checksum    = 0x5ae13caf41f0a5bf
-BENCH mode=micro op=gemm n=256 k=256 ell=134217757 total_s=0.0007 rss_mb=131.8 backend=engine median_s=0.000749 gmodmul_s=22.3995 checksum=0x5ae13caf41f0a5bf
+BENCH mode=micro op=gemm n=256 k=256 ell=134217757 total_s=0.0008 rss_mb=126.2 backend=engine median_s=0.000750 gmodmul_s=22.3653 checksum=0x5ae13caf41f0a5bf
 [exit 0]

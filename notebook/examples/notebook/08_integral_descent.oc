@@ -1,12 +1,15 @@
 # SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
 # SPDX-License-Identifier: LGPL-3.0-only WITH LicenseRef-CUDA-exception
 
-# %% [md] 08 -- over Z: the integral cohomology as abelian groups.
-# With coefficient_ring = "Z" the descent computes H^q(Gamma_0(N); Sym^n Z^2) as abelian groups
-# Z^r (+) (+) Z/p^k, and char_Z(T_p), the characteristic polynomial of T_p on the free part, over Z.
-# At level 1 and n = 10: H^1 = Z^3 (+) Z/2 (+) Z/4 (+) Z/3 -- the torsion primes 2 and 3 are the small
-# primes. charpoly_factored shows char_Z(T_p) factored over Z (exact, the product checked against char_Z):
-# char_Z(T_2) = (X + 24)^2 (X - 2049), the roots tau(2) = -24 (twice: Delta, both signs) and 1 + 2^11 (Eisenstein).
+# %% [md] 08 -- over Z: the integral cohomology as abelian groups
+# With `coefficient_ring = "Z"` HACS computes $H^q(\Gamma_0(N),\mathrm{Sym}^n\mathbb{Z}^2)$ as finitely generated abelian groups
+# $\mathbb{Z}^r\oplus\bigoplus(\mathbb{Z}/p^k)^m$, and the characteristic polynomial $\operatorname{char}_\mathbb{Z}(T_p)$ of $T_p$ on the free part, over $\mathbb{Z}$.
+#
+# > **At level 1, $n=10$.**
+# > $$H^1(\mathrm{SL}_2(\mathbb{Z}),\mathrm{Sym}^{10}\mathbb{Z}^2)\cong\mathbb{Z}^3\oplus\mathbb{Z}/2\oplus\mathbb{Z}/4\oplus\mathbb{Z}/3,$$
+# > $$\begin{aligned} \operatorname{char}_{\mathbb{Z}}(T_2) &= (X+24)^2\,(X-2049) = (X-\tau(2))^2\,(X-\sigma_{11}(2)),\\ \operatorname{char}_{\mathbb{Z}}(T_3) &= (X-252)^2\,(X-177148),\\ \operatorname{char}_{\mathbb{Z}}(T_5) &= (X-4830)^2\,(X-48828126). \end{aligned}$$
+# > The double root is $\tau(p)$ ($\Delta$, both signs), the simple root $\sigma_{11}(p)=1+p^{11}$ ($E_{12}$); the torsion primes 2 and 3 divide
+# > the orders of the stabilisers.
 
 # %% Descent at level 1, n = 10
 set coefficient_ring = "Z";
@@ -15,6 +18,22 @@ display(D);
 
 # %% The integral groups
 display(D.groups_inv);
+assert(D.groups[1] == "Z^3 + Z/2 + Z/2^2 + Z/3", "H^1 = Z^3 + Z/2 + Z/4 + Z/3");
 
 # %% char_Z(T_p), factored over Z
 display(D.charpoly_factored);
+assert(D.charpoly_factored[0].factored == "(X + 24)^2 (X - 2049)", "char_Z(T_2)");
+assert(D.charpoly_factored[1].factored == "(X - 252)^2 (X - 177148)", "char_Z(T_3)");
+assert(D.charpoly_factored[2].factored == "(X - 4830)^2 (X - 48828126)", "char_Z(T_5)");
+assert(1 + 2^11 == 2049 and 1 + 3^11 == 177148 and 1 + 5^11 == 48828126, "the simple roots are 1 + p^11");
+
+# %% [md] Reading the output
+# | Mathematics | What HACS computed, and how |
+# |---|---|
+# | $H^q$ over $\mathbb{Z}$ for $q=0,\dots,3$: $0$, $\mathbb{Z}^3\oplus\mathbb{Z}/2\oplus\mathbb{Z}/4\oplus\mathbb{Z}/3$, $\mathbb{Z}/2$, $(\mathbb{Z}/2)^5\oplus\mathbb{Z}/3$
+#   (higher degrees are periodic). |
+#   `descent(1, 10)`: the record `integral_descent_record/v1`; `groups_inv` per degree `{free_rank, torsion: [[p, k, m], ...]}`
+#   $=\mathbb{Z}^r\oplus\bigoplus(\mathbb{Z}/p^k)^m$; `groups` the same as text (`Z^3 + Z/2 + Z/2^2 + Z/3`). [C] `thm:descentcert`; validation `IntegralDescentGroupsValidation`. |
+# | $\operatorname{char}_\mathbb{Z}(T_p)=(X-\tau(p))^2(X-\sigma_{11}(p))$ for $p=2,3,5$; the roots differ by multiples of 691 (Ramanujan, tour 10). |
+#   `charpoly_factored`: per $p$ the expanded polynomial, its factorisation over $\mathbb{Z}$ (Yun + Zassenhaus, exact), and `verified: true`
+#   (the product of the factors equals $\operatorname{char}_\mathbb{Z}$). Validation `IntegralDescentRecordValidation`, arm (Z). |

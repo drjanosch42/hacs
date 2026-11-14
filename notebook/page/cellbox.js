@@ -45,12 +45,16 @@ const OCCells = (() => {
     const bEdit = kind === "md" ? el("button", "", "Edit") : null;
     const bCopyCode = el("button", "", "Copy code");
     bCopyCode.title = "copy this cell's code (never its output)";
+    const bCopyTeX = kind === "md" ? el("button", "", "Copy as LaTeX") : null;
+    if (bCopyTeX) bCopyTeX.title = "copy this text cell's source (its $...$ / $$...$$ formulas are the TeX the page renders)";
     const bDel = el("button", "", "Delete");
-    for (const b of [bRun, bEdit, bCopyCode, bDel]) if (b) b.type = "button";
+    for (const b of [bRun, bEdit, bCopyCode, bCopyTeX, bDel]) if (b) b.type = "button";
     bar.append(label, titleEl);
     if (bRun) bar.append(bRun);
     if (bEdit) bar.append(bEdit);
-    bar.append(el("span", "spacer"), bCopyCode, bDel);
+    bar.append(el("span", "spacer"), bCopyCode);
+    if (bCopyTeX) bar.append(bCopyTeX);
+    bar.append(bDel);
     const ta = el("textarea", "src");
     ta.spellcheck = false;
     ta.value = src || "";
@@ -73,34 +77,64 @@ const OCCells = (() => {
     bCopyOut.type = "button";
     bCopyOut.title = "copy this cell's output as plain text (the canonical text behind every display, LaTeX on or off)";
     const obar = el("div", "outbar");
-    obar.append(outLabel, meta, el("span", "spacer"), bCopyOut);
+    const bCopyOutTeX = el("button", "outcopy", "Copy as LaTeX");
+    bCopyOutTeX.type = "button";
+    bCopyOutTeX.title = "copy the TeX of this cell's values (display formulas), as the page renders them";
+    obar.append(outLabel, meta, el("span", "spacer"), bCopyOutTeX, bCopyOut);
     const out = el("div", "output");
     out.setAttribute("aria-live", "polite");
     outbox.append(obar, out);
 
     if (kind === "md") root.append(codeBox); else root.append(codeBox, outbox);
     const cell = { n, kind, root, codeBox, ta, titleEl, view, bEdit, label, bRun, bCopyCode, bDel, outbox, outLabel, meta, out, bCopyOut,
-                   state: "idle", settled: "idle", count: 0, editing: false };
+                   state: "idle", settled: "idle", count: 0, editing: false, foldOpen: !!(opts && opts.open) };
     if (kind === "md") {
       if (bEdit) bEdit.addEventListener("click", () => setMdEditing(cell, !cell.editing));
       setMdEditing(cell, false);
     }
     bCopyCode.addEventListener("click", () => R().copyText(ta.value, bCopyCode));
     bCopyOut.addEventListener("click", () => R().copyText(outputPlain(cell), bCopyOut));
+    bCopyOutTeX.addEventListener("click", () => R().copyText(R().outputTeX(out), bCopyOutTeX));
+    if (bCopyTeX) bCopyTeX.addEventListener("click", () => R().copyText(textCellTeX(ta.value), bCopyTeX));
     return cell;
   }
 
   // A text cell: view mode shows the text, edit mode the textarea (an empty cell starts in edit mode).
   function setMdEditing(cell, on) {
     if (cell.kind !== "md") return;
-    if (!on) cell.view.textContent = cell.ta.value || "(empty text cell)";
+    if (!on) renderMdView(cell);
     cell.editing = !!on || cell.ta.value === "";
     cell.ta.hidden = !cell.editing;
     cell.view.hidden = cell.editing;
     cell.bEdit.textContent = cell.editing ? "Done" : "Edit";
   }
 
+  // (slot-26 NBMATH A1) The view of a text cell: its text with $...$ / $$...$$ through KaTeX and a minimal markdown
+  // (render.js renderMarkdown; the source verbatim with LaTeX off). A text cell titled "Reading the output..." is a
+  // reading panel (mathematics <-> what HACS computed): it folds, closed by default, open in a showcase notebook
+  // (opts.open; app.js opens a file named showcase_*.oc that way). The fold state is kept across re-renders.
+  const isReading = (cell) => /^Reading\b/.test(cell.titleEl.value.trim());
+  function renderMdView(cell) {
+    const text = cell.ta.value || "(empty text cell)";
+    cell.view.textContent = "";
+    const r = R();
+    if (!r || typeof r.renderMarkdown !== "function") { cell.view.textContent = text; return; }
+    if (!isReading(cell)) { r.renderMarkdown(cell.view, text); return; }
+    const d = el("details", "reading");
+    d.open = !!cell.foldOpen;
+    d.addEventListener("toggle", () => { cell.foldOpen = d.open; });
+    const sum = el("summary", "", "Reading the output: the mathematics, and what HACS computed");
+    const body = el("div", "mdbody");
+    r.renderMarkdown(body, text);
+    d.append(sum, body);
+    cell.view.appendChild(d);
+  }
+  // Re-render every text cell in view mode (the LaTeX switch).
+  function rerenderText(cells) { for (const c of cells || []) if (c.kind === "md" && !c.editing) renderMdView(c); }
+
   // The plain text of the output box: exactly what render.js says (canonical text per value).
+  // (slot-27 NB-A' C1) A text cell's TeX: its source verbatim (what the page parses and renders; the formulas are its $...$ / $$...$$).
+  function textCellTeX(src) { return src; }
   function outputPlain(cell) { return R().outputText(cell.out); }
 
   // ---- states ----
@@ -216,7 +250,8 @@ const OCCells = (() => {
       nb.preamble = nbk.preamble;
       nb.execCount = 0;
       let last = null;
-      for (const sp of nbk.cells) last = nb.add(sp.code, last, sp);
+      const open = /^showcase_/.test(String(name || ""));   // (slot-26 NBMATH) a showcase opens its reading panels
+      for (const sp of nbk.cells) last = nb.add(sp.code, last, open ? Object.assign({}, sp, { open: true }) : sp);
       nb.fileName = name || "";
       nb.dirty = false;
       return nb.cells;
@@ -227,7 +262,7 @@ const OCCells = (() => {
     return nb;
   }
 
-  return { createCell, setState, cancelQueued, beginRun, reveal, finishRun, outputPlain, makeQueue, labelText, setMdEditing, makeNotebook,
+  return { createCell, setState, cancelQueued, beginRun, reveal, finishRun, outputPlain, makeQueue, labelText, setMdEditing, rerenderText, makeNotebook,
            exportText, exportCode, exportJSON, snapshot };
 })();
 

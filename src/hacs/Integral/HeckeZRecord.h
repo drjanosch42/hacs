@@ -47,6 +47,7 @@
 
 #include <cstdint>
 #include <functional>
+#include <map>
 #include <string>
 #include <utility>
 #include <vector>
@@ -137,6 +138,15 @@ struct RecordSources {
     // ReadCellLocal(N, n, ell, K, P, b1, opt, max_steps): the K-escalating local read (level 1 H^1 route or the EXPORT's free block)
     std::function<LocalReadOut(uint32_t, uint32_t, uint64_t, uint32_t, const std::vector<uint32_t>&, uint32_t,
                                const local::ReadOptions&, uint32_t)> local_read;
+    // (slot-27 EXW, docs/implementation/slot27/EXW_design.md Sec. 3.1-3.2) the same read on the free block over Z of EXPORT-Z step 2
+    // (L / ell^K with T_o = F_o mod ell^K, ell^K < 2^63).  Called ONLY where rule (alpha) fires: the at-root read whose word
+    // G3.C_T.ell=<l>.read would be written as refused(export_word), and the (C3) read at K = 1 whose word G2.ell=<l>.generation.status
+    // would be written as refused(export_word) / refused(k1_route).  A route limit of the free block (RssCeiling, Terms, NoProof,
+    // Inadmissible, NoDevice) comes back as M.ok = false, M.status = "blocked(free_block)", M.detail = "REFUSED [<Name>] ..": the record
+    // keeps the pending word and names the refusal in G10 only.  EMPTY (the seam) = EXW off: no trigger fires and the record is the
+    // pre-EXW record byte for byte.  BuildHeckeStructureRecord does not require it.
+    std::function<LocalReadOut(uint32_t, uint32_t, uint64_t, uint32_t, const std::vector<uint32_t>&, uint32_t,
+                               const local::ReadOptions&, uint32_t)> local_read_free;
     // v_ell(B_k / k) read modulo ell^prec (-1: >= prec, or no route), level 1, ell >= 5, (ell - 1) !| k
     std::function<int32_t(uint64_t, uint32_t, uint32_t)> v_bernoulli;
     // (slot-25 H1) the G8 source under heckez.G8 = hida: the forms side of one level-1 weight (HeckeExt/HeckeHidaEisLambda.h,
@@ -246,6 +256,12 @@ std::string ExportWord(const std::string& refusal_text);
 // refused(no_lift) only for a certificate code (LiftCertificate, IsobClosure, StrictIdentity, InputTableCertificate), else
 // blocked(export).
 std::string LiftInnerCodeOf(const std::string& refusal_text);
+
+// (slot-27 EXW, EXW_design.md Sec. 2 "Independence of the read from the route") the production check of a free-route module: for every
+// T_p of M.P with a certified chi_Z(T_p | L) in chi_z (b1 + 1 integers, low to high, canonical signed hex or decimal -- the descent's
+// CharpolyOverZ, RationalInputs::chi_z), det(x - T_p) on L / ell^K equals chi_Z mod ell^K.  false with the first disagreeing p in *why.
+// The record ENGINE_CHECKs it on every free read it uses (a defect, never a word).  Covers the descent primes only (not T_ell, not U_p).
+bool FreeReadChiAgrees(const local::LatticeModule& M, const std::map<uint32_t, std::vector<std::string>>& chi_z, std::string* why = nullptr);
 
 // ---- HZ-EMIT: the certificate files (07-lean-plan.md Sec. 5 "Emission") ---------------------------------------------------------
 // Files hzcert_N<N>_n<n>_<checker>_l<ell>.txt (key = value lines, matrices row-major decimal, deterministic) for the checkers K2

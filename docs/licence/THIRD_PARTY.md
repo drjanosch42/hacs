@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski -->
 <!-- SPDX-License-Identifier: CC-BY-4.0 -->
-# Third-party inventory (HACS 0.2.0)
+# Third-party inventory (HACS 0.2.1)
 
 Own licences: code `LGPL-3.0-only WITH LicenseRef-CUDA-exception`; `lean/` Apache-2.0; `docs/` and `lean/blueprint/` CC-BY-4.0
 (`COPYRIGHT.md`, `REUSE.toml`, `LICENSES/`). The `NOTICE` file at the root carries the attributions required by the licences below.

@@ -507,6 +507,15 @@ const OCRender = (() => {
       return ol;
     }
     if (env.t === "Matrix" && v && Array.isArray(v.entries) && v.rows * v.cols > MAX_TEX_ENTRIES) return pagedMatrix(v);
+    if (env.t === "String" && texOn) {
+      const dec = certifiedDecimal(v);
+      if (dec !== null) {
+        const d = el("div", "cert-dec", `certified: ${dec}`);
+        d.title = `stored as ${v} (signed hexadecimal, ${dec} in decimal)`;
+        d.dataset.text = env.canonical;
+        return d;
+      }
+    }
     const wrap = el("div");
     wrap.appendChild(el("pre", "canon", env.canonical));
     if (env.t === "Matrix" && env.truncated && v && Number.isInteger(v.rows)) {
@@ -603,7 +612,9 @@ const OCRender = (() => {
     const bCopy = el("button", "", "copy");
     bCopy.title = "copy the canonical text";
     const bJson = el("button", "", "json");
-    for (const b of [bText, bCopy, bJson]) { b.type = "button"; head.appendChild(b); }
+    const bTeX = copyTeX(env) !== null ? el("button", "", "LaTeX") : null;
+    if (bTeX) bTeX.title = "copy this value as LaTeX source (the TeX the page renders)";
+    for (const b of [bText, bCopy, bTeX, bJson].filter(Boolean)) { b.type = "button"; head.appendChild(b); }
     if (env.state === "declared" && actions && typeof actions.compute === "function") {
       const bComp = el("button", "compute", "compute");
       bComp.type = "button";
@@ -624,8 +635,23 @@ const OCRender = (() => {
     box.appendChild(raw);
     bText.addEventListener("click", () => { canon.hidden = !canon.hidden; });
     bCopy.addEventListener("click", () => copyText(plainText(env), bCopy));
+    if (bTeX) bTeX.addEventListener("click", () => copyText(copyTeX(env), bTeX));
     bJson.addEventListener("click", () => { raw.hidden = !raw.hidden; });
     return box;
+  }
+
+  // (slot-27 NB-A' C1) "Copy as LaTeX": the TeX the page builds for a value (toTeXRaw / the hint path), whether or not the
+  // LaTeX switch is on; null when the type has no math rendering. Computed in the page from the envelope: no TeX from the binary.
+  function copyTeX(env) { return toTeXRaw(env, 0); }
+  // The TeX of one cell's output: every value block that has TeX, each as a display formula, blank-line separated; "" if none.
+  function outputTeX(outNode) {
+    const parts = [];
+    for (const n of Array.from(outNode.children)) {
+      if (!n.classList.contains("value") || !n._env) continue;
+      const t = copyTeX(n._env);
+      if (t !== null) parts.push("\\[\n" + t + "\n\\]");
+    }
+    return parts.join("\n\n");
   }
 
   // Re-render every value block under `root` (the LaTeX switch); the envelopes are kept.
@@ -680,6 +706,215 @@ const OCRender = (() => {
     return s;
   }
 
+  // ---- (slot-26 NBMATH A1) text cells: paragraphs, $...$ / $$...$$ through KaTeX, a minimal markdown ----
+  // The text of a text cell is the user's own (or comes from the read-only examples directory). It is parsed into
+  // blocks here and built with text nodes and KaTeX only -- never innerHTML -- and KaTeX runs with trust: false,
+  // so no text can inject markup or links. This is not a value renderer: no toTeXRaw / hintTeX case, so the render
+  // coverage gate ([P] Sec. 18.5, render_coverage.tsv) is unaffected. Syntax:
+  //   a blank line ends a block; consecutive lines form a paragraph;
+  //   $...$ inline math, $$...$$ display math (may span lines), \$ a literal dollar sign;
+  //   "- " list items; "> " a statement box; "| a | b |" table rows (a row may continue over lines that do not start
+  //   with "|", until a line ends with "|" and the row has the first row's number of cells; a row of dashes after the
+  //   first row makes it the header); **bold**, `code`.
+  // With LaTeX off the cell shows its source verbatim (the plain text stays extractable; Copy / Export use the source).
+
+  // Inline segments of one paragraph: [{t: "text" | "math" | "dmath" | "code", s} | {t: "bold", c: [segments]}].
+  function mdInline(s) {
+    const out = [];
+    let buf = "";
+    const flush = () => { if (buf) { out.push({ t: "text", s: buf }); buf = ""; } };
+    // The index of the next unescaped `delim` at or after `from` (-1 if none).
+    const close = (delim, from) => {
+      for (let j = from; j < s.length; ++j) {
+        if (s[j] === "\\") { ++j; continue; }
+        if (s.startsWith(delim, j)) return j;
+      }
+      return -1;
+    };
+    let i = 0;
+    while (i < s.length) {
+      const c = s[i];
+      if (c === "\\" && s[i + 1] === "$") { buf += "$"; i += 2; continue; }
+      if (s.startsWith("$$", i)) {
+        const j = close("$$", i + 2);
+        if (j > i + 2) { flush(); out.push({ t: "dmath", s: s.slice(i + 2, j).trim() }); i = j + 2; continue; }
+        buf += "$$"; i += 2; continue;
+      }
+      if (c === "$") {
+        const j = close("$", i + 1);
+        if (j > i + 1) { flush(); out.push({ t: "math", s: s.slice(i + 1, j) }); i = j + 1; continue; }
+        buf += c; ++i; continue;
+      }
+      if (c === "`") {
+        const j = s.indexOf("`", i + 1);
+        if (j > i + 1) { flush(); out.push({ t: "code", s: s.slice(i + 1, j) }); i = j + 1; continue; }
+        buf += c; ++i; continue;
+      }
+      if (s.startsWith("**", i)) {
+        const j = s.indexOf("**", i + 2);
+        if (j > i + 2) { flush(); out.push({ t: "bold", c: mdInline(s.slice(i + 2, j)) }); i = j + 2; continue; }
+      }
+      buf += c; ++i;
+    }
+    flush();
+    return out;
+  }
+
+  // Table cells of one row "| a | b |" (a "|" inside $...$ or `...` does not split).
+  function mdRowCells(row) {
+    const s = row.trim().replace(/^\|/, "").replace(/\|$/, "");
+    const cells = [];
+    let cur = "", math = false, code = false;
+    for (let i = 0; i < s.length; ++i) {
+      const c = s[i];
+      if (c === "\\" && i + 1 < s.length) { cur += c + s[++i]; continue; }
+      if (c === "$" && !code) math = !math;
+      if (c === "`" && !math) code = !code;
+      if (c === "|" && !math && !code) { cells.push(cur.trim()); cur = ""; continue; }
+      cur += c;
+    }
+    cells.push(cur.trim());
+    return cells;
+  }
+
+  // Blocks: [{t: "p", c: inline} | {t: "display", s} | {t: "ul", items: [inline]} | {t: "quote", blocks}
+  //          | {t: "table", head: [inline] | null, rows: [[inline]]}].
+  function mdBlocks(src) {
+    const lines = String(src || "").replace(/\r\n?/g, "\n").split("\n");
+    const blocks = [];
+    const blank = (l) => /^[ \t]*$/.test(l);
+    const starts = (l) => /^[ \t]*(\$\$|- |\||>)/.test(l);
+    let i = 0;
+    while (i < lines.length) {
+      const l = lines[i];
+      if (blank(l)) { ++i; continue; }
+      const t = l.trim();
+      if (t.startsWith("$$")) {                       // display math, possibly over several lines
+        const acc = [t.slice(2)];
+        let j = i, closed = acc[0].endsWith("$$") && acc[0].length >= 2;
+        while (!closed && ++j < lines.length) { acc.push(lines[j]); if (lines[j].trim().endsWith("$$")) closed = true; }
+        if (closed) {
+          const body = acc.join("\n").trim();
+          blocks.push({ t: "display", s: body.slice(0, -2).trim() });
+          i = j + 1; continue;
+        }
+        // an unclosed $$: an ordinary paragraph (shown as its source)
+      }
+      if (t.startsWith(">")) {                        // a statement box: its lines without "> ", parsed as blocks
+        const acc = [];
+        while (i < lines.length && lines[i].trim().startsWith(">")) { acc.push(lines[i].trim().replace(/^> ?/, "")); ++i; }
+        blocks.push({ t: "quote", blocks: mdBlocks(acc.join("\n")) });
+        continue;
+      }
+      if (t.startsWith("|")) {                        // a table
+        const rows = [];
+        let head = null, ncols = 0;
+        while (i < lines.length && lines[i].trim().startsWith("|")) {
+          // a row ends at a line ending in "|" once it has as many cells as the first row (continuation lines do not start with "|")
+          let row = lines[i].trim();
+          const more = () => !row.endsWith("|") || (ncols > 0 && mdRowCells(row).length < ncols);
+          while (more() && i + 1 < lines.length && !blank(lines[i + 1]) && !lines[i + 1].trim().startsWith("|")) row += " " + lines[++i].trim();
+          ++i;
+          const cells = mdRowCells(row);
+          if (!ncols) ncols = cells.length;
+          if (cells.every((c) => /^:?-{3,}:?$/.test(c))) { if (rows.length === 1 && head === null) head = rows.pop(); continue; }
+          rows.push(cells.map(mdInline));
+        }
+        blocks.push({ t: "table", head, rows });
+        continue;
+      }
+      if (t.startsWith("- ")) {                       // a list; a line that starts no block continues the last item
+        const items = [];
+        while (i < lines.length && !blank(lines[i])) {
+          const u = lines[i].trim();
+          if (u.startsWith("- ")) items.push(u.slice(2));
+          else if (starts(lines[i])) break;
+          else items[items.length - 1] += "\n" + u;
+          ++i;
+        }
+        blocks.push({ t: "ul", items: items.map(mdInline) });
+        continue;
+      }
+      const acc = [l];                                // a paragraph
+      ++i;
+      while (i < lines.length && !blank(lines[i]) && !starts(lines[i])) acc.push(lines[i++]);
+      blocks.push({ t: "p", c: mdInline(acc.join("\n")) });
+    }
+    return blocks;
+  }
+
+  // Every TeX string of a text, in order: [{tex, display}] (for the KaTeX check of the example files).
+  function mdMath(src) {
+    const out = [];
+    const walkI = (segs) => { for (const g of segs) { if (g.t === "math") out.push({ tex: g.s, display: false });
+      else if (g.t === "dmath") out.push({ tex: g.s, display: true }); else if (g.t === "bold") walkI(g.c); } };
+    const walkB = (bs) => { for (const b of bs) {
+      if (b.t === "display") out.push({ tex: b.s, display: true });
+      else if (b.t === "p") walkI(b.c);
+      else if (b.t === "ul") b.items.forEach(walkI);
+      else if (b.t === "quote") walkB(b.blocks);
+      else if (b.t === "table") { if (b.head) b.head.forEach(walkI); b.rows.forEach((r) => r.forEach(walkI)); } } };
+    walkB(mdBlocks(src));
+    return out;
+  }
+
+  function mdMathNode(tex, display) {
+    const n = el(display ? "div" : "span", display ? "md-display" : "md-math");
+    const src = display ? `$$${tex}$$` : `$${tex}$`;
+    n.dataset.text = src;
+    n.title = tex.length <= 400 ? tex : tex.slice(0, 400) + "…";
+    if (!katexInto(n, tex, display)) n.textContent = src;
+    return n;
+  }
+  function mdInlineInto(node, segs) {
+    for (const g of segs) {
+      if (g.t === "text") node.appendChild(document.createTextNode(g.s));
+      else if (g.t === "math") node.appendChild(mdMathNode(g.s, false));
+      else if (g.t === "dmath") node.appendChild(mdMathNode(g.s, true));
+      else if (g.t === "code") node.appendChild(el("code", "", g.s));
+      else if (g.t === "bold") { const b = el("strong"); mdInlineInto(b, g.c); node.appendChild(b); }
+    }
+    return node;
+  }
+  function mdBlocksInto(node, blocks) {
+    for (const b of blocks) {
+      if (b.t === "p") node.appendChild(mdInlineInto(el("div", "md-p"), b.c));
+      else if (b.t === "display") node.appendChild(mdMathNode(b.s, true));
+      else if (b.t === "quote") node.appendChild(mdBlocksInto(el("div", "md-quote"), b.blocks));
+      else if (b.t === "ul") { const ul = el("ul", "md-ul"); for (const it of b.items) ul.appendChild(mdInlineInto(el("li"), it)); node.appendChild(ul); }
+      else if (b.t === "table") {
+        const tbl = el("table", "md-table");
+        if (b.head) { const tr = el("tr"); for (const c of b.head) tr.appendChild(mdInlineInto(el("th"), c)); tbl.appendChild(tr); }
+        for (const r of b.rows) { const tr = el("tr"); for (const c of r) tr.appendChild(mdInlineInto(el("td"), c)); tbl.appendChild(tr); }
+        const wrap = el("div", "md-tablewrap");
+        wrap.appendChild(tbl);
+        node.appendChild(wrap);
+      }
+    }
+    return node;
+  }
+
+  // Render the text `src` of a text cell into `node` (its children are replaced). LaTeX off, or no KaTeX: the source verbatim.
+  function renderMarkdown(node, src) {
+    node.textContent = "";
+    node.dataset.text = src;
+    const raw = !texOn || typeof katex === "undefined";
+    node.classList[raw ? "add" : "remove"]("md-raw");
+    if (raw) { node.textContent = src; return node; }
+    return mdBlocksInto(node, mdBlocks(src));
+  }
+
+  // ---- (slot-26 NBMATH, owner question 8) a certified order stored in signed hexadecimal ----
+  // The HeckeZ record stores a certified integer as "certified:0x2b3" (G0.conventions hex=canonical_signed). With LaTeX on,
+  // a String value of exactly that form is shown in decimal ("certified: 691"), the stored form on hover and in the
+  // canonical text (text / copy / export are unchanged). Pure presentation: nothing reaches TeX.
+  const CERT_HEX = /^certified:(-?)0x([0-9a-f]+)$/;
+  function certifiedDecimal(s) {
+    const m = typeof s === "string" ? CERT_HEX.exec(s) : null;
+    if (!m || m[2].length > 4096 || typeof BigInt === "undefined") return null;
+    return m[1] + BigInt("0x" + m[2]).toString(10);
+  }
+
   // (NBCONFIRM S4 fix round 1, audit M2) The page's re-send rule after a `done` frame `fr` of a cell. `asked` lists the
   // call sites ("line:col") at which this cell has already asked for a confirmation, `tokens` the tokens presented so far.
   // Returns {action: "finish"} (not a confirmation request), {action: "ask", site} (show the dialog, re-send with one more
@@ -704,8 +939,8 @@ const OCRender = (() => {
   }
 
   return { renderValue, toTeX, confirmStep, toTeXRaw, el, katexInto, mathSpan, atlasEltTeX, atlasFieldTeX, atlasChiTeX, atlasTwistTeX, isInt,
-           setTeX, texEnabled, rerenderAll, plainText, outputText, copyText, stmtSource,
-           _pure: { polyTeX, qexpTeX, abgroupTeX, partitionTeX, cyclicSumTeX, hintTeX, recOf, intList, stmtSource, eigenTeX, lesmapTeX, factoredTeX, confirmStep } };
+           setTeX, texEnabled, rerenderAll, plainText, outputText, copyTeX, outputTeX, copyText, stmtSource, renderMarkdown,
+           _pure: { mdInline, mdBlocks, mdMath, certifiedDecimal, polyTeX, qexpTeX, abgroupTeX, partitionTeX, cyclicSumTeX, hintTeX, recOf, intList, stmtSource, eigenTeX, lesmapTeX, factoredTeX, confirmStep } };
 })();
 
 if (typeof module !== "undefined" && module.exports) module.exports = OCRender;

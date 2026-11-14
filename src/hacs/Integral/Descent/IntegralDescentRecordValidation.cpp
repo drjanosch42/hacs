@@ -222,6 +222,31 @@ std::string run_console_out(const std::string& env, const std::string& code) {
     return out;
 }
 
+#if !OC_ENABLE_LEGACY
+// (S26 LEVERS-26, audit F1) The same with an environment prefix, keeping the child's exit status and its stderr (stdout
+// discarded): a retired env arm must be REFUSED (exit 1 with the refusal line), not merely fail.  Exit -1 when the child did
+// not run or did not exit normally.
+std::pair<int, std::string> run_console_err(const std::string& env, const std::string& code) {
+    char buf[4096];
+    const ssize_t n = ::readlink("/proc/self/exe", buf, sizeof(buf) - 1);
+    if (n <= 0) return {-1, ""};
+    buf[n] = 0;
+    const std::string cmd = env + std::string(buf) + " -c '" + code + "' 2>&1 >/dev/null";
+    FILE* f = ::popen(cmd.c_str(), "r");
+    if (f == nullptr) return {-1, ""};
+    std::string err;
+    char line[512];
+    while (std::fgets(line, sizeof line, f) != nullptr) err += line;
+    const int st = ::pclose(f);
+    if (st == -1 || !WIFEXITED(st)) return {-1, err};
+    return {WEXITSTATUS(st), err};
+}
+bool refused_as_retired(const std::string& env_var, const std::string& code) {
+    const auto r = run_console_err(env_var + "=0 ", code);
+    return r.first == 1 && r.second.find("REFUSED " + env_var + "=0: compiled out (OC_ENABLE_LEGACY=OFF)") != std::string::npos;
+}
+#endif
+
 // (D6 audit m1) The console verbs that compute over F_ell from scalar arguments and never read the ring: each is wrapped by
 // console::bind::GateVerbsOnField and must refuse Z and Z/ell^k at its statement (exit 5).  One cheap call per verb.
 const std::vector<std::string>& FieldVerbCalls() {
@@ -625,9 +650,19 @@ void ArmRollback() {
     if (d0.empty()) {
         std::cout << "  (B) env arms SKIPPED: /proc/self/exe unavailable" << std::endl;
     } else {
+#if OC_ENABLE_LEGACY
         check(run_console_out("HECKE_DESCENT_TREE=0 ", code) == d0, "(B) console (1, 12): HECKE_DESCENT_TREE=0 prints the default digest " + d0);
         check(run_console_out("HECKE_DESCENT_TREE_PAIR=0 ", code) == d0,
               "(B) console (1, 12): HECKE_DESCENT_TREE_PAIR=0 prints the default digest " + d0);
+#else
+        // (S26 LEVERS-26) the two env arms are retired in OC_ENABLE_LEGACY=OFF builds: the child is REFUSED (exit 1,
+        // stderr "REFUSED <VAR>=0: compiled out (OC_ENABLE_LEGACY=OFF)"; both asserted, audit F1); the routes themselves stay
+        // compared in process above (ScopedDescentTree / ScopedDescentTreePair).
+        check(refused_as_retired("HECKE_DESCENT_TREE", code),
+              "(B) console (1, 12): HECKE_DESCENT_TREE=0 is refused (exit 1, REFUSED line; env arm retired)");
+        check(refused_as_retired("HECKE_DESCENT_TREE_PAIR", code),
+              "(B) console (1, 12): HECKE_DESCENT_TREE_PAIR=0 is refused (exit 1, REFUSED line; env arm retired)");
+#endif
     }
     std::cout << "  (B) " << compared << " cells: record_fnv1a64 equal under the default, HECKE_DESCENT_TREE=0 and HECKE_DESCENT_TREE_PAIR=0"
               << std::endl;

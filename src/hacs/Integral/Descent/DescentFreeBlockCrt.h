@@ -176,6 +176,11 @@ struct FreeBlockOptions {
     uint32_t lanes_only = 0;                   // MEASUREMENT: run exactly this many admissible lanes, no proof, no lift (F may be
                                                // rational); with Phi_0 the bound is still evaluated (bits, primes_apriori)
     uint64_t rss_cap_bytes = 8ull << 30;       // the predicted-memory refusal [RssCeiling] (O-3)
+    // (slot-27 EXW fix, audit M-EXW2) the lane count at which [RssCeiling] is PREDICTED.  0: the run's lanes (`threads` as resolved:
+    // 1 on the GPU route, else min(threads, 64) or DefaultThreads()), the pre-fix behaviour.  > 0: this many lanes whatever the run
+    // uses, so that the refusal is a pure function of the inputs and the options (not of threads, ENGINE_THREADS or ENGINE_DEVICE);
+    // the run itself may still use more lanes.  The record's free route (HeckeZRecordSource) fixes it at kFreeReadRssLanes.
+    uint32_t rss_lanes = 0;
     // (slot-26 Z1) p | N in ps is the free-model U_p of `prop:strictliftN` item (9) ([C] 1.26.0-pre.3): IsoHeckeN(.., allow_bad_primes).
     // Default false: p | N refused (PDividesN) as before.
     bool allow_bad_primes = false;

@@ -1,11 +1,15 @@
 # SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
 # SPDX-License-Identifier: LGPL-3.0-only WITH LicenseRef-CUDA-exception
 
-# %% [md] 07 -- from F_ell to Z/ell^K: the Hecke algebra over a ring.
-# hecke_ring_algebra(n, ell, kmax) runs the module route over Z/ell^K and reads, per block (one system of
-# Hecke eigenvalues mod ell), the lattice Lambda_m = Z_ell^f (+) (+)_i Z/ell^{e_i} (free_rank f, torsion
-# rendered as a sum of cyclic groups), the Hilbert functions of A_1 = T_m / ell and of A_K, and whether
-# the algebra is stable in K. At (48, 7) one block carries 7-torsion.
+# %% [md] 07 -- from F_ell to Z/ell^K: the Hecke algebra over a ring
+# Over $\mathbb{F}_\ell$ a block only sees a system of eigenvalues mod $\ell$. Over $\mathbb{Z}/\ell^K$ it sees the lattice: for each block
+# (maximal ideal $\mathfrak{m}$) the localised cohomology is
+#
+# > $$\Lambda_\mathfrak{m}\cong\mathbb{Z}_\ell^{\,f}\oplus\bigoplus_i\mathbb{Z}/\ell^{e_i},$$
+# > a free part of rank $f$ and torsion. With $A_1=\mathbb{T}_\mathfrak{m}/\ell$ and $A_K=\mathbb{T}_\mathfrak{m}/\ell^K$, the Hilbert functions of
+# > $A_1$ and $A_K$ say how non-reduced the algebra is and whether that is stable in $K$.
+#
+# At $(n,\ell)=(48,7)$ there are four blocks; one has rank 4 with Hilbert function $(1,1)$ (a congruence), and one is pure torsion, $\Lambda_\mathfrak{m}\cong\mathbb{Z}/7$.
 
 # %% The module route over Z/7^2
 # The coefficient ring is the default F_ell, stated here so that the file runs in any order in one session (08 sets Z).
@@ -14,3 +18,15 @@ R = hecke_ring_algebra(48, 7, 2);
 
 # %% Blocks, lattices, Hilbert functions
 display(R);
+assert(len(R.blocks) == 4, "four blocks");
+assert(R.blocks[0].free_rank == 4 and R.blocks[0].torsion == [] and R.blocks[0].A1_hilbert == [1, 1] and R.blocks[0].verdict == "stable", "block 0: Z_7^4, A_1 = (1, 1), stable");
+assert(R.blocks[2].free_rank == 0 and R.blocks[2].torsion == [1], "block 2: Z/7, pure torsion");
+
+# %% [md] Reading the output
+# | Mathematics | What HACS computed, and how |
+# |---|---|
+# | Block 0: $\Lambda_\mathfrak{m}\cong\mathbb{Z}_7^4$, $A_1$ and $A_K$ with Hilbert function $(1,1)$: a non-reduced algebra, stable from $K=2$ on. |
+#   `hecke_ring_algebra(48, 7, 2)`: per block `system` (the eigenvalues mod 7 of $T_2,T_3,T_5,T_7$), `D`, `free_rank`, `torsion` (the $e_i$),
+#   `A1_hilbert`, `AK_hilbert`, `K_stab`, `verdict`. [C] `cor:stablecert`; validation `HeckeRingLoewyValidation`. |
+# | Block 2: $\Lambda_\mathfrak{m}\cong\mathbb{Z}/7$, a system of eigenvalues mod 7 that lifts to no eigenform of the same weight and level in characteristic 0. |
+#   `free_rank: 0, torsion: [1]`, `verdict: "torsion_stable"`. Tours 08–10 read such torsion over $\mathbb{Z}$. |

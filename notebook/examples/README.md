@@ -5,21 +5,43 @@
 
 Two kinds of snippet live here.
 
+- **The showcases** (`notebook/showcase_*.oc`, slot-26 NBMATH). One theorem each, stated first in TeX, then computed and
+  certified, for a reader who knows the mathematics and not the program. *Examples…* lists them first.
 - **The notebook tour** (`notebook/`, files `01_…` to `10_…`). It is a short course, ordered by the mathematics: each step uses
   only what the earlier steps introduced. Every quantity is shown with `display(...)`, so in the notebook it arrives as a
   *value* and is rendered: TeX for groups, polynomials, matrices and characters, and tables for records. In a script the
   same file prints the canonical text. Each tour file is a **notebook file** ([P] §18.18): `# %%` lines separate titled cells (the SPDX header is the preamble, the step's prose a text cell), so *Open notebook…* (or the *Examples…* list) loads it as a multi-cell notebook; `tour_all.oc` is the whole tour as one notebook. A `# %%` line is a comment, so every file still runs with `hacs --script <file>`, with the same transcript.
-- **The phenomena-gallery snippets** (the 21 `*.oc` files in this directory). Each is one worked phenomenon of [PG]
+- **The phenomena-gallery snippets** (the 22 `*.oc` files in this directory). Each is one worked phenomenon of [PG]
   (`docs/latex/phenomena_gallery.tex`), which typesets the file and its transcript verbatim. `gen_phenomena_outputs.sh --check`
   guards both. These snippets report through `print(...)`, so the notebook shows their output as text. Moving them to `display`
   is a separate follow-up, because it re-baselines the gallery's transcripts.
+
+## How a notebook example reads (slot-26 NBMATH)
+
+Every step follows one pattern, so that the mathematics and the computation can be read side by side:
+
+1. a **statement** text cell: the theorem or structure in displayed TeX (`$…$`, `$$…$$`, a `> ` statement box), in the vocabulary
+   of a number theorist, with no internal key names;
+2. a **code** cell that computes it and **asserts** it: every computed fact a text cell states is checked by an `assert` in the
+   code cell below it, so the prose cannot drift from the output;
+3. the **output**, rendered by the page;
+4. a **reading panel** (a text cell titled `Reading the output`): one two-column table, *Mathematics* ↔ *What HACS computed, and how*
+   (the verb, the raw field names with a gloss, the contract label, the validation name). It is folded in the tour and open in the showcases.
+
+In a script (`hacs --script <file>`) the text cells are comments, so a file runs and prints the same values either way. The
+page's LaTeX switch shows the raw text behind every formula and every value.
+
+| Showcase | The theorem | Cost |
+|---|---|---|
+| `showcase_ramanujan_691.oc` | $\mathbb{T}\cong\mathbb{Z}\times_{\mathbb{Z}/691}\mathbb{Z}$, $T_n\mapsto(\sigma_{11}(n),\tau(n))$, $C_\mathbb{T}\cong\mathbb{Z}/691$; the integral char polys; mod 691 the non-split extension, $\mathbb{T}_\mathfrak{m}/691\cong\mathbb{F}_{691}[\varepsilon]/\varepsilon^2$; Mazur's $C_\mathbb{T}\cong\mathbb{Z}/5$ at level 11 | < 1 s |
+| `showcase_cohomology_ses.oc` | $H^q(\mathrm{SL}_2(\mathbb{Z}),\mathrm{Sym}^n)$ over $\mathbb{F}_\ell$ and $\mathbb{Z}$; the long exact sequence of the boundary pair and $0\to H^1_!\to H^1\to H^1_\partial\to0$, split at 13, non-split at 691 | < 1 s |
 
 ## The course, and where each gallery phenomenon fits
 
 | Step | Tour file | What it introduces | Gallery snippets that build on it |
 |---|---|---|---|
 | 1 | `01_model_and_local_system.oc` | the model of SL_2(Z)\H and the coefficients Sym^n F_ell^2 | – |
-| 2 | `02_cohomology.oc` | H^q as a lazy handle; Eichler–Shimura; small primes and Dickson degrees | `cohomology_dimensions`, `forms_vs_cohomology_24_7`, `level_n_old_forms_2_7`, `nebentypus_7_13` |
+| 2 | `02_cohomology.oc` | H^q as a lazy handle; Eichler–Shimura; the boundary, the cone and the exact sequence 0 -> H^1_! -> H^1 -> H^1_bd -> 0; small primes and Dickson degrees | `cohomology_dimensions`, `forms_vs_cohomology_24_7`, `level_n_old_forms_2_7`, `nebentypus_7_13` |
 | 3 | `03_hecke_operators.oc` | T_p as matrices, characteristic polynomials | `dihedral_wilton_10_23`, `pow_ordinary_rank_13` |
 | 4 | `04_eisenstein_ideal.oc` | maximal ideals, their characters T_p ↦ F_{ell^f}, the local algebra T_m | `ramanujan_10_691`, `kummer_ribet_30_37`, `kummer_unit_37_59`, `eisenstein_sign_cone_10_691` |
 | 5 | `05_module_structure.oc` | H_m over T_m: Loewy and socle layers, Jordan types | `visible_congruence_48_7`, `multiplicity_two_34_5`, `loewy4_258_37` |
@@ -27,12 +49,12 @@ Two kinds of snippet live here.
 | 7 | `07_ring_hecke_algebra.oc` | the Hecke algebra over Z/ell^K, lattices with torsion | `hidden_congruence_300_23`, `hida_control_13`, `hida_tower_13_10`, `hida_lambda_11_12` |
 | 8 | `08_integral_descent.oc` | H^q over Z as abelian groups, char_Z(T_p) and its factorisation over Z | `descent_torsion_beta`, `descent_congruence_primes` |
 | 9 | `09_integral_hecke_module.oc` | T_p over Z as [[tau, M], [0, F]] on H^1 = T (+) Z^r: F exact in a certified basis, torsion included (`module_Z()`, slot-25 EXPORT-Z step 2) | – |
-| 10 | `10_congruences_and_extensions_over_Z.oc` | the certified record `hecke_structure`: C_T = 691 at level 1 (Ramanujan), torsion-by-free extensions and what `non_split` means; why the block M of step 9 does not decide | `nonsplit_torsion_16_2` |
+| 10 | `10_congruences_and_extensions_over_Z.oc` | the certified record `hecke_structure`: C_T = Z/691 at level 1, n = 10 (Ramanujan) and C_T = Z/(numerator of B_32) at n = 30, torsion-by-free extensions and what `non_split` means; why the block M of step 9 does not decide; the full record body in a last optional cell | `ramanujan_691_over_Z`, `nonsplit_torsion_16_2` |
 
 **Any order, one session.** A setting lasts for the whole session (a notebook keeps one session across its cells), so
 every tour file states the mathematical setting it needs: `01`–`07` begin with `set coefficient_ring = "F_ell";` (the
 default), and `08`, `09`, `10` begin with `set coefficient_ring = "Z";`. No file restores the setting at its end, because the next file states its own. The files therefore run in any order, one
 after another, in one session or one script. `reset_settings()`, or the page's restart, also returns to the defaults.
 
-The cost of each tour file is below a few seconds and 0.5 GiB. Every verb a tour file uses is `read_only`, so every file runs in a
+The cost of each tour file and showcase is below a few seconds and 0.5 GiB. Every verb they use is `read_only`, so every file runs in a
 served session.

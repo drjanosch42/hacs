@@ -185,10 +185,16 @@ struct ModuleZ {
     FreeView free_view(size_t o, size_t l) const;
     FreeView free_view_local(size_t o, size_t l) const;
     // (step 2) F_o mod ell^K in the basis B (free_block == "exact"; ell^K < 2^63): the exact F reduced, no re-run ([C] item 8 export_word)
-    std::vector<uint64_t> free_mod(size_t o, uint32_t ell, uint32_t K) const;
+    // (slot-27 EXW) ell is uint64_t (was uint32_t; the callers pass u32 and are unchanged): the at-root read reaches ell >= 2^32
+    std::vector<uint64_t> free_mod(size_t o, uint64_t ell, uint32_t K) const;
     // (step 2) T_p on T (+) Z^r as one matrix [[tau, M_global], [0, F]] ((t + r)^2 row-major; rows < t mod d_i): the assembly
     std::vector<nf::BigInt> full_matrix(size_t o) const;
 };
+
+// (slot-27 EXW, docs/implementation/slot27/EXW_design.md Sec. 3.1) F_o mod q of a free block over Z (FreeBlockZ::F[o], r x r row-major),
+// canonical residues in [0, q); q >= 2, q < 2^63 (ENGINE_CHECK).  The reduction of ModuleZ::free_mod, for a FreeBlockRun without the
+// step-1 assembly.
+std::vector<uint64_t> FreeBlockModQ(const FreeBlockZ& G, size_t o, uint64_t q);
 
 struct ModuleZOptions {
     ExportOptions export_opt;                // passed to ExportModule when no provider is given (keep_cocycles forced on)
@@ -211,6 +217,7 @@ struct ModuleZ2Options {
     LaneChoice lanes = LaneChoice::FromDevice;
     freez::BoundBasis bound = freez::BoundBasis::Auto;   // the Sec. 1.6 bound: Auto (Phi_0 while its inverse is cheap, else Phi_cert)
     uint64_t rss_cap_bytes = 3ull << 30;     // ONE [RssCeiling] (O-3) for the pairs, the sums and the lanes (P1b's default)
+    uint32_t rss_lanes = 0;                  // (slot-27 EXW fix, M-EXW2) FreeBlockOptions::rss_lanes (0: the run's lanes, as before)
     bool verbose = false;                    // one EXZ2_P3_STAGE line per stage on stdout (measurement)
     // (slot-26 Z1, UP-Z (a)) p | N in ps is U_p: the free block by the free-model U_p (IsoHeckeN, `prop:strictliftN` (9)), the ell >= 5
     // exports by Heilbronn at ell >= 5, by the tree route at ell in {2, 3} (S26 Z2; ExportOptions::allow_bad_primes).  Default false.

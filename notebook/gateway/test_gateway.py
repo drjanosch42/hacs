@@ -534,6 +534,26 @@ class Live(unittest.TestCase):
                                 "08: char_Z(T_2) factored in a value frame")
         c.close()
 
+    def test_showcases(self):
+        # (slot-26 NBMATH A3) the showcase notebooks (showcase_*.oc, not part of the numbered tour) run in one served session,
+        # each ok / exit 0 (every verb read_only; each states the coefficient_ring it needs); Ramanujan shows C_T in a value frame.
+        tour = os.path.join(ROOT, "notebook", "examples", "notebook")
+        names = sorted(n for n in os.listdir(tour) if n.startswith("showcase_") and n.endswith(".oc"))
+        self.assertGreaterEqual(len(names), 2, names)
+        c = Client(self.gp, tab="t-showcase")
+        c.hello()
+        print("EFFECTIVE test_gateway arm=showcases cells=%d" % len(names), file=sys.stderr)
+        for name in names:
+            with open(os.path.join(tour, name), encoding="utf-8") as f:
+                src = f.read()
+            done, frames = c.run("eval", src=src)
+            self.assertIsNotNone(done, name)
+            self.assertEqual((done.get("status"), done.get("exit")), ("ok", 0), (name, done.get("error")))
+            if name == "showcase_ramanujan_691.oc":
+                self.assertTrue(any("certified:0x2b3" in json.dumps(f) for f in frames if f.get("kind") == "value"),
+                                "showcase_ramanujan_691: C_T in a value frame")
+        c.close()
+
     def test_non_read_only_refused(self):
         c = Client(self.gp, tab="t-ro")
         c.hello()

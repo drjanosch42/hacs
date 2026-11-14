@@ -144,7 +144,8 @@ a `Canonical` tag is an `ENGINE_CHECK` refusal (the u32 route would have reduced
 CPUs without VNNI (e.g. a desktop Intel Core i9-9900KF) run the §6 u32 kernel under `Auto` — the fallback arm. `vnni_routed_calls()` counts
 routed calls (diagnostics). Gate: `VnniGemmBitIdentityValidation` (`standard`; each arm against `RefLinAlg`, the worst case
 of all entries `p − 1` over 3 k-blocks, `n > 2048` (the second B block, also with `m > 128`), `elim::rref` / `FlatMatrix` Off vs Auto vs Force, the refusals), the digests,
-`GOLDEN_STRICT=1`, and the `cross_config.sh` arm `RelWithDebInfo@ENGINE_VNNI=0`.
+`GOLDEN_STRICT=1`, and the `cross_config.sh` arm `legacy-vnni-off` (the `OC_ENABLE_LEGACY=ON` build under `ENGINE_VNNI=0`; was `RelWithDebInfo@ENGINE_VNNI=0`).
+**(S26 LEVERS-26)** The env arm `ENGINE_VNNI=0` / `off` is **retired** in `OC_ENABLE_LEGACY=OFF` builds: refused (`REFUSED ENGINE_VNNI=0: compiled out (OC_ENABLE_LEGACY=OFF)`, exit 1) at start-up and at the first read; `set_vnni_path(VnniPath::Off)` and the u32 route stay in every build; ON builds read the variable as above.
 
 ### 6.2 The two-limb VNNI route (slot-24 G4)
 
@@ -168,11 +169,10 @@ Selection is the §6.1 machinery: `Auto` routes `p ≤ 2^14` with the same CPU /
 `p ≥ 2^13` (where the u32 kernel's epilogue switches to its FP reduction and gets ≈ 20 % faster) additionally needs
 `m, n ≥ 128` (G4 audit F1; below that the two-limb route measured 0.79–0.94× on 64³ / 96³ there; a speed choice only);
 **(slot-25 PERF-VF (a)) and, for every two-limb modulus, the work-per-thread floor `m·n·k ≥ vnni2_work_floor() · vnni_route_threads()`**
-(`VNNI2_WORK_FLOOR_DEFAULT = 2^18`; `vnni_route_threads()` = the global pool's configured size by the `ENGINE_THREADS` rule of
+(`VNNI2_WORK_FLOOR_DEFAULT = 2^20` since S26 LEVERS-26, `2^18` before; `vnni_route_threads()` = the global pool's configured size by the `ENGINE_THREADS` rule of
 `Engine/Threads.h`, resolved once; `vnni2_work_passes(m, n, k, threads)` is the predicate). At 16 threads on the small ext cells the
 packing and the per-thread scratch cost more than the route saves (`slot24/CLOSE_H2H_diagnosis.md` §3); at 1 thread the floor drops
-only shapes below 64³. The default `2^18` is provisional: it is **to be calibrated** at ext n = 160, ℓ = 691 under `gate.lock`
-(`slot25/PERFVF_report.md` §3, the timing phase); `floor · threads` saturates at `UINT64_MAX`. `ENGINE_VNNI2_FLOOR=<digits>` (read once;
+only shapes below 128 × 128 × 64. **Calibration (S26 LEVERS-26, `slot26/LEVERS26_report.md` §3; re-take of `slot25/PERFVF_report.md` §3):** `--bench ext 160 691 2,3,5 --repeat 3` under `gate.lock`, `PREWINDOW foreign_count=0`, five floors rotated over 7 rounds: at 16 threads the median `total_s` is 0.2741 (floor 0) / 0.2648 (2^16) / 0.2544 (2^18) / **0.2426 (2^20)** / 0.2472 (off), min 0.2501 (2^18) vs 0.2411 (2^20); at 1 thread 0.8632 (2^18) vs 0.8531 (2^20), off 1.1704. Hence the default **2^20** (2^18, the slot-25 provisional value, was 4.6 % slower at t16 on the median); `floor · threads` saturates at `UINT64_MAX`. `ENGINE_VNNI2_FLOOR=<digits>` (read once;
 `0` = the slot-24 rule) overrides the floor; a set value prints `EFFECTIVE ENGINE_VNNI2_FLOOR floor=<f> value=<raw> threads=<t>` on
 stderr **when the floor is first consulted** (under `Auto`, at the first two-limb call that passes the large-p test; under `ENGINE_VNNI=0`
 or `Force`, or in a run without such a call, nothing prints); a value that is not a string of digits, or overflows 64 bits, keeps the
@@ -188,7 +188,7 @@ entry gate fires per (k-block, i-block), after earlier blocks may already have b
 `std::logic_error` must not read C (the one-limb route behaves the same; the case is reachable only on contract-violating input).
 Without `avx512_vnni` (e.g. an AMD Zen 3 cluster node) the u32 kernel runs, as for §6.1. Gate: `VnniGemmBitIdentityValidation`'s
 (G2) arm, the two-limb (W) worst cases (all entries `p − 1` at `p = 2^14`, 16381, 131, 997 over 1–3 k-blocks), (E) at 131 / 691 /
-16381, (R) / (S); the digests, `GOLDEN_STRICT=1`, the `cross_config.sh` arm `RelWithDebInfo@ENGINE_VNNI=0`.
+16381, (R) / (S); the digests, `GOLDEN_STRICT=1`, the `cross_config.sh` arm `legacy-vnni-off`.
 
 ### 6.3 The AVX2 kernels (slot-24 AVX2K)
 

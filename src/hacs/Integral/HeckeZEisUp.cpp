@@ -659,7 +659,9 @@ uint64_t HexModEll(const std::string& hex, uint64_t ell) { return ModOf(FromHex(
 std::string HexPlus(const std::string& hex, int64_t delta) { return ToHex(FromHex(hex) + BigInt(delta)); }
 
 Attribution AttributeAtEll(const std::vector<uint64_t>& fbar, const std::vector<uint64_t>& lam_mod, uint64_t ell) {
-    ENGINE_CHECK_MSG(!fbar.empty() && fbar.back() == 1 % ell && ell >= 2 && ell < (1ull << 31), "HeckeZEisUp AttributeAtEll: f-bar monic, ell < 2^31");
+    // (slot-27 EXW) ell < 2^63: the (C3) read on the free block certifies generation at ell >= 2^31 (class C of EXW_design.md Sec. 1); the
+    // products are taken in 128 bits there (below 2^31 the 64-bit route as before, byte for byte)
+    ENGINE_CHECK_MSG(!fbar.empty() && fbar.back() == 1 % ell && ell >= 2 && ell < (1ull << 63), "HeckeZEisUp AttributeAtEll: f-bar monic, ell < 2^63");
     ENGINE_CHECK_MSG(lam_mod.size() + 1 <= fbar.size(), "HeckeZEisUp AttributeAtEll: more Eisenstein components than deg f-bar");
     std::vector<uint64_t> c = fbar;
     for (uint64_t lm : lam_mod) {
@@ -669,7 +671,8 @@ Attribution AttributeAtEll(const std::vector<uint64_t>& fbar, const std::vector<
         uint64_t acc = c[dg];
         for (size_t i = dg; i-- > 0;) {
             q[i] = acc;
-            acc = (c[i] + acc * l) % ell;
+            acc = ell < (1ull << 31) ? (c[i] + acc * l) % ell
+                                     : static_cast<uint64_t>((static_cast<unsigned __int128>(acc) * l + c[i]) % ell);
         }
         ENGINE_CHECK_MSG(acc == 0, "HeckeZEisUp C-E7: prod_j (x - lambda_j(theta')) does not divide f-bar_{theta'} mod ell (remainder != 0)");
         c = std::move(q);
@@ -679,11 +682,27 @@ Attribution AttributeAtEll(const std::vector<uint64_t>& fbar, const std::vector<
     return A;
 }
 
+namespace {
+// (slot-27 EXW) v_ell(x) for x != 0 and any ell < 2^63: BigInt::valuation below 2^32, else repeated exact division
+uint32_t ValuationU64(const BigInt& x, uint64_t ell) {
+    if (ell < (1ull << 32)) return x.valuation(static_cast<uint32_t>(ell));
+    const BigInt L = BigInt::from_u64(ell);
+    BigInt y = x, q, r;
+    uint32_t v = 0;
+    for (;;) {
+        BigInt::divmod(y, L, q, r);
+        if (!r.is_zero()) return v;
+        y = q;
+        ++v;
+    }
+}
+}  // namespace
+
 uint32_t ValuationOfDifference(const std::string& a, const std::string& b, uint64_t ell) {
     const BigInt d = FromHex(a) - FromHex(b);
     ENGINE_CHECK_MSG(!d.is_zero(), "HeckeZEisUp: two Eisenstein components with one theta'-value (theta' generates T (x) Z_ell)");
-    ENGINE_CHECK_MSG(ell >= 2 && ell < (1ull << 32), "HeckeZEisUp: ell < 2^32");
-    return d.valuation(static_cast<uint32_t>(ell));
+    ENGINE_CHECK_MSG(ell >= 2 && ell < (1ull << 63), "HeckeZEisUp: ell < 2^63");
+    return ValuationU64(d, ell);
 }
 
 uint32_t CuspResultantValuation(const std::vector<std::string>& f, const std::vector<std::string>& lambdas, size_t j, uint64_t ell) {
@@ -695,8 +714,8 @@ uint32_t CuspResultantValuation(const std::vector<std::string>& f, const std::ve
     }
     const BigInt v = EvalZ(c, FromHex(lambdas.at(j)));
     ENGINE_CHECK_MSG(!v.is_zero(), "HeckeZEisUp: c_theta'(lambda_j) = 0 (f_theta' is separable under (C1))");
-    ENGINE_CHECK_MSG(ell >= 2 && ell < (1ull << 32), "HeckeZEisUp: ell < 2^32");
-    return v.valuation(static_cast<uint32_t>(ell));
+    ENGINE_CHECK_MSG(ell >= 2 && ell < (1ull << 63), "HeckeZEisUp: ell < 2^63");
+    return ValuationU64(v, ell);
 }
 
 }  // namespace eisup

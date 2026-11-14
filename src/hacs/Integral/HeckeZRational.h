@@ -40,6 +40,7 @@
 // ===========================================================================
 
 #include <cstdint>
+#include <functional>
 #include <map>
 #include <stdexcept>
 #include <string>
@@ -113,6 +114,16 @@ struct Factored {
     bool complete() const { return cofactor_test == "one" || cofactor_test == "squarefree_by_size"; }
 };
 
+// (S27 TS, TS_design.md v0.2 Sec. 2, 6.1; [C] item 8 (j)) the order of theta_search.  `Lex`: the units, then the lexicographic
+// combinations, at most theta_cap candidates (editions 1--3).  `LexThenGreedy`: `Lex`, then -- only when none of its candidates is
+// primitive -- the greedy per-operator continuation (GreedyContinuation below; in a step without U_p only when |P| >= p_rule_cap), and
+// at heckez.maximal_ideals the capped continuation (KrylovContinuation) after every search of `Lex` has failed.
+enum class ThetaOrder : uint8_t { Lex, LexThenGreedy };
+const char* ThetaOrderName(ThetaOrder o);                     // "lex" | "lex_then_greedy"
+bool ParseThetaOrder(const std::string& text, ThetaOrder* out);   // the two names; false otherwise
+// the fixed generic target coefficient t of the continuation (TS_design.md Sec. 2.3; printed in the settings text, stated in [C])
+constexpr uint32_t kThetaGreedyTarget = 2654435761u;
+
 struct RationalSettings {
     uint32_t theta_cap = 64;         // candidates tried in the theta search (units included)
     uint32_t theta_coeff_max = 0;    // 0: binom(d_target, 2)  (01 P 4.2(1))
@@ -125,6 +136,18 @@ struct RationalSettings {
     // step ends in WordPrimeCapRefusal = refused(word_prime_cap).  Provenance: printed in the `word_primes=` tail of canonical_text(),
     // which the record's hashed caps text erases ([C] sec:recordschema item 8 (i)); no certified value depends on it.
     uint32_t word_prime_cap = 1u << 21;
+    // (S27 TS) the order of the theta search.  Printed in canonical_text() (`;theta_order=lex_then_greedy(...)` after theta_coeff_max)
+    // ONLY when it is not Lex, so Lex serialises to the edition-1--3 text byte for byte whatever the default is.  Default Lex (the flip to
+    // LexThenGreedy is one commit on s27-run5, TS_design.md Sec. 7.2).
+    ThetaOrder theta_order = ThetaOrder::Lex;
+    // (S27 TS, the last-round rule, TS_design.md Sec. 2.4) in a step without U_p the continuation runs only when |P| >= p_rule_cap.  An
+    // unprinted copy of RecordSettings::p_rule_cap (BuildHeckeStructureRecord copies it; its value is printed in heckez.P_rule, the rule
+    // itself in the theta_order key).  A direct RationalStep call with a shorter P is Lex alone.
+    uint32_t p_rule_cap = 6;
+    // (S27 TS-FIX, TS_design.md Sec. 9 (c')) VALIDATION ONLY: every unit candidate of the (C1) search is marked non-primitive (tested and
+    // listed as usual), so an Eisenstein-rational step is certified by a combination and has no primitive unit (g_P open(no primitive
+    // T_p)).  Never in the settings text; no campaign, console or golden path sets it (they build RationalSettings{}); no value at false.
+    bool validation_skip_units = false;
     std::string canonical_text() const;
 };
 
@@ -177,6 +200,11 @@ struct RationalResult {
     std::string text() const;        // canonical text (fixed order; the digest input)
     uint64_t digest() const;         // FNV-1a-64 of text()
 };
+// (S27 TS-FIX, TS_design.md Sec. 5.4; [C] item 8 (j)) g_P is a bound iff gP_status is `upper_bound_certified` or `partial(unfactored)`.
+// Otherwise (`open(no primitive T_p)`: the step was certified by a combination, so no primitive unit; `open(C1)`; `general_case`)
+// R.gP is a default Factored whose complete() is true and which has no factors -- it must NOT be read as the certified value 1.  Every
+// consumer of R.gP (the at-root read's v_gP, eis_single, G3's eisenstein branch, K3) asks this predicate first.
+bool GPIsBound(const RationalResult& R);
 // (HZ-RAT-PERF (a)) the word-prime list would exceed RationalSettings::word_prime_cap: the record's word refused(word_prime_cap)
 // (a pending refusal: only a later version with a larger cap lifts it -- the cap counts primes, so a faster CRT does not), never an
 // ENGINE_CHECK.  Thrown by RationalStep and by HZ-UTAG's UTagStep (whose list obeys the same cap, fix round 1 F7).
@@ -210,6 +238,26 @@ RationalResult RationalStepFull(uint32_t N, uint32_t n, const std::vector<uint32
 std::string FactoredText(const Factored& f);
 
 // ---- shared helpers for HeckeZUTag -----------------------------------------------------------------------------------------------
+// ---- (S27 TS) the two continuations as pure functions over a score oracle (TS_design.md Sec. 2.3, Sec. 3; validated on synthetic
+// tables by HeckeZThetaSearchValidation (d), (e)) ------------------------------------------------------------------------------------
+struct ContinuationResult {
+    bool found = false;
+    std::vector<uint32_t> theta;                      // the primitive / generating vector (found only)
+    std::vector<std::vector<uint32_t>> scanned;       // site 1: every NEW scan vector, in test order (the candidates appended to R.thetas)
+    std::vector<int> scanned_score;                   // their scores
+    uint64_t tests = 0;                               // oracle calls: target probes + new scan tests
+};
+// Site 1 (C1), one pass: operator count m, target d, coefficient bound B, target t, r(c) = the probe degree (deg rad of charpoly(sum c_i
+// X_i) maximised over the probe primes; r(0) = 1 is never asked), `tested` = the scores of every vector phase (a) tested (never re-tested
+// or re-listed).  Returns the first vector of score d, or none (open(cap)); at most m (B + 1) oracle calls.
+ContinuationResult GreedyContinuation(uint32_t m, int d, uint32_t B, uint32_t t, const std::function<int(const std::vector<uint32_t>&)>& r,
+                                      const std::map<std::vector<uint32_t>, int>& tested);
+// Site 2 (heckez.maximal_ideals), one list: score kappa(c) = the Krylov rank of {1, theta, .., theta^{D1 - 1}} mod ell (kappa(0) = 1),
+// target D1, scan c = 1 .. min(B2, ell - 1), target coefficient tbar (t mod ell, 1 when ell | t), at most `cap` oracle calls in all
+// (target probes included; the list ends at the cap).  Nothing is recorded but the generating vector.
+ContinuationResult KrylovContinuation(uint32_t m, uint32_t D1, uint64_t B2, uint64_t ell, uint64_t tbar, uint32_t cap,
+                                      const std::function<uint32_t(const std::vector<uint32_t>&)>& kappa);
+
 // The word primes of the package (CrtPrimes order) excluding divisors of 6N; `count` of them.
 std::vector<uint32_t> WordPrimes(uint32_t count, uint32_t N);
 // sum (bitlen(ell') - 1) over primes[0 .. k)

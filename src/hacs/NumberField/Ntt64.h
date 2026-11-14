@@ -45,8 +45,8 @@ public:
     void inverse(uint64_t* a, unsigned threads) const;
 
 private:
-    void pow2_forward(uint64_t* x, unsigned threads) const;
-    void pow2_inverse(uint64_t* x, unsigned threads) const;
+    void pow2_forward(uint64_t* x, unsigned nsub, unsigned threads) const;
+    void pow2_inverse(uint64_t* x, unsigned nsub, unsigned threads) const;
     inline uint64_t omegaM(std::size_t e, bool inv) const;
     inline uint64_t omegaL(std::size_t e, bool inv) const;
 

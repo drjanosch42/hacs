@@ -458,10 +458,23 @@ bool VerifyPratt(const PrattCert& c, uint32_t node_cap, uint32_t* nodes) {
     return VerifyPrattRec(c, node_cap, cnt);
 }
 
+const char* ThetaOrderName(ThetaOrder o) { return o == ThetaOrder::LexThenGreedy ? "lex_then_greedy" : "lex"; }
+
+bool ParseThetaOrder(const std::string& text, ThetaOrder* out) {
+    if (text == "lex") { *out = ThetaOrder::Lex; return true; }
+    if (text == "lex_then_greedy") { *out = ThetaOrder::LexThenGreedy; return true; }
+    return false;
+}
+
 std::string RationalSettings::canonical_text() const {
     std::ostringstream o;
     o << "hz_rat/v1;trial_division_B=" << kSmallBound << ";theta_cap=" << theta_cap << ";theta_coeff_max="
-      << (theta_coeff_max ? std::to_string(theta_coeff_max) : std::string("binom(d,2)")) << ";c1_probe_primes=" << c1_probe_primes
+      << (theta_coeff_max ? std::to_string(theta_coeff_max) : std::string("binom(d,2)"));
+    // (S27 TS, TS_design.md Sec. 6.1) printed only when not lex: lex is the edition-1--3 text byte for byte.  The key names its own rule:
+    // the target t and the last-round rule of a step without U_p (p_rule_cap's value is printed in heckez.P_rule).
+    if (theta_order != ThetaOrder::Lex)
+        o << ";theta_order=" << ThetaOrderName(theta_order) << "(t=" << kThetaGreedyTarget << ";steps_without_U_p:|P|>=p_rule_cap)";
+    o << ";c1_probe_primes=" << c1_probe_primes
       << ";rho=nf::factor_u64(untrusted;seeds=39;r<=2^26);pratt_nodes=" << pratt_nodes << ";pratt_witness_cap=" << pratt_witness_cap
       << ";big_mr_rounds=" << mr_rounds << "(untrusted;probable);word_primes=CrtPrimes(<2^30,sized_from_bound,cap="
       << (word_prime_cap == (1u << 21) ? std::string("2^21") : std::to_string(word_prime_cap)) << ")";
@@ -725,7 +738,7 @@ Factored FactorFromResidues(const std::vector<uint32_t>& primes, const std::vect
         out.cofactor_bits = C.abs_bits_upper();
         out.cofactor_test = "unfactored";
         // above 2^64: the untrusted BigInt Miller--Rabin, `probable` (Q1(a)); the identity q^e = C is checked by residues
-        const finder::BigProbable bp = finder::BigProbablePrime(AbsDecimal(C), s.mr_rounds);
+        const finder::BigProbable bp = finder::BigProbablePrime(AbsDecimal(C), s.mr_rounds, t_garner_threads);
         if (bp.found) {
             bool ok = true;
             for (size_t i = 0; i < C.primes.size() && ok; ++i) {
@@ -1262,21 +1275,30 @@ RationalResult RationalStepImpl(uint32_t N, uint32_t n, const std::vector<uint32
         c[i] = 1;
         cands.push_back(c);
     }
-    auto test_c1 = [&](const std::vector<uint32_t>& c) {
+    // the probe degree r(c) = max over the probe primes of deg rad(charpoly(sum c_i X_i) mod ell'); (C1) holds iff r(c) = d_target
+    auto probe_degree = [&](const std::vector<uint32_t>& c) {
         int best = -1;
         for (uint32_t i = 0; i < s.c1_probe_primes; ++i) {
             const u64 ell = runs[i].ell;
             best = std::max(best, Deg(Radical(ToPoly(CharpolyOfCombination(runs[i], c), ell), ell)));
         }
         ENGINE_CHECK_MSG(best <= static_cast<int>(D), "RationalStep: deg rad > d_target (the a-priori rank is wrong)");
-        return best == static_cast<int>(D);
+        return best;
+    };
+    // (S27 TS) phase (a) keeps r(c) of every vector it tests (an internal map, not a record field), for the continuation's reuse
+    std::map<std::vector<uint32_t>, int> tested;
+    auto test_c1 = [&](const std::vector<uint32_t>& c) {
+        const int dg = probe_degree(c);
+        tested[c] = dg;
+        return dg == static_cast<int>(D);
     };
     bool any_unit = false;
     for (const auto& c : cands) {
         if (R.thetas.size() >= s.theta_cap) break;
         ThetaEntry t;
         t.coeffs = c;
-        t.primitive = test_c1(c);
+        t.primitive = test_c1(c) && !s.validation_skip_units;   // (S27 TS-FIX) the validation-only hook of arm (c')
+        if (s.validation_skip_units) tested[c] = std::min(tested[c], static_cast<int>(D) - 1);   // the hook: the units are not primitive
         any_unit = any_unit || t.primitive;
         R.thetas.push_back(t);
     }
@@ -1302,6 +1324,24 @@ RationalResult RationalStepImpl(uint32_t N, uint32_t n, const std::vector<uint32
             R.thetas.push_back(t);
             if (t.primitive) break;
         }
+    }
+    // ---- (S27 TS) theta_order = lex_then_greedy: the greedy continuation, only when phase (a) found no primitive theta (TS_design.md
+    // Sec. 2.3, 2.4).  The last-round rule: in a step without U_p it runs only when |P| >= p_rule_cap (P_rule's last round; a direct
+    // call with a shorter P is lex alone); in the full step at N > 1 always.  theta_cap bounds phase (a) only; the continuation adds at
+    // most m (B + 1) tests, B = theta_coeff_max or binom(d, 2) (phase (a)'s cmax); its new scan vectors follow phase (a)'s candidates in
+    // test order, the last one the primitive theta when found.
+    bool phase_a_found = false;
+    for (const auto& t : R.thetas) phase_a_found = phase_a_found || t.primitive;
+    if (s.theta_order == ThetaOrder::LexThenGreedy && !phase_a_found && m >= 2 && (nU > 0 || m >= s.p_rule_cap)) {
+        const ContinuationResult G = GreedyContinuation(m, static_cast<int>(D), cmax, kThetaGreedyTarget, probe_degree, tested);
+        for (size_t j = 0; j < G.scanned.size(); ++j) {
+            ThetaEntry t;
+            t.coeffs = G.scanned[j];
+            t.primitive = G.scanned_score[j] == static_cast<int>(D);
+            R.thetas.push_back(t);
+        }
+        ENGINE_CHECK_MSG(!G.found || (!R.thetas.empty() && R.thetas.back().primitive && R.thetas.back().coeffs == G.theta),
+                         "RationalStep: the continuation's theta is its last appended candidate");
     }
     for (size_t i = 0; i < R.thetas.size(); ++i)
         if (R.thetas[i].primitive) {
@@ -1553,6 +1593,99 @@ RationalResult RationalStepImpl(uint32_t N, uint32_t n, const std::vector<uint32
     return R;
 }
 }  // namespace
+
+ContinuationResult GreedyContinuation(uint32_t m, int d, uint32_t B, uint32_t t, const std::function<int(const std::vector<uint32_t>&)>& r,
+                                      const std::map<std::vector<uint32_t>, int>& tested) {
+    // TS_design.md Sec. 2.3 (one pass, no fallback; audit M1 option (a)); [C] item 8 (j)(b)
+    ContinuationResult out;
+    if (m < 2) return out;   // (v) m = 1: c X_1 has the degree of X_1
+    std::vector<uint32_t> th(m, 0);
+    int rc = 1;   // the charpoly of 0 is x^b1: deg rad = 1
+    auto score = [&](const std::vector<uint32_t>& v, bool scan) -> int {
+        const auto it = tested.find(v);
+        if (it != tested.end()) return it->second;   // (iii) a vector phase (a) tested: neither re-tested nor re-listed
+        const int x = r(v);
+        ++out.tests;
+        if (scan) {
+            out.scanned.push_back(v);
+            out.scanned_score.push_back(x);
+        }
+        return x;
+    };
+    for (uint32_t i = 0; i < m; ++i) {
+        int E;
+        if (i == 0) {
+            std::vector<uint32_t> e(m, 0);
+            e[0] = 1;
+            const auto it = tested.find(e);
+            if (it != tested.end()) E = it->second;
+            else { E = r(e); ++out.tests; }   // (only when phase (a) did not test the unit: theta_cap < m) a probe, never listed
+        } else {
+            std::vector<uint32_t> g = th;
+            g[i] = t;   // the TARGET probe: never a candidate, never listed, never theta (ii)
+            E = r(g);
+            ++out.tests;
+        }
+        if (E <= rc) continue;   // X_i separates nothing new: c_i = 0
+        int best = rc;
+        uint32_t bestc = 0;
+        for (uint32_t c = 1; c <= B; ++c) {
+            std::vector<uint32_t> v = th;
+            v[i] = c;
+            const int x = score(v, true);
+            if (x == d) {
+                out.found = true;
+                out.theta = v;
+                return out;
+            }
+            if (x > best) { best = x; bestc = c; }
+            if (x >= E) break;
+        }
+        th[i] = bestc;   // the least c with score >= E; (i) if none reaches E: the least argmax above rc, else 0
+        rc = best;
+    }
+    return out;
+}
+
+ContinuationResult KrylovContinuation(uint32_t m, uint32_t D1, uint64_t B2, uint64_t ell, uint64_t tbar, uint32_t cap,
+                                      const std::function<uint32_t(const std::vector<uint32_t>&)>& kappa) {
+    // TS_design.md Sec. 3 "S2-c capped" (audit M2: the whole rule); [C] item 8 (e) (T3)
+    ContinuationResult out;
+    ENGINE_CHECK_MSG(ell >= 2 && tbar >= 1 && tbar < ell, "KrylovContinuation: tbar in [1, ell)");
+    std::vector<uint32_t> th(m, 0);
+    uint32_t kc = 1;
+    const uint64_t cend = std::min<uint64_t>(B2, ell - 1);
+    for (uint32_t i = 0; i < m; ++i) {
+        if (out.tests >= cap) return out;   // the list ends at the cap: no further test of any kind
+        std::vector<uint32_t> g = th;
+        g[i] = static_cast<uint32_t>(tbar);
+        const uint32_t E = kappa(g);   // the TARGET probe: counts against the cap, never returned (even at rank D1)
+        ++out.tests;
+        if (E <= kc) continue;
+        uint32_t best = kc, bestc = 0;
+        for (uint64_t c = 1; c <= cend; ++c) {
+            if (out.tests >= cap) return out;
+            std::vector<uint32_t> v = th;
+            v[i] = static_cast<uint32_t>(c);
+            const uint32_t x = kappa(v);
+            ++out.tests;
+            if (x == D1) {
+                out.found = true;
+                out.theta = v;
+                return out;
+            }
+            if (x > best) { best = x; bestc = static_cast<uint32_t>(c); }
+            if (x >= E) break;
+        }
+        th[i] = bestc;   // no c reaches E: the least argmax above kc, else c_i = 0
+        kc = best;
+    }
+    return out;
+}
+
+bool GPIsBound(const RationalResult& R) {
+    return R.gP_status == "upper_bound_certified" || R.gP_status == "partial(unfactored)";
+}
 
 RationalResult RationalStep(uint32_t N, uint32_t n, const std::vector<uint32_t>& P, const RationalSettings& s, const RationalInputs* in) {
     return RationalStepImpl(N, n, P, 0, s, in);

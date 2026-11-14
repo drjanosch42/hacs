@@ -6,6 +6,7 @@
 % over F_ell, Z/ell^K and Z, arranged by mathematical phenomenon; each one shown by a short OC-script snippet with its real
 % (generated) output, or by the project's runs.
 %
+%   Version 1.5.5 (slot 26, 2026-11-12): sec:pg-descent-congruence gains the certified HeckeZ record at (1,10) (C_T = Z/691 over Z, T^fr = Z x_{Z/691} Z) and the level-11 companion C_T = Z/5; new snippet ramanujan_691_over_Z (22 snippets). Documentation only; NOT refereed.
 %   Version 1.5.4 (2026-11-09): hacs instead of cohomology_app; BUILDING.md instead of CLAUDE.md (release audit S4).
 %   Version 1.5.3 (slot 26, 2026-11-09): machine names and private paths removed (public release); no content change.
 %   Version 1.5.2 (slot 26, 2026-11-09): confirm-read passed; two one-sentence repairs (sign check of ES_Z, Eis_1 twisted classes at N=49,64).
@@ -103,9 +104,9 @@
 
 \newenvironment{lookfor}{\par\noindent\textbf{What to look for.}\begin{itemize}[leftmargin=1.6em,itemsep=1pt]}{\end{itemize}}
 
-\title{Phenomena gallery: the arithmetic of $H^{*}(\SL_2(\Z);\Sym^{n})$ over $\Fl$, $\Z/\ell^{K}$ and $\Z$,\\ in twenty-one console snippets and the project's runs}
+\title{Phenomena gallery: the arithmetic of $H^{*}(\SL_2(\Z);\Sym^{n})$ over $\Fl$, $\Z/\ell^{K}$ and $\Z$,\\ in twenty-two console snippets and the project's runs}
 \author{Fabian Januszewski\\ Universit\"at Paderborn\\ \texttt{fabian.januszewski@math.uni-paderborn.de}}
-\date{Version 1.5.4 --- 2026-11-09. Not binding. Version history: Appendix~\ref{app:pg-history}.}
+\date{Version 1.5.5 --- 2026-11-12. Not binding. Version history: Appendix~\ref{app:pg-history}.}
 
 \begin{document}
 \maketitle
@@ -171,7 +172,7 @@ python3 notebook/gateway/oc_gateway.py --binary <build>/hacs
 \end{Verbatim}
   (loopback by default; it prints a one-time token), open the page and paste a snippet into a cell. The notebook serves only verbs tagged \code{read\_only}
   (\file{Console/serve/read\_only\_verbs.tsv}) and refuses \code{include}, \code{quit} and \code{exit}; \code{set} of a mathematical
-  setting is allowed. All twenty-one snippets satisfy these rules (none uses \code{include}; the Hida and descent snippets use \code{set coefficient\_ring}).
+  setting is allowed. All twenty-two snippets satisfy these rules (none uses \code{include}; the Hida and descent snippets use \code{set coefficient\_ring}).
 \end{itemize}
 The language is documented in the CLI manual [CLI] (\file{docs/latex/cli\_manual.pdf}) and in the generated reference
 \file{docs/console/console.md}: a handle such as \code{cohomology(...)} is lazy and computes on first access to a member; \code{print}
@@ -1274,6 +1275,23 @@ the rank-$2$ image of $H^{1}_{c}\to H^{1}$ is the interior cohomology of the gen
   are $2,3$, and here only $2$ occurs).
 \end{lookfor}
 
+\subsection*{The same congruence as a certified record over \texorpdfstring{$\Z$}{Z}}
+
+The resultant above uses one operator, $T_2$. The congruence is also a statement about the whole Hecke algebra, and the HeckeZ record certifies it. The record is the output of \code{hecke\_structure(N, n)} ({\ttfamily[C,~sec:recordschema]}, item~8). Let $T^{\mathrm{fr}}$ be the image of the Hecke algebra on the free quotient $L=H^{1}/\mathrm{tors}$. At $(N,n)=(1,10)$, $L$ has two components, the Eisenstein one ($T_p\mapsto1+p^{11}$) and the cuspidal one ($T_p\mapsto\tau(p)$), and the \emph{congruence module} is
+$C_T=T^{\mathrm{fr}}/(I_{\mathrm{Eis}}+I_{\mathrm{cusp}})$ ({\ttfamily[C,~def:heckeZcong]}). The record prints \code{C\_T: certified:0x2b3}, and $\mathtt{0x2b3}=691$: $C_T=\Z/691$, certified because the lower and upper bounds meet at every $\ell$ dividing the upper bound ({\ttfamily[C,~prop:heckeZcong]}(4)). Since $C_T$ is cyclic, $T^{\mathrm{fr}}=\Z\times_{\Z/691}\Z=\{(a,b)\in\Z^{2}:a\equiv b\bmod691\}$ ({\ttfamily[C,~prop:heckeZcong]}(3),(4)), the pair of $T_n$ being $(\sigma_{11}(n),\tau(n))$. This one ring statement is Ramanujan's $\tau(n)\equiv\sigma_{11}(n)\pmod{691}$ for all $n$, and for $T_2$ it is $2049+24=3\cdot691$ again. A second, independent route reaches the same prime: $v_{691}(B_{12}/12)=1$, the numerator of the Eisenstein constant (the record's second route for $C_T$). The level-$11$, $n=0$ companion (Mazur) reads the same way: the anemic record has $C_T=\Z/5$, \code{certified:0x5}.
+
+\emph{Why ``over $\Z$'' says more than ``modulo $691$''.} Modulo $691$ one sees only that two maximal ideals coincide: the mod-$691$ Hecke algebra has one local factor where the characteristic-$0$ algebra has two. The congruence module records \emph{by how much} the two factors fail to split: $T^{\mathrm{fr}}$ is the subring of $\Z\times\Z$ of index exactly $691$, so $C_T$ is the precise integral obstruction to writing the Hecke algebra as a product, with the exponent ($691^{1}$, not $691^{2}$) visible. It is a statement about the whole algebra, not about one eigenvalue, and the status \code{certified} says that nothing in it is an unverified bound.
+
+\snippet{ramanujan_691_over_Z}
+
+\begin{lookfor}
+\item \code{C\_T: certified:0x2b3}, i.e.\ $691$, and \code{certified:0x5} at level $11$;
+\item \code{generation per ell} lists $2$, $3$, $691$, each \code{certified(saturation)}: $T\otimes\Z_\ell$ is generated by the computed operators;
+\item the script's \code{assert}s: a failing certificate stops it with exit code~$4$.
+\end{lookfor}
+
+\noindent The full record, with the local type at $691$ (monogenic of rank~$2$, Gorenstein) and the torsion data, is printed by \file{src/hacs/Console/scripts/060\_s25\_hecke\_structure.oc} and by tour~10 of the notebook.
+
 %======================================================================
 \section{When the torsion does not split off: non-split torsion in \texorpdfstring{$H^{1}$}{H1} over \texorpdfstring{$\Z$}{Z}, and what Galois sees (runs)}\label{sec:pg-nonsplit}
 
@@ -1458,6 +1476,7 @@ for level one.
 \section{Version history}\label{app:pg-history}
 
 \begin{itemize}[leftmargin=1.6em,itemsep=2pt]
+\item Version 1.5.5 (slot~26, 2026-11-12): \S\ref{sec:pg-descent-congruence} gains a subsection on the certified HeckeZ record at $(N,n)=(1,10)$ (the congruence module $C_T=\Z/691$ over $\Z$, $T^{\mathrm{fr}}=\Z\times_{\Z/691}\Z$, {\ttfamily[C,~prop:heckeZcong]}) with its level-$11$ companion, and a new snippet \file{ramanujan\_691\_over\_Z} (twenty-two snippets). Documentation only; no earlier statement changes.
 \item Version 1.5.4 (2026-11-09, release audit fixes): the program is called \file{hacs} in the snippets (\file{cohomology\_app} remains a link to it); the build instructions are cited as \file{BUILDING.md}; a source report whose path named a machine is described instead, and a cluster kit's path is dropped. No change of content.
 \item Version 1.5.3 (slot~26, 2026-11-09): machine names and private paths removed for the public release (owner ruling 2026-11-09); no change of content.
 \item Version 1.5.2 (slot~26, PG-NONSPLIT, 2026-11-09): referee (1.5.0) and confirm-read (1.5.1, \file{docs/implementation/slot26/PG\_nonsplit\_confirm.md}) passed, with two one-sentence repairs applied and nothing else changed: the sign check after hypothesis ES$_\Z$ no longer claims to test the sign ($F_p=\sigma_p^{-1}$ satisfies the identity too), and the twisted classes in the computed $\mathrm{Eis}_1$ occur at $N=64$ and at $N=49$, $\ell=3$ only. The status text about the non-reduced full records, written before package Z2 merged, now agrees with the binary \code{cf93a542} (status \code{final}, generation \code{open(sandwich)}, C\textsubscript{T} \code{not\_run}); snippet \file{nonsplit\_torsion\_16\_2} regenerated; no mathematics changed.\par\item Version 1.5.1 (slot~26, PG-NONSPLIT referee fixes, 2026-11-09): \S\ref{sec:pg-nonsplit} revised on the report of \file{docs/implementation/slot26/PG\_nonsplit\_referee.md}: computed splits are \code{split\_on\_P} on the printed $\mathcal P$; the operators $\sigma_a$ on $\mathcal T_\ell$ are computed and need not be trivial, the Eisenstein discussion is organised by the character $\psi\chi$; the coefficients of the class on the twisted lines and a proof of ramification under ES$_\Z$; corrected counts (census certification, $H^{0}$-rows at $n>0$, searched torsion-by-torsion lines, $S$ not always cyclic). The tool gains the modes \code{sigma}, \code{extra}, \code{law} and the field \code{S\_inv}.\par\item Version 1.5.0 (slot~26, PG-NONSPLIT, 2026-11-08; owner request; not yet refereed): new \S\ref{sec:pg-nonsplit} (torsion against the free part, and torsion by torsion, over $\Z$, with a Galois reading conditional on an integral Eichler--Shimura hypothesis stated there, and the question of what the computations modulo~$\ell$ see, with the exact test and the census search of its \S7), new snippet \file{nonsplit\_torsion\_16\_2} and tool \file{docs/latex/tools/pg\_nonsplit\_tors.py}. Regenerated outputs include the two snippet edits of da84747c (\file{descent\_congruence\_primes}, \file{hida\_control\_13}: comment lines only).

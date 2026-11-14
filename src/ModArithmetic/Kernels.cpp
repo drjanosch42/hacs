@@ -4,6 +4,7 @@
 #include "pch.h"
 #include "Kernels.h"
 #include "../Engine/Threads.h"
+#include "LegacyConfig.h"   // (S26 LEVERS-26) the ENGINE_VNNI env arm's refusal
 
 #include <algorithm>
 #include <cctype>
@@ -146,6 +147,12 @@ VnniPath vnni_path_from_env() {
         const char* e = std::getenv("ENGINE_VNNI");
         const VnniPath r = (e != nullptr && (std::strcmp(e, "0") == 0 || std::strcmp(e, "off") == 0)) ? VnniPath::Off
                                                                                                        : VnniPath::Auto;
+#if !OC_ENABLE_LEGACY
+        // (S26 LEVERS-26) The env arm ENGINE_VNNI=0 / off is RETIRED in OC_ENABLE_LEGACY=OFF builds (refused, exit 1, before
+        // any line is printed; also at start-up in main() through vnni_env_check()).  The u32 route stays in every build
+        // (production for p > 2^14 and without avx512_vnni; set_vnni_path(VnniPath::Off) for VnniGemmBitIdentityValidation).
+        if (r == VnniPath::Off) oc::legacy::refuse_compiled_out(std::string("ENGINE_VNNI=") + e);
+#endif
         if (e != nullptr) {
             // (slot-24 G4 audit F2) an unrecognised value keeps the route ON; say so (the L23_RING2K style).
             if (e[0] != '\0' && r == VnniPath::Auto && std::strcmp(e, "1") != 0)
@@ -258,6 +265,7 @@ VnniPath vnni_path() {
     }
     return static_cast<VnniPath>(v);
 }
+void vnni_env_check() { (void)vnni_path_from_env(); }
 bool vnni_kernel_available() { return cpu_has_vnni(); }
 uint64_t vnni_routed_calls() { return g_vnni_routed.load(std::memory_order_relaxed); }
 uint64_t vnni2_routed_calls() { return g_vnni2_routed.load(std::memory_order_relaxed); }

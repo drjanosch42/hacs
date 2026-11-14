@@ -7,6 +7,7 @@
 // against the pipeline-level oracle matrix ([E] v1.12.0-pre.2 sec:ring).
 #include "HeckeLadicCellValidation.h"
 
+#include <array>
 #include <chrono>
 #include <filesystem>
 #include <fstream>
@@ -598,6 +599,106 @@ void ArmU128(Checker& g, const std::map<std::string, CellRecord>& keep) {
 
 
 // ---------------------------------------------------------------------------
+// (L) (slot-27 L691) the index-691 lattice at (10, 691) over Z/691^2 ([E] sec:ring v1.9.0 paragraph;
+// [EX] ex:m0): the free eigenline of a_E = 2049 and the free eigenplane of a_Delta = -24 of T_2 on
+// H^1 span a submodule of index exactly 691, det of the three generators = 415291 = 601 * 691.
+// ---------------------------------------------------------------------------
+namespace lat {
+constexpr int64_t P = 691, M = 691 * 691;
+using Vec = std::array<int64_t, 3>;
+using Mat = std::array<std::array<int64_t, 3>, 3>;   // [row][col]
+int64_t Md(int64_t x) { x %= M; return x < 0 ? x + M : x; }
+int64_t Val(int64_t x) { x = Md(x); return x == 0 ? 2 : (x % P == 0 ? 1 : 0); }   // valuation in Z/691^2
+int64_t Inv(int64_t u) {   // unit inverse mod M (extended Euclid)
+    int64_t a = Md(u), m = M, x0 = 1, x1 = 0;
+    while (m) { const int64_t q = a / m, t = a - q * m; a = m; m = t; const int64_t y = x0 - q * x1; x0 = x1; x1 = y; }
+    return Md(x0);
+}
+// The free part of ker(B) over Z/M: Smith elimination with the column operations tracked in V;
+// returns the columns of V at the zero diagonal entries.
+std::vector<Vec> FreeKernel(Mat B) {
+    Mat V{};
+    for (int i = 0; i < 3; ++i) V[i][i] = 1;
+    for (auto& r : B) for (auto& e : r) e = Md(e);
+    for (int d = 0; d < 3; ++d) {
+        int bi = -1, bj = -1, bv = 3;   // minimal-valuation pivot of the trailing block
+        for (int i = d; i < 3; ++i) for (int j = d; j < 3; ++j) if (Val(B[i][j]) < bv) { bv = static_cast<int>(Val(B[i][j])); bi = i; bj = j; }
+        if (bv >= 2) break;   // trailing block is zero
+        std::swap(B[d], B[bi]);
+        for (int i = 0; i < 3; ++i) { std::swap(B[i][d], B[i][bj]); std::swap(V[i][d], V[i][bj]); }
+        const int64_t sc = bv ? P : 1, unit = Inv(B[d][d] / sc);
+        for (int i = d + 1; i < 3; ++i) {   // row operations
+            const int64_t q = Md((B[i][d] / sc) * unit);
+            for (int j = 0; j < 3; ++j) B[i][j] = Md(B[i][j] - q * B[d][j]);
+        }
+        for (int j = d + 1; j < 3; ++j) {   // column operations
+            const int64_t q = Md((B[d][j] / sc) * unit);
+            for (int i = 0; i < 3; ++i) { B[i][j] = Md(B[i][j] - q * B[i][d]); V[i][j] = Md(V[i][j] - q * V[i][d]); }
+        }
+    }
+    std::vector<Vec> out;
+    for (int d = 0; d < 3; ++d) if (Val(B[d][d]) == 2) out.push_back({V[0][d], V[1][d], V[2][d]});
+    return out;
+}
+Vec Apply(const Mat& A, const Vec& v) {
+    Vec w{};
+    for (int i = 0; i < 3; ++i) for (int j = 0; j < 3; ++j) w[i] = Md(w[i] + A[i][j] * v[j]);
+    return w;
+}
+int64_t Det(const Vec& a, const Vec& b, const Vec& c) {   // columns a, b, c
+    return Md(a[0] * Md(b[1] * c[2] - b[2] * c[1]) - b[0] * Md(a[1] * c[2] - a[2] * c[1]) + c[0] * Md(a[1] * b[2] - a[2] * b[1]));
+}
+// The assertion: the generators are T_2-eigenvectors (2049 / -24) and span index exactly 691
+// (determinant of valuation 1; det_want >= 0 also pins the value).
+bool Holds(const Mat& A, const Vec& e, const Vec& w1, const Vec& w2, int64_t det_want) {
+    const Vec ae = Apply(A, e), a1 = Apply(A, w1), a2 = Apply(A, w2);
+    for (int i = 0; i < 3; ++i)
+        if (ae[i] != Md(2049 * e[i]) || a1[i] != Md(-24 * w1[i]) || a2[i] != Md(-24 * w2[i])) return false;
+    const int64_t d = Det(e, w1, w2);
+    return Val(d) == 1 && (det_want < 0 || d == det_want);
+}
+}   // namespace lat
+
+void ArmLattice(Checker& g) {
+    Request rq;
+    rq.n_sym = 10;
+    rq.ell = 691;
+    rq.k = 2;
+    rq.primes = {2};
+    rq.hida = false;
+    rq.width = EngineLadicWidth();
+    rq.allow_native_range = true;   // 691^2 < 2^64: the published job's cell, forced onto the digit pipeline
+    const CellRecord r = RunCell(rq);
+    g.check(r.hecke.size() == 1 && r.hecke[0].rank_free == 3 && r.hecke[0].precision == 2 && r.hecke[0].free_block.size() == 9,
+            "(L) (10, 691) Z/691^2: T_2 on the free H^1, rank 3, precision 2");
+    if (r.hecke.size() != 1 || r.hecke[0].free_block.size() != 9) return;
+    lat::Mat A{};
+    for (int i = 0; i < 3; ++i)
+        for (int j = 0; j < 3; ++j) {
+            const Residue& d = r.hecke[0].free_block[3 * i + j];
+            A[i][j] = lat::Md(static_cast<int64_t>(d[0]) + lat::P * static_cast<int64_t>(d[1]));
+        }
+    lat::Mat Be = A, Bw = A;
+    for (int i = 0; i < 3; ++i) { Be[i][i] -= 2049; Bw[i][i] += 24; }
+    const auto ke = lat::FreeKernel(Be);
+    const auto kw = lat::FreeKernel(Bw);
+    g.check(ke.size() == 1 && kw.size() == 2, "(L) the free eigenline of 2049 has rank 1 and the free eigenplane of -24 rank 2");
+    if (ke.size() != 1 || kw.size() != 2) return;
+    const int64_t det = lat::Det(ke[0], kw[0], kw[1]);
+    std::cout << "  (L) (10, 691) Z/691^2: det(eigenline of 2049, eigenplane of -24) = " << det << " = 691 * " << det / lat::P
+              << " (generators up to a unit), index 691 in H^1\n";
+    g.check(lat::Holds(A, ke[0], kw[0], kw[1], -1), "(L) the eigenline of 2049 and the eigenplane of -24 span a submodule of index exactly 691");
+    // The teeth: a tampered generator is refused, three ways.
+    lat::Vec bad = ke[0];
+    bad[0] = lat::Md(bad[0] + 1);
+    g.check(!lat::Holds(A, bad, kw[0], kw[1], -1), "(L) tooth: a generator off the eigenline is refused");
+    lat::Vec sc = ke[0];
+    for (auto& x : sc) x = lat::Md(lat::P * x);
+    g.check(!lat::Holds(A, sc, kw[0], kw[1], -1), "(L) tooth: a generator scaled by 691 (index 691^2) is refused");
+    g.check(!lat::Holds(A, ke[0], kw[0], kw[0], -1), "(L) tooth: a repeated generator (determinant 0) is refused");
+}
+
+// ---------------------------------------------------------------------------
 // (C) the campaign's digit jobs ([E] v1.12.0-pre.2 (g)) -- into a temp dir,
 // removed afterwards.
 // ---------------------------------------------------------------------------
@@ -689,6 +790,7 @@ uint32_t HeckeLadicCellValidation() {
     guarded("(iv)", [&] { ArmCrossWidth(g); });
     guarded("(v)", [&] { ArmTruncation(g, keep); });
     guarded("(vi)", [&] { ArmU128(g, keep); });
+    guarded("(L)", [&] { ArmLattice(g); });
     guarded("(C)", [&] { ArmCampaign(g); });
     const double s = std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
     std::cout << "HeckeLadicCellValidation: " << g.checks << " checks, " << g.fails << " failing, " << s << " s\n";

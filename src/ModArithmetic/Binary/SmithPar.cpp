@@ -56,9 +56,12 @@ std::atomic<uint64_t> g_f2_lazy_calls{0}, g_f2_par_searches{0};
 constexpr lever::Policy lever_policy(const char* warning) {
     return lever::Policy{true, lever::Empty::Unset, lever::Match::Exact01, lever::Cache::Once, warning, "default", "env", "env"};
 }
-lever::EnvLever g_mt_lever("HECKE_DESCENT_SMITH_MT",
+// (S26 LEVERS-26) The env arms HECKE_DESCENT_SMITH_MT=0 / HECKE_DESCENT_SMITH_F2_MT=0 are RETIRED in OC_ENABLE_LEGACY=OFF builds
+// (refused, exit 1: EnvLever.h EnvArmRetiredLever); the serial code stays (ENGINE_THREADS=1, ScopedLever / ScopedF2Lever).
+// HECKE_DESCENT_SMITH_PANEL is a tuning knob, not a lever (reclassified by LEVERS-26), and is unchanged.
+lever::EnvArmRetiredLever g_mt_lever("HECKE_DESCENT_SMITH_MT",
                            lever_policy("WARNING: HECKE_DESCENT_SMITH_MT=%s is neither 0 nor 1; the threaded Smith stays on (default)\n"));
-lever::EnvLever g_f2_lever(
+lever::EnvArmRetiredLever g_f2_lever(
     "HECKE_DESCENT_SMITH_F2_MT",
     lever_policy("WARNING: HECKE_DESCENT_SMITH_F2_MT=%s is neither 0 nor 1; the threaded F_2 / F_3 echelon stays on (default)\n"));
 bool env_set(const lever::EnvLever& l) { return l.env_state() != lever::State::Unset; }   // set and non-empty

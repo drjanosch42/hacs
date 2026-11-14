@@ -447,7 +447,10 @@ uint32_t HeckeZUpValidation() {
 
     // ---- (f) the recompute subset: 15 golden level-1 records + 3 anemic records hash-equal to HZ-DS ed. 1; the full records' scan ------
     const auto ed1 = Ed1Hashes();
-    const heckez::record::RecordSources src = heckez::record::DefaultRecordSources();
+    // (slot-27 EXW, design M3 likewise) the arm pins the ed. 1 hashes, i.e. that UP-Z moves no anemic / level-1 record: it runs with EXW's seam
+    // empty, since (8, 10) anemic is one of the 22 pending records EXW moves (pinned by HeckeZRecordValidation and HeckeZExportWordValidation (E))
+    heckez::record::RecordSources src = heckez::record::DefaultRecordSources();
+    src.local_read_free = nullptr;
     heckez::record::RecordSettings S1;
     S1.threads = 4;
     uint32_t rec_ok = 0, rec_all = 0;

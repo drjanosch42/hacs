@@ -1,11 +1,13 @@
 # SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
 # SPDX-License-Identifier: LGPL-3.0-only WITH LicenseRef-CUDA-exception
 
-# %% [md] 03 -- Hecke operators as matrices.
-# hecke(H, p) is the operator T_p on H^*; T.A(q) is its matrix on H^q in the stored basis, and charpoly
-# its characteristic polynomial over F_ell. On H^1(SL_2(Z); Sym^10 F_691^2) the eigenvalues of T_2 are
-# tau(2) = -24 on the two-dimensional cusp part (Delta, both signs) and 1 + 2^11 on the Eisenstein line -- and mod
-# 691 these agree: -24 = 2049 (mod 691), Ramanujan's congruence.
+# %% [md] 03 -- Hecke operators as matrices
+# The Hecke operator $T_p$ acts on $H^1=H^1(\mathrm{SL}_2(\mathbb{Z}),\mathrm{Sym}^{10}\mathbb{F}_{691}^2)$. By Eichler–Shimura its eigenvalues are
+# $\tau(2)=-24$ on the two-dimensional cusp part ($\Delta$, both signs) and $1+2^{11}=2049$ on the Eisenstein line. Mod 691 they agree:
+#
+# > $$-24\equiv 2049 \equiv 667 \pmod{691},\qquad \operatorname{char}(T_2\,|\,H^1) = (X+24)^3 = X^3+72X^2+346X+4 \in\mathbb{F}_{691}[X].$$
+#
+# This is Ramanujan's congruence at $p=2$.
 
 # %% Setting, model and cohomology
 # The coefficient ring is the default F_ell, stated here so that the file runs in any order in one session (08 sets Z).
@@ -17,7 +19,20 @@ H = cohomology(symmetric_power(M, 10, 691));
 T2 = hecke(H, 2);
 display(T2.A(1));
 display(charpoly(T2.A(1)));
+f = poly(691, [24, 1]);
+assert(charpoly(T2.A(1)) == mul(f, mul(f, f)), "char(T_2) = (X + 24)^3 over F_691");
+assert((2049 + 24) % 691 == 0 and 2049 % 691 == 667, "1 + 2^11 = -24 = 667 mod 691");
 
 # %% The operator handle
 # The operator handle itself: its matrices per degree and their characteristic polynomials.
 display(T2);
+
+# %% [md] Reading the output
+# | Mathematics | What HACS computed, and how |
+# |---|---|
+# | $T_2|_{H^1}=\begin{pmatrix}667&0&0\\0&667&0\\23&0&667\end{pmatrix}$ over $\mathbb{F}_{691}$: one eigenvalue, $667$, and not a scalar.
+#   The entry 23 below the diagonal is the extension class of step 05. |
+#   `hecke(H, p)` is the operator $T_p$ on $H^\bullet$ (for $p=\ell$ the same code computes $U_\ell$); `.A(q)` is its matrix on $H^q$ in the
+#   stored basis, column convention. [C] `sec:operatordef`; validations `HeckeOperatorSmokeValidation`, `HeckeEndToEndValidation`. |
+# | $\operatorname{char}(T_2)=(X+24)^3$. |
+#   `charpoly` (Berkowitz, division-free) prints $X^3+72X^2+346X+4$; the code cell checks it equals $(X+24)^3$. |

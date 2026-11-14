@@ -402,10 +402,11 @@ void RegisterSlot22();
 void RegisterSlot23();
 void RegisterSlot24();
 void RegisterSlot25();
-void RegisterSlot26HeckeZUp();   // slot 26 (open): Registry/Slot26/HeckeZUp.cpp
-void RegisterSlot26HeckeZLocalPar();   // slot 26 (open): Registry/Slot26/HeckeZLocalPar.cpp
-void RegisterSlot26HeckeZEisUp();   // slot 26 (open): Registry/Slot26/HeckeZEisUp.cpp
-void RegisterSlot26HeckeHidaDiscLambda();   // slot 26 (open): Registry/Slot26/HeckeHidaDiscLambda.cpp
+void RegisterSlot26();
+void RegisterSlot27HeckeZThetaSearch();   // slot 27 (open): Registry/Slot27/HeckeZThetaSearch.cpp
+void RegisterSlot27HeckeZExportWord();   // slot 27 (open): Registry/Slot27/HeckeZExportWord.cpp
+void RegisterSlot27BigIntNtt();            // slot 27 (open): Registry/Slot27/BigIntNtt.cpp
+void RegisterSlot27HeckeZEisUpChar();      // slot 27 (open): Registry/Slot27/HeckeZEisUpChar.cpp
 
 void RegisterAllValidations() {
     // ===============================================================    // TIER CLASSIFICATION (Phase-0 owner decision Q13).
@@ -1965,8 +1966,9 @@ void RegisterAllValidations() {
     RegisterSlot23();
     RegisterSlot24();
     RegisterSlot25();
-    RegisterSlot26HeckeZUp();
-    RegisterSlot26HeckeZLocalPar();
-    RegisterSlot26HeckeZEisUp();
-    RegisterSlot26HeckeHidaDiscLambda();
+    RegisterSlot26();
+    RegisterSlot27HeckeZThetaSearch();
+    RegisterSlot27HeckeZExportWord();
+    RegisterSlot27BigIntNtt();
+    RegisterSlot27HeckeZEisUpChar();
 }

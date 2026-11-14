@@ -36,7 +36,9 @@ namespace {
 double since(clk::time_point t0) { return std::chrono::duration<double>(clk::now() - t0).count(); }
 
 // (S24 CL-5) HECKE_DESCENT_TREE on EnvLever: "" = unset; an invalid value warns once and reads as the default (source=default).
-engine::lever::EnvLever g_tree("HECKE_DESCENT_TREE",
+// (S26 LEVERS-26) The env arm HECKE_DESCENT_TREE=0 is RETIRED in OC_ENABLE_LEGACY=OFF builds (refused, exit 1: EnvLever.h
+// EnvArmRetiredLever; evidence slot26/LEVERS26_plan.md Sec. 1, HZ-RUN pass 3); the dense route stays via ScopedDescentTree.
+engine::lever::EnvArmRetiredLever g_tree("HECKE_DESCENT_TREE",
                                engine::lever::Policy{true, engine::lever::Empty::Unset, engine::lever::Match::Exact01, engine::lever::Cache::Once, "WARNING: HECKE_DESCENT_TREE=%s is neither 0 nor 1; the tree route stays on (default)\n", "default", "env", "default"});
 
 // Smith valuations of a row-major matrix over Z/ell^K on the native ring engines (consumes the store).

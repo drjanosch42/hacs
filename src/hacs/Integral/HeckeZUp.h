@@ -47,7 +47,10 @@ namespace up {
 // record implements: the last version whose change moved a written word (not the title-page version; a signature alone does not change it).  G10 is in neither hash.
 // (slot-26 HZ-EISUP, audit M3; design D5) 1.27.0-pre.1: this binary writes the words of "The components and the maximal ideals from HZ-EISUP on";
 // fixed at the pre-release, before any record-writing run (Z1 wrote 1.26.0-pre.3, Z2 1.26.0-pre.9).
-constexpr const char* kFullContract = "gl2_contract 1.27.0-pre.1, item 8 (d')";
+// (slot-27 EISUPb; HZEISUPb_design.md v0.4 Sec. 5.5, owner ruling Q4: per binary) 1.28.0-pre.1: this binary writes the words of "The components
+// and the maximal ideals from HZ-EISUP (b) on", so it writes this value on EVERY full record at N > 1, (b) words or not; records written before
+// keep their value (G10 is in neither hash).
+constexpr const char* kFullContract = "gl2_contract 1.28.0-pre.1, item 8 (d')";
 
 // The primes dividing N, ascending (the U_p of a full level-N record).
 std::vector<uint32_t> PrimesDividing(uint32_t N);

@@ -46,8 +46,17 @@ struct CellLocalRead {
     bool read = false;
     std::string escalation;          // empty: no escalation stop; else the word and the K where it stopped
 };
+// (slot-27 EXW, EXW_design.md Sec. 3.1) the free route: the free block over Z of EXPORT-Z step 2 (G, its operator list ops).  With
+// `fz` every load of the escalation is LatticeFromFreeZ on ReadPrimes(N, ell, P) (T_ell appended exactly as on the export route; the
+// caller makes sure the block carries the read set -- there is no omitted(export:..) analogue).  Without `fz` (the default) the
+// function is the EXPORT / level-1 route byte for byte.
+struct FreeSource {
+    const integral_descent::modexport::FreeBlockZ* G = nullptr;
+    std::vector<uint32_t> ops;
+};
 CellLocalRead ReadCellLocal(uint32_t N, uint32_t n, uint64_t ell, uint32_t K, const std::vector<uint32_t>& P, uint32_t b1,
-                            const ReadOptions& opt, uint32_t max_steps = 3, LatticeModule* h1_side = nullptr);
+                            const ReadOptions& opt, uint32_t max_steps = 3, LatticeModule* h1_side = nullptr,
+                            const FreeSource* fz = nullptr);
 
 // The per-block invariants of A'_1 on H^1(SL_2(Z); Sym^n F_ell) at the F_ell-rational joint systems of the operators P (the census
 // convention: P = {2, 3, 5, 7, ell}), computed independently of the census route: the blocks by ringalg::RationalSystems /

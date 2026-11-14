@@ -34,7 +34,9 @@ using clk = std::chrono::steady_clock;
 // the lever
 // ---------------------------------------------------------------------------------------------------------------------------
 // (S24 CL-5) on EnvLever: "" = unset; an invalid value warns once and reads as the default.
-engine::lever::EnvLever g_blocked("HECKE_DESCENT_SMITH_BLOCKED",
+// (S26 LEVERS-26) The env arm HECKE_DESCENT_SMITH_BLOCKED=0 is RETIRED in OC_ENABLE_LEGACY=OFF builds (refused, exit 1: EnvLever.h
+// EnvArmRetiredLever); SmithFormOracle stays in every build (C-13) via ScopedDescentSmithBlocked.
+engine::lever::EnvArmRetiredLever g_blocked("HECKE_DESCENT_SMITH_BLOCKED",
                                   engine::lever::Policy{true, engine::lever::Empty::Unset, engine::lever::Match::Exact01, engine::lever::Cache::Once, "WARNING: HECKE_DESCENT_SMITH_BLOCKED=%s is neither 0 nor 1; the blocked Smith form stays on (default)\n", "default", "env", "default"});
 int simd_env() {
     static const int v = [] {

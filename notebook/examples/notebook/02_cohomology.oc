@@ -1,11 +1,15 @@
 # SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
 # SPDX-License-Identifier: LGPL-3.0-only WITH LicenseRef-CUDA-exception
 
-# %% [md] 02 -- cohomology, and what "declared" means.
-# cohomology(L) returns a HANDLE: nothing is computed until a value is needed. In the notebook a bare
-# `H` shows the handle as "declared" with a compute button; display(H) forces it first.
-# Eichler--Shimura: for ell > n + 1, dim H^1(SL_2(Z); Sym^n F_ell^2) = 2 dim S_{n+2} + 1 (n even, n > 0),
-# and H^0 = H^2 = 0. At n = 10 (weight 12) S_12 is spanned by Delta, so dim H^1 = 3.
+# %% [md] 02 -- cohomology, and the boundary exact sequence
+# For $\Gamma=\mathrm{SL}_2(\mathbb{Z})$ HACS computes $H^q(\Gamma, V_n)$ from the triangulated model of step 01.
+#
+# > **Eichler–Shimura.** For even $n>0$ and $\ell>n+1$,
+# > $$\dim_{\mathbb{F}_\ell} H^1(\Gamma, \mathrm{Sym}^n\mathbb{F}_\ell^2) = 2\dim S_{n+2} + 1,\qquad H^0 = H^2 = 0 .$$
+# > For $n=10$ (weight 12), $S_{12}=\mathbb{C}\Delta$, so $\dim H^1 = 3$.
+#
+# `cohomology(L)` returns a **handle**: nothing is computed until a value is needed. In the notebook a bare `H` shows the handle as
+# "declared" with a compute button; `display(H)` forces it.
 
 # %% Setting and model
 # The coefficient ring is the default F_ell, stated here so that the file runs in any order in one session (08 sets Z).
@@ -18,7 +22,40 @@ H
 
 # %% display forces the handle
 display(H);
+assert(H.dims == [0, 3, 0], "Eichler-Shimura at n = 10");
+
+# %% [md] The boundary and the short exact sequence
+# The Borel–Serre boundary of $\Gamma\backslash\mathfrak{H}$ is a circle, and restriction $r$ to it gives the long exact sequence of the
+# pair, $H^\bullet_c$ being cohomology with compact support:
+#
+# $$0\to H^0 \xrightarrow{r} H^0_\partial \xrightarrow{\delta} H^1_c \xrightarrow{\iota} H^1 \xrightarrow{r} H^1_\partial \xrightarrow{\delta} H^2_c\to0,\qquad \dim:\ 0,\ 1,\ 3,\ 3,\ 1,\ 0 .$$
+#
+# The image of $\iota$ is the interior cohomology $H^1_!$ (the cusp form $\Delta$, once per sign), so
+#
+# > $$0 \longrightarrow H^1_! \longrightarrow H^1 \xrightarrow{\;r\;} H^1_\partial \longrightarrow 0,\qquad \dim = 2,\ 3,\ 1 .$$
+#
+# Mod 691 this sequence of Hecke modules does not split: that is Ramanujan's congruence (steps 03–05, and the showcases).
+
+# %% The boundary, the cone and its long exact sequence
+B = boundary(H);
+C = cone(H);
+display(B.dims, C.dims, C.les);
+assert(B.dims == [1, 1] and C.dims == [0, 3, 0] and C.les_exact, "dim H_bd = (1, 1), dim H_c = (0, 3, 0), the LES is exact");
+assert(C.H1_shriek == 2, "dim H^1_! = 2");
 
 # %% A small prime sees more
-# A small prime sees more: at ell = 5 and n = 20 (a Dickson degree, 20 = 5 * 4) H^0 is non-zero: dims [1, 4, 0].
 display(cohomology(symmetric_power(M, 20, 5)));
+assert(cohomology(symmetric_power(M, 20, 5)).dims == [1, 4, 0], "(20, 5): H^0 != 0");
+
+# %% [md] Reading the output
+# | Mathematics | What HACS computed, and how |
+# |---|---|
+# | $\dim H^\bullet = (0,3,0)$ over $\mathbb{F}_{691}$, as Eichler–Shimura predicts. |
+#   `cohomology(L)` is lazy; `display` computes it (type `Cohomology`, typeset by the page). |
+# | The six-term sequence with dimensions $0,1,3,3,1,0$; $\dim H^1_!=\operatorname{rk}\iota=2$. |
+#   `cone(H).les`: one row per term, `term` (`Hc` $=H_c$, `H_bulk` $=H$, `H_bd` $=H_\partial$), `q`, `dim`, `rank_in` / `rank_out` (the
+#   ranks of the maps into and out of the term) and `exact` ($\texttt{rank\_in}+\texttt{rank\_out}=\dim$). `H1_shriek` $=\dim\ker r^1$.
+#   [C] `sec:cone`, `thm:conewelldef`; validation `HeckeConeValidation`. |
+# | At $(n,\ell)=(20,5)$: $\dim H^\bullet=(1,4,0)$. Mod a small prime the invariants of $\mathrm{SL}_2(\mathbb{F}_\ell)$ on $\mathrm{Sym}^n$
+#   can be non-zero ($20=5\cdot4$ is a Dickson degree). |
+#   `cohomology(symmetric_power(M, 20, 5))`; step 06 (the Dickson sequence) explains the jump. |

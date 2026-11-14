@@ -1189,7 +1189,12 @@ FreeBlockResult FreeBlockCrtImpl(const FreeBlockInput& in, const FreeBlockOption
     if (!tw.empty()) return refuse(FreeBlockRefusal::Terms, tw);
     uint64_t nterms = 0;
     for (const auto& T : S.T) nterms += T->terms_Z(1).size();
-    res.rss_pred = PredictFreeBlockRss(in, opt, nterms);
+    {
+        // (slot-27 EXW fix, M-EXW2) predicted at opt.rss_lanes when fixed, else at the run's lanes
+        FreeBlockOptions po = opt;
+        if (opt.rss_lanes) po.threads = opt.rss_lanes;
+        res.rss_pred = PredictFreeBlockRss(in, po, nterms);
+    }
     if (res.rss_pred > opt.rss_cap_bytes) {
         std::ostringstream o;
         o << "REFUSED [RssCeiling] the free-block lanes at (N, n) = (" << car.N() << ", " << car.n() << "): predicted " << res.rss_pred

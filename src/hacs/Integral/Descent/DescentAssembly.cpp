@@ -134,7 +134,9 @@ uint32_t DefaultGoodPrime(uint32_t n) {
 // (slot-24 PAR-L1) the good-prime route lever (DescentAssembly.h)
 // (S24 CL-5) on EnvLever: "" = unset; an invalid value warns once and reads as the default (source=default).
 namespace {
-engine::lever::EnvLever g_good_sparse("HECKE_DESCENT_GOOD_SPARSE",
+// (S26 LEVERS-26) The env arm HECKE_DESCENT_GOOD_SPARSE=0 is RETIRED in OC_ENABLE_LEGACY=OFF builds (refused, exit 1: EnvLever.h
+// EnvArmRetiredLever); the shipped C_7 route stays (odd n; ScopedDescentGoodSparse).
+engine::lever::EnvArmRetiredLever g_good_sparse("HECKE_DESCENT_GOOD_SPARSE",
                                       engine::lever::Policy{true, engine::lever::Empty::Unset, engine::lever::Match::Exact01, engine::lever::Cache::Once, "WARNING: HECKE_DESCENT_GOOD_SPARSE=%s is neither 0 nor 1; the sparse good prime stays on (default)\n", "default", "env", "default"});
 }  // namespace
 const engine::lever::EnvLever& DescentGoodSparseLever() { return g_good_sparse; }
@@ -161,7 +163,9 @@ std::vector<uint32_t> ShippedFieldDims(uint32_t n, uint32_t ell) {
 // (S24 CL-5) on EnvLever: "" is invalid; (PAR-GP audit F6) an invalid value warns once, takes the default route and is reported
 // as source=env-invalid(default kept).
 namespace {
-engine::lever::EnvLever g_good_dense("HECKE_DESCENT_GOOD_DENSE",
+// (S26 LEVERS-26) The env arm HECKE_DESCENT_GOOD_DENSE=0 is RETIRED in OC_ENABLE_LEGACY=OFF builds (refused, exit 1: EnvLever.h
+// EnvArmRetiredLever); the sparse elimination stays via ScopedDescentGoodDense.
+engine::lever::EnvArmRetiredLever g_good_dense("HECKE_DESCENT_GOOD_DENSE",
                                      engine::lever::Policy{true, engine::lever::Empty::Invalid, engine::lever::Match::Exact01, engine::lever::Cache::Once, "WARNING: HECKE_DESCENT_GOOD_DENSE=%s is neither 0 nor 1; the dense good prime stays on (default)\n", "default", "env", "env-invalid(default kept)"});
 }  // namespace
 const engine::lever::EnvLever& DescentGoodDenseLever() { return g_good_dense; }

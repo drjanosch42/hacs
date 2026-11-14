@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski -->
 <!-- SPDX-License-Identifier: CC-BY-4.0 -->
-# Building HACS 0.2.0
+# Building HACS 0.2.1
 
 ## Requirements
 

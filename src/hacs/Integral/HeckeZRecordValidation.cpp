@@ -297,6 +297,9 @@ uint32_t HeckeZRecordValidation() {
     {
         auto forged = [&](int mode) {
             RecordSources f = src;
+            // (slot-27 EXW, design M3) the forged mapping tests EXPORT's word mapping, which EXW does not change: the seam is empty, so
+            // the record is the pre-EXW record byte for byte (EXW's own triggers: HeckeZExportWordValidation arms (H), (I))
+            f.local_read_free = nullptr;
             f.local_read = [&src, mode](uint32_t N, uint32_t n, uint64_t ell, uint32_t K, const std::vector<uint32_t>& P, uint32_t b1,
                                         const heckez::local::ReadOptions& o, uint32_t steps) {
                 if (ell != 691) return src.local_read(N, n, ell, K, P, b1, o, steps);

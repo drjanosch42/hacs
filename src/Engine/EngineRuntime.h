@@ -55,6 +55,7 @@
 #include <functional>
 #include <memory>
 #include <vector>
+#include <string>
 
 #include "../ModArithmetic/DenseElim.h"
 #include "../ModArithmetic/EngineCheck.h"
@@ -249,6 +250,12 @@ bool host_fanout_enabled();
 bool host_elim_hook_enabled();
 bool host_elim_hook_active();          // a ScopedHostElimHook is installed on the calling thread
 uint64_t host_elim_hook_regions();     // pool regions run through such hooks, process total (diagnostic)
+uint64_t host_elim_hook_binds();       // (S27 LEV-K) ScopedHostElimHooks that installed the hook, process total (diagnostic)
+// (S27 LEV-K) "EFFECTIVE ENGINE_HOST_ELIM_HOOK mode=on|off source=default|env binds=<b> regions=<r>": the rollback lever's
+// check line (the rollback-lever register needs an EFFECTIVE line read on a default-route run).  Printed on stderr by the
+// `--campaign` CLI branch of main() only, after a campaign that bound the hook at least once or with the variable set;
+// never by a validation, --help or --dry-run.  Reads counters only: it cannot move a value.
+std::string host_elim_hook_effective_line();
 
 class ScopedHostElimHook {
     elim::ParallelFor hook_;

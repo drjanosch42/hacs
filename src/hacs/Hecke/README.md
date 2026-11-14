@@ -3,7 +3,7 @@
 > **Registry paths (S24 CL-10, 2026-11-01).** Registry fragments `Registry/Slot<S>/<pkg>.cpp` and `cmake/slot<S>/<pkg>.cmake` named in this file for
 > slots S <= 23 are historical: they are folded into `Registry/Slot<S>.cpp` (the package function `RegisterSlot<S><pkg>()` is kept there, called by
 > `RegisterSlot<S>()` in the old order) and `cmake/sources/<Module>.cmake`; the old READMEs are in
-> `docs/implementation/registry-slot-readmes-9-25.md`, the convention in force in `src/hacs/Registry/README.md`.
+> `docs/implementation/registry-slot-readmes-9-26.md`, the convention in force in `src/hacs/Registry/README.md`.
 
 Implementation of the integral Hecke action on `H^q(K,R;L)` for `GL(2)/SL(2,Z)`,
 per the approved staged plan
@@ -517,7 +517,7 @@ cmake -DHECKE_PURE_INTEGER=OFF . && make && ./hacs HeckeFpFilterValidation
 | `HeckeThetaRssDietValidation.{h,cpp}` (PERF-P4a; `standard`, `Registry/Slot23/PERF.cpp`) | the `compute_block()` RSS diet (program 1's arena and ρ₂ released at their last readers, the chunked A-N3 residual `hecke.resid.chunk`, `W` released before the Θ_eq copy): (T) tape == legacy route on Θ_flat / Θ_eq / A^{(q)} / counters, (L) memory-lean == certified on A^{(q)} / Θ_block, (C) ≥ 2- and ≥ 3-chunk residual coverage; 16 arms, ≈ 21 s, ≈ 0.3 GB; line `P4A_RSS_DIET … verdict=OK` |
 | `HeckeRho2StreamValidation.{h,cpp}` (P4R; `standard`, `Registry/Slot23/P4R.cpp`) | route 2 streamed key by key vs the materialised memo (`ScopedRho2Streaming(false)`): (X) captured route-2 blocks equal entrywise and equal to Θ_block, Θ_flat / A^{(q)} / O12(a) on == off, (V) counters non-vacuous, (N) negative control, (M) fused-target mutations throw O12(a) at exactly the mutated entry, both routes; 15 arms, 225 checks, ≈ 1 s, ≈ 0.13 GB; line `P4R_RHO2_STREAM … verdict=OK` |
 
-### Slot 26 — Hida-side addition (Z6 = H2; `docs/implementation/slot26/Z6_report.md`; registration `Registry/Slot26/HeckeHidaDiscLambda.cpp`)
+### Slot 26 — Hida-side addition (Z6 = H2; `docs/implementation/slot26/Z6_report.md`; registration `Registry/Slot26.cpp`, formerly `Registry/Slot26/HeckeHidaDiscLambda.cpp`)
 
 | File | What |
 |---|---|
@@ -873,7 +873,7 @@ named `uint32_t` regime refusal, and only route 1 (`ModuleConeActionT<uint64_t>`
 |---|---|
 | `HeckeOperatorOnK.{h,cpp}` | accepts `FibreRepresentation::QuotientL` (WP-5): `d_V = ell + 1`, `n_sym` read from the tau table (the `Sym^n` tables), its own program-cache tag `kQuotientLKeyTag`; the `SymN` and `ContragredientN` paths byte-identical (golden 0 / 0, four digests, `bench_identity` 45 / 0) |
 | `LadicCell.{h,cpp}` (new, WP-18c) | the digit pipeline route at `ell^k ≥ 2^64`, `ell ≥ 5`: the per-cell certified precision bound `K = k + e_max`, the cohomology over `Z/ell^K` in digit planes (`engine::ladic`), `Θ_g` both routes, `A^{(q)}`, the free charpoly to precision `k`, the ordinary idempotent at `p = ell` ([C] `def:ordinary`) |
-| `HeckeLadicCellValidation.{h,cpp}` (new; `standard`, `Registry/Slot11/WP18c.cpp`) | 891 checks: oracle (i) 2 × 32 vs the shipped `u64` route; (ii) M-0's `(x − 2049)(x + 24)²` at `(10, 691)`, `k ∈ {7, 12, 20, 40}` (beyond `2^127`) and O5 at `691^7`; (iii) UCT; (iv) cross-width records byte-identical; (v) truncation; (vi) native `u128`; (P) / (P′) the bound at `e_max = 1, 2, 2` with cross-`K` and cross-route `χ(T_2)`; (H) / (H′) the idempotent at `(10, 691)` and `(30, 5)` |
+| `HeckeLadicCellValidation.{h,cpp}` (new; `standard`, `Registry/Slot11/WP18c.cpp`) | 897 checks (891 + arm (L), the index-691 lattice at `(10, 691)`, slot-27 L691): oracle (i) 2 × 32 vs the shipped `u64` route; (ii) M-0's `(x − 2049)(x + 24)²` at `(10, 691)`, `k ∈ {7, 12, 20, 40}` (beyond `2^127`) and O5 at `691^7`; (iii) UCT; (iv) cross-width records byte-identical; (v) truncation; (vi) native `u128`; (P) / (P′) the bound at `e_max = 1, 2, 2` with cross-`K` and cross-route `χ(T_2)`; (H) / (H′) the idempotent at `(10, 691)` and `(30, 5)` |
 | `CoefficientRing.{h,cpp}` (WP-12, F-2) | `IsPrimeU64` (deterministic Miller–Rabin); `ExactKthRoot` on it; `k < 2` defined (a UBSan find); `HeckeSettings.cpp`'s `coefficient_ring` parse cap `63 → 4096` (WP-18c) |
 | `../Integral/Model/StrictLift.{h,cpp}` (WP-11, M-3) | the lifts for `diag(1, p²)`, `diag(1, p³)`, `pI`; `HeckeStrictLiftRelationsValidation` (`standard`, 3619): X7 in full on `H^q(C_I ⊗ R)`, `q ≤ 5` |
 | `../HeckeExt/HeckeDicksonTheta*`, `../HeckeExt/HeckeCensusSplit*` (WP-5, WP-6, WP-7) | θ ([C] Part VII) and the census split — see `docs/architecture-detail.md` |

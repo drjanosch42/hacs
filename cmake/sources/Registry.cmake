@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
 # SPDX-License-Identifier: LGPL-3.0-only WITH LicenseRef-CUDA-exception
 
-# cohomology_app sources under src/hacs/Registry/ added by slots 9..25 (S24 CL-10, CL-10b, S25 FOLD; slot order kept).
+# cohomology_app sources under src/hacs/Registry/ added by slots 9..26 (S24 CL-10, CL-10b, S25 FOLD, S26 FOLD; slot order kept).
 target_sources(cohomology_app PRIVATE
     src/hacs/Registry/Slot9.cpp
     src/hacs/Registry/Slot10.cpp
@@ -28,4 +28,9 @@ target_sources(cohomology_app PRIVATE
 # Slot 25 (folded at the slot-25 close, S25 FOLD): the 13 package fragments Registry/Slot25/<pkg>.cpp are the one file Registry/Slot25.cpp.
 target_sources(cohomology_app PRIVATE
     src/hacs/Registry/Slot25.cpp
+)
+
+# Slot 26 (folded at the slot-26 close, S26 FOLD): the 5 package fragments Registry/Slot26/<pkg>.cpp are the one file Registry/Slot26.cpp.
+target_sources(cohomology_app PRIVATE
+    src/hacs/Registry/Slot26.cpp
 )

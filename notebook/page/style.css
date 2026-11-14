@@ -168,6 +168,24 @@ button.show-all { font-size: 11px; padding: 0 6px; }
 .cell-bar .cell-title:hover, .cell-bar .cell-title:focus { border-color: var(--line); background: var(--code); }
 .mdtext { padding: 6px 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
 .md-wrap .cell { border-style: dashed; }
+/* (slot-26 NBMATH A1) rendered text cells: paragraphs, display math, a statement box, lists, tables; reading panels fold.
+   Tokens only. With LaTeX off (.md-raw) the source is shown verbatim, as before. */
+.mdtext:not(.md-raw), .mdtext .mdbody { white-space: normal; }
+.mdtext.md-raw, .mdbody.md-raw { white-space: pre-wrap; }
+.mdtext .md-p { margin: 4px 0 6px; line-height: 1.5; }
+.mdtext .md-display { overflow-x: auto; overflow-y: hidden; margin: 6px 0; }
+.mdtext .md-quote { border-left: 3px solid var(--accent); background: var(--code); padding: 4px 12px; margin: 8px 0; border-radius: 0 4px 4px 0; }
+.mdtext .md-ul { margin: 4px 0 6px; padding-left: 1.4em; }
+.mdtext .md-tablewrap { overflow-x: auto; margin: 6px 0; }
+.mdtext .md-table { border-collapse: collapse; width: 100%; font-size: 0.95em; }
+.mdtext .md-table th { text-align: left; color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--line); padding: 3px 6px; }
+.mdtext .md-table td { vertical-align: top; border-bottom: 1px solid var(--line); padding: 4px 6px; }
+.mdtext .md-table td:first-child { width: 46%; }
+.mdtext code { font: 0.9em ui-monospace, Menlo, Consolas, monospace; background: var(--code); padding: 0 3px; border-radius: 3px; overflow-wrap: anywhere; }
+.mdtext details.reading > summary { cursor: pointer; color: var(--accent); font-size: 13px; }
+.cert-dec { padding: 2px 0; font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) { .mdtext .md-table td:first-child { width: auto; }
+  .mdtext .md-table, .mdtext .md-table tbody, .mdtext .md-table tr, .mdtext .md-table td { display: block; } }
 .nb-name { font-size: 13px; }
 .file-note { font-size: 13px; padding: 2px 0 6px; }
 .file-note.bad { color: var(--err); }

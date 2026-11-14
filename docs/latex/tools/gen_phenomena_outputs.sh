@@ -15,7 +15,8 @@
 #   * --check    writes nothing in the tree: it diffs each fresh transcript against the committed
 #                <name>.out and exits 1 on the first difference (costs are measured, never compared).
 # Exit: 0 all snippets exit 0 (and, with --check, every transcript is unchanged); 1 otherwise;
-# 2 usage. Lines starting with '#~ ' (transcript-excluded annotations) are dropped.
+# 2 usage. Lines starting with '#~ ' (transcript-excluded annotations) and the thread-count line
+# 'EFFECTIVE HECKEZ_LOCAL_PAR ' (host-dependent) are dropped.
 set -u
 BIN="${1:-}"
 MODE="${2:-}"
@@ -34,7 +35,7 @@ ramanujan_10_691 kummer_ribet_30_37 kummer_unit_37_59 visible_congruence_48_7 hi
 dihedral_wilton_10_23 multiplicity_two_34_5 dickson_theta_16_7 loewy4_258_37
 level_n_old_forms_2_7 nebentypus_7_13
 hida_control_13 pow_ordinary_rank_13 hida_tower_13_10 hida_lambda_11_12
-descent_torsion_beta descent_congruence_primes nonsplit_torsion_16_2"
+descent_torsion_beta descent_congruence_primes ramanujan_691_over_Z nonsplit_torsion_16_2"
 
 TMP="$(mktemp -d "${TMPDIR:-$HOME}/pg_outputs.XXXXXX")" || exit 2
 trap 'rm -rf "$TMP"' EXIT
@@ -63,7 +64,7 @@ for name in $SNIPPETS; do
   wait "$tp"
   read -r wall rss code < "$TMP/$name.time" 2>/dev/null || { wall=?; rss=0; code=?; }
   [ "$killed" = 1 ] && code="watchdog"
-  grep -v '^#~ ' "$raw" > "$TMP/$name.out"
+  grep -v -e '^#~ ' -e '^EFFECTIVE HECKEZ_LOCAL_PAR ' "$raw" > "$TMP/$name.out"
   mib=$(( rss / 1024 ))
   printf 'PG_SNIPPET %-28s exit=%s wall_s=%s peak_rss_mib=%s\n' "$name" "$code" "$wall" "$mib"
   if [ "$code" != "0" ]; then fail=1; tail -5 "$TMP/$name.out"; continue; fi

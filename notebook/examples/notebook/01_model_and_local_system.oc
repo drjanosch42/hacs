@@ -1,18 +1,35 @@
 # SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
 # SPDX-License-Identifier: LGPL-3.0-only WITH LicenseRef-CUDA-exception
 
-# %% [md] 01 -- the space and the coefficients.
-# SL_2(Z) acts on the upper half plane; the console's model is a finite triangulation of the quotient
-# with its isotropy (sl2z_model()). A coefficient system is the representation Sym^n of the standard
-# representation over F_ell, here n = 10 and ell = 691, so d_V = n + 1 = 11.
-# In the notebook every display(...) is rendered (TeX, tables); in a script it prints the canonical text.
+# %% [md] 01 -- the space and the coefficients
+# $\Gamma=\mathrm{SL}_2(\mathbb{Z})$ acts on the upper half plane $\mathfrak{H}$. The quotient $\Gamma\backslash\mathfrak{H}$ is an orbifold: a
+# disc with two cone points, where the stabilisers are $\mathbb{Z}/4$ (at $i$) and $\mathbb{Z}/6$ (at $e^{2\pi i/3}$); the element $-1$
+# acts trivially. HACS works with a finite triangulation of this quotient together with its isotropy groups.
+#
+# > **Coefficients.** For a prime $\ell$ and $n\ge0$ the coefficient system is the representation
+# > $$V_n = \mathrm{Sym}^n\,\mathbb{F}_\ell^2,\qquad \dim V_n = n+1,$$
+# > of $\Gamma$ (homogeneous polynomials of degree $n$ in two variables). Here $n=10$ and $\ell=691$, so $\dim V_{10}=11$.
+#
+# In the notebook every `display(...)` is rendered (TeX, tables); in a script it prints the canonical text.
 
 # %% The model of SL_2(Z)\H
 # The coefficient ring is the default F_ell, stated here so that the file runs in any order in one session (08 sets Z).
 set coefficient_ring = "F_ell";
 M = sl2z_model();
 display(M);
+assert(M.vertices == 7 and M.dims == [7, 11, 5], "7 vertices, 11 edges, 5 triangles");
 
 # %% The coefficients Sym^10 over F_691
 L = symmetric_power(M, 10, 691);
 display(L);
+assert(L.d_V == 11 and L.n + 1 == L.d_V, "dim Sym^10 = 11");
+
+# %% [md] Reading the output
+# | Mathematics | What HACS computed, and how |
+# |---|---|
+# | A triangulation of $\Gamma\backslash\mathfrak{H}$ (compactified by a boundary circle: a disc, Euler characteristic 1), and the two
+#   finite stabilisers $\mathbb{Z}/4$, $\mathbb{Z}/6$. |
+#   `sl2z_model()`: the 7-vertex model `sl2z_7vertex` (7 vertices, 11 edges, 5 triangles), with its exact tessellation tables.
+#   Everything later is computed from this finite object. |
+# | The local system $V_{10}=\mathrm{Sym}^{10}\mathbb{F}_{691}^2$ on the orbifold. |
+#   `symmetric_power(M, 10, 691)`: a `LocalSystem` with `d_V = 11` (the rank) and its monodromy relations along the edges. |

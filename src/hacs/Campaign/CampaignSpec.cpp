@@ -444,6 +444,11 @@ CampaignSpec ParseCampaignSpec(std::istream& in, const std::string& origin) {
             if (value != "off" && value != "hida") Fail(origin, line, "hz_g8: unknown value '" + value + "' (known: off, hida)");
             spec.hz_g8 = value;
             spec.hz_g8_line = line;
+        } else if (key == "hz_theta_order") {
+            if (value != "lex" && value != "lex_then_greedy")   // = heckez::ParseThetaOrder's two names
+                Fail(origin, line, "hz_theta_order: unknown value '" + value + "' (known: lex, lex_then_greedy)");
+            spec.hz_theta_order = value;
+            spec.hz_theta_order_line = line;
         } else if (key == "algebra") {
             // (slot-25 HZ-REC) the grid key of a structure = hecke campaign (checked below)
             cur.algebra.clear();
@@ -609,6 +614,7 @@ CampaignSpec ParseCampaignSpec(std::istream& in, const std::string& origin) {
         }
         if (spec.hz_cert_line != 0) Fail(origin, spec.hz_cert_line, "hz_cert: a structure = hecke key");
         if (spec.hz_g8_line != 0) Fail(origin, spec.hz_g8_line, "hz_g8: a structure = hecke key");
+        if (spec.hz_theta_order_line != 0) Fail(origin, spec.hz_theta_order_line, "hz_theta_order: a structure = hecke key");
         for (const SpecSection& sec : spec.sections)
             if (!sec.algebra.empty()) Fail(origin, sec.algebra_line, "algebra: a structure = hecke grid key");
         ValidateDescentSpec(spec);
@@ -617,6 +623,7 @@ CampaignSpec ParseCampaignSpec(std::istream& in, const std::string& origin) {
     if (spec.structure_line != 0) Fail(origin, spec.structure_line, "structure: a coefficient_ring = Z key");
     if (spec.hz_cert_line != 0) Fail(origin, spec.hz_cert_line, "hz_cert: a structure = hecke key");
     if (spec.hz_g8_line != 0) Fail(origin, spec.hz_g8_line, "hz_g8: a structure = hecke key");
+    if (spec.hz_theta_order_line != 0) Fail(origin, spec.hz_theta_order_line, "hz_theta_order: a structure = hecke key");
     for (const SpecSection& sec : spec.sections)
         if (!sec.algebra.empty()) Fail(origin, sec.algebra_line, "algebra: a structure = hecke grid key, admitted only under coefficient_ring = Z");
     if (spec.descent_parts_line != 0)

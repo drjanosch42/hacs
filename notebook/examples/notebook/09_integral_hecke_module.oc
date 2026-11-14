@@ -1,17 +1,17 @@
 # SPDX-FileCopyrightText: 2024-2026 Fabian Januszewski
 # SPDX-License-Identifier: LGPL-3.0-only WITH LicenseRef-CUDA-exception
 
-# %% [md] 09 -- over Z: the Hecke operators as integer matrices, torsion included.
-# H^1(Gamma_0(N); Sym^n Z^2) = T (+) Z^r: T the torsion, Z^r the free part. In generators "torsion first, then a basis
-# of the free part" every T_p is a block matrix [[tau, M], [0, F]]: tau acts on T, F on Z^r, and M records how the free
-# generators are moved into the torsion. module_Z() computes all three. F is exact over Z, in one picked basis B
-# (rule iso_dixon/v3) that is certified to be a Z-basis by one determinant, det(Phi_cert^T B) = +-1; its integers
-# are printed in full (strings). The free generators are the classes [b_j] of the cocycles of B themselves, so
-# T_p b_j = sum_i F_ij b_i + sum_a M_aj g_a holds as printed (g_a the torsion generators, row a of M mod d_a).
-# pi_B (in retractions, per torsion prime) gives the torsion coordinates of the b_j: subtracting them gives the
-# other natural complement, and M changes by pi_B F - tau pi_B. At level 1 and n = 30 the torsion is
-# (Z/2)^3 + (Z/4)^3 + (Z/3)^2 + Z/9 + Z/25 + Z/29, r = 5, and the entries of F(T_3) have up to 89 bits.
-# module_Z("local") is the same object without F.
+# %% [md] 09 -- over Z: the Hecke operators as integer matrices, torsion included
+# Write $H^1=H^1(\Gamma_0(N),\mathrm{Sym}^n\mathbb{Z}^2)=T\oplus\mathbb{Z}^r$ with $T$ the torsion. In generators "torsion first, then a basis
+# $B=(b_1,\dots,b_r)$ of a free complement", every Hecke operator is block triangular:
+#
+# > $$T_p=\begin{pmatrix}\tau_p & M_p\\ 0 & F_p\end{pmatrix},\qquad T_p\,b_j=\sum_i (F_p)_{ij}\,b_i+\sum_a (M_p)_{aj}\,g_a ,$$
+# > $\tau_p$ on $T$, $F_p\in M_r(\mathbb{Z})$ on the free part (exact integers), and $M_p$ recording how free generators move into the torsion
+# > ($g_a$ the torsion generators). $B$ is certified to be a $\mathbb{Z}$-basis by one determinant, $\det(\Phi^{\top}B)=\pm1$.
+#
+# At level 1 and $n=30$: $T\cong(\mathbb{Z}/2)^3\oplus(\mathbb{Z}/4)^3\oplus(\mathbb{Z}/3)^2\oplus\mathbb{Z}/9\oplus\mathbb{Z}/25\oplus\mathbb{Z}/29$ and $r=5$;
+# the entries of $F_3$ have up to 89 bits. The matrices are a presentation, unique up to the block-triangular group; $M$ depends on the
+# choice of complement (tour 10 says what decides splitting).
 
 # %% H^1 over Z at level 1, n = 30
 set coefficient_ring = "Z";
@@ -19,10 +19,13 @@ D = descent(1, 30, [2, 3]);
 Z = D.module_Z();
 display(Z.invariant_factors);
 display(Z.basis);
+assert(Z.free_rank == 5 and Z.invariant_factors == [2, 2, 2, 4, 4, 4, 3, 3, 9, 25, 29], "T and r = 5");
+assert(Z.basis.saturation == "det_pm1", "B certified by det = +-1");
 
 # %% T_3: the free block F over Z and its characteristic polynomial
 display(Z.ops[1].F);
 display(Z.ops[1].charpoly_Z);
+assert(Z.ops[1].p == 3, "T_3");
 
 # %% T_3: the torsion block tau and the mixed block M (per torsion prime, against the classes of B)
 display(Z.ops[1].tau);
@@ -31,3 +34,16 @@ display(Z.ops[1].M);
 # %% The torsion coordinates of the basis B at ell = 5 (pi_B: one row per generator of the 5-torsion)
 display(Z.retractions[2].ell);
 display(Z.retractions[2].pi_B);
+assert(Z.retractions[2].ell == 5, "the 5-torsion");
+
+# %% [md] Reading the output
+# | Mathematics | What HACS computed, and how |
+# |---|---|
+# | The torsion $T$ by its elementary divisors, and a $\mathbb{Z}$-basis $B$ of a free complement. |
+#   `module_Z()`: `invariant_factors` (the $d_i$), `basis` = `{rule: "iso_dixon/v3", saturation: "det_pm1", ...}`: $B$ is picked by Dixon
+#   lifting on the free tree model and certified by $\det(\Phi_{\mathrm{cert}}^\top B)=\pm1$. [C] `prop:torsionhecke`; validation `HeckeZExportZ2Validation`. |
+# | $F_3\in M_5(\mathbb{Z})$ and its characteristic polynomial, the same as the record's $\operatorname{char}_\mathbb{Z}(T_3)$. |
+#   `ops[1].F` (decimal strings, any size: the CRT over many primes is proven), `ops[1].charpoly_Z` (high to low). |
+# | $\tau_3$ and $M_3$: the action on the torsion and the mixed block. |
+#   `ops[1].tau` (row $i$ mod $d_i$), `ops[1].M` per torsion prime $\ell$. Changing the complement changes $M$ by $\pi_BF-\tau\pi_B$, where
+#   $\pi_B$ (`retractions[].pi_B`) gives the torsion coordinates of the $b_j$. |

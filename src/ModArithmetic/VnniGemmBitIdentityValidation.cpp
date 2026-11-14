@@ -392,6 +392,12 @@ void arm_refusals_and_route(Rng& rng) {
     check(std::getenv("ENGINE_VNNI2_FLOOR") != nullptr ||
               engine::kernels::vnni2_work_floor() == engine::kernels::VNNI2_WORK_FLOOR_DEFAULT,
           "(R) the two-limb work floor is not the default with ENGINE_VNNI2_FLOOR unset");
+    // (S26 LEVERS-26) the default floor is 2^20; the 2^18 block still runs under ENGINE_VNNI2_FLOOR=262144.
+    if (engine::kernels::vnni2_work_floor() == (uint64_t(1) << 20)) {
+        check(passes(128, 128, 64, 1) && !passes(127, 128, 64, 1), "(R) floor 2^20 at 1 thread: the 128 x 128 x 64 boundary");
+        check(passes(256, 256, 256, 16) && !passes(255, 256, 256, 16), "(R) floor 2^20 at 16 threads: the 2^24 boundary");
+        check(passes(256, 256, 512, 32) && !passes(256, 255, 512, 32), "(R) floor 2^20 at 32 threads: the 2^25 boundary");
+    }
     if (engine::kernels::vnni2_work_floor() == (uint64_t(1) << 18)) {
         check(passes(64, 64, 64, 1) && !passes(63, 64, 64, 1), "(R) floor 2^18 at 1 thread: the 64^3 boundary");
         check(passes(256, 256, 64, 16) && !passes(255, 256, 64, 16), "(R) floor 2^18 at 16 threads: the 2^22 boundary");
@@ -410,7 +416,7 @@ void arm_refusals_and_route(Rng& rng) {
     check(engine::kernels::vnni_route_taken(8191, 64, 64, 64) == (av && passes(64, 64, 64, T)),
           "(R) Auto p = 8191, 64^3 does not match availability and the work floor");
     check(!engine::kernels::vnni_route_taken(8209, 64, 64, 64), "(R) Auto p = 8209, 64^3 routed (large-p threshold)");
-    // (PERF-VF audit S2) the G4-F1 contrast at any pool size: 64 x 1024 x 1024 = 2^26 >= 2^18 x 32 clears the default
+    // (PERF-VF audit S2) the G4-F1 contrast at any pool size: 64 x 1024 x 1024 = 2^26 >= 2^20 x 32 (S26 LEVERS-26) clears the default
     // floor at every T <= 32, so only the p >= 2^13 => m, n >= 128 threshold separates p = 8191 from p = 8209.
     if (engine::kernels::vnni2_work_floor() == engine::kernels::VNNI2_WORK_FLOOR_DEFAULT)
         check(passes(64, 1024, 1024, T), "(R) 64 x 1024 x 1024 does not clear the default work floor");
